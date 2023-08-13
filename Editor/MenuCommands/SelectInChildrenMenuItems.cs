@@ -1,43 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace D3TEditor
 {
 	public static class SelectInChildrenMenuItems
 	{
-		const string menu = "GameObject/Select In Children/";
-		const int prio = -10;
-
-		[MenuItem(menu + "Mesh Renderer", false, prio)]
-		private static void SelectRenderers(MenuCommand cmd) => SelectInChildren<MeshRenderer>(cmd.context);
-
-		[MenuItem(menu + "Mesh Renderer (Contribute GI Static)", false, prio)]
-		private static void SelectRenderersStatic(MenuCommand cmd) => SelectInChildren<MeshRenderer>(cmd.context, (r) => GameObjectUtility.GetStaticEditorFlags(r.gameObject).HasFlag(StaticEditorFlags.ContributeGI));
-
-		[MenuItem(menu + "Mesh Renderer", true)]
-		[MenuItem(menu + "Mesh Renderer (Contribute GI Static)", true)]
-		private static bool Validate()
+		[InitializeOnLoadMethod]
+		private static void Init()
 		{
-			return Selection.activeGameObject != null && Selection.gameObjects.Length == 1 && Selection.activeGameObject.scene != null;
+			SceneHierarchyHooks.addItemsToGameObjectContextMenu += AddContextMenuItems;
 		}
 
-		static void SelectInChildren<T>(Object obj, Func<T, bool> predicate = null) where T : Component
+		private static void AddContextMenuItems(GenericMenu menu, GameObject gameObject)
 		{
-			var parentGO = obj as GameObject;
-			var comps = parentGO.GetComponentsInChildren<T>(true);
-			List<Object> sel = new List<Object>();
-			foreach(var c in parentGO.GetComponentsInChildren<T>(true))
+			int index = menu.GetIndexOf(L10n.Tr("Select Children"));
+			if(index < 0)
 			{
-				if(predicate == null || predicate.Invoke(c))
+				Debug.LogError("Parent menu item not found.");
+				index = 0;
+			}
+			index++;
+			AddItem<Renderer>(menu, ref index);
+			AddItem<Renderer>(menu, ref index, "Renderer (GI Static)", (r) => GameObjectUtility.GetStaticEditorFlags(r.gameObject).HasFlag(StaticEditorFlags.ContributeGI));
+			AddItem<Collider>(menu, ref index);
+			AddItem<AudioSource>(menu, ref index);
+		}
+
+		private static void AddItem<T>(GenericMenu menu, ref int index, string name = null, Func<T, bool> predicate = null) where T : Component
+		{
+			if(name == null) name = ObjectNames.NicifyVariableName(typeof(T).Name);
+			menu.InsertItem(index, "Select in Children/" + name, true, false, () => SelectInChildren<T>(Selection.transforms, predicate));
+			index++;
+		}
+
+		static void SelectInChildren<T>(Transform[] parents, Func<T, bool> predicate = null) where T : Component
+		{
+			List<Object> selection = new List<Object>();
+			foreach(var parent in parents)
+			{
+				foreach(var c in parent.GetComponentsInChildren<T>(true))
 				{
-					if(!sel.Contains(c.gameObject)) sel.Add(c.gameObject);
+					if(predicate == null || predicate.Invoke(c))
+					{
+						if(!selection.Contains(c.gameObject)) selection.Add(c.gameObject);
+					}
 				}
 			}
-			Selection.objects = sel.ToArray();
-			Debug.Log($"Selected {sel.Count} GameObjects.");
+			Selection.objects = selection.ToArray();
+			//Debug.Log($"Selected {selection.Count} GameObjects.");
 		}
 	} 
 }
