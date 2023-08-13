@@ -1,0 +1,11 @@
+﻿using UnityEngine;
+using D3T;
+
+namespace #NAMESPACE#
+{
+	[System.Serializable]
+	public class #SCRIPTNAME#
+	{
+		
+	}
+}

@@ -1,0 +1,11 @@
+﻿using UnityEngine;
+using D3T;
+
+namespace #NAMESPACE#
+{
+	[CreateAssetMenu(menuName = "#SCRIPTNAME#", order = 100)]
+	public class #SCRIPTNAME# : ScriptableObject
+    {
+        
+    } 
+}
