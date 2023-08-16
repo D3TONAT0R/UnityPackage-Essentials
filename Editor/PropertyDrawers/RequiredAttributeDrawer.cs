@@ -46,7 +46,7 @@ namespace D3TEditor.PropertyDrawers
 					}
 					if(missingComps.Count > 0)
 					{
-						errorString = "Target object is missing component(s):";
+						errorString = "Target object is missing required component(s):";
 						foreach(var missing in missingComps)
 						{
 							errorString += " " + missing.Name;
@@ -55,7 +55,7 @@ namespace D3TEditor.PropertyDrawers
 				}
 				else if(attr.errorIfNull)
 				{
-					errorString = "Object is null!";
+					errorString = "A value is required";
 				}
 			}
 			catch(Exception e)
