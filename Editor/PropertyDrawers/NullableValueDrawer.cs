@@ -1,4 +1,5 @@
 ﻿using D3T;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -34,6 +35,16 @@ namespace D3TEditor.PropertyDrawers
 		}
 	}
 
+	[CustomPropertyDrawer(typeof(NullableBool))]
+	public class NullableBoolDrawer : NullableValueDrawer
+	{
+		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
+		{
+			position.xMin += 10;
+			EditorGUI.PropertyField(position, v, new GUIContent(displayName));
+		}
+	}
+
 	[CustomPropertyDrawer(typeof(NullableFloat))]
 	public class NullableFloatDrawer : NullableValueDrawer
 	{
@@ -64,6 +75,35 @@ namespace D3TEditor.PropertyDrawers
 				v.intValue = EditorGUI.IntField(position, displayName, v.intValue);
 			}
 		}
+	}
+
+	public abstract class NullableVectorDrawer : NullableValueDrawer
+	{
+		protected abstract string[] SubLabels { get; }
+
+		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
+		{
+			v.NextVisible(true);
+			EditorGUI.MultiPropertyField(position, SubLabels.Select(l => new GUIContent(l)).ToArray(), v, new GUIContent(displayName));
+		}
+	}
+
+	[CustomPropertyDrawer(typeof(NullableVector4))]
+	public class NullableVector4Drawer : NullableVectorDrawer
+	{
+		protected override string[] SubLabels => new string[] { "X", "Y", "Z", "W" };
+	}
+
+	[CustomPropertyDrawer(typeof(NullableQuaternion))]
+	public class NullableQuaternionDrawer : NullableVectorDrawer
+	{
+		protected override string[] SubLabels => new string[] { "X", "Y", "Z", "W" };
+	}
+
+	[CustomPropertyDrawer(typeof(NullableRect))]
+	public class NullableRectDrawer : NullableVectorDrawer
+	{
+		protected override string[] SubLabels => new string[] { "X", "Y", "W", "H" };
 	}
 
 	[CustomPropertyDrawer(typeof(NullableColor))]
