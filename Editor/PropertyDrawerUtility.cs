@@ -297,9 +297,54 @@ namespace D3TEditor
 			}
 		}
 
+		private static bool IsAssignableToGenericType(Type givenType, Type genericType)
+		{
+			var interfaceTypes = givenType.GetInterfaces();
+
+			foreach(var it in interfaceTypes)
+			{
+				if(it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+					return true;
+			}
+
+			if(givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+				return true;
+
+			Type baseType = givenType.BaseType;
+			if(baseType == null) return false;
+
+			return IsAssignableToGenericType(baseType, genericType);
+		}
+
+		private static Type GetPropertyDrawerType(Type objectOrAttributeType)
+		{
+			foreach(var kv in propertyDrawerTypes)
+			{
+				if(kv.Key == objectOrAttributeType)
+				{
+					return kv.Value;
+				}
+			}
+			//TODO: check if property drawer is allowed for child classes
+			foreach(var kv in propertyDrawerTypes)
+			{
+				if(kv.Key.IsGenericType)
+				{
+					if(IsAssignableToGenericType(objectOrAttributeType, kv.Key)) return kv.Value;
+				}
+				else if(kv.Key.IsAssignableFrom(objectOrAttributeType))
+				{
+					return kv.Value;
+				}
+			}
+			return null;
+		}
+
 		public static PropertyDrawer GetPropertyDrawerFromType(Type objectOrAttributeType)
 		{
-			if(propertyDrawerTypes.TryGetValue(objectOrAttributeType, out var drawerType))
+			Type drawerType = GetPropertyDrawerType(objectOrAttributeType);
+
+			if(drawerType != null)
 			{
 				if(propertyDrawersCache.TryGetValue(drawerType, out var pd))
 				{

@@ -13,14 +13,14 @@ namespace D3TEditor.PropertyDrawers
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var lastState = GUI.enabled;
-			GUI.enabled = IsEnabled(property);
+			GUI.enabled &= IsEnabled(property);
 			DrawProperty(position, property, label);
 			GUI.enabled = lastState;
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			return base.GetPropertyHeight(property, label);
+			return GetBaseHeight(property, label);
 		}
 
 		private bool IsEnabled(SerializedProperty property)
