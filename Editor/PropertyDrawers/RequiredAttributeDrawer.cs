@@ -19,7 +19,6 @@ namespace D3TEditor.PropertyDrawers
 			{
 				//var attr = PropertyDrawerUtility.GetAttribute<CheckForComponentsAttribute>(prop, true);
 				var attr = fieldInfo.GetCustomAttribute<RequiredAttribute>(true);
-				if(attr == null) throw new ArgumentException("Failed to find required attribute (CheckForComponentAttribute)");
 
 				errorString = "";
 				var obj = prop.objectReferenceValue;
@@ -66,6 +65,7 @@ namespace D3TEditor.PropertyDrawers
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.ObjectReference)) return;
 			if (errorString.Length > 0)
 			{
 				var hr = position;
@@ -79,11 +79,12 @@ namespace D3TEditor.PropertyDrawers
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			float h = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+			float h = EditorGUIUtility.singleLineHeight;
+			if(property.propertyType != SerializedPropertyType.ObjectReference) return h;
 			CheckTarget(property);
 			if (errorString.Length > 0)
 			{
-				h += 30;
+				h += +EditorGUIUtility.standardVerticalSpacing + 30;
 				//h += EditorStyles.helpBox.CalcHeight(new GUIContent(errorString), EditorGUIUtility.fieldWidth) + EditorGUIUtility.standardVerticalSpacing;
 			}
 			return h;

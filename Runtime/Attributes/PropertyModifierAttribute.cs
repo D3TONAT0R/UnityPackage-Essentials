@@ -15,7 +15,18 @@ namespace D3T
 				//Fallback to a simple "not null" or true check
 				if(matches == null || matches.Length == 0)
 				{
-					return memberValue != null && memberValue.Equals(true);
+					if(memberValue == null)
+					{
+						return false;
+					}
+					else if(memberValue is Object uObj)
+					{
+						return uObj != null;
+					}
+					else
+					{
+						return memberValue.Equals(true);
+					}
 				}
 				foreach(var r in matches)
 				{

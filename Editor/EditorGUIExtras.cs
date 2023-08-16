@@ -187,5 +187,13 @@ namespace D3TEditor
 			var position = EditorGUILayout.GetControlRect(true, height);
 			SeparatorLine(position);
 		}
+
+		public static void ErrorLabelField(Rect position, GUIContent label, GUIContent label2)
+		{
+			using(new ColorScope(new Color(1, 0.3f, 0.3f)))
+			{
+				EditorGUI.LabelField(position, label, label2);
+			}
+		}
 	}
 }

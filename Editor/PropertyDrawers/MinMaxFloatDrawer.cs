@@ -9,10 +9,10 @@ namespace D3TEditor.PropertyDrawers
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var attr = GetRangeAttribute(property);
 			position.height = EditorGUIUtility.singleLineHeight;
 			var min = property.FindPropertyRelative("min");
 			var max = property.FindPropertyRelative("max");
+			var attr = GetRangeAttribute(property);
 			if(attr != null)
 			{
 				var minValue = min.floatValue;
@@ -28,8 +28,6 @@ namespace D3TEditor.PropertyDrawers
 				EditorGUI.LabelField(labelRect, label);
 			}
 			position.SplitHorizontalRelative(0.5f, out var minRect, out var maxRect, 4);
-			//minValue = EditorGUI.FloatField(minRect, minValue);
-			//maxValue = EditorGUI.FloatField(maxRect, maxValue);
 			int indent = EditorGUI.indentLevel;
 			EditorGUI.indentLevel = 0;
 			EditorGUIUtility.labelWidth = 30;

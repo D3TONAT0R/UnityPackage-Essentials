@@ -9,6 +9,7 @@ namespace D3TEditor.PropertyDrawers
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.AnimationCurve)) return;
 			var usageAttribute = (CurveUsageAttribute)attribute;
 			using(new EditorGUI.PropertyScope(position, label, property))
 			{

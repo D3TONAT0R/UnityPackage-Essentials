@@ -14,6 +14,7 @@ namespace D3TEditor.PropertyDrawers
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.Integer)) return;
 			var choices = PropertyDrawerUtility.GetAttribute<IntPopupAttribute>(property, true).choices;
 			if(choices.Length > maxItemCount)
 			{

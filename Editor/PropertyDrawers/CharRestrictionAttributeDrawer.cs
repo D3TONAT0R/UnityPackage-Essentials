@@ -22,6 +22,7 @@ namespace D3TEditor.PropertyDrawers
 		{
 			try
 			{
+				if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, content, SerializedPropertyType.String)) return;
 				bool restricted = allowedChars != null;
 				if(infoIcon == null)
 				{

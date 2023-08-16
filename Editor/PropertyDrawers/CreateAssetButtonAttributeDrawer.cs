@@ -24,8 +24,7 @@ namespace D3TEditor.PropertyDrawers
 			}
 			else
 			{
-				EditorGUI.PropertyField(position, property);
-				Debug.LogError($"Type does not support asset creation: {type.Name}");
+				EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Asset creation not supported)"));
 			}
 		}
 

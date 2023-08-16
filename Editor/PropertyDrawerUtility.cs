@@ -516,5 +516,20 @@ namespace D3TEditor
 			typeof(SerializedProperty).GetProperty("gradientValue", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).SetValue(prop, value);
 #endif
 		}
+
+		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label, params SerializedPropertyType[] types)
+		{
+			var type = property.propertyType;
+			foreach(var t in types)
+			{
+				if(type == t)
+				{
+					return true;
+				}
+			}
+
+			EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Invalid Attribute Usage)"));
+			return false;
+		}
 	}
 }
