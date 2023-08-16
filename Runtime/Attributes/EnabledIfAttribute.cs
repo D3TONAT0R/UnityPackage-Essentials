@@ -2,38 +2,23 @@
 
 namespace D3T
 {
-	public class EnabledIfAttribute : PropertyAttribute
+	public class EnabledIfAttribute : PropertyModifierAttribute
 	{
-		private string memberName;
-		private object requiredValue;
-		private bool invertCondition;
+		private readonly string memberName;
+		private readonly object[] matches;
 
-		public EnabledIfAttribute(string member, object matches, bool invert = false)
+		public EnabledIfAttribute(string member, object matches)
 		{
 			memberName = member;
-			requiredValue = matches;
-			invertCondition = invert;
+			this.matches = new object[] { matches };
 		}
 
-		public virtual bool MatchesCondition(object obj)
+		public EnabledIfAttribute(string member, params object[] matches)
 		{
-			var type = obj.GetType();
-			var field = type.GetField(memberName);
-			if(field != null)
-			{
-				bool result = field.GetValue(obj).Equals(requiredValue);
-				if(invertCondition) result = !result;
-				return result;
-			}
-			var prop = type.GetProperty(memberName);
-			if(prop != null)
-			{
-				bool result = prop.GetValue(obj).Equals(requiredValue);
-				if(invertCondition) result = !result;
-				return result;
-			}
-			Debug.LogError("Failed to find field or property: " + memberName);
-			return true;
+			memberName = member;
+			this.matches = matches;
 		}
+
+		public virtual bool IsEnabled(object obj) => CheckMemberCondition(obj, memberName, matches);
 	} 
 }

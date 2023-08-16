@@ -3,42 +3,23 @@ using UnityEngine;
 
 namespace D3T
 {
-	public class ShowIfAttribute : PropertyAttribute
+	public class ShowIfAttribute : PropertyModifierAttribute
 	{
 		private readonly string memberName;
-		private readonly object[] requiredValues;
+		private readonly object[] matches;
 
 		public ShowIfAttribute(string member, object matches)
 		{
 			memberName = member;
-			requiredValues = new object[] { matches };
+			this.matches = new object[] { matches };
 		}
 
 		public ShowIfAttribute(string member, params object[] matches)
 		{
 			memberName = member;
-			requiredValues = matches;
+			this.matches = matches;
 		}
 
-		public virtual bool ShouldDraw(object obj)
-		{
-			var m = ReflectionUtility.FindMemberInType(obj.GetType(), memberName);
-			if(m != null)
-			{
-				foreach(var r in requiredValues)
-				{
-					if(ReflectionUtility.GetMemberValue(m, obj).Equals(r))
-					{
-						return true;
-					}
-				}
-				return false;
-			}
-			else
-			{
-				Debug.LogError("Failed to find field or property: " + memberName);
-				return true;
-			}
-		}
+		public virtual bool ShouldDraw(object obj) => CheckMemberCondition(obj, memberName, matches);
 	}
 }
