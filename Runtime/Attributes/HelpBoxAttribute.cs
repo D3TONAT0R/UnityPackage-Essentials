@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace D3T.Utility
+namespace D3T
 {
 	public enum HelpBoxType { None, Info, Warning, Error }
 
