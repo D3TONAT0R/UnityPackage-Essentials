@@ -78,7 +78,10 @@ namespace D3TEditor.PropertyDrawers
 				showAlpha = attr.showAlpha;
 				hdr = attr.hdr;
 			}
-			v.colorValue = EditorGUI.ColorField(position, new GUIContent(displayName), v.colorValue, true, showAlpha, hdr);
+			var color = v.colorValue;
+			color = EditorGUI.ColorField(position, new GUIContent(displayName), color, true, showAlpha, hdr);
+			if(!showAlpha) color.a = 1;
+			v.colorValue = color;
 		}
 	}
 }
