@@ -52,17 +52,20 @@ namespace D3TEditor.PropertyDrawers
 					}
 				}
 			}
-			bool valid = (bool)typeof(IUnityDictionary).GetProperty("Valid").GetValue(target);
+			var exception = ((IUnityDictionary)target).SerializationException;
+			bool valid = exception == null;
 			position.height = EditorGUIUtility.singleLineHeight;
 			var lColor = GUI.color;
 			if(!valid) GUI.color = errorColor;
 			property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, label);
 			GUI.color = lColor;
-			if(!valid)
+			if(exception != null)
 			{
 				var p2 = position;
 				p2.xMin += EditorGUIUtility.labelWidth + 2;
-				EditorGUI.HelpBox(p2, "Dictionary has duplicate keys.", MessageType.Error);
+				EditorGUI.HelpBox(p2, exception.Message, MessageType.None);
+				//Tooltip
+				EditorGUI.LabelField(p2, new GUIContent("", exception.Message));
 			}
 			if(property.isExpanded)
 			{
@@ -157,7 +160,7 @@ namespace D3TEditor.PropertyDrawers
 								});
 							}
 						}
-						menu.AddItem("Delete Element", true, false, () => DeleteItem(target, so, kObj));
+						menu.AddItem("Delete Element", true, false, () => DeleteItem(target, property, kObj, index));
 						menu.ShowAsContext();
 					}
 				}
@@ -206,16 +209,17 @@ namespace D3TEditor.PropertyDrawers
 
 		private static void AddItem(object target, SerializedObject so, Type valueType)
 		{
-			var adder = target.GetType().GetMethod(nameof(UnityDictionary<int, int>.Editor_Add));
+			var adder = target.GetType().GetMethod(nameof(UnityDictionary<Null, Null>.Editor_Add));
 			Undo.RecordObject(so.targetObject, "Add Dictionary Element");
 			adder.Invoke(target, new object[] { valueType });
 		}
 
-		private static void DeleteItem(object target, SerializedObject so, object key)
+		private static void DeleteItem(object target, SerializedProperty prop, object key, int index)
 		{
-			var remover = target.GetType().GetMethod(nameof(UnityDictionary<int, int>.Remove));
-			Undo.RecordObject(so.targetObject, "Delete Dictionary Element");
+			var remover = target.GetType().GetMethod(nameof(UnityDictionary<Null, Null>.Remove));
+			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
 			remover.Invoke(target, new object[] { key });
+			
 		}
 
 		private static string GetTypeName(Type t)

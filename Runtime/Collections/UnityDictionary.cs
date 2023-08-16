@@ -12,6 +12,8 @@ namespace D3T.Collections
 
 		Type KeyType { get; }
 		Type ValueType { get; }
+
+		System.Exception SerializationException { get; }
 	}
 
 	public interface IUnityDictionaryValue { }
@@ -48,10 +50,12 @@ namespace D3T.Collections
 
 		public Type KeyType => typeof(K);
 		public Type ValueType => typeof(V);
-		public bool Valid { get; private set; } = true;
 		public virtual Dictionary<K,V>.KeyCollection Keys => dictionary.Keys;
 		public virtual Dictionary<K,V>.ValueCollection Values => dictionary.Values;
 		public virtual int Count => dictionary.Count;
+
+		public System.Exception SerializationException { get; private set; }
+		public bool Valid => SerializationException == null;
 
 		public virtual bool UseMonospaceKeyLabels => true;
 
@@ -96,9 +100,11 @@ namespace D3T.Collections
 			}
 		}
 		
-
+		//TODO: has problems when keys are of type UnityEngine.Object (null keys)
+		//TODO: unable to delete a key when dictionary errors are present (e.g. duplicate keys)
 		public void OnAfterDeserialize()
 		{
+			SerializationException = null;
 			try
 			{
 				dictionary = new Dictionary<K, V>();
@@ -106,11 +112,11 @@ namespace D3T.Collections
 				{
 					dictionary.Add(_keys[i], _values[i]);
 				}
-				Valid = true;
 			}
-			catch
+			catch(Exception e)
 			{
-				Valid = false;
+				e.LogException();
+				SerializationException = e;
 				dictionary = null;
 			}
 		}
