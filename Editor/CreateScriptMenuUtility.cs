@@ -14,6 +14,12 @@ namespace D3TEditor
 		//TODO: Create project setting for default namespace
 		public static string DefaultNamespace => "MyNamespace";
 
+		[InitializeOnLoadMethod]
+		private static void Init()
+		{
+			MenuUtility.RemoveMenuItem("Assets/Create/C# Script");
+		}
+
 		public static void CreateScriptAsset(string templatePath, string defaultFileName = null)
         {
 			if(defaultFileName == null) defaultFileName = "New "+Path.GetFileNameWithoutExtension(templatePath);
