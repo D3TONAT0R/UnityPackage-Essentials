@@ -24,31 +24,35 @@ namespace D3TEditor.PropertyDrawers
 				var obj = prop.objectReferenceValue;
 				if(obj != null)
 				{
-					GameObject go = obj as GameObject;
-					if(!go)
+					var targetType = PropertyDrawerUtility.GetTypeOfProperty(prop);
+					if(targetType == typeof(GameObject) || typeof(Component).IsAssignableFrom(targetType))
 					{
-						if(obj is Transform t)
+						GameObject go = obj as GameObject;
+						if(!go)
 						{
-							go = t.gameObject;
+							if(obj is Transform t)
+							{
+								go = t.gameObject;
+							}
+							else if(obj is Component c)
+							{
+								go = (obj as Component).gameObject;
+							}
 						}
-						else
-						{
-							go = (obj as Component).gameObject;
-						}
-					}
 
-					errorString = "";
-					List<Type> missingComps = new List<Type>();
-					foreach(var comp in attr.components)
-					{
-						if(go.GetComponent(comp) == null) missingComps.Add(comp);
-					}
-					if(missingComps.Count > 0)
-					{
-						errorString = "Target object is missing required component(s):";
-						foreach(var missing in missingComps)
+						errorString = "";
+						List<Type> missingComps = new List<Type>();
+						foreach(var comp in attr.components)
 						{
-							errorString += " " + missing.Name;
+							if(go.GetComponent(comp) == null) missingComps.Add(comp);
+						}
+						if(missingComps.Count > 0)
+						{
+							errorString = "Target object is missing required component(s):";
+							foreach(var missing in missingComps)
+							{
+								errorString += " " + missing.Name;
+							}
 						}
 					}
 				}

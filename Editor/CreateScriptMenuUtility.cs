@@ -17,7 +17,7 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			MenuUtility.RemoveMenuItem("Assets/Create/C# Script");
+			EditorApplication.delayCall += () => MenuUtility.RemoveMenuItem("Assets/Create/C# Script");
 		}
 
 		public static void CreateScriptAsset(string templatePath, string defaultFileName = null)
