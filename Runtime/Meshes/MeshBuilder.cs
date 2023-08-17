@@ -29,13 +29,6 @@ namespace D3T
 			vertexColors = new List<Color32>(vertexCapacity);
 		}
 
-		public enum Axis
-		{
-			X,
-			Y,
-			Z
-		}
-
 		[System.Flags]
 		public enum CubeFaces
 		{
@@ -52,6 +45,7 @@ namespace D3T
 		public List<Vector3> verts = new List<Vector3>();
 		public List<int> tris = new List<int>();
 		public List<Vector3> normals = new List<Vector3>();
+
 		public List<Vector2> uv0 = new List<Vector2>();
 		public List<Color32> vertexColors = new List<Color32>();
 
@@ -380,20 +374,24 @@ namespace D3T
 		public void AddDisc(Matrix4x4 matrix, float radius, int detail = 32)
 		{
 			var nrm = matrix.MultiplyVector(Vector3.up);
-			Vector2[] pts = GetCirclePoints(detail, radius);
+			Vector2[] pts = GetCirclePoints(detail, 1f);
 			verts.Add(matrix.MultiplyPoint(Vector3.zero));
 			int b = verts.Count;
 			normals.Add(nrm);
+			uv0.Add(Vector2.one * 0.5f);
 			for (int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint(pts[i].XVY(0)));
+				verts.Add(matrix.MultiplyPoint((pts[i] * radius).XYV(0)));
 				normals.Add(nrm);
+				uv0.Add((pts[i] + Vector2.one) * 0.5f);
 				tris.Add(b - 1);
 				tris.Add(b + i);
 				tris.Add(b + i + 1);
 			}
-			verts.Add(matrix.MultiplyPoint(pts[pts.Length - 1].XVY(0)));
+			Vector2 lastPt = pts[pts.Length - 1];
+			verts.Add(matrix.MultiplyPoint((lastPt * radius).XYV(0)));
 			normals.Add(nrm);
+			uv0.Add((lastPt + Vector2.one) * 0.5f);
 			tris.Add(b - 1);
 			tris.Add(b + pts.Length - 1);
 			tris.Add(b);
@@ -401,7 +399,10 @@ namespace D3T
 
 		public void AddDisc(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
 		{
-			AddDisc(Matrix4x4.TRS(pos, Quaternion.LookRotation(upNormal), Vector3.one), radius, detail);
+			upNormal = Vector3.Normalize(upNormal);
+			Quaternion rotation = Quaternion.LookRotation(upNormal);
+			if(upNormal == Vector3.up || upNormal == Vector3.down) rotation *= Quaternion.Euler(0, 0, 180);
+			AddDisc(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
 		}
 
 		public void AddCylinder(Matrix4x4 matrix, float radius, float height, int detail = 32)
@@ -520,6 +521,30 @@ namespace D3T
 			{
 				normals.Add(nrm);
 			}
+		}
+
+		/// <summary>
+		/// Checks if the current state of the mesh data is valid for mesh creation.
+		/// </summary>
+		public bool Validate(bool logErrors = false)
+		{
+			var vertexCount = verts.Count;
+			if(uv0.Count > 0 && uv0.Count != vertexCount)
+			{
+				if(logErrors) Debug.LogError($"Mesh validation failed: UV data length is {uv0.Count} but should be {vertexCount}.");
+				return false;
+			}
+			if(normals.Count > 0 && normals.Count != vertexCount)
+			{
+				if(logErrors) Debug.LogError($"Mesh validation failed: Normal data length is {normals.Count} but should be {vertexCount}.");
+				return false;
+			}
+			if(vertexColors.Count > 0 && vertexColors.Count != vertexCount)
+			{
+				if(logErrors) Debug.LogError($"Mesh validation failed: Vertex color data length is {vertexColors.Count} but should be {vertexCount}.");
+				return false;
+			}
+			return true;
 		}
 
 		public static Vector2[] GetCirclePoints(int pointCount, float radius = 1f)
