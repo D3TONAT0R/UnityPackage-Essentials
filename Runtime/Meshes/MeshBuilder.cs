@@ -377,21 +377,25 @@ namespace D3T
 			Vector2[] pts = GetCirclePoints(detail, 1f);
 			verts.Add(matrix.MultiplyPoint(Vector3.zero));
 			int b = verts.Count;
-			normals.Add(nrm);
+			normals.Add(-nrm);
 			uv0.Add(Vector2.one * 0.5f);
 			for (int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint((pts[i] * radius).XYV(0)));
-				normals.Add(nrm);
-				uv0.Add((pts[i] + Vector2.one) * 0.5f);
+				verts.Add(matrix.MultiplyPoint((pts[i] * radius).XVY(0)));
+				normals.Add(-nrm);
+				Vector2 uv = (pts[i] + Vector2.one) * 0.5f;
+				uv.x = 1 - uv.x;
+				uv0.Add(uv);
 				tris.Add(b - 1);
 				tris.Add(b + i);
 				tris.Add(b + i + 1);
 			}
 			Vector2 lastPt = pts[pts.Length - 1];
-			verts.Add(matrix.MultiplyPoint((lastPt * radius).XYV(0)));
-			normals.Add(nrm);
-			uv0.Add((lastPt + Vector2.one) * 0.5f);
+			verts.Add(matrix.MultiplyPoint((lastPt * radius).XVY(0)));
+			normals.Add(-nrm);
+			Vector2 lastUV = (lastPt + Vector2.one) * 0.5f;
+			lastUV.x = 1 - lastUV.x;
+			uv0.Add(lastUV);
 			tris.Add(b - 1);
 			tris.Add(b + pts.Length - 1);
 			tris.Add(b);
@@ -400,8 +404,8 @@ namespace D3T
 		public void AddDisc(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
 		{
 			upNormal = Vector3.Normalize(upNormal);
-			Quaternion rotation = Quaternion.LookRotation(upNormal);
-			if(upNormal == Vector3.up || upNormal == Vector3.down) rotation *= Quaternion.Euler(0, 0, 180);
+			Quaternion rotation = Quaternion.LookRotation(upNormal) * Quaternion.Euler(90, 180, 0);
+			if(upNormal != Vector3.up && upNormal != Vector3.down) rotation *= Quaternion.Euler(0, 180, 0);
 			AddDisc(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
 		}
 
