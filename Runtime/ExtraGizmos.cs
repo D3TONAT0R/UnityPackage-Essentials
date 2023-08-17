@@ -9,11 +9,12 @@ namespace D3T
 		internal static Mesh disc;
 		internal static Mesh cylinder;
 
+		internal static GUIStyle labelStyle;
+
 		static ExtraGizmos()
 		{
 			var builder = new MeshBuilder();
 			builder.AddDisc(Vector3.zero, Vector3.up, 1f, 32);
-			//builder.AddDisc(Vector3.zero, Vector3.down, 1f, 32);
 			disc = builder.CreateMesh();
 
 			builder.Clear();
@@ -37,7 +38,7 @@ namespace D3T
 		public static void DrawDisc(Vector3 center, Vector3 normal, float radius)
 		{
 			var lastMatrix = Gizmos.matrix;
-			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
+			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal) * Quaternion.Euler(-90, 180, 0), Vector3.one * radius);
 			Gizmos.DrawMesh(disc);
 			Gizmos.matrix = lastMatrix;
 		}
@@ -87,6 +88,7 @@ namespace D3T
 
 		public static void DrawAxes(Vector3 position, Quaternion rotation, float size)
 		{
+			var lColor = Gizmos.color;
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(position, rotation, Vector3.one);
 			Gizmos.color = Color.red;
@@ -95,6 +97,7 @@ namespace D3T
 			Gizmos.DrawLine(Vector3.zero, Vector3.up * size);
 			Gizmos.color = Color.blue;
 			Gizmos.DrawLine(Vector3.zero, Vector3.forward * size);
+			Gizmos.color = lColor;
 			Gizmos.matrix = lMatrix;
 		}
 
@@ -107,17 +110,18 @@ namespace D3T
 
 		public static void DrawLocus(Vector3 point, float radius)
 		{
-			float r2 = radius * 2f;
-			Gizmos.DrawLine(point + Vector3.left * r2, point + Vector3.right * r2);
-			Gizmos.DrawLine(point + Vector3.down * r2, point + Vector3.up * r2);
-			Gizmos.DrawLine(point + Vector3.back * r2, point + Vector3.forward * r2);
-			Gizmos.DrawWireSphere(point, radius);
+			Gizmos.DrawLine(point + Vector3.left * radius, point + Vector3.right * radius);
+			Gizmos.DrawLine(point + Vector3.down * radius, point + Vector3.up * radius);
+			Gizmos.DrawLine(point + Vector3.back * radius, point + Vector3.forward * radius);
+			Gizmos.DrawWireSphere(point, radius * 0.5f);
 		}
 
-		public static void DrawRadiusRectangle(Vector3 center, Vector3 up, Vector2 size, float radius)
+		public static void DrawRadiusRectangle(Vector3 center, Vector3 up, Vector2 size, float radius, bool grow = false)
 		{
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(up), Vector3.one);
+			if(!grow) size -= Vector2.one * radius * 2;
+			size *= 0.5f;
 			var p0 = new Vector3(-size.x, -size.y, 0);
 			var p1 = new Vector3(size.x, -size.y, 0);
 			var p2 = new Vector3(-size.x, size.y, 0);
@@ -126,22 +130,23 @@ namespace D3T
 			Gizmos.DrawLine(p1 + Vector3.right * radius, p3 + Vector3.right * radius);
 			Gizmos.DrawLine(p0 + Vector3.left * radius, p2 + Vector3.left * radius);
 			Gizmos.DrawLine(p2 + Vector3.up * radius, p3 + Vector3.up * radius);
-			DrawArc(p0, Vector3.up, Vector3.up, radius, 180, 270);
-			DrawArc(p1, Vector3.up, Vector3.up, radius, 90, 180);
-			DrawArc(p2, Vector3.up, Vector3.up, radius, -90, 0);
-			DrawArc(p3, Vector3.up, Vector3.up, radius, 0, 90);
+			DrawArc(p0, Vector3.up, Vector3.up, radius, 180, 270, 8);
+			DrawArc(p1, Vector3.up, Vector3.up, radius, 90, 180, 8);
+			DrawArc(p2, Vector3.up, Vector3.up, radius, -90, 0, 8);
+			DrawArc(p3, Vector3.up, Vector3.up, radius, 0, 90, 8);
 			Gizmos.matrix = lMatrix;
 		}
 
-		public static void DrawWireRadiusCube(Vector3 center, Vector3 size, float radius)
+		public static void DrawWireRadiusCube(Vector3 center, Vector3 size, float radius, bool grow = false)
 		{
 			size = size.Abs();
-			DrawRadiusRectangle(center + new Vector3(-size.x, 0, 0), Vector3.right, size.ZY(), radius);
-			DrawRadiusRectangle(center + new Vector3(size.x, 0, 0), Vector3.right, size.ZY(), radius);
-			DrawRadiusRectangle(center + new Vector3(0, -size.y, 0), Vector3.up, size.XZ(), radius);
-			DrawRadiusRectangle(center + new Vector3(0, size.y, 0), Vector3.up, size.XZ(), radius);
-			DrawRadiusRectangle(center + new Vector3(0, 0, -size.z), Vector3.forward, size.XY(), radius);
-			DrawRadiusRectangle(center + new Vector3(0, 0, size.z), Vector3.forward, size.XY(), radius);
+			float inset = grow ? 0 : radius;
+			DrawRadiusRectangle(center + new Vector3(-size.x * 0.5f + inset, 0, 0), Vector3.right, size.ZY(), radius, grow);
+			DrawRadiusRectangle(center + new Vector3(size.x * 0.5f - inset, 0, 0), Vector3.right, size.ZY(), radius, grow);
+			DrawRadiusRectangle(center + new Vector3(0, -size.y * 0.5f + inset, 0), Vector3.up, size.XZ(), radius, grow);
+			DrawRadiusRectangle(center + new Vector3(0, size.y * 0.5f - inset, 0), Vector3.up, size.XZ(), radius, grow);
+			DrawRadiusRectangle(center + new Vector3(0, 0, -size.z * 0.5f + inset), Vector3.forward, size.XY(), radius, grow);
+			DrawRadiusRectangle(center + new Vector3(0, 0, size.z * 0.5f - inset), Vector3.forward, size.XY(), radius, grow);
 		}
 
 		public static void DrawPath(Vector3[] points)
@@ -152,12 +157,19 @@ namespace D3T
 			}
 		}
 
-		public static void DrawText(Vector3 position, string text, Color? color = null)
+		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.MiddleCenter)
 		{
 #if UNITY_EDITOR
+			if(labelStyle == null)
+			{
+				labelStyle = new GUIStyle(GUI.skin.label);
+			}
+			labelStyle.alignment = anchor;
+
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
-			UnityEditor.Handles.Label(position, text);
+			else GUI.color = Gizmos.color;
+			UnityEditor.Handles.Label(Gizmos.matrix.MultiplyPoint(position), text, labelStyle);
 			GUI.color = lastColor;
 #endif
 		}
