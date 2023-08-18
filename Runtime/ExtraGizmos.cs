@@ -157,7 +157,7 @@ namespace D3T
 			}
 		}
 
-		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.MiddleCenter)
+		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, bool shadow = false)
 		{
 #if UNITY_EDITOR
 			if(labelStyle == null)
@@ -169,10 +169,112 @@ namespace D3T
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color;
-			UnityEditor.Handles.Label(Gizmos.matrix.MultiplyPoint(position), text, labelStyle);
+			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offset, shadow);
 			GUI.color = lastColor;
 #endif
 		}
+
+		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, GUIStyle style = null)
+		{
+#if UNITY_EDITOR
+			var boxStyle = style ?? GUI.skin.box;
+			var lastColor = GUI.color;
+			if(color.HasValue) GUI.color = color.Value;
+			else GUI.color = Gizmos.color;
+			Box(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), boxStyle, anchor, offset);
+			GUI.color = lastColor;
+#endif
+		}
+
+#if UNITY_EDITOR
+		private static void Label(Vector3 position, GUIContent content, GUIStyle style, float offset, bool shadow)
+		{
+			Vector3 vector = UnityEditor.HandleUtility.WorldToGUIPointWithDepth(position);
+			if(!(vector.z < 0f))
+			{
+				UnityEditor.Handles.BeginGUI();
+				var rect = WorldPointToSizedRect(position, content, style, style.alignment, offset);
+				if(shadow)
+				{
+					var position2 = rect;
+					position2.x++;
+					position2.y++;
+					var lastGUIColor = GUI.color;
+					GUI.color = Color.black.SetAlpha(GUI.color.a * 0.8f);
+					GUI.Label(position2, content, style);
+					GUI.color = lastGUIColor;
+				}
+				GUI.Label(rect, content, style);
+				UnityEditor.Handles.EndGUI();
+			}
+		}
+
+		private static void Box(Vector3 position, GUIContent content, GUIStyle style, TextAnchor anchor, float offset)
+		{
+			Vector3 vector = UnityEditor.HandleUtility.WorldToGUIPointWithDepth(position);
+			if(!(vector.z < 0f))
+			{
+				UnityEditor.Handles.BeginGUI();
+				var rect = WorldPointToSizedRect(position, content, style, anchor, offset);
+				GUI.Label(rect, content, style);
+				UnityEditor.Handles.EndGUI();
+			}
+		}
+
+		private static Rect WorldPointToSizedRect(Vector3 position, GUIContent content, GUIStyle style, TextAnchor anchor, float offset)
+		{
+			Vector2 vector = UnityEditor.HandleUtility.WorldToGUIPoint(position);
+			Vector2 vector2 = style.CalcSize(content);
+			Rect rect = new Rect(vector.x, vector.y, vector2.x, vector2.y);
+			switch(anchor)
+			{
+				case TextAnchor.UpperCenter:
+					rect.x -= rect.width * 0.5f;
+					rect.y += offset;
+					break;
+				case TextAnchor.UpperRight:
+					rect.x -= rect.width;
+					rect.x -= offset;
+					rect.y += offset;
+					break;
+				case TextAnchor.UpperLeft:
+					rect.x += offset;
+					rect.y += offset;
+					break;
+				case TextAnchor.MiddleLeft:
+					rect.y -= rect.height * 0.5f;
+					rect.x += offset;
+					break;
+				case TextAnchor.MiddleCenter:
+					rect.x -= rect.width * 0.5f;
+					rect.y -= rect.height * 0.5f;
+					break;
+				case TextAnchor.MiddleRight:
+					rect.x -= rect.width;
+					rect.y -= rect.height * 0.5f;
+					rect.x -= offset;
+					break;
+				case TextAnchor.LowerLeft:
+					rect.y -= rect.height;
+					rect.x += offset;
+					rect.y -= offset;
+					break;
+				case TextAnchor.LowerCenter:
+					rect.x -= rect.width * 0.5f;
+					rect.y -= rect.height;
+					rect.y -= offset;
+					break;
+				case TextAnchor.LowerRight:
+					rect.x -= rect.width;
+					rect.y -= rect.height;
+					rect.x -= offset;
+					rect.y -= offset;
+					break;
+			}
+
+			return style.padding.Add(rect);
+		}
+#endif
 
 		#region Terrain Projected Shapes
 		public static void DrawTerrainProjectedCircle(Vector3 center, float radius, float yOffset = 0, int segments = 32, Terrain terrain = null)
