@@ -2,7 +2,7 @@
 
 namespace D3T
 {
-	public class SeparatorAttribute : PropertyAttribute
+	public class SeparatorAttribute : DecoratorAttribute
 	{
 		public readonly bool fullWidth;
 

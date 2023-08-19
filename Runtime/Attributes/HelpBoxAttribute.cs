@@ -10,7 +10,7 @@ namespace D3T
 	/// Add this attribute to a field to draw a help box above it in the inspector.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-	public class HelpBoxAttribute : PropertyAttribute {
+	public class HelpBoxAttribute : DecoratorAttribute {
 
 		public HelpBoxType type;
 		public string message;

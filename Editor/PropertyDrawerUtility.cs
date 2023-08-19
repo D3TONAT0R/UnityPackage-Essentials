@@ -394,13 +394,13 @@ namespace D3TEditor
 		{
 			var attrs = GetPropertyAttributes(property, out var fieldInfo).Where(attr => {
 				var t = attr.GetType();
-				return t != exceptType && t != typeof(TooltipAttribute);
+				return !typeof(DecoratorAttribute).IsAssignableFrom(t) && t != exceptType && t != typeof(TooltipAttribute);
 			}).ToArray();
 			if(attrs.Length > 0)
 			{
 				if(attrs.Length > 1)
 				{
-					Debug.LogWarning("More than one PropertyAttribute detected.");
+					Debug.LogWarning($"More than one PropertyAttribute detected on '{property.name}': [{string.Join(", ", attrs.Select(a => a.GetType().Name))}]");
 				}
 
 				var drawer = GetPropertyDrawerFromType(attrs[0].GetType());
