@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,13 +12,38 @@ namespace D3TEditor
 		public const string menuRoot = "Assets/Create/Script/";
 		const string packageTemplateScriptRoot = "Packages/com.github.d3tonat0r.essentials/Editor/TemplateAssets/ScriptTemplates/";
 
-		//TODO: Create project setting for default namespace
-		public static string DefaultNamespace => "MyNamespace";
+		public static string DefaultNamespace
+		{
+			get
+			{
+				string namespaceString;
+				if(!string.IsNullOrWhiteSpace(EssentialsProjectSettings.Instance.defaultScriptNamespace))
+				{
+					namespaceString = EssentialsProjectSettings.Instance.defaultScriptNamespace;
+				}
+				else
+				{
+					namespaceString = Directory.GetParent(Application.dataPath).Name;
+				}
+
+				namespaceString = Regex.Replace(namespaceString, @"[^a-zA-Z0-9]+", "_");
+
+				if(!char.IsLetter(namespaceString[0]))
+				{
+					namespaceString = "_" + namespaceString;
+				}
+
+				return namespaceString;
+			}
+		}
 
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			EditorApplication.delayCall += () => MenuUtility.RemoveMenuItem("Assets/Create/C# Script");
+			if(EssentialsProjectSettings.Instance.removeDefaultScriptMenu)
+			{
+				EditorApplication.delayCall += () => MenuUtility.RemoveMenuItem("Assets/Create/C# Script");
+			}
 		}
 
 		public static void CreateScriptAsset(string templatePath, string defaultFileName = null)

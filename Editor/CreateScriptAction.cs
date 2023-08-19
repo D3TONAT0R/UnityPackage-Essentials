@@ -3,6 +3,9 @@ using UnityEditor.ProjectWindowCallback;
 using UnityEditor;
 using System.IO;
 using System.Reflection;
+using System;
+using System.Text.RegularExpressions;
+using Object = UnityEngine.Object;
 
 namespace D3TEditor
 {
@@ -12,7 +15,8 @@ namespace D3TEditor
 		{
 			var method = typeof(ProjectWindowUtil).GetMethod("CreateScriptAssetWithContent", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			string content = ModifyTemplateContent(File.ReadAllText(Path.GetFullPath(resourceFile)), pathName);
-			Object o = (Object)method.Invoke(null, new object[] { pathName + ".cs", content });
+			string finalPath = AssetDatabase.GenerateUniqueAssetPath(pathName + ".cs");
+			Object o = (Object)method.Invoke(null, new object[] { finalPath, content });
 			ProjectWindowUtil.ShowCreatedAsset(o);
 		}
 
@@ -35,6 +39,18 @@ namespace D3TEditor
 			}
 
 			text = text.Replace("#NAMESPACE#", CreateScriptMenuUtility.DefaultNamespace);
+
+			var additionalUsings = EssentialsProjectSettings.Instance.additionalDefaultUsings;
+			string usingsString = "";
+			if(additionalUsings != null && additionalUsings.Length > 0)
+			{
+				for(int i = 0; i < additionalUsings.Length; i++)
+				{
+					//if(i > 0) usingsString += Environment.NewLine;
+					usingsString += $"using {additionalUsings[i]};{Environment.NewLine}";
+				}
+			}
+			text = Regex.Replace(text, @"#USINGS#.*\n", usingsString);
 
 			return text;
 		}

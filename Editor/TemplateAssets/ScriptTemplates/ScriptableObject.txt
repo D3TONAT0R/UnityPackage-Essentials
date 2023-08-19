@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using D3T;
+#USINGS#
 
 namespace #NAMESPACE#
 {
