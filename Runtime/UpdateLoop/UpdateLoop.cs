@@ -10,99 +10,6 @@ namespace D3T
 {
 	public static class UpdateLoop
 	{
-		public static event Action PreUpdate;
-		public static event Action Update;
-		public static event Action PreLateUpdate;
-		public static event Action LateUpdate;
-		public static event Action PostLateUpdate;
-
-		public static event Action FixedUpdate;
-		public static event Action PostFixedUpdate;
-
-		public static event Action UpdateOnce;
-
-		public static event Action OnGUI;
-		public static event Action OnDrawGizmosRuntime;
-
-		private static void Invoke(Action eventHandler)
-		{
-			ForEachSubscriberIfEnabled(eventHandler, (a) =>
-			{
-				a.Invoke();
-				GUI.enabled = true;
-				GUI.depth = 0;
-				GUI.changed = false;
-				GUI.tooltip = null;
-				GUI.matrix = Matrix4x4.identity;
-				GUI.color = Color.white;
-				GUI.backgroundColor = Color.white;
-				GUI.contentColor = Color.white;
-			});
-		}
-
-		private static void InvokeOnce(ref Action eventHandler)
-		{
-			if(ForEachSubscriberIfEnabled(eventHandler, (a) => a.Invoke()))
-			{
-				eventHandler = null;
-			}
-		}
-
-		internal static void InvokeOnGUI()
-		{
-			ForEachSubscriberIfEnabled(OnGUI, (a) =>
-			{
-				a.Invoke();
-				GUI.enabled = true;
-				GUI.depth = 0;
-				GUI.changed = false;
-				GUI.tooltip = null;
-				GUI.matrix = Matrix4x4.identity;
-				GUI.color = Color.white;
-				GUI.backgroundColor = Color.white;
-				GUI.contentColor = Color.white;
-			});
-		}
-
-		internal static void InvokeOnDrawGizmosRuntime()
-		{
-			ForEachSubscriberIfEnabled(OnDrawGizmosRuntime, (a) =>
-			{
-				a.Invoke();
-				Gizmos.matrix = Matrix4x4.identity;
-				Gizmos.color = Color.white;
-			}, true);
-		}
-
-		private static bool ForEachSubscriberIfEnabled(Action eventHandler, Action<Action> func, bool ignorePause = false)
-		{
-#if UNITY_EDITOR
-			if(!ignorePause && (!UnityEditor.EditorApplication.isPlaying || UnityEditor.EditorApplication.isPaused))
-			{
-				return false;
-			}
-#endif
-			if(eventHandler == null) return false;
-			var delegates = eventHandler.GetInvocationList();
-			int length = delegates.Length;
-			for(int i = 0; i < length; i++)
-			{
-				var d = delegates[i];
-				if(d != null)
-				{
-					if(d.Target != null && d.Target is Behaviour b)
-					{
-						if(b == null || !b.enabled || !b.gameObject.activeInHierarchy)
-						{
-							continue;
-						}
-					}
-					func((Action)d);
-				}
-			}
-			return true;
-		}
-
 		public struct UpdateLoopPreUpdateEvent { }
 		public struct UpdateLoopUpdateEvent { }
 		public struct UpdateLoopPreLateUpdateEvent { }
@@ -112,19 +19,238 @@ namespace D3T
 		public struct UpdateLoopFixedUpdateEvent { }
 		public struct UpdateLoopPostFixedUpdateEvent { }
 
+		internal class InvocationList
+		{
+			public class InvocationTarget
+			{
+				public Action action;
+				public Behaviour targetComponent;
+
+				public readonly bool isComponentTarget;
+
+				public bool ComponentWasDestroyed => isComponentTarget && targetComponent == null;
+
+				public InvocationTarget(Action action)
+				{
+					this.action = action;
+					targetComponent = action.Target as Behaviour;
+					isComponentTarget = targetComponent != null;
+				}
+
+				public bool IsActiveAndEnabled()
+				{
+					if(isComponentTarget) return targetComponent != null && targetComponent.isActiveAndEnabled;
+					else return true;
+				}
+			}
+
+			public readonly string name;
+			public List<InvocationTarget> subscribers = new List<InvocationTarget>(256);
+
+			public InvocationList(string name)
+			{
+				this.name = name;
+			}
+
+			public void Add(Action action)
+			{
+				subscribers.Add(new InvocationTarget(action));
+			}
+
+			public void Remove(Action action)
+			{
+				for(int i = 0; i < subscribers.Count; i++)
+				{
+					if(subscribers[i]?.action == action)
+					{
+						subscribers.RemoveAt(i);
+						return;
+					}
+				}
+			}
+
+			public void RemoveAll(bool? componentActiveState = null)
+			{
+				if(componentActiveState == true) subscribers.RemoveAll(t => t.IsActiveAndEnabled());
+				else if(componentActiveState == false) subscribers.RemoveAll(t => !t.IsActiveAndEnabled());
+				else subscribers.Clear();
+			}
+
+			public void EnumerateSubscribers(List<InvocationTarget> cache, bool activeComponentsOnly = true)
+			{
+				cache.Clear();
+				for(int i = 0; i < subscribers.Count; i++)
+				{
+					var sub = subscribers[i];
+					if(sub == null || sub.ComponentWasDestroyed)
+					{
+						if(Application.isPlaying) Debug.LogWarning($"Destroyed subscriber detected in {name}. Make sure to unsubscribe from the Update Loop when the object is destroyed.");
+						subscribers.RemoveAt(i);
+						i--;
+					}
+					else
+					{
+						if(activeComponentsOnly && !sub.IsActiveAndEnabled()) continue;
+						cache.Add(sub);
+					}
+				}
+			}
+		}
+
+		public static event Action PreUpdate
+		{
+			add => preUpdate.Add(value);
+			remove => preUpdate.Remove(value);
+		}
+		public static event Action Update
+		{
+			add => update.Add(value);
+			remove => update.Remove(value);
+		}
+		public static event Action PreLateUpdate
+		{
+			add => preLateUpdate.Add(value);
+			remove => preLateUpdate.Remove(value);
+		}
+		public static event Action LateUpdate
+		{
+			add => lateUpdate.Add(value);
+			remove => lateUpdate.Remove(value);
+		}
+		public static event Action PostLateUpdate
+		{
+			add => postLateUpdate.Add(value);
+			remove => postLateUpdate.Remove(value);
+		}
+
+
+
+		public static event Action FixedUpdate
+		{
+			add => fixedUpdate.Add(value);
+			remove => fixedUpdate.Remove(value);
+		}
+		public static event Action PostFixedUpdate
+		{
+			add => postFixedUpdate.Add(value);
+			remove => postFixedUpdate.Remove(value);
+		}
+
+
+
+		public static event Action UpdateOnce
+		{
+			add => updateOnce.Add(value);
+			remove => updateOnce.Remove(value);
+		}
+
+
+
+		public static event Action OnGUI
+		{
+			add => onGUI.Add(value);
+			remove => onGUI.Remove(value);
+		}
+		public static event Action OnDrawGizmosRuntime
+		{
+			add => onDrawGizmosRuntime.Add(value);
+			remove => onDrawGizmosRuntime.Remove(value);
+		}
+
+		private static readonly InvocationList preUpdate = new InvocationList("PreUpdate");
+		private static readonly InvocationList update = new InvocationList("Update");
+		private static readonly InvocationList preLateUpdate = new InvocationList("PreLateUpdate");
+		private static readonly InvocationList lateUpdate = new InvocationList("LateUpdate");
+		private static readonly InvocationList postLateUpdate = new InvocationList("PostLateUpdate");
+
+		private static readonly InvocationList fixedUpdate = new InvocationList("FixedUpdate");
+		private static readonly InvocationList postFixedUpdate = new InvocationList("PostFixedUpdate");
+
+		private static readonly InvocationList updateOnce = new InvocationList("UpdateOnce");
+
+		private static readonly InvocationList onGUI = new InvocationList("OnGUI");
+		private static readonly InvocationList onDrawGizmosRuntime = new InvocationList("OnDrawGizmosRuntime");
+
+		private static readonly List<InvocationList.InvocationTarget> enumerationCache = new List<InvocationList.InvocationTarget>();
+
+		private static bool IsEditorPaused
+		{
+			get
+			{
+#if UNITY_EDITOR
+				return !UnityEditor.EditorApplication.isPlaying || UnityEditor.EditorApplication.isPaused;
+#else
+				return false;
+#endif
+			}
+		}
+
+		private static void Invoke(InvocationList eventHandler)
+		{
+			if(IsEditorPaused) return;
+			eventHandler.EnumerateSubscribers(enumerationCache);
+			int count = enumerationCache.Count;
+			for(int i = 0; i < count; i++)
+			{
+				enumerationCache[i].action.Invoke();
+			}
+		}
+
+		private static void InvokeOnce(InvocationList eventHandler)
+		{
+			if(IsEditorPaused) return;
+			eventHandler.EnumerateSubscribers(enumerationCache);
+			int count = enumerationCache.Count;
+			for(int i = 0; i < count; i++)
+			{
+				enumerationCache[i].action.Invoke();
+			}
+			eventHandler.RemoveAll(true);
+		}
+
+		internal static void InvokeOnGUI()
+		{
+			onGUI.EnumerateSubscribers(enumerationCache);
+			int count = enumerationCache.Count;
+			for(int i = 0; i < count; i++)
+			{
+				enumerationCache[i].action.Invoke();
+				GUI.enabled = true;
+				GUI.depth = 0;
+				GUI.changed = false;
+				GUI.tooltip = null;
+				GUI.matrix = Matrix4x4.identity;
+				GUI.color = Color.white;
+				GUI.backgroundColor = Color.white;
+				GUI.contentColor = Color.white;
+			}
+		}
+
+		internal static void InvokeOnDrawGizmosRuntime()
+		{
+			onDrawGizmosRuntime.EnumerateSubscribers(enumerationCache);
+			int count = enumerationCache.Count;
+			for(int i = 0; i < count; i++)
+			{
+				enumerationCache[i].action.Invoke();
+				Gizmos.matrix = Matrix4x4.identity;
+				Gizmos.color = Color.white;
+			}
+		}
+
 		[RuntimeInitializeOnLoadMethod]
 		private static void Init()
 		{
 			var loop = PlayerLoop.GetCurrentPlayerLoop();
 
-			InsertSubsystem(ref loop, typeof(PreUpdate), typeof(UpdateLoopPreUpdateEvent), () => Invoke(PreUpdate), null, false);
-			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopUpdateEvent), () => { Invoke(Update); InvokeOnce(ref UpdateOnce); }, typeof(Update.ScriptRunBehaviourUpdate), true);
-			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopPreLateUpdateEvent), () => Invoke(PreLateUpdate), typeof(Update.ScriptRunBehaviourUpdate), false);
-			InsertSubsystem(ref loop, typeof(PreLateUpdate), typeof(UpdateLoopLateUpdateEvent), () => Invoke(LateUpdate), typeof(PreLateUpdate.ScriptRunBehaviourLateUpdate), true);
-			InsertSubsystem(ref loop, typeof(PostLateUpdate), typeof(UpdateLoopPostLateUpdateEvent), () => Invoke(PostLateUpdate), null, false);
+			InsertSubsystem(ref loop, typeof(PreUpdate), typeof(UpdateLoopPreUpdateEvent), () => Invoke(preUpdate), null, false);
+			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopUpdateEvent), () => { Invoke(update); InvokeOnce(updateOnce); }, typeof(Update.ScriptRunBehaviourUpdate), true);
+			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopPreLateUpdateEvent), () => Invoke(preLateUpdate), typeof(Update.ScriptRunBehaviourUpdate), false);
+			InsertSubsystem(ref loop, typeof(PreLateUpdate), typeof(UpdateLoopLateUpdateEvent), () => Invoke(lateUpdate), typeof(PreLateUpdate.ScriptRunBehaviourLateUpdate), true);
+			InsertSubsystem(ref loop, typeof(PostLateUpdate), typeof(UpdateLoopPostLateUpdateEvent), () => Invoke(postLateUpdate), null, false);
 
-			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopFixedUpdateEvent), () => Invoke(FixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), true);
-			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPostFixedUpdateEvent), () => Invoke(PostFixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), false);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopFixedUpdateEvent), () => Invoke(fixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), true);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPostFixedUpdateEvent), () => Invoke(postFixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), false);
 
 			PlayerLoop.SetPlayerLoop(loop);
 
@@ -137,40 +263,40 @@ namespace D3T
 		private static void Cleanup()
 		{
 #if UNITY_EDITOR
-			PreUpdate = null;
-			Update = null;
-			PreLateUpdate = null;
-			LateUpdate = null;
-			PostLateUpdate = null;
-			FixedUpdate = null;
-			PostFixedUpdate = null;
-			UpdateOnce = null;
-			OnGUI = null;
-			OnDrawGizmosRuntime = null;
+			preUpdate.RemoveAll();
+			update.RemoveAll();
+			preLateUpdate.RemoveAll();
+			lateUpdate.RemoveAll();
+			postLateUpdate.RemoveAll();
+			fixedUpdate.RemoveAll();
+			postFixedUpdate.RemoveAll();
+			updateOnce.RemoveAll();
+			onGUI.RemoveAll();
+			onDrawGizmosRuntime.RemoveAll();
 			UpdateLoopScriptInstance.Cleanup();
 #endif
 		}
 
 		private static void SubscribeMethodsWithAttributes()
 		{
-			SubscribeAttributeToEvent<PreUpdateAttribute>(ref PreUpdate);
-			SubscribeAttributeToEvent<UpdateAttribute>(ref Update);
-			SubscribeAttributeToEvent<PreLateUpdateAttribute>(ref PreLateUpdate);
-			SubscribeAttributeToEvent<LateUpdateAttribute>(ref LateUpdate);
-			SubscribeAttributeToEvent<PostLateUpdateAttribute>(ref PostLateUpdate);
-			SubscribeAttributeToEvent<FixedUpdateAttribute>(ref FixedUpdate);
-			SubscribeAttributeToEvent<PostFixedUpdateAttribute>(ref PostFixedUpdate);
-			SubscribeAttributeToEvent<UpdateOnceAttribute>(ref UpdateOnce);
-			SubscribeAttributeToEvent<OnGUIAttribute>(ref OnGUI);
-			SubscribeAttributeToEvent<OnDrawGizmosRuntimeAttribute>(ref OnDrawGizmosRuntime);
+			SubscribeAttributeToEvent<PreUpdateAttribute>(preUpdate);
+			SubscribeAttributeToEvent<UpdateAttribute>(update);
+			SubscribeAttributeToEvent<PreLateUpdateAttribute>(preLateUpdate);
+			SubscribeAttributeToEvent<LateUpdateAttribute>(lateUpdate);
+			SubscribeAttributeToEvent<PostLateUpdateAttribute>(postLateUpdate);
+			SubscribeAttributeToEvent<FixedUpdateAttribute>(fixedUpdate);
+			SubscribeAttributeToEvent<PostFixedUpdateAttribute>(postFixedUpdate);
+			SubscribeAttributeToEvent<UpdateOnceAttribute>(updateOnce);
+			SubscribeAttributeToEvent<OnGUIAttribute>(onGUI);
+			SubscribeAttributeToEvent<OnDrawGizmosRuntimeAttribute>(onDrawGizmosRuntime);
 		}
 
-		private static void SubscribeAttributeToEvent<A>(ref Action eventHandler) where A : Attribute
+		private static void SubscribeAttributeToEvent<A>(InvocationList eventHandler) where A : Attribute
 		{
 			foreach(var m in ReflectionUtility.GetMethodsWithAttribute<A>(true))
 			{
 				var action = (Action)m.CreateDelegate(typeof(Action));
-				eventHandler += action;
+				eventHandler.Add(action);
 			}
 			foreach(var m in ReflectionUtility.GetMethodsWithAttribute<A>(false))
 			{
