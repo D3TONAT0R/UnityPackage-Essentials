@@ -37,7 +37,10 @@ namespace D3TEditor
 				if(attr != null)
 				{
 					Type targetType = (Type)attr.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(attr);
-					propertyDrawerTypes.Add(targetType, pdType);
+					if(!propertyDrawerTypes.ContainsKey(targetType))
+					{
+						propertyDrawerTypes.Add(targetType, pdType);
+					}
 				}
 			}
 		}
