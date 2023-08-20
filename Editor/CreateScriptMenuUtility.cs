@@ -46,27 +46,26 @@ namespace D3TEditor
 			}
 		}
 
-		public static void CreateScriptAsset(string templatePath, string defaultFileName = null)
+		public static void CreateScriptAsset(string templatePath, string defaultFileName)
         {
-			if(defaultFileName == null) defaultFileName = "New "+Path.GetFileNameWithoutExtension(templatePath);
 			defaultFileName = defaultFileName.Replace(" ", "");
 			var icon = (EditorGUIUtility.IconContent("cs Script Icon").image as Texture2D);
 			ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, ScriptableObject.CreateInstance<CreateScriptAction>(), defaultFileName, icon, templatePath);
 		}
 
         [MenuItem(menuRoot + "Behaviour Script", priority = 80)]
-        private static void CreateBehaviourScript() => CreateScriptAsset(packageTemplateScriptRoot + "BehaviourScript.txt");
+        private static void CreateBehaviourScript() => CreateScriptAsset(packageTemplateScriptRoot + "BehaviourScript.txt", "NewBehaviourScript");
 
 		[MenuItem(menuRoot + "ScriptableObject", priority = 80)]
-		private static void CreateScriptableObject() => CreateScriptAsset(packageTemplateScriptRoot + "ScriptableObject.txt");
+		private static void CreateScriptableObject() => CreateScriptAsset(packageTemplateScriptRoot + "ScriptableObject.txt", "NewScriptableObject");
 
 		[MenuItem(menuRoot + "Class", priority = 80)]
-		private static void CreateClass() => CreateScriptAsset(packageTemplateScriptRoot + "SerializableClass.txt", "Class");
+		private static void CreateClass() => CreateScriptAsset(packageTemplateScriptRoot + "SerializableClass.txt", "NewClass");
 
 		[MenuItem(menuRoot + "Interface", priority = 80)]
 		private static void CreateInterface() => CreateScriptAsset(packageTemplateScriptRoot + "Interface.txt", "INewInterface");
 
 		[MenuItem(menuRoot + "Static Class", priority = 80)]
-		private static void CreateStaticClass() => CreateScriptAsset(packageTemplateScriptRoot + "StaticClass.txt");
+		private static void CreateStaticClass() => CreateScriptAsset(packageTemplateScriptRoot + "StaticClass.txt", "NewStaticClass");
 	} 
 }
