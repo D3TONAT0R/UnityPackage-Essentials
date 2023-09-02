@@ -5,7 +5,7 @@ using UnityEngine;
 namespace D3T
 {
 	[System.Serializable]
-	public struct MinMaxFloat
+	public struct FloatRange
 	{
 		public float min;
 		public float max;
@@ -13,18 +13,18 @@ namespace D3T
 		public float Center => (min + max) * 0.5f;
 		public float Range => max - min;
 
-		public MinMaxFloat(float min, float max)
+		public FloatRange(float min, float max)
 		{
 			this.min = min;
 			this.max = max;
 		}
 
-		public MinMaxFloat(Vector2 v) : this(v.x, v.y)
+		public FloatRange(Vector2 v) : this(v.x, v.y)
 		{
 
 		}
 
-		public bool IsBetween(float value, bool exclusive = false)
+		public bool Contains(float value, bool exclusive = false)
 		{
 			if(exclusive)
 			{

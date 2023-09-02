@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace D3TEditor.PropertyDrawers
 {
-	[CustomPropertyDrawer(typeof(MinMaxFloat))]
+	[CustomPropertyDrawer(typeof(FloatRange))]
 	public class MinMaxFloatDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
