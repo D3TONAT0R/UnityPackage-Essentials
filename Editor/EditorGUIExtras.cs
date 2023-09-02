@@ -37,7 +37,7 @@ namespace D3TEditor
 			{
 				if(_monospaceBoldTextField == null)
 				{
-					_monospaceBoldTextField = new GUIStyle(_monospaceTextField)
+					_monospaceBoldTextField = new GUIStyle(MonospaceTextField)
 					{
 						font = MonospaceBoldFont
 					};
