@@ -15,17 +15,23 @@ namespace D3TEditor.PropertyDrawers
 			if(!attr.below)
 			{
 				position.SplitVertical(EditorGUIUtility.singleLineHeight, out var top, out var bottom, EditorGUIUtility.standardVerticalSpacing);
-				if(GUI.Button(top, attr.buttonText))
-				{
-					Invoke(property, attr);
-				}
+				DrawButton(property, attr, top);
 				DrawProperty(bottom, property, label);
 			}
 			else
 			{
 				position.SplitVerticalBottom(EditorGUIUtility.singleLineHeight, out var top, out var bottom, EditorGUIUtility.standardVerticalSpacing);
 				DrawProperty(top, property, label);
-				if(GUI.Button(bottom, attr.buttonText))
+				DrawButton(property, attr, bottom);
+			}
+		}
+
+		private static void DrawButton(SerializedProperty property, ButtonAttribute attr, Rect top)
+		{
+			bool enabled = attr.enabledOutsidePlayMode || Application.isPlaying;
+			using(new EnabledScope(enabled))
+			{
+				if(GUI.Button(top, attr.buttonText))
 				{
 					Invoke(property, attr);
 				}

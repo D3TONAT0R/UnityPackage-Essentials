@@ -10,12 +10,14 @@ namespace D3T
 		public string buttonText;
 		public string methodName;
 		public bool below;
+		public bool enabledOutsidePlayMode;
 
-		public ButtonAttribute(string buttonText, string methodName, bool below = false)
+		public ButtonAttribute(string buttonText, string methodName, bool below = false, bool enabledOutsidePlayMode = false)
 		{
 			this.buttonText = buttonText;
 			this.methodName = methodName;
 			this.below = below;
+			this.enabledOutsidePlayMode = enabledOutsidePlayMode;
 		}
 	}
 }
