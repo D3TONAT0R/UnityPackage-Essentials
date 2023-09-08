@@ -419,9 +419,10 @@ namespace D3TEditor
 
 		public static void DrawPropertyField(Rect rect, SerializedProperty property, GUIContent label, Type fieldType)
 		{
-			if(typeof(UnityEngine.Object).IsAssignableFrom(fieldType) && advancedObjectPropertyDrawer != null)
+			var elementType = GetElementType(fieldType, out _);
+			if(typeof(UnityEngine.Object).IsAssignableFrom(elementType) && advancedObjectPropertyDrawer != null)
 			{
-				advancedObjectPropertyDrawer.Invoke(null, new object[] { rect, property, label, fieldType });
+				advancedObjectPropertyDrawer.Invoke(null, new object[] { rect, property, label, elementType });
 			}
 			else
 			{
@@ -578,6 +579,22 @@ namespace D3TEditor
 
 			EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Invalid Attribute Usage)"));
 			return false;
+		}
+
+		public static Type GetElementType(Type type, out bool isArrayOrList)
+		{
+			if(type.IsArray)
+			{
+				isArrayOrList = true;
+				return type.GetElementType();
+			}
+			else if(typeof(IList).IsAssignableFrom(type) && type.IsGenericType)
+			{
+				isArrayOrList = true;
+				return type.GetGenericArguments()[0];
+			}
+			isArrayOrList = false;
+			return type;
 		}
 	}
 }
