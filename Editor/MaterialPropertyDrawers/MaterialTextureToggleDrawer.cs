@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace D3TEditor.MaterialPropertyDrawers
 {
+	[CanEditMultipleObjects]
 	public class TextureToggleDrawer : MaterialPropertyDrawer
 	{
 		protected readonly string keyword;
@@ -23,19 +24,20 @@ namespace D3TEditor.MaterialPropertyDrawers
 			return prop.type == MaterialProperty.PropType.Texture;
 		}
 
-		protected virtual void SetKeyword(MaterialProperty prop, Texture target)
+		protected virtual void SetKeyword(MaterialProperty prop)
 		{
-			UpdateKeyword(prop, target, "_ON");
+			UpdateKeyword(prop, "_ON");
 		}
 
-		protected void UpdateKeyword(MaterialProperty prop, Texture target, string defaultKeywordSuffix)
+		protected void UpdateKeyword(MaterialProperty prop, string defaultKeywordSuffix)
 		{
 			string text = (!string.IsNullOrEmpty(keyword)) ? keyword : (prop.name.ToUpperInvariant() + defaultKeywordSuffix);
 			UnityEngine.Object[] targets = prop.targets;
 			for(int i = 0; i < targets.Length; i++)
 			{
 				Material material = (Material)targets[i];
-				bool on = target ? material.GetTexture(prop.name) : false;
+				var texture = material.GetTexture(prop.name);
+				bool on = texture;
 				if(on)
 				{
 					material.EnableKeyword(text);
@@ -57,10 +59,10 @@ namespace D3TEditor.MaterialPropertyDrawers
 			else
 			{
 				EditorGUI.BeginChangeCheck();
-				prop.textureValue = editor.TextureProperty(position, prop, label.text);
+				editor.TextureProperty(position, prop, label.text);
 				if(EditorGUI.EndChangeCheck())
 				{
-					this.SetKeyword(prop, prop.textureValue);
+					SetKeyword(prop);
 				}
 			}
 		}
@@ -73,9 +75,9 @@ namespace D3TEditor.MaterialPropertyDrawers
 		public override void Apply(MaterialProperty prop)
 		{
 			base.Apply(prop);
-			if(TextureToggleDrawer.IsPropertyTypeSuitable(prop))
+			if(IsPropertyTypeSuitable(prop))
 			{
-				this.SetKeyword(prop, prop.textureValue);
+				SetKeyword(prop);
 			}
 		}
 	}
