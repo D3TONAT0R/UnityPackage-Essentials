@@ -43,7 +43,7 @@ namespace D3T
 			Gizmos.matrix = lastMatrix;
 		}
 
-		public static void DrawArc(Vector3 center, Vector3 up, Vector3 forward, float radius, float fromDegrees, float toDegrees, int segments = 16)
+		public static void DrawArc(Vector3 center, Vector3 up, Vector3 forward, float radius, float fromDegrees, float toDegrees, bool edges = false, int segments = 16)
 		{
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(forward, up), Vector3.one);
@@ -54,6 +54,11 @@ namespace D3T
 				points[i] = new Vector3(Mathf.Sin(a), 0, Mathf.Cos(a)) * radius;
 			}
 			DrawPath(points);
+			if(edges)
+			{
+				Gizmos.DrawLine(center, points[0]);
+				Gizmos.DrawLine(center, points[points.Length - 1]);
+			}
 			Gizmos.matrix = lMatrix;
 		}
 
@@ -130,10 +135,10 @@ namespace D3T
 			Gizmos.DrawLine(p1 + Vector3.right * radius, p3 + Vector3.right * radius);
 			Gizmos.DrawLine(p0 + Vector3.left * radius, p2 + Vector3.left * radius);
 			Gizmos.DrawLine(p2 + Vector3.up * radius, p3 + Vector3.up * radius);
-			DrawArc(p0, Vector3.up, Vector3.up, radius, 180, 270, 8);
-			DrawArc(p1, Vector3.up, Vector3.up, radius, 90, 180, 8);
-			DrawArc(p2, Vector3.up, Vector3.up, radius, -90, 0, 8);
-			DrawArc(p3, Vector3.up, Vector3.up, radius, 0, 90, 8);
+			DrawArc(p0, Vector3.up, Vector3.up, radius, 180, 270, false, 8);
+			DrawArc(p1, Vector3.up, Vector3.up, radius, 90, 180, false, 8);
+			DrawArc(p2, Vector3.up, Vector3.up, radius, -90, 0, false, 8);
+			DrawArc(p3, Vector3.up, Vector3.up, radius, 0, 90, false, 8);
 			Gizmos.matrix = lMatrix;
 		}
 

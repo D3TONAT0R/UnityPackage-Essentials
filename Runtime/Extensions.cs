@@ -265,6 +265,40 @@ namespace D3T
 			return v;
 		}
 
+		public static float GetAxis(this Vector2 v, Axis axis)
+		{
+			return v[(int)axis];
+		}
+
+		public static float GetAxis(this Vector3 v, Axis axis)
+		{
+			return v[(int)axis];
+		}
+
+		public static Vector2 SetAxis(this Vector2 v, Axis axis, float value)
+		{
+			v[(int)axis] = value;
+			return v;
+		}
+
+		public static Vector3 SetAxis(this Vector3 v, Axis axis, float value)
+		{
+			v[(int)axis] = value;
+			return v;
+		}
+
+		public static Vector2 AddAxis(this Vector2 v, Axis axis, float value)
+		{
+			v[(int)axis] += value;
+			return v;
+		}
+
+		public static Vector3 AddAxis(this Vector3 v, Axis axis, float value)
+		{
+			v[(int)axis] += value;
+			return v;
+		}
+
 		public static bool IsBetweenExcluding(this Vector2 v, Vector2 min, Vector2 max)
 		{
 			return v.x.IsBetweenExcluding(min.x, max.x) && v.y.IsBetweenExcluding(min.y, max.y);
