@@ -254,7 +254,7 @@ namespace D3T.Utility
 				}
 				catch(Exception e)
 				{
-					Debug.LogError($"Failed to call method '{m.DeclaringType.Name}.{m.Name}': {e.Message}\n{e.InnerException}");
+					e.LogException($"Failed to invoke method '{m.DeclaringType.Name}.{m.Name}'");
 				}
 			}
 		}
