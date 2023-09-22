@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// An operator for boolean operations.
+	/// </summary>
 	public enum BooleanOperator {
 		[InspectorName("AND (Match All)")]
 		AND,

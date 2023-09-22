@@ -7,7 +7,9 @@ namespace D3T
 {
 	public static class EnumExtensions
 	{
-
+		/// <summary>
+		/// Compares the given values using this operator.
+		/// </summary>
 		public static bool Operate(this ComparisonOperator op, int l, int r)
 		{
 			switch(op)
@@ -21,6 +23,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Compares the given values using this operator.
+		/// </summary>
 		public static bool Operate(this ComparisonOperator op, float l, float r)
 		{
 			switch(op)
@@ -34,6 +39,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Applies a boolean operation with the given values.
+		/// </summary>
 		public static bool Operate(this BooleanOperator op, bool l, bool r)
 		{
 			switch(op)
@@ -43,8 +51,11 @@ namespace D3T
 				case BooleanOperator.XOR: return l != r;
 				default: throw new System.InvalidOperationException();
 			}
-		} 
+		}
 
+		/// <summary>
+		/// Returns a direction vector that represents this axis.
+		/// </summary>
 		public static Vector3 GetDirectionVector(this Axis a)
 		{
 			switch(a)
@@ -56,6 +67,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Returns a direction vector that represents this axis and direction.
+		/// </summary>
 		public static Vector3 GetDirectionVector(this AxisDirection d)
 		{
 			switch(d)

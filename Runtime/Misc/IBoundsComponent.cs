@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace D3T.Utility
 {
+	/// <summary>
+	/// Defines properties for a bounding box.
+	/// </summary>
 	[System.Flags]
 	public enum BoundsPropertyFlags
 	{
@@ -14,6 +17,9 @@ namespace D3T.Utility
 		AxisAlignedFixed = 0,
 	}
 
+	/// <summary>
+	/// Interface for a component with a bounding box.
+	/// </summary>
 	public interface IBoundsComponent
 	{
 

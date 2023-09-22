@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Utility functions for debugging.
+	/// </summary>
 	public class DebugUtility
 	{
 		private abstract class GizmoInstance

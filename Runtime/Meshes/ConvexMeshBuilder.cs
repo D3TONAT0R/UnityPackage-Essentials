@@ -6,13 +6,14 @@ using UnityEngine;
 
 namespace D3T.Utility
 {
-
 	/// <summary>
-	/// 
+	/// Component that generates a convex mesh.
 	/// </summary>
 	[DisallowMultipleComponent]
 	public class ConvexMeshBuilder : MonoBehaviour
 	{
+		//TODO: do some refactoring here
+
 		private class Vertex : IVertex
 		{
 			public double[] Position { get; set; }

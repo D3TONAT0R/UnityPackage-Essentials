@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Provides additional gizmo drawing methods on top of Unity's own Gizmos.
+	/// </summary>
 	public class ExtraGizmos
 	{
 		internal static Mesh disc;

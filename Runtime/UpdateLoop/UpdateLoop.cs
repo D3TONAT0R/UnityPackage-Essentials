@@ -8,6 +8,9 @@ using UnityEngine.PlayerLoop;
 
 namespace D3T
 {
+	/// <summary>
+	/// Utility class for adding subsystems to the game loop.
+	/// </summary>
 	public static class UpdateLoop
 	{
 		public struct UpdateLoopPreUpdateEvent { }

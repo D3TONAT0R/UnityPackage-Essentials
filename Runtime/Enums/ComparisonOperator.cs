@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// An operator for comparing two values.
+	/// </summary>
 	public enum ComparisonOperator 
 	{
 		[InspectorName("<")] Less,

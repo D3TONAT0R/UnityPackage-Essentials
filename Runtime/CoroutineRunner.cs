@@ -6,7 +6,7 @@ using UnityEngine;
 namespace D3T {
 
 	/// <summary>
-	/// Coroutine manager class that also allows for running coroutines that are independent from other scene objects.
+	/// Coroutine manager class that allows for object-independent coroutines.
 	/// </summary>
 	public static class CoroutineRunner
 	{
@@ -26,7 +26,7 @@ namespace D3T {
 		}
 
 		/// <summary>
-		/// Runs the given routine on a persistent singleton instance, with optional delay.
+		/// Runs the given routine on a persistent GameObject, with optional delay.
 		/// </summary>
 		public static Coroutine Run(IEnumerator routine, float delay = 0)
 		{

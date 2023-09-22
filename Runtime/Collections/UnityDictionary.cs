@@ -16,8 +16,15 @@ namespace D3T.Collections
 		System.Exception SerializationException { get; }
 	}
 
+	/// <summary>
+	/// Interface for a value type in a Unity.
+	/// </summary>
 	public interface IUnityDictionaryValue { }
 
+	/// <summary>
+	/// A value inside a UnityDictionary.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	[System.Serializable]
 	public abstract class UnityDictionaryValue<T> : IUnityDictionaryValue
 	{

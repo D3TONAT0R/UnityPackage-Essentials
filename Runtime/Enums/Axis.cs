@@ -1,5 +1,8 @@
 ﻿namespace D3T
 {
+	/// <summary>
+	/// A dimensional axis (X/Y/Z).
+	/// </summary>
 	public enum Axis
 	{
 		X = 0,

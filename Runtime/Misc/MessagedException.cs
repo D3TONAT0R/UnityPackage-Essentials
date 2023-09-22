@@ -2,6 +2,9 @@
 
 namespace D3T
 {
+	/// <summary>
+	/// Adds a custom message to an existing exception.
+	/// </summary>
 	public class MessagedException : Exception
 	{
 		private string message;

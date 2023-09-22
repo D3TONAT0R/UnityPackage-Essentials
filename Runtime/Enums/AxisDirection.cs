@@ -2,6 +2,9 @@
 
 namespace D3T
 {
+	/// <summary>
+	/// An axis with a positive or negative direction.
+	/// </summary>
 	public enum AxisDirection
 	{
 		[InspectorName("X-")]

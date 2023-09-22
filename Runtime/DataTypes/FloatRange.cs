@@ -1,9 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Defines a range using a min and max value.
+	/// </summary>
 	[System.Serializable]
 	public struct FloatRange
 	{

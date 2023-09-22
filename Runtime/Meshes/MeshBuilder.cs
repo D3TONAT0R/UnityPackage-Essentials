@@ -6,7 +6,7 @@ namespace D3T
 {
 
 	/// <summary>
-	/// Factory class for generating meshes from scratch.
+	/// Factory class for generating procedural meshes.
 	/// </summary>
 	public class MeshBuilder
 	{
