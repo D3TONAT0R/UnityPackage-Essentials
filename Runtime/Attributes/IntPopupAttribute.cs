@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Shows possible integer values as dropdown options.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class IntPopupAttribute : PropertyAttribute
 	{
 		public int[] choices;

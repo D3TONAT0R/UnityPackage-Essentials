@@ -1,7 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
 
 namespace D3T
 {
+	/// <summary>
+	/// Makes an inspector field editable only if a given condition matches a specific value.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class EnabledIfAttribute : PropertyModifierAttribute
 	{
 		private readonly string memberName;

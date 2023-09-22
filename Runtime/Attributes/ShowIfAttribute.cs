@@ -1,8 +1,11 @@
-﻿using D3T.Utility;
-using UnityEngine;
+﻿using System;
 
 namespace D3T
 {
+	/// <summary>
+	/// Makes an inspector field editable only if a given condition matches a specific value.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class ShowIfAttribute : PropertyModifierAttribute
 	{
 		private readonly string memberName;

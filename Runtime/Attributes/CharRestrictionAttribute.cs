@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace D3T
 {
-
+	/// <summary>
+	/// The type of character restriction to apply to an input field.
+	/// </summary>
 	public enum CharRestrictionType
 	{
 	    None,

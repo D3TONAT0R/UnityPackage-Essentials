@@ -4,8 +4,9 @@ using UnityEngine;
 namespace D3T
 {
 	/// <summary>
-	/// Add this attribute to a field to show an error message if the object is null or does not have the specified component(s).
+	/// Add this attribute to a field to show an error box if the object is null or does not have the specified component(s).
 	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class RequiredAttribute : PropertyAttribute
 	{
 		public bool errorIfNull = true;

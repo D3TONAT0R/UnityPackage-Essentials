@@ -1,7 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Constrains a <see cref="FloatRange"/> field to the given range.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class MinMaxRangeAttribute : PropertyAttribute
 	{
 		public float min;

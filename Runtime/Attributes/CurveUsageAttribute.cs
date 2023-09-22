@@ -1,7 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Color for an AnimationCurve.
+	/// </summary>
 	public enum CurveColor : uint
 	{
 		Red,
@@ -14,6 +18,10 @@ namespace D3T
 		Gray
 	}
 
+	/// <summary>
+	/// Allows for setting minimum and maximum ranges and optional color for an AnimationCurve.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class CurveUsageAttribute : PropertyAttribute
 	{
 		public readonly Color color;

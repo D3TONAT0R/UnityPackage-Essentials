@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Draws a clickable button above or below a field in the inspector.
+	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class ButtonAttribute : PropertyAttribute
 	{

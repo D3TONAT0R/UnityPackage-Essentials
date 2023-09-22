@@ -1,8 +1,14 @@
 ﻿using D3T.Utility;
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace D3T
 {
+	/// <summary>
+	/// Base class for all custom proeprty attributes.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public abstract class PropertyModifierAttribute : PropertyAttribute
 	{
 		
