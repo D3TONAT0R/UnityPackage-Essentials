@@ -1,8 +1,8 @@
 {
   "name": "com.github.d3tonat0r.essentials",
   "version": "0.0.1",
-  "displayName": "D3T - Essentials",
-  "description": "",
+  "displayName": "Essentials",
   "category": "",
-  "hideInEditor": false
+  "hideInEditor": false,
+  "description": "Collection of essential scripts and tools suitable for any type of Unity project."
 }
