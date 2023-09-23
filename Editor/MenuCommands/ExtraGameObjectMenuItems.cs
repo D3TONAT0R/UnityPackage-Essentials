@@ -52,13 +52,13 @@ namespace D3TEditor
 		public static void CreateConvexMesh(MenuCommand menuCommand)
 		{
 			var root = CreateRootObject(menuCommand, "ConvexMesh");
-			var builder = ObjectFactory.AddComponent<ConvexMeshBuilder>(root);
+			var builder = ObjectFactory.AddComponent<ConvexMeshBuilderComponent>(root);
 			ObjectFactory.AddComponent<MeshFilter>(root);
 			var mr = ObjectFactory.AddComponent<MeshRenderer>(root);
 			mr.sharedMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
 			var mc = ObjectFactory.AddComponent<MeshCollider>(root);
 			mc.convex = true;
-			builder.applyTo = ConvexMeshBuilder.TargetComponents.Both;
+			builder.applyTo = ConvexMeshBuilderComponent.TargetComponents.Both;
 			builder.Validate();
 		}
 

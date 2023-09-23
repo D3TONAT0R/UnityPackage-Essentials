@@ -13,7 +13,7 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 
 namespace D3TEditor.Tools
 {
-	[EditorTool("Edit Vertices", typeof(ConvexMeshBuilder))]
+	[EditorTool("Edit Vertices", typeof(ConvexMeshBuilderComponent))]
 	public class VertexEditorTool : EditorToolBase
 	{
 		List<int> selection = new List<int>();
@@ -22,7 +22,7 @@ namespace D3TEditor.Tools
 		bool alwaysSnap = false;
 		float scatterDistance = 0.1f;
 
-		private ConvexMeshBuilder component;
+		private ConvexMeshBuilderComponent component;
 
 		private Vector2 dragStartPos;
 		private Vector2 dragEndPos;
@@ -35,7 +35,7 @@ namespace D3TEditor.Tools
 		protected override void OnBecameActive()
 		{
 			selection.Clear();
-			component = target as ConvexMeshBuilder;
+			component = target as ConvexMeshBuilderComponent;
 		}
 
 		private void OnDisable()

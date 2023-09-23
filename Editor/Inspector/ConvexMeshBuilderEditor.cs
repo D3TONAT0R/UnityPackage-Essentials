@@ -12,16 +12,16 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 
 namespace D3TEditor
 {
-	[CustomEditor(typeof(ConvexMeshBuilder))]
+	[CustomEditor(typeof(ConvexMeshBuilderComponent))]
 	public class ConvexMeshBuilderEditor : Editor
 	{
-		private ConvexMeshBuilder comp;
+		private ConvexMeshBuilderComponent comp;
 
 		private GUIContent buttonIcon;
 
 		private void OnEnable()
 		{
-			comp = (ConvexMeshBuilder)target;
+			comp = (ConvexMeshBuilderComponent)target;
 			buttonIcon = EditorGUIUtility.IconContent("d_EditCollider");
 		}
 
