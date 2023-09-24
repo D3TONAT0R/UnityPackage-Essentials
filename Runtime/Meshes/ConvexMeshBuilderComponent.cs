@@ -97,7 +97,7 @@ namespace D3T.Utility
 
 		private void OnValidate()
 		{
-			this.InvokeValidation(Validate);
+			this.EditorDelayCall(Validate);
 		}
 	}
 }
