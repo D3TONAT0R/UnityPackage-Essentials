@@ -542,6 +542,7 @@ namespace D3T
 		/// </summary>
 		public static void SplitHorizontal(this Rect r, float leftRectWidth, out Rect left, out Rect right, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			left = new Rect(r)
 			{
 				width = leftRectWidth
@@ -557,6 +558,7 @@ namespace D3T
 		/// </summary>
 		public static void SplitHorizontalRight(this Rect r, float rightRectWidth, out Rect left, out Rect right, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			SplitHorizontal(r, r.width - rightRectWidth - margin, out left, out right, margin);
 		}
 
@@ -565,6 +567,7 @@ namespace D3T
 		/// </summary>
 		public static void SplitHorizontalRelative(this Rect r, float leftRectRatio, out Rect left, out Rect right, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			float leftWidth = r.width * leftRectRatio;
 			r.SplitHorizontal(leftWidth, out left, out right, margin);
 		}
@@ -574,13 +577,14 @@ namespace D3T
 		/// </summary>
 		public static void SplitVertical(this Rect r, float topRectHeight, out Rect top, out Rect bottom, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			top = new Rect(r)
 			{
-				height = topRectHeight - margin * 0.5f
+				height = topRectHeight
 			};
 			bottom = new Rect(r)
 			{
-				yMin = r.yMin + topRectHeight + margin * 0.5f
+				yMin = r.yMin + topRectHeight + margin
 			};
 		}
 
@@ -589,7 +593,8 @@ namespace D3T
 		/// </summary>
 		public static void SplitVerticalBottom(this Rect r, float bottomRectHeight, out Rect top, out Rect bottom, float margin = 0)
 		{
-			SplitVertical(r, r.height - bottomRectHeight, out top, out bottom, margin);
+			margin = Mathf.Max(margin, 0);
+			SplitVertical(r, r.height - bottomRectHeight - margin, out top, out bottom, margin);
 		}
 
 		/// <summary>
@@ -597,6 +602,7 @@ namespace D3T
 		/// </summary>
 		public static void SplitVerticalRelative(this Rect r, float topRectRatio, out Rect top, out Rect bottom, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			float topHeight = r.height * topRectRatio;
 			r.SplitVertical(topHeight, out top, out bottom, margin);
 		}
@@ -606,6 +612,7 @@ namespace D3T
 		/// </summary>
 		public static Rect AppendRight(this Rect r, float width, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			r.x += r.width + margin;
 			r.width = width;
 			return r;
@@ -616,6 +623,7 @@ namespace D3T
 		/// </summary>
 		public static Rect AppendDown(this Rect r, float height, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			r.y += r.height + margin;
 			r.height = height;
 			return r;
@@ -658,9 +666,10 @@ namespace D3T
 		/// </summary>
 		public static Rect[] SplitHorizontalMulti(this Rect r, int count, float width, out Rect leftover, float margin = 0)
 		{
-			if(count <= 1)
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
 			{
-				leftover = new Rect(0, 0, 0, 0);
+				leftover = Rect.zero;
 				return new Rect[] { r };
 			}
 			var rects = new Rect[count];
@@ -679,6 +688,12 @@ namespace D3T
 		/// </summary>
 		public static Rect[] SplitHorizontalMultiRight(this Rect r, int count, float width, out Rect leftover, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
+			{
+				leftover = Rect.zero;
+				return new Rect[] { r };
+			}
 			float w = count * (width + margin) - margin;
 			leftover = r;
 			leftover.width -= w;
@@ -692,6 +707,12 @@ namespace D3T
 		/// </summary>
 		public static Rect[] SplitVerticalMulti(this Rect r, int count, float height, out Rect leftover, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
+			{
+				leftover = Rect.zero;
+				return new Rect[] { r };
+			}
 			var rects = new Rect[count];
 			for(int i = 0; i < count; i++)
 			{
@@ -706,11 +727,17 @@ namespace D3T
 		/// <summary>
 		/// Splits multiple rectangles from this rect, starting from the bottom.
 		/// </summary>
-		public static Rect[] SplitVerticalMultiRight(this Rect r, int count, float height, out Rect leftover, float margin = 0)
+		public static Rect[] SplitVerticalMultiBottom(this Rect r, int count, float height, out Rect leftover, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
+			{
+				leftover = Rect.zero;
+				return new Rect[] { r };
+			}
 			float h = count * (height + margin) - margin;
 			leftover = r;
-			leftover.width -= h;
+			leftover.height -= h;
 			Rect r1 = r;
 			r1.yMin = r1.yMax - h;
 			return r1.SplitVerticalMulti(count, height, out _, margin);
@@ -721,6 +748,7 @@ namespace D3T
 		/// </summary>
 		public static Rect[] DivideHorizontal(this Rect r, int count, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			float w = r.width / count - (margin * (count - 1) / count);
 			return r.SplitHorizontalMulti(count, w, out _, margin);
 		}
@@ -730,7 +758,8 @@ namespace D3T
 		/// </summary>
 		public static Rect[] DivideVertical(this Rect r, int count, float margin = 0)
 		{
-			float h = r.height / count;
+			margin = Mathf.Max(margin, 0);
+			float h = r.height / count - (margin * (count - 1) / count);
 			return r.SplitVerticalMulti(count, h, out _, margin);
 		}
 
