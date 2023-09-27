@@ -23,9 +23,11 @@ namespace D3TEditor.TimeTracking
 			public TimeSample times;
 		}
 
-		public static bool Enabled { get; set; } = true;
+		public static bool Enabled => !LoadingFailed && EssentialsProjectSettings.Instance.enableEditorTimeTracking;
 
-		private static Dictionary<string, TimeSample> times = new Dictionary<string, TimeSample>();
+		public static bool LoadingFailed { get; set; } = false;
+
+		internal static Dictionary<string, TimeSample> times = new Dictionary<string, TimeSample>();
 
 		private static double lastTime;
 
@@ -69,6 +71,7 @@ namespace D3TEditor.TimeTracking
 
 		private static void LoadFromFile()
 		{
+			LoadingFailed = false;
 			if(File.Exists(FileName))
 			{
 				try
@@ -84,7 +87,7 @@ namespace D3TEditor.TimeTracking
 				catch(Exception e)
 				{
 					e.LogException("Failed to read tracked editor times, disabling time tracking");
-					Enabled = false;
+					LoadingFailed = true;
 				}
 			}
 		}

@@ -24,6 +24,9 @@ namespace D3TEditor
 		public string defaultScriptNamespace = "MyNamespace";
 		public string[] additionalDefaultUsings = new string[0];
 
+		[Space(20)]
+		public bool enableEditorTimeTracking = true;
+
 		private static void InitSettings()
 		{
 			if(File.Exists(SettingsAssetPath))

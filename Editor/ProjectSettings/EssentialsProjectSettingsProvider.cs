@@ -2,15 +2,18 @@
 using D3T;
 using UnityEditor;
 using System;
+using D3TEditor.TimeTracking;
 
 namespace D3TEditor
 {
 	internal static class EssentialsProjectSettingsProvider
 	{
+		private static SettingsProvider provider;
+
 		[SettingsProvider]
 		internal static SettingsProvider Register()
 		{
-			var provider = new SettingsProvider("Project/Essentials", SettingsScope.Project)
+			provider = new SettingsProvider("Project/Essentials", SettingsScope.Project)
 			{
 				guiHandler = OnGUI,
 			};
@@ -33,6 +36,9 @@ namespace D3TEditor
 			{
 				EssentialsProjectSettings.Instance.SaveModifiedProperties();
 			}
+			GUILayout.Space(20);
+			EditorTimeTrackingGUI.DrawGUI("Tracked Editor Times");
+			provider.Repaint();
 		}
 
 		private static void OnClose()

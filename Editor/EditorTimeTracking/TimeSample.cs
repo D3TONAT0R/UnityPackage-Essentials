@@ -5,20 +5,22 @@ namespace D3TEditor.TimeTracking
 	[System.Serializable]
 	public class TimeSample
 	{
-		public float editTime = 0;
+		public float activeEditTime = 0;
 		public float unfocussedEditTime = 0;
-		public float playTime = 0;
+		public float playmodeTime = 0;
+
+		public float CombinedTime => activeEditTime + unfocussedEditTime + playmodeTime;
 
 		public void Increase(float delta)
 		{
 			if(Application.isPlaying)
 			{
-				playTime += delta;
+				playmodeTime += delta;
 			}
 			else
 			{
 				bool focussed = UnityEditorInternal.InternalEditorUtility.isApplicationActive;
-				if(focussed) editTime += delta;
+				if(focussed) activeEditTime += delta;
 				else unfocussedEditTime += delta;
 			}
 		}
