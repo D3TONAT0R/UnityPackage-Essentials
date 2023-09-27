@@ -17,12 +17,14 @@ namespace D3TEditor.TimeTracking
 				EditorGUI.indentLevel++;
 				float total = EditorTimeTracker.times.Sum(kv => kv.Value.CombinedTime);
 
-				GUILayout.Space(10);
+				GUILayout.Space(5);
 				EditorGUILayout.LabelField("Total", ToTimeString(total), EditorStyles.boldLabel);
 
 				foreach(var kv in EditorTimeTracker.times)
 				{
-					GUILayout.Space(10);
+					bool isLocalUser = CloudProjectSettings.userId == kv.Key;
+					GUI.contentColor = isLocalUser ? new Color(0.3f, 1f, 0.3f) : Color.white;
+					GUILayout.Space(5);
 					var times = kv.Value;
 					EditorGUILayout.LabelField("User: " + kv.Key, ToTimeString(times.CombinedTime), EditorStyles.boldLabel);
 					EditorGUI.indentLevel++;
@@ -33,6 +35,7 @@ namespace D3TEditor.TimeTracking
 				}
 				EditorGUI.indentLevel--;
 			}
+			GUI.contentColor = Color.white;
 		}
 
 		private static string ToTimeString(float t)

@@ -97,6 +97,7 @@ namespace D3TEditor.TimeTracking
 			SamplesData data = new SamplesData();
 			foreach(var kv in times)
 			{
+				if(kv.Value.CombinedTime < 10f) continue;
 				data.times.Add(new UserTimeSample() { userId = kv.Key, times = kv.Value });
 			}
 			string json = JsonUtility.ToJson(data, true);
