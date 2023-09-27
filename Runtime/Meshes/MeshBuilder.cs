@@ -371,6 +371,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Adds a flat disc to the mesh, transformed by the given matrix.
+		/// </summary>
 		public void AddDisc(Matrix4x4 matrix, float radius, int detail = 32)
 		{
 			var nrm = matrix.MultiplyVector(Vector3.up);
@@ -401,6 +404,9 @@ namespace D3T
 			tris.Add(b);
 		}
 
+		/// <summary>
+		/// Adds a flat disc to the mesh.
+		/// </summary>
 		public void AddDisc(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
 		{
 			upNormal = Vector3.Normalize(upNormal);
@@ -409,6 +415,9 @@ namespace D3T
 			AddDisc(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
 		}
 
+		/// <summary>
+		/// Adds a vertically aligned cylinder to the mesh, transformed by the given matrix.
+		/// </summary>
 		public void AddCylinder(Matrix4x4 matrix, float radius, float height, int detail = 32)
 		{
 			float h2 = height * 0.5f;
@@ -488,6 +497,9 @@ namespace D3T
 			tris.Add(bM2 + 1);*/
 		}
 
+		/// <summary>
+		/// Adds a vertically aligned cylinder to the mesh.
+		/// </summary>
 		public void AddCylinder(Vector3 pos, Quaternion rotation, float radius, float height, int detail = 32)
 		{
 			AddCylinder(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, height, detail);
@@ -562,6 +574,9 @@ namespace D3T
 			return pts;
 		}
 
+		/// <summary>
+		/// Applies flat shading to this mesh.
+		/// </summary>
 		public static void FlatShadeMesh(Mesh m)
 		{
 			var oldVerts = m.vertices;

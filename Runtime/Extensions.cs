@@ -181,154 +181,238 @@ namespace D3T
 
 		#endregion
 
+		/// <summary>
+		/// Returns the sum of all individual vector components.
+		/// </summary>
 		public static float Sum(this Vector2 v)
 		{
 			return v.x + v.y;
 		}
 
+		/// <summary>
+		/// Returns the sum of all individual vector components.
+		/// </summary>
 		public static float Sum(this Vector3 v)
 		{
 			return v.x + v.y + v.z;
 		}
 
+		/// <summary>
+		/// Returns the sum of all individual vector components.
+		/// </summary>
 		public static float Sum(this Vector4 v)
 		{
 			return v.x + v.y + v.z + v.w;
 		}
 
+		/// <summary>
+		/// Returns the multiplication of all individual vector components.
+		/// </summary>
 		public static float Product(this Vector2 v)
 		{
 			return v.x * v.y;
 		}
 
+		/// <summary>
+		/// Returns the multiplication of all individual vector components.
+		/// </summary>
 		public static float Product(this Vector3 v)
 		{
 			return v.x * v.y * v.z;
 		}
 
+		/// <summary>
+		/// Returns the multiplication of all individual vector components.
+		/// </summary>
 		public static float Product(this Vector4 v)
 		{
 			return v.x * v.y * v.z * v.w;
 		}
 
+		/// <summary>
+		/// Modifies the x value of this vector.
+		/// </summary>
 		public static Vector2 WithX(this Vector2 v, float x)
 		{
 			v.x = x;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the y value of this vector.
+		/// </summary>
 		public static Vector2 WithY(this Vector2 v, float y)
 		{
 			v.y = y;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the x value of this vector.
+		/// </summary>
 		public static Vector3 WithX(this Vector3 v, float x)
 		{
 			v.x = x;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the y value of this vector.
+		/// </summary>
 		public static Vector3 WithY(this Vector3 v, float y)
 		{
 			v.y = y;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the z value of this vector.
+		/// </summary>
 		public static Vector3 WithZ(this Vector3 v, float z)
 		{
 			v.z = z;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the x value of this vector.
+		/// </summary>
 		public static Vector4 WithX(this Vector4 v, float x)
 		{
 			v.x = x;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the y value of this vector.
+		/// </summary>
 		public static Vector4 WithY(this Vector4 v, float y)
 		{
 			v.y = y;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the z value of this vector.
+		/// </summary>
 		public static Vector4 WithZ(this Vector4 v, float z)
 		{
 			v.z = z;
 			return v;
 		}
 
+		/// <summary>
+		/// Modifies the w value of this vector.
+		/// </summary>
 		public static Vector4 WithW(this Vector4 v, float w)
 		{
 			v.w = w;
 			return v;
 		}
 
+		/// <summary>
+		/// Returns the value representing the given axis.
+		/// </summary>
 		public static float GetAxis(this Vector2 v, Axis axis)
 		{
 			return v[(int)axis];
 		}
 
+		/// <summary>
+		/// Returns the value representing the given axis.
+		/// </summary>
 		public static float GetAxis(this Vector3 v, Axis axis)
 		{
 			return v[(int)axis];
 		}
 
+		/// <summary>
+		/// Sets the value representing the given axis.
+		/// </summary>
 		public static Vector2 SetAxis(this Vector2 v, Axis axis, float value)
 		{
 			v[(int)axis] = value;
 			return v;
 		}
 
+		/// <summary>
+		/// Sets the value representing the given axis.
+		/// </summary>
 		public static Vector3 SetAxis(this Vector3 v, Axis axis, float value)
 		{
 			v[(int)axis] = value;
 			return v;
 		}
 
+		/// <summary>
+		/// Adds a given value to the given axis.
+		/// </summary>
 		public static Vector2 AddAxis(this Vector2 v, Axis axis, float value)
 		{
 			v[(int)axis] += value;
 			return v;
 		}
 
+		/// <summary>
+		/// Adds a given value to the given axis.
+		/// </summary>
 		public static Vector3 AddAxis(this Vector3 v, Axis axis, float value)
 		{
 			v[(int)axis] += value;
 			return v;
 		}
 
+		/// <summary>
+		/// Returns true if this vector is between the given min and max bounds, excluding exact edge cases.
+		/// </summary>
 		public static bool IsBetweenExcluding(this Vector2 v, Vector2 min, Vector2 max)
 		{
 			return v.x.IsBetweenExcluding(min.x, max.x) && v.y.IsBetweenExcluding(min.y, max.y);
 		}
 
+		/// <summary>
+		/// Returns true if this vector is between the given min and max bounds, excluding exact edge cases.
+		/// </summary>
 		public static bool IsBetweenExcluding(this Vector3 v, Vector3 min, Vector3 max)
 		{
 			return v.x.IsBetweenExcluding(min.x, max.x) && v.y.IsBetweenExcluding(min.y, max.y) && v.z.IsBetweenExcluding(min.z, max.z);
 		}
 
+		/// <summary>
+		/// Returns true if this vector is between the given min and max bounds, excluding exact edge cases.
+		/// </summary>
 		public static bool IsBetweenExcluding(this Vector4 v, Vector4 min, Vector4 max)
 		{
 			return v.x.IsBetweenExcluding(min.x, max.x) && v.y.IsBetweenExcluding(min.y, max.y) && v.z.IsBetweenExcluding(min.z, max.z) && v.w.IsBetweenExcluding(min.w, max.w);
 		}
 
+		/// <summary>
+		/// Returns true if this vector is between the given min and max bounds.
+		/// </summary>
 		public static bool IsBetween(this Vector2 v, Vector2 min, Vector2 max)
 		{
 			return v.x.IsBetween(min.x, max.x) && v.y.IsBetween(min.y, max.y);
 		}
 
+		/// <summary>
+		/// Returns true if this vector is between the given min and max bounds.
+		/// </summary>
 		public static bool IsBetween(this Vector3 v, Vector3 min, Vector3 max)
 		{
 			return v.x.IsBetween(min.x, max.x) && v.y.IsBetween(min.y, max.y) && v.z.IsBetween(min.z, max.z);
 		}
 
+		/// <summary>
+		/// Returns true if this vector is between the given min and max bounds.
+		/// </summary>
 		public static bool IsBetween(this Vector4 v, Vector4 min, Vector4 max)
 		{
 			return v.x.IsBetween(min.x, max.x) && v.y.IsBetween(min.y, max.y) && v.z.IsBetween(min.z, max.z) && v.w.IsBetween(min.w, max.w);
 		}
 
+		/// <summary>
+		/// Returns the slope angle of this normal vector in degrees.
+		/// </summary>
 		public static float GetSlopeAngle(this Vector3 n)
 		{
 			float h = Mathf.Sqrt(n.x * n.x + n.z * n.z);
@@ -336,24 +420,32 @@ namespace D3T
 			return 90f - (Mathf.Atan(v / h) * Mathf.Rad2Deg);
 		}
 
-		public static Vector2 ScaleAround(this Vector2 point, Vector2 scale, Vector2 pivot)
-		{
-			Vector2 v = point - pivot;
-			scale.x -= 1;
-			scale.y -= 1;
-			Vector2 vS = new Vector2(v.x * scale.x, v.y * scale.y);
-			return point + vS;
-		}
-
+		/// <summary>
+		/// Returns a nicely formatted string for this vector, with a specific number of decimal places.
+		/// </summary>
 		public static string ToString(this Vector2 v, int decimals) => v.ToString("F" + decimals);
+
+		/// <summary>
+		/// Returns a nicely formatted string for this vector, with a specific number of decimal places.
+		/// </summary>
 		public static string ToString(this Vector3 v, int decimals) => v.ToString("F" + decimals);
+
+		/// <summary>
+		/// Returns a nicely formatted string for this vector, with a specific number of decimal places.
+		/// </summary>
 		public static string ToString(this Vector4 v, int decimals) => v.ToString("F" + decimals);
 
+		/// <summary>
+		/// Returns true if this <see cref="LayerMask"/> contains the given layer.
+		/// </summary>
 		public static bool ContainsLayer(this LayerMask m, int layer)
 		{
 			return m == (m | (1 << layer));
 		}
 
+		/// <summary>
+		/// Extracts translation information from this matrix.
+		/// </summary>
 		public static Vector3 ExtractPosition(this Matrix4x4 matrix)
 		{
 			Vector3 position;
@@ -363,11 +455,17 @@ namespace D3T
 			return position;
 		}
 
+		/// <summary>
+		/// Extracts rotation information from this matrix.
+		/// </summary>
 		public static Quaternion ExtractRotation(this Matrix4x4 matrix)
 		{
 			return matrix.rotation;
 		}
 
+		/// <summary>
+		/// Extracts scale information from this matrix.
+		/// </summary>
 		public static Vector3 ExtractScale(this Matrix4x4 matrix)
 		{
 			Vector3 scale;
@@ -377,6 +475,9 @@ namespace D3T
 			return scale;
 		}
 
+		/// <summary>
+		/// Extracts transformation information from this matrix.
+		/// </summary>
 		public static void ExtractTransform(this Matrix4x4 matrix, out Vector3 position, out Quaternion rotation, out Vector3 scale)
 		{
 			position = ExtractPosition(matrix);
@@ -384,11 +485,17 @@ namespace D3T
 			scale = ExtractScale(matrix);
 		}
 
+		/// <summary>
+		/// Creates a TRS matrix from this transform.
+		/// </summary>
 		public static Matrix4x4 GetTRSMatrix(this Transform t)
 		{
 			return Matrix4x4.TRS(t.position, t.rotation, t.localScale);
 		}
 
+		/// <summary>
+		/// Applies the given TRS matrix to this transform.
+		/// </summary>
 		public static void ApplyTRSMatrix(this Transform t, Matrix4x4 trsMatrix)
 		{
 			t.position = trsMatrix.ExtractPosition();
@@ -396,6 +503,9 @@ namespace D3T
 			t.localScale = trsMatrix.ExtractScale();
 		}
 
+		/// <summary>
+		/// Applies the given TRS matrix to this transform in local space.
+		/// </summary>
 		public static void ApplyTRSMatrixLocally(this Transform t, Matrix4x4 trsMatrix)
 		{
 			t.localPosition = trsMatrix.ExtractPosition();
@@ -403,13 +513,9 @@ namespace D3T
 			t.localScale = trsMatrix.ExtractScale();
 		}
 
-		public static Rect AddPosition(this Rect r, Vector2 v)
-		{
-			Rect r2 = new Rect(r);
-			r2.position += v;
-			return r2;
-		}
-
+		/// <summary>
+		/// Scales this rect's position and size by the given value.
+		/// </summary>
 		public static Rect Scale(this Rect r, float value)
 		{
 			Rect r2 = new Rect(r);
@@ -418,6 +524,9 @@ namespace D3T
 			return r2;
 		}
 
+		/// <summary>
+		/// Snaps this rect's corners to the nearest integer coordinates.
+		/// </summary>
 		public static Rect Snap(this Rect r)
 		{
 			Rect r2 = new Rect(r);
@@ -428,133 +537,262 @@ namespace D3T
 			return r2;
 		}
 
+		/// <summary>
+		/// Splits this rect horizontally by a given width from the left.
+		/// </summary>
 		public static void SplitHorizontal(this Rect r, float leftRectWidth, out Rect left, out Rect right, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			left = new Rect(r)
 			{
-				width = leftRectWidth - margin * 0.5f
+				width = leftRectWidth
 			};
 			right = new Rect(r)
 			{
-				xMin = r.xMin + leftRectWidth + margin * 0.5f
+				xMin = r.xMin + leftRectWidth + margin
 			};
 		}
 
+		/// <summary>
+		/// Splits this rect horizontally by a given width from the right.
+		/// </summary>
 		public static void SplitHorizontalRight(this Rect r, float rightRectWidth, out Rect left, out Rect right, float margin = 0)
 		{
-			SplitHorizontal(r, r.width - rightRectWidth, out left, out right, margin);
+			margin = Mathf.Max(margin, 0);
+			SplitHorizontal(r, r.width - rightRectWidth - margin, out left, out right, margin);
 		}
 
+		/// <summary>
+		/// Splits this rect horizontally by a given ratio.
+		/// </summary>
 		public static void SplitHorizontalRelative(this Rect r, float leftRectRatio, out Rect left, out Rect right, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			float leftWidth = r.width * leftRectRatio;
 			r.SplitHorizontal(leftWidth, out left, out right, margin);
 		}
 
+		/// <summary>
+		/// Splits this rect vertically by a given height from the top.
+		/// </summary>
 		public static void SplitVertical(this Rect r, float topRectHeight, out Rect top, out Rect bottom, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			top = new Rect(r)
 			{
-				height = topRectHeight - margin * 0.5f
+				height = topRectHeight
 			};
 			bottom = new Rect(r)
 			{
-				yMin = r.yMin + topRectHeight + margin * 0.5f
+				yMin = r.yMin + topRectHeight + margin
 			};
 		}
 
+		/// <summary>
+		/// Splits this rect vertically by a given height from the bottom.
+		/// </summary>
 		public static void SplitVerticalBottom(this Rect r, float bottomRectHeight, out Rect top, out Rect bottom, float margin = 0)
 		{
-			SplitVertical(r, r.height - bottomRectHeight, out top, out bottom, margin);
+			margin = Mathf.Max(margin, 0);
+			SplitVertical(r, r.height - bottomRectHeight - margin, out top, out bottom, margin);
 		}
 
+		/// <summary>
+		/// Splits this rect vertically by a given ratio.
+		/// </summary>
 		public static void SplitVerticalRelative(this Rect r, float topRectRatio, out Rect top, out Rect bottom, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			float topHeight = r.height * topRectRatio;
 			r.SplitVertical(topHeight, out top, out bottom, margin);
 		}
 
+		/// <summary>
+		/// Creates a new rect to the right of this rect.
+		/// </summary>
 		public static Rect AppendRight(this Rect r, float width, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			r.x += r.width + margin;
 			r.width = width;
 			return r;
 		}
 
+		/// <summary>
+		/// Creates a new rect below this rect.
+		/// </summary>
 		public static Rect AppendDown(this Rect r, float height, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
 			r.y += r.height + margin;
 			r.height = height;
 			return r;
 		}
 
+		/// <summary>
+		/// Creates an inset rect by the given inset values.
+		/// </summary>
 		public static Rect Inset(this Rect r, float left, float right, float top, float bottom)
 		{
 			return new Rect(r.x + left, r.y + top, r.width - left - right, r.height - top - bottom);
 		}
 
+		/// <summary>
+		/// Creates an inset rect by the given inset value.
+		/// </summary>
 		public static Rect Inset(this Rect r, float inset)
 		{
 			return Inset(r, inset, inset, inset, inset);
 		}
 
+		/// <summary>
+		/// Creates an outset rect by the given outset values.
+		/// </summary>
 		public static Rect Outset(this Rect r, float left, float right, float top, float bottom)
 		{
 			return Inset(r, -left, -right, -top, -bottom);
 		}
 
+		/// <summary>
+		/// Creates an outset rect by the given outset value.
+		/// </summary>
 		public static Rect Outset(this Rect r, float outset)
 		{
 			return Inset(r, -outset);
 		}
 
-		public static Rect[] SplitHorizontalMulti(this Rect r, int count, float rectWidths, out Rect leftover, float margin = 0)
+		/// <summary>
+		/// Splits multiple rectangles from this rect, starting from the left.
+		/// </summary>
+		public static Rect[] SplitHorizontalMulti(this Rect r, int count, float width, out Rect leftover, float margin = 0)
 		{
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
+			{
+				leftover = Rect.zero;
+				return new Rect[] { r };
+			}
 			var rects = new Rect[count];
 			for (int i = 0; i < count; i++)
 			{
-				float offset = i * (rectWidths + margin);
-				rects[i] = new Rect(r.x + offset, r.y, rectWidths, r.height);
+				float offset = i * (width + margin);
+				rects[i] = new Rect(r.x + offset, r.y, width, r.height);
 			}
 			leftover = r;
-			leftover.xMin += count * (rectWidths + margin) - margin;
+			leftover.xMin += count * (width + margin) - margin;
 			return rects;
 		}
 
-		public static Rect[] SplitHorizontalMultiRight(this Rect r, int count, float rectWidths, out Rect leftover, float margin = 0)
+		/// <summary>
+		/// Splits multiple rectangles from this rect, starting from the right.
+		/// </summary>
+		public static Rect[] SplitHorizontalMultiRight(this Rect r, int count, float width, out Rect leftover, float margin = 0)
 		{
-			float w = count * (rectWidths + margin) - margin;
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
+			{
+				leftover = Rect.zero;
+				return new Rect[] { r };
+			}
+			float w = count * (width + margin) - margin;
 			leftover = r;
 			leftover.width -= w;
 			Rect r1 = r;
 			r1.xMin = r1.xMax - w;
-			return r1.SplitHorizontalMulti(count, rectWidths, out _, margin);
+			return r1.SplitHorizontalMulti(count, width, out _, margin);
 		}
 
+		/// <summary>
+		/// Splits multiple rectangles from this rect, starting from the top.
+		/// </summary>
+		public static Rect[] SplitVerticalMulti(this Rect r, int count, float height, out Rect leftover, float margin = 0)
+		{
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
+			{
+				leftover = Rect.zero;
+				return new Rect[] { r };
+			}
+			var rects = new Rect[count];
+			for(int i = 0; i < count; i++)
+			{
+				float offset = i * (height + margin);
+				rects[i] = new Rect(r.x, r.y + offset, r.width, height);
+			}
+			leftover = r;
+			leftover.yMin += count * (height + margin) - margin;
+			return rects;
+		}
+
+		/// <summary>
+		/// Splits multiple rectangles from this rect, starting from the bottom.
+		/// </summary>
+		public static Rect[] SplitVerticalMultiBottom(this Rect r, int count, float height, out Rect leftover, float margin = 0)
+		{
+			margin = Mathf.Max(margin, 0);
+			if(count <= 0)
+			{
+				leftover = Rect.zero;
+				return new Rect[] { r };
+			}
+			float h = count * (height + margin) - margin;
+			leftover = r;
+			leftover.height -= h;
+			Rect r1 = r;
+			r1.yMin = r1.yMax - h;
+			return r1.SplitVerticalMulti(count, height, out _, margin);
+		}
+
+		/// <summary>
+		/// Divides this rect horizontally into multiple equal rects.
+		/// </summary>
 		public static Rect[] DivideHorizontal(this Rect r, int count, float margin = 0)
 		{
-			float w = r.width / count;
+			margin = Mathf.Max(margin, 0);
+			float w = r.width / count - (margin * (count - 1) / count);
 			return r.SplitHorizontalMulti(count, w, out _, margin);
 		}
 
-		public static void Limit(this ref Rect r, Rect limits)
+		/// <summary>
+		/// Divides this rect vertically into multiple equal rects.
+		/// </summary>
+		public static Rect[] DivideVertical(this Rect r, int count, float margin = 0)
 		{
-			r.x = Mathf.Max(r.x, limits.xMin);
-			r.y = Mathf.Max(r.y, limits.yMin);
-			r.x = Mathf.Min(r.x + r.width, limits.xMax) - r.width;
-			r.y = Mathf.Min(r.y + r.height, limits.yMax) - r.height;
+			margin = Mathf.Max(margin, 0);
+			float h = r.height / count - (margin * (count - 1) / count);
+			return r.SplitVerticalMulti(count, h, out _, margin);
 		}
 
+		/// <summary>
+		/// Limits this rect to the given bounds.
+		/// </summary>
+		public static void Limit(this ref Rect r, Rect bounds)
+		{
+			r.x = Mathf.Max(r.x, bounds.xMin);
+			r.y = Mathf.Max(r.y, bounds.yMin);
+			r.x = Mathf.Min(r.x + r.width, bounds.xMax) - r.width;
+			r.y = Mathf.Min(r.y + r.height, bounds.yMax) - r.height;
+		}
+
+		/// <summary>
+		/// Draws this GUIStyle during the repaint phase.
+		/// </summary>
 		public static void DrawOnRepaint(this GUIStyle s, Rect r)
 		{
 			if (Event.current.type == EventType.Repaint) s.Draw(r, false, false, false, false);
 		}
 
+		/// <summary>
+		/// Draws this GUIStyle during the repaint phase.
+		/// </summary>
 		public static void DrawOnRepaint(this GUIStyle s, Rect r, bool isHover, bool isActive, bool on, bool hasKeyboardFocus)
 		{
 			if (Event.current.type == EventType.Repaint) s.Draw(r, isHover, isActive, on, hasKeyboardFocus);
 		}
 
+		/// <summary>
+		/// Returns a formatted time string from this integer as seconds.
+		/// </summary>
 		public static string ConvertToTimeString(this int t, bool hours)
 		{
 			t = Mathf.Abs(t);
@@ -569,27 +807,42 @@ namespace D3T
 				: min + ":" + sec;
 		}
 
+		/// <summary>
+		/// Returns this color with a different alpha value.
+		/// </summary>
 		public static Color SetAlpha(this Color c, float a)
 		{
 			return new Color(c.r, c.g, c.b, a);
 		}
 
+		/// <summary>
+		/// Returns this color with a multiplied alpha value.
+		/// </summary>
 		public static Color MultiplyAlpha(this Color c, float multiplier)
 		{
 			return new Color(c.r, c.g, c.b, c.a * multiplier);
 		}
 
+		/// <summary>
+		/// Returns this color with modified saturation levels.
+		/// </summary>
 		public static Color ScaleSaturation(this Color c, float saturation)
 		{
 			return Color.LerpUnclamped(Grayscale(c), c, saturation);
 		}
 
+		/// <summary>
+		/// Returns a grayscaled version of this color.
+		/// </summary>
 		public static Color Grayscale(this Color c)
 		{
 			float gray = c.grayscale;
 			return new Color(gray, gray, gray, c.a);
 		}
 
+		/// <summary>
+		/// Fills all pixels of this texture with a given color.
+		/// </summary>
 		public static void FillWithColor(this Texture2D tex, Color c)
 		{
 			Color32[] cols = new Color32[tex.width * tex.height];
@@ -598,6 +851,9 @@ namespace D3T
 			tex.Apply();
 		}
 
+		/// <summary>
+		/// Returns a copy of this texture which can is read/write enabled.
+		/// </summary>
 		public static Texture2D GetReadableCopy(this Texture2D tex)
 		{
 			if (tex.isReadable)
@@ -608,25 +864,34 @@ namespace D3T
 			Texture2D copy = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount, false);
 			copy.wrapMode = tex.wrapMode;
 			copy.filterMode = tex.filterMode;
-			UnityEngine.Graphics.CopyTexture(tex, copy);
+			Graphics.CopyTexture(tex, copy);
 			copy.Apply();
 			return copy;
 		}
 
+		/// <summary>
+		/// Adds a custom error message to this exception.
+		/// </summary>
 		public static MessagedException AddMessage(this System.Exception e, string message)
 		{
 			return new MessagedException(message, e);
 		}
 
+		/// <summary>
+		/// Logs this exception with a custom error message.
+		/// </summary>
 		public static void LogException(this System.Exception e, string message = null, Object context = null)
 		{
 			Debug.LogException(e.AddMessage(message), context);
 		}
 
-		public static void InvokeValidation(this MonoBehaviour m, System.Action onValidateAction)
+		/// <summary>
+		/// (EDITOR ONLY) Invokes the given action with a slight delay. Useful for avoiding "SendMessage" related warnings during an OnValidate call.
+		/// </summary>
+		public static void EditorDelayCall(this MonoBehaviour m, System.Action onValidateAction)
 		{
-			bool wasPlaying = Application.isPlaying;
 #if UNITY_EDITOR
+			bool wasPlaying = Application.isPlaying;
 			UnityEditor.EditorApplication.delayCall += _OnValidate;
 
 			void _OnValidate()

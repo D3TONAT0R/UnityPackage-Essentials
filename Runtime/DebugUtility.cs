@@ -144,40 +144,61 @@ namespace D3T
 #endif
 		}
 
+		/// <summary>
+		/// Temporarily draws a raycast trajectory and its hit point as gizmos.
+		/// </summary>
 		public static void DebugRaycast(Ray ray, RaycastHit? hit = null, float maxDistance = 1000, Color? color = null, float duration = 1f)
 		{
 			var distance = GetMaxDistance(hit.HasValue ? new RaycastHit[] { hit.Value } : null, 1, maxDistance);
 			AddGizmo(new RaycastGizmoInstance(ray, 0, hit.HasValue ? new RaycastHit[] { hit.Value } : null, distance, color ?? Color.white, duration));
 		}
 
+		/// <summary>
+		/// Temporarily draws a raycast trajectory and all hit points as gizmos.
+		/// </summary>
 		public static void DebugRaycastAll(Ray ray, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null, float duration = 1f)
 		{
 			var distance = GetMaxDistance(hits, hitCount, maxDistance);
 			AddGizmo(new RaycastGizmoInstance(ray, 0, hits, distance, color ?? Color.white, duration));
 		}
 
+		/// <summary>
+		/// Temporarily draws a spherecast trajectory and its hit point as gizmos.
+		/// </summary>
 		public static void DebugSphereCast(Ray ray, float radius, RaycastHit? hit = null, float maxDistance = 1000, Color? color = null, float duration = 1f)
 		{
 			var distance = GetMaxDistance(hit.HasValue ? new RaycastHit[] { hit.Value } : null, 1, maxDistance);
 			AddGizmo(new RaycastGizmoInstance(ray, radius, hit.HasValue ? new RaycastHit[] { hit.Value } : null, distance, color ?? Color.white, duration));
 		}
 
+		/// <summary>
+		/// Temporarily draws a spherecast trajectory and all hit points as gizmos.
+		/// </summary>
 		public static void DebugSphereCastAll(Ray ray, float radius, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null, float duration = 1f)
 		{
 			var distance = GetMaxDistance(hits, hitCount, maxDistance);
 			AddGizmo(new RaycastGizmoInstance(ray, radius, hits, distance, color ?? Color.white, duration));
 		}
 
+		/// <summary>
+		/// Temporarily draws a point gizmo at the given location.
+		/// </summary>
 		public static void DebugPoint(Vector3 point, float size, Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new PointGizmoInstance(point, size, color ?? Color.white, duration));
 		}
 
+		/// <summary>
+		/// Temporarily draws a line gizmo between the given points.
+		/// </summary>
 		public static void DebugLine(Vector3 start, Vector3 end, Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new LineGizmoInstance(start, end, color ?? Color.white, duration));
 		}
 
+		/// <summary>
+		/// Temporarily draws a line gizmo from the given start towards the given direction.
+		/// </summary>
 		public static void DebugRay(Vector3 start, Vector3 direction, float length, Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new LineGizmoInstance(start, start + direction.normalized * length, color ?? Color.white, duration));
@@ -204,6 +225,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Logs an array's content to the console.
+		/// </summary>
 		public static void LogArray<T>(string message, IEnumerable<T> array, Func<T, string> elementFunc = null)
 		{
 			if(elementFunc == null) elementFunc = (t) => t.ToString();

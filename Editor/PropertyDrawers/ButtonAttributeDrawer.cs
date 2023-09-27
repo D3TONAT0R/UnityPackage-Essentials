@@ -6,46 +6,52 @@ using UnityEngine;
 
 namespace D3TEditor.PropertyDrawers
 {
-	[CustomPropertyDrawer(typeof(ButtonAttribute))]
+	[CustomPropertyDrawer(typeof(ButtonAttribute), true)]
 	public class ButtonAttributeDrawer : ModificationPropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var attr = PropertyDrawerUtility.GetAttribute<ButtonAttribute>(property, true);
-			if(!attr.below)
+			if(!attr.Below)
 			{
 				position.SplitVertical(EditorGUIUtility.singleLineHeight, out var top, out var bottom, EditorGUIUtility.standardVerticalSpacing);
-				DrawButton(property, attr, top);
+				DrawButtons(property, attr, top);
 				DrawProperty(bottom, property, label);
 			}
 			else
 			{
 				position.SplitVerticalBottom(EditorGUIUtility.singleLineHeight, out var top, out var bottom, EditorGUIUtility.standardVerticalSpacing);
 				DrawProperty(top, property, label);
-				DrawButton(property, attr, bottom);
+				DrawButtons(property, attr, bottom);
 			}
 		}
 
-		private static void DrawButton(SerializedProperty property, ButtonAttribute attr, Rect top)
+		private static void DrawButtons(SerializedProperty property, ButtonAttribute attr, Rect position)
 		{
-			bool enabled = attr.enabledOutsidePlayMode || Application.isPlaying;
+			bool enabled = attr.EnabledIn == ButtonAttribute.Usage.Both ? true :
+				Application.isPlaying && attr.EnabledIn == ButtonAttribute.Usage.PlayMode;
 			using(new EnabledScope(enabled))
 			{
-				if(GUI.Button(top, attr.buttonText))
+				var rects = position.DivideHorizontal(attr.buttonMethodNames.Length, 4);
+				for(int i = 0; i < rects.Length; i++)
 				{
-					Invoke(property, attr);
+					string name = attr.buttonNames[i] ?? ObjectNames.NicifyVariableName(attr.buttonMethodNames[i]);
+					if(GUI.Button(rects[i], name))
+					{
+						Invoke(property, attr.buttonMethodNames[i]);
+					}
 				}
 			}
 		}
 
-		private static void Invoke(SerializedProperty property, ButtonAttribute attr)
+		private static void Invoke(SerializedProperty property, string methodName)
 		{
 			object target;
 			var parentProp = PropertyDrawerUtility.GetParentProperty(property);
 			if(parentProp != null) target = PropertyDrawerUtility.GetTargetObjectOfProperty(parentProp);
 			else target = property.serializedObject.targetObject;
 
-			var method = target.GetType().GetMethod(attr.methodName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			var method = target.GetType().GetMethod(methodName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			method.Invoke(target, new object[0]);
 
 			var onValidate = ReflectionUtility.FindMemberInType(target.GetType(), "OnValidate") as MethodInfo;
