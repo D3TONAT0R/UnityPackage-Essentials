@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace D3T.Collections
 {
+	/// <summary>
+	/// Interface for a dictionary that can be serialized by unity.
+	/// </summary>
 	public interface IUnityDictionary
 	{
 		bool Valid { get; }

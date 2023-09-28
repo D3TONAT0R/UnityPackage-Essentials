@@ -4,6 +4,9 @@ using UnityEngine.Serialization;
 
 namespace D3T
 {
+	/// <summary>
+	/// A nullable value type that can be serialized.
+	/// </summary>
 	public abstract class NullableValue
 	{
 		public abstract bool HasValue { get; set; }
@@ -42,6 +45,9 @@ namespace D3T
 		}
 	}
 
+	/// <summary>
+	/// A nullable value type that can be serialized.
+	/// </summary>
 	public abstract class NullableValue<T> : NullableValue where T : struct
 	{
 		[FormerlySerializedAs("value")]
@@ -136,6 +142,9 @@ namespace D3T
 		public static implicit operator bool(NullableValue<T> v) => v.hasValue;
 	}
 
+	/// <summary>
+	/// A nullable boolean value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableBool : NullableValue<bool>
 	{
@@ -144,6 +153,9 @@ namespace D3T
 		public NullableBool(bool hasValue, bool startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable byte value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableByte : NullableValue<byte>
 	{
@@ -152,6 +164,9 @@ namespace D3T
 		public NullableByte(bool hasValue, byte startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable short value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableShort : NullableValue<short>
 	{
@@ -160,6 +175,9 @@ namespace D3T
 		public NullableShort(bool hasValue, short startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable integer value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableInt : NullableValue<int>
 	{
@@ -168,6 +186,9 @@ namespace D3T
 		public NullableInt(bool hasValue, int startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable long value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableLong : NullableValue<long>
 	{
@@ -176,6 +197,9 @@ namespace D3T
 		public NullableLong(bool hasValue, long startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable float value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableFloat : NullableValue<float>
 	{
@@ -184,6 +208,9 @@ namespace D3T
 		public NullableFloat(bool hasValue, float startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable double value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableDouble : NullableValue<double>
 	{
@@ -192,6 +219,9 @@ namespace D3T
 		public NullableDouble(bool hasValue, double startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Vector2 value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableVector2 : NullableValue<Vector2>
 	{
@@ -200,6 +230,9 @@ namespace D3T
 		public NullableVector2(bool hasValue, Vector2 startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Vector3 value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableVector3 : NullableValue<Vector3>
 	{
@@ -208,6 +241,9 @@ namespace D3T
 		public NullableVector3(bool hasValue, Vector3 startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Vector4 value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableVector4 : NullableValue<Vector4>
 	{
@@ -216,6 +252,9 @@ namespace D3T
 		public NullableVector4(bool hasValue, Vector4 startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Quaternion value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableQuaternion : NullableValue<Quaternion>
 	{
@@ -224,6 +263,9 @@ namespace D3T
 		public NullableQuaternion(bool hasValue, Quaternion startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Rect value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableRect : NullableValue<Rect>
 	{
@@ -232,6 +274,9 @@ namespace D3T
 		public NullableRect(bool hasValue, Rect startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Vector2Int value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableVector2Int : NullableValue<Vector2Int>
 	{
@@ -240,6 +285,9 @@ namespace D3T
 		public NullableVector2Int(bool hasValue, Vector2Int startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Vector3Int value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableVector3Int : NullableValue<Vector3Int>
 	{
@@ -248,6 +296,9 @@ namespace D3T
 		public NullableVector3Int(bool hasValue, Vector3Int startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Color value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableColor : NullableValue<Color>
 	{
@@ -256,6 +307,9 @@ namespace D3T
 		public NullableColor(bool hasValue, Color startValue) : base(hasValue, startValue) { }
 	}
 
+	/// <summary>
+	/// A nullable Color32 value that can be serialized.
+	/// </summary>
 	[Serializable]
 	public class NullableColor32 : NullableValue<Color32>
 	{
