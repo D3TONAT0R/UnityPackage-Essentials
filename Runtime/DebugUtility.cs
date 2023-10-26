@@ -114,6 +114,8 @@ namespace D3T
 
 		private static List<GizmoInstance> instances = new List<GizmoInstance>();
 
+		private static StringBuilder stringBuilder = new StringBuilder();
+
 		[OnDrawGizmosRuntime]
 		private static void OnDrawGizmos()
 		{
@@ -172,7 +174,7 @@ namespace D3T
 		}
 
 		/// <summary>
-		/// Temporarily draws a spherecast trajectory and all hit points as gizmos.
+		/// Temporarily draws a spherecast trajectory and all its hit points as gizmos.
 		/// </summary>
 		public static void DebugSphereCastAll(Ray ray, float radius, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null, float duration = 1f)
 		{
@@ -204,6 +206,47 @@ namespace D3T
 			AddGizmo(new LineGizmoInstance(start, start + direction.normalized * length, color ?? Color.white, duration));
 		}
 
+		/// <summary>
+		/// Logs an array's content to the console.
+		/// </summary>
+		public static void LogArray<T>(string message, IEnumerable<T> array, Func<T, string> elementFunc = null)
+		{
+			if(elementFunc == null) elementFunc = (t) => t.ToString();
+			stringBuilder.Clear();
+			if(!string.IsNullOrEmpty(message)) stringBuilder.Append(message + " ");
+			stringBuilder.AppendLine($"{array.GetType().GetElementType()}[{array.Count()}]");
+			int i = 0;
+			foreach(var elem in array)
+			{
+				stringBuilder.AppendLine($"{i}: {(elem != null ? elementFunc(elem) : "(null)")}");
+				i++;
+			}
+			Debug.Log(stringBuilder.ToString());
+		}
+
+		/// <summary>
+		/// Logs a transform's position, rotation and scale to the console
+		/// </summary>
+		public static void LogTransform(string message, Transform t, bool oneLine = false, bool position = true, bool rotation = true, bool scale = true)
+		{
+			stringBuilder.Clear();
+			if(message == null) stringBuilder.Append(t.name);
+			stringBuilder.AppendLine(message);
+			if(!oneLine)
+			{
+				if(position) stringBuilder.AppendLine("  Position: " + t.position);
+				if(rotation) stringBuilder.AppendLine("  Rotation: " + t.eulerAngles);
+				if(scale) stringBuilder.AppendLine("  Scale (Local): " + t.localScale);
+			}
+			else
+			{
+				if(position) stringBuilder.Append(" Pos: " + t.position);
+				if(rotation) stringBuilder.Append(" Rot: " + t.eulerAngles);
+				if(scale) stringBuilder.Append(" Scale (Local): " + t.localScale);
+			}
+			Debug.Log(stringBuilder.ToString());
+		}
+
 		private static float GetMaxDistance(RaycastHit[] hits, int hitCount, float maxDistance)
 		{
 			if(hits != null)
@@ -223,24 +266,6 @@ namespace D3T
 			{
 				return maxDistance;
 			}
-		}
-
-		/// <summary>
-		/// Logs an array's content to the console.
-		/// </summary>
-		public static void LogArray<T>(string message, IEnumerable<T> array, Func<T, string> elementFunc = null)
-		{
-			if(elementFunc == null) elementFunc = (t) => t.ToString();
-			var sb = new StringBuilder();
-			if(!string.IsNullOrEmpty(message)) sb.Append(message + " ");
-			sb.AppendLine($"{array.GetType().GetElementType()}[{array.Count()}]");
-			int i = 0;
-			foreach(var elem in array)
-			{
-				sb.AppendLine($"{i}: {(elem != null ? elementFunc(elem) : "(null)")}");
-				i++;
-			}
-			Debug.Log(sb.ToString());
 		}
 	}
 }

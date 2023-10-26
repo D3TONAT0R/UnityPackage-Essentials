@@ -61,7 +61,7 @@ namespace D3T
 	public class OnGUIAttribute : Attribute { }
 
 	/// <summary>
-	/// Add this attribute to a static method to draw gizmos in the scene view.
+	/// Add this attribute to a static method to draw gizmos in the scene view (runtime only).
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]
 	public class OnDrawGizmosRuntimeAttribute : Attribute { }
