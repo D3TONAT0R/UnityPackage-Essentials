@@ -6,55 +6,55 @@ using UnityEngine;
 namespace D3T {
 
 	/// <summary>
-	/// Coroutine manager class that allows for object-independent coroutines.
+	/// Coroutine manager that allows for object-independent coroutines.
 	/// </summary>
 	public static class CoroutineRunner
 	{
 
-		static MonoInstance _runner;
-		static MonoInstance Runner
+		private static MonoInstance runnerInstance;
+		private static MonoInstance RunnerInstance
 		{
 			get
 			{
-				if(!_runner)
+				if(!runnerInstance)
 				{
-					_runner = new GameObject("Coroutine Runner").AddComponent<MonoInstance>();
-					_runner.gameObject.hideFlags = HideFlags.HideAndDontSave;
+					runnerInstance = new GameObject("Coroutine Runner").AddComponent<MonoInstance>();
+					runnerInstance.gameObject.hideFlags = HideFlags.HideAndDontSave;
 				}
-				return _runner;
+				return runnerInstance;
 			}
 		}
 
 		/// <summary>
 		/// Runs the given routine on a persistent GameObject, with optional delay.
 		/// </summary>
-		public static Coroutine Run(IEnumerator routine, float delay = 0)
+		public static Coroutine Run(IEnumerator routine, float delay = 0, bool delayInRealTime = false)
 		{
-			return Runner.StartCoroutine(Execute(routine, delay));
+			return RunnerInstance.StartCoroutine(Execute(routine, delay, delayInRealTime));
 		}
 
 		/// <summary>
 		/// Runs the given routine on the given MonoBehaviour, with optional delay.
 		/// </summary>
-		public static Coroutine Run(IEnumerator routine, MonoBehaviour owner, float delay = 0)
+		public static Coroutine Run(IEnumerator routine, MonoBehaviour owner, float delay = 0, bool delayInRealTime = false)
 		{
-			return owner.StartCoroutine(Execute(routine, delay));
+			return owner.StartCoroutine(Execute(routine, delay, delayInRealTime));
 		}
 
 		/// <summary>
-		/// Invokes the given action with the given delay.
+		/// Invokes the given action with a delay.
 		/// </summary>
-		public static Coroutine InvokeDelayed(Action action, float delay)
+		public static Coroutine InvokeDelayed(Action action, float delay, bool delayInRealTime = false)
 		{
-			return Runner.StartCoroutine(Execute(action, delay));
+			return RunnerInstance.StartCoroutine(Execute(action, delay, delayInRealTime));
 		}
 
 		/// <summary>
 		/// Invokes the given action with delay on the given MonoBehaviour.
 		/// </summary>
-		public static Coroutine InvokeDelayed(Action action, MonoBehaviour owner, float delay)
+		public static Coroutine InvokeDelayed(Action action, MonoBehaviour owner, float delay, bool delayInRealTime = false)
 		{
-			return owner.StartCoroutine(Execute(action, delay));
+			return owner.StartCoroutine(Execute(action, delay, delayInRealTime));
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace D3T {
 		/// </summary>
 		public static Coroutine InvokeWithFrameDelay(Action action, int frames = 1)
 		{
-			return Runner.StartCoroutine(ExecuteFrameDelay(action, frames));
+			return RunnerInstance.StartCoroutine(ExecuteWithFrameDelay(action, frames));
 		}
 
 		/// <summary>
@@ -70,15 +70,15 @@ namespace D3T {
 		/// </summary>
 		public static Coroutine InvokeWithFrameDelay(Action action, MonoBehaviour owner, int frames = 1)
 		{
-			return owner.StartCoroutine(ExecuteFrameDelay(action, frames));
+			return owner.StartCoroutine(ExecuteWithFrameDelay(action, frames));
 		}
 
 		/// <summary>
-		/// Stops the given routine running on the persistent singleton instance.
+		/// Stops the given routine running on the coroutine manager.
 		/// </summary>
 		public static void Stop(Coroutine coroutine)
 		{
-			Runner.StopCoroutine(coroutine);
+			RunnerInstance.StopCoroutine(coroutine);
 		}
 
 		/// <summary>
@@ -89,19 +89,27 @@ namespace D3T {
 			owner.StopCoroutine(coroutine);
 		}
 
-		static IEnumerator Execute(IEnumerator routine, float delay)
+		private static IEnumerator Execute(IEnumerator routine, float delay, bool realtime)
 		{
-			if (delay > 0) yield return new WaitForSeconds(delay);
+			if(delay > 0)
+			{
+				if(realtime) yield return new WaitForSeconds(delay);
+				else yield return new WaitForSecondsRealtime(delay);
+			}
 			yield return routine;
 		}
 
-		static IEnumerator Execute(Action action, float delay)
+		private static IEnumerator Execute(Action action, float delay, bool realtime)
 		{
-			yield return new WaitForSeconds(delay);
+			if(delay > 0)
+			{
+				if(realtime) yield return new WaitForSeconds(delay);
+				else yield return new WaitForSecondsRealtime(delay);
+			}
 			action.Invoke();
 		}
 
-		static IEnumerator ExecuteFrameDelay(Action action, int frames)
+		private static IEnumerator ExecuteWithFrameDelay(Action action, int frames)
 		{
 			for(int i = 0; i < frames; i++) yield return 0;
 			action.Invoke();
