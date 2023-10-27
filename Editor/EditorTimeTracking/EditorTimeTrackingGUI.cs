@@ -40,7 +40,7 @@ namespace D3TEditor.TimeTracking
 
 		private static string ToTimeString(float t)
 		{
-			return ((int)t).ConvertToTimeString(true);
+			return ((int)t).ToTimeString(true);
 		}
 	}
 }
