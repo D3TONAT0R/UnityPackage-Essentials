@@ -321,12 +321,12 @@ namespace D3T
 		public static Vector4 Abs(this Vector4 v) => new Vector4(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z), Mathf.Abs(v.w));
 
 		/// <summary>
-		/// Clamps the given angle between a -180 to 180 degrees range.
+		/// Clamps all component's angles between a -180 to 180 degrees range.
 		/// </summary>
 		public static Vector2 ClampAngle(this Vector2 v) => new Vector2(v.x.ClampAngle(), v.y.ClampAngle());
 
 		/// <summary>
-		/// Clamps the given angle between a -180 to 180 degrees range.
+		/// Clamps all component's angles between a -180 to 180 degrees range.
 		/// </summary>
 		public static Vector3 ClampAngle(this Vector3 v) => new Vector3(v.x.ClampAngle(), v.y.ClampAngle(), v.z.ClampAngle());
 

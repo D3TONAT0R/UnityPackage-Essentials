@@ -5,36 +5,65 @@ namespace D3T
 {
 	public static class Extensions
 	{
-
-		#region Transforms
-
-
-		#endregion
 		#region Numerics
 
+		/// <summary>
+		/// Returns true if this value falls between the given minimum and maximum.
+		/// </summary>
 		public static bool IsBetween(this float f, float min, float max) => f >= min && f <= max;
 
+		/// <summary>
+		/// Returns true if this value falls between the given minimum and maximum, excluding exact hits.
+		/// </summary>
 		public static bool IsBetweenExcluding(this float f, float min, float max) => f > min && f < max;
 
-		public static bool IsBetweenIncluding(this int i, int min, int max) => i >= min && i <= max;
+		/// <summary>
+		/// Returns true if this value falls between the given minimum and maximum.
+		/// </summary>
+		public static bool IsBetween(this int i, int min, int max) => i >= min && i <= max;
 
+		/// <summary>
+		/// Returns true if this value falls between the given minimum and maximum, excluding exact hits.
+		/// </summary>
 		public static bool IsBetweenExcluding(this int i, int min, int max) => i > min && i < max;
 
-		public static float Round(this float f, int decNumbers)
+		/// <summary>
+		/// Rounds this value with the given number of decimal places.
+		/// </summary>
+		public static float Round(this float f, int decimals)
 		{
-			int exp = (int)Mathf.Pow(10, decNumbers);
-			return decNumbers <= 0 ? Mathf.RoundToInt(f) : Mathf.Round(f * exp) / exp;
+			int exp = (int)Mathf.Pow(10, decimals);
+			return decimals <= 0 ? Mathf.RoundToInt(f) : Mathf.Round(f * exp) / exp;
 		}
 
+		/// <summary>
+		/// Rounds this value with the given rounding interval.
+		/// </summary>
 		public static float RoundTo(this float f, float rounding) => Mathf.Round(f * rounding) / rounding;
 
+		/// <summary>
+		/// Returns the absolute value of this float.
+		/// </summary>
 		public static float Abs(this float f) => Mathf.Abs(f);
 
+		/// <summary>
+		/// Returns the absolute value of this integer.
+		/// </summary>
 		public static int Abs(this int i) => Mathf.Abs(i);
 
+		/// <summary>
+		/// Returns the sign of this value.
+		/// </summary>
 		public static int Sign(this float f) => f > 0 ? 1 : f < 0 ? -1 : 0;
+
+		/// <summary>
+		/// Returns the sign of this value.
+		/// </summary>
 		public static int Sign(this int i) => i > 0 ? 1 : i < 0 ? -1 : 0;
 
+		/// <summary>
+		/// Clamps the given angle between a -180 to 180 degrees range.
+		/// </summary>
 		public static float ClampAngle(this float f)
 		{
 			while(f > 180) f -= 360;

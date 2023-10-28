@@ -7,6 +7,9 @@ namespace D3T
 {
 	public static class LayerUtility
 	{
+		/// <summary>
+		/// Returns the collision mask for the given layer.
+		/// </summary>
 		public static LayerMask GetCollisionLayerMask(int layer)
 		{
 			int mask = 0;

@@ -38,6 +38,10 @@ namespace D3T.Utility
 		private static Assembly[] gameAssemblyCache;
 		private static Assembly[] gameAssemblyWithUnityCache;
 
+
+		/// <summary>
+		/// Returns all game related assemblies (excluding unity assemblies).
+		/// </summary>
 		public static Assembly[] GetGameAssemblies()
 		{
 			if(gameAssemblyCache == null)
@@ -47,6 +51,9 @@ namespace D3T.Utility
 			return gameAssemblyCache;
 		}
 
+		/// <summary>
+		/// Returns all game related and unity assemblies.
+		/// </summary>
 		public static Assembly[] GetGameAssembliesIncludingUnity()
 		{
 			if(gameAssemblyWithUnityCache == null)
@@ -86,6 +93,9 @@ namespace D3T.Utility
 			return false;
 		}
 
+		/// <summary>
+		/// Returns all types that inherit from the given type.
+		/// </summary>
 		public static IEnumerable<Type> GetClassesOfType(Type baseType, bool includeUnityAssembly = false)
 		{
 			Func<Assembly[]> assemblyGetter;
@@ -94,6 +104,9 @@ namespace D3T.Utility
 			return assemblyGetter.Invoke().SelectMany(a => a.GetTypes().Where(t => baseType.IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface));
 		}
 
+		/// <summary>
+		/// Returns all attributes of the given type.
+		/// </summary>
 		public static List<T> GetAllAttributeDefinitions<T>(bool includeStructs = false) where T : Attribute
 		{
 			var condition = GetClassOrStructCondition(includeStructs);
@@ -128,6 +141,9 @@ namespace D3T.Utility
 			return methods;
 		}
 
+		/// <summary>
+		/// Returns all classes and assembly attributes of the given type.
+		/// </summary>
 		public static List<T> GetClassAndAssemblyAttributes<T>(bool includeUnityAssembly) where T : Attribute
 		{
 			var assemblies = includeUnityAssembly ? GetGameAssembliesIncludingUnity() : GetGameAssemblies();
@@ -157,6 +173,9 @@ namespace D3T.Utility
 			return flags;
 		}
 
+		/// <summary>
+		/// Returns the MemberInfo located at the given path (separated by dots), starting at the given type.
+		/// </summary>
 		public static MemberInfo FindMemberInType(Type type, string name, bool throwException = false)
 		{
 			var members = type.GetMember(name, allInclusiveBindingFlags);
@@ -175,6 +194,9 @@ namespace D3T.Utility
 			}
 		}
 
+		/// <summary>
+		/// Returns a member value via name.
+		/// </summary>
 		public static object GetMemberValueByName(object source, string name)
 		{
 			var m = FindMemberInType(source.GetType(), name);
@@ -188,6 +210,9 @@ namespace D3T.Utility
 			}
 		}
 
+		/// <summary>
+		/// Returns the value of the given member.
+		/// </summary>
 		public static object GetMemberValue(MemberInfo m, object obj)
 		{
 			if(m is FieldInfo f)
@@ -204,11 +229,17 @@ namespace D3T.Utility
 			}
 		}
 
+		/// <summary>
+		/// Invokes all static methods with the given attribute.
+		/// </summary>
 		public static void InvokeStaticMethodsWithAttribute<T>(bool allowParameterlessMethods = true, params object[] parameters) where T : Attribute
 		{
 			InvokeStaticMethods(GetMethodsWithAttribute<T>(true), allowParameterlessMethods, parameters);
 		}
 
+		/// <summary>
+		/// Invokes all static methods in the given collection.
+		/// </summary>
 		public static void InvokeStaticMethods(IEnumerable<MethodInfo> methods, bool allowParameterlessMethods, params object[] parameters)
 		{
 			if(parameters == null) parameters = new object[0];
@@ -259,6 +290,9 @@ namespace D3T.Utility
 			}
 		}
 
+		/// <summary>
+		/// Sets the value for the member at the given path (separated by dots).
+		/// </summary>
 		public static void SetValueAtPath(object root, MemberInfo[] path, object value)
 		{
 			var obj = root;
@@ -268,6 +302,9 @@ namespace D3T.Utility
 			}, true);
 		}
 
+		/// <summary>
+		/// Adds the value for the member at the given path (separated by dots).
+		/// </summary>
 		public static void AddValueAtPath(object root, MemberInfo[] path, object value)
 		{
 			var obj = root;
@@ -279,6 +316,9 @@ namespace D3T.Utility
 			}, true);
 		}
 
+		/// <summary>
+		/// Returns the value for the member at the given path (separated by dots).
+		/// </summary>
 		public static object GetValueAtPath(object root, MemberInfo[] path)
 		{
 			var obj = root;
@@ -289,6 +329,9 @@ namespace D3T.Utility
 			return obj;
 		}
 
+		/// <summary>
+		/// Sets the value of the given member.
+		/// </summary>
 		public static void SetValueOfMember(object obj, MemberInfo member, object value)
 		{
 			if(member is FieldInfo f) f.SetValue(obj, value);
@@ -296,6 +339,9 @@ namespace D3T.Utility
 			else throw new InvalidOperationException();
 		}
 
+		/// <summary>
+		/// Returns the value of the given member.
+		/// </summary>
 		public static object GetValueOfMember(object obj, MemberInfo member)
 		{
 			if(member is FieldInfo f) return f.GetValue(obj);
@@ -303,6 +349,9 @@ namespace D3T.Utility
 			else throw new InvalidOperationException();
 		}
 
+		/// <summary>
+		/// Returns the sum of the two values.
+		/// </summary>
 		public static object AddValues(object a, object b)
 		{
 			if(a is float f) return f + (float)b;
@@ -316,6 +365,9 @@ namespace D3T.Utility
 			else throw new InvalidOperationException("The given type does not support addition.");
 		}
 
+		/// <summary>
+		/// Return the path to the given member as an array of MemberInfos.
+		/// </summary>
 		public static MemberInfo[] GetMemberPath(object root, string path)
 		{
 			object obj = root;

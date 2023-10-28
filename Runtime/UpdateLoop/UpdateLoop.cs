@@ -100,26 +100,45 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Event that is invoked before the regular Update period.
+		/// </summary>
 		public static event Action PreUpdate
 		{
 			add => preUpdate.Add(value);
 			remove => preUpdate.Remove(value);
 		}
+
+		/// <summary>
+		/// Event that is invoked during the regular Update period.
+		/// </summary>
 		public static event Action Update
 		{
 			add => update.Add(value);
 			remove => update.Remove(value);
 		}
+
+		/// <summary>
+		/// Event that is invoked after the Update and before the LateUpdate period.
+		/// </summary>
 		public static event Action PreLateUpdate
 		{
 			add => preLateUpdate.Add(value);
 			remove => preLateUpdate.Remove(value);
 		}
+
+		/// <summary>
+		/// Event that is invoked during the regular LateUpdate period.
+		/// </summary>
 		public static event Action LateUpdate
 		{
 			add => lateUpdate.Add(value);
 			remove => lateUpdate.Remove(value);
 		}
+
+		/// <summary>
+		/// Event that is invoked after the regular LateUpdate period.
+		/// </summary>
 		public static event Action PostLateUpdate
 		{
 			add => postLateUpdate.Add(value);
@@ -127,12 +146,18 @@ namespace D3T
 		}
 
 
-
+		/// <summary>
+		/// Event that is invoked during the regular FixedUpdate period.
+		/// </summary>
 		public static event Action FixedUpdate
 		{
 			add => fixedUpdate.Add(value);
 			remove => fixedUpdate.Remove(value);
 		}
+
+		/// <summary>
+		/// Event that is invoked after the regular FixedUpdate period.
+		/// </summary>
 		public static event Action PostFixedUpdate
 		{
 			add => postFixedUpdate.Add(value);
@@ -140,7 +165,9 @@ namespace D3T
 		}
 
 
-
+		/// <summary>
+		/// Event that is invoked only once for each subscriber during the regular Update event.
+		/// </summary>
 		public static event Action UpdateOnce
 		{
 			add => updateOnce.Add(value);
@@ -148,12 +175,18 @@ namespace D3T
 		}
 
 
-
+		/// <summary>
+		/// Event that is invoked during the OnGUI period.
+		/// </summary>
 		public static event Action OnGUI
 		{
 			add => onGUI.Add(value);
 			remove => onGUI.Remove(value);
 		}
+
+		/// <summary>
+		/// Event that is used to draw Gizmos in the scene view (runtime only).
+		/// </summary>
 		public static event Action OnDrawGizmosRuntime
 		{
 			add => onDrawGizmosRuntime.Add(value);
@@ -307,6 +340,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Adds a subsystem to the given root system before all other child systems.
+		/// </summary>
 		public static void AddSubsystemFirst(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
 		{
 			var loop = PlayerLoop.GetCurrentPlayerLoop();
@@ -314,6 +350,9 @@ namespace D3T
 			PlayerLoop.SetPlayerLoop(loop);
 		}
 
+		/// <summary>
+		/// Adds a subsystem to the given root system after all other child systems.
+		/// </summary>
 		public static void AddSubsystemLast(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
 		{
 			var loop = PlayerLoop.GetCurrentPlayerLoop();
@@ -321,6 +360,9 @@ namespace D3T
 			PlayerLoop.SetPlayerLoop(loop);
 		}
 
+		/// <summary>
+		/// Adds a subsystem to the given root system and after the given child system.
+		/// </summary>
 		public static void AddSubsystemBefore(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget, Type beforeSubSystem)
 		{
 			var loop = PlayerLoop.GetCurrentPlayerLoop();
@@ -393,6 +435,7 @@ namespace D3T
 			system.subSystemList = subsystems.ToArray();
 		}
 
+		/*
 		public static void InsertCallback(ref PlayerLoopSystem system, Type parentSystem, Type childSystem, PlayerLoopSystem.UpdateFunction callback)
 		{
 			bool added = false;
@@ -415,8 +458,12 @@ namespace D3T
 				throw new NullReferenceException($"Failed to add callback to subsystem '{childSystem}'.");
 			}
 		}
+		*/
 
-		public static void PrintCurrentPlayerLoop(bool includeFunctionPtrs)
+		/// <summary>
+		/// Logs the entire hierarchy of player loop systems to the console.
+		/// </summary>
+		public static void LogCurrentPlayerLoop(bool includeFunctionPtrs)
 		{
 			var sb = new StringBuilder();
 			PrintLoopRecursive(sb, PlayerLoop.GetCurrentPlayerLoop(), 0, includeFunctionPtrs);
