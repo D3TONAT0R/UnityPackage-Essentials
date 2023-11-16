@@ -82,6 +82,19 @@ namespace D3T
 		}
 
 		/// <summary>
+		/// Returns the collision mask for the given layer.
+		/// </summary>
+		public static LayerMask GetCollisionLayerMask(this int layer)
+		{
+			int mask = 0;
+			for(int i = 0; i < 32; i++)
+			{
+				if(!Physics.GetIgnoreLayerCollision(layer, i)) mask += 1 << i;
+			}
+			return mask;
+		}
+
+		/// <summary>
 		/// Draws this GUIStyle during the repaint phase.
 		/// </summary>
 		public static void DrawOnRepaint(this GUIStyle s, Rect r)

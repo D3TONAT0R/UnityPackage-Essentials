@@ -7,8 +7,8 @@ namespace D3T
 	/// </summary>
 	public class MessagedException : Exception
 	{
-		private string message;
-		private Exception rootException;
+		private readonly string message;
+		private readonly Exception rootException;
 
 		public override string Message => $"{message}: {rootException.Message}";
 		public override string StackTrace => rootException.StackTrace;

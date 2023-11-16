@@ -376,7 +376,7 @@ namespace D3T
 		}
 
 		/// <summary>
-		/// Returns the slope angle of this normal vector in degrees.
+		/// Returns the slope angle of this normal vector (relative to the Y axis) in degrees.
 		/// </summary>
 		public static float GetSlopeAngle(this Vector3 v)
 		{

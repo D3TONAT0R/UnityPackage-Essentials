@@ -17,7 +17,7 @@ namespace D3T
 				case ComparisonOperator.Less: return l < r;
 				case ComparisonOperator.LessOrEqual: return l <= r;
 				case ComparisonOperator.Equal: return l == r;
-				case ComparisonOperator.EqualOrMore: return l >= r;
+				case ComparisonOperator.MoreOrEqual: return l >= r;
 				case ComparisonOperator.More: return l > r;
 				default: throw new System.InvalidOperationException();
 			}
@@ -33,7 +33,7 @@ namespace D3T
 				case ComparisonOperator.Less: return l < r;
 				case ComparisonOperator.LessOrEqual: return l <= r;
 				case ComparisonOperator.Equal: return l == r;
-				case ComparisonOperator.EqualOrMore: return l >= r;
+				case ComparisonOperator.MoreOrEqual: return l >= r;
 				case ComparisonOperator.More: return l > r;
 				default: throw new System.InvalidOperationException();
 			}

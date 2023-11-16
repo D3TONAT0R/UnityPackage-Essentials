@@ -10,7 +10,7 @@ namespace D3T
 		[InspectorName("<")] Less,
 		[InspectorName("<=")] LessOrEqual,
 		[InspectorName("==")] Equal,
-		[InspectorName(">=")] EqualOrMore,
+		[InspectorName(">=")] MoreOrEqual,
 		[InspectorName(">")] More,
 	}
 }
