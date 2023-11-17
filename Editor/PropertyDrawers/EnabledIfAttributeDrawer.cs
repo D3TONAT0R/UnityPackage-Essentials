@@ -1,11 +1,11 @@
-﻿using D3T;
-using D3TEditor;
+﻿using UnityEssentials;
+using UnityEssentialsEditor;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(EnabledIfAttribute))]
 	public class EnabledIfAttributeDrawer : ModificationPropertyDrawer

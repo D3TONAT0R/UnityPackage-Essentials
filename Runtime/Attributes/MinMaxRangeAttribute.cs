@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Constrains a <see cref="FloatRange"/> field to the given range.

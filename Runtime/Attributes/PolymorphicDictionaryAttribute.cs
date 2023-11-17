@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace D3T.Collections
+namespace UnityEssentials.Collections
 {
 	/// <summary>
 	/// Enables polymorphic support for a UnityDictionary.

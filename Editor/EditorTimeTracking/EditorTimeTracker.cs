@@ -1,12 +1,12 @@
-﻿using D3T;
-using D3T.Utility;
+﻿using UnityEssentials;
+using UnityEssentials.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.TimeTracking
+namespace UnityEssentialsEditor.TimeTracking
 {
 	public static class EditorTimeTracker
 	{

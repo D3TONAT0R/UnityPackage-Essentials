@@ -1,4 +1,4 @@
-﻿using D3T;
+﻿using UnityEssentials;
 #if UNITY_2020_2_OR_NEWER
 using UnityEditor.AssetImporters;
 #else
@@ -6,7 +6,7 @@ using UnityEditor.Experimental.AssetImporters;
 #endif
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	[ScriptedImporter(0, "gradient")]
 	public class GradientTextureImporter : ScriptedImporter

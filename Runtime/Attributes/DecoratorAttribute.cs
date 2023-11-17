@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Base class for custom inspector field decorator attributes.

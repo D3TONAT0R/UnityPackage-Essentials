@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using D3T;
+using UnityEssentials;
 
-namespace D3TEditor.MaterialPropertyDrawers
+namespace UnityEssentialsEditor.MaterialPropertyDrawers
 {
     public class ShowAsVector2Drawer : MaterialPropertyDrawer
     {

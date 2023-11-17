@@ -1,4 +1,4 @@
-using D3TEditor.Tools;
+using UnityEssentialsEditor.Tools;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 
-namespace D3TEditor.Inspector
+namespace UnityEssentialsEditor.Inspector
 {
 	[CustomEditor(typeof(ReflectionProbe))]
 	[CanEditMultipleObjects]

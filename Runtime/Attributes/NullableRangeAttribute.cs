@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Attribute used to make a nullable float or int field be restricted to a specific range.

@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.PackageManager.UI;
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
     public abstract class EditorToolBase : EditorTool
     {

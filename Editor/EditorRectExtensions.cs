@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public static class EditorRectExtensions
 	{

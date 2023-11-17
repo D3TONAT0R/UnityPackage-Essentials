@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	public static class EnumExtensions
 	{

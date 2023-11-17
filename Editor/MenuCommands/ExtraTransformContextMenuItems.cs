@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	internal static class ExtraTransformContextMenuItems
 	{

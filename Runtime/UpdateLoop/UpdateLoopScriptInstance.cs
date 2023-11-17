@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace D3T.Utility
+namespace UnityEssentials.Utility
 {
 	internal class UpdateLoopScriptInstance : MonoBehaviour
 	{

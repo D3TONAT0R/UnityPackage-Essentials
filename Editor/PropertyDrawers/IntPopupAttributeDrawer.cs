@@ -1,11 +1,11 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(IntPopupAttribute), true)]
 	public class IntPopupAttributeDrawer : PropertyDrawer

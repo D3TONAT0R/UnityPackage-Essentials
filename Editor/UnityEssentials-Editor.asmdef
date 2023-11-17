@@ -1,6 +1,8 @@
 {
-    "name": "D3T.Essentials",
-    "references": [],
+    "name": "UnityEssentials.Editor",
+    "references": [
+        "GUID:c0fb46d2d093f1a42a7ae3e014dc7e4f"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

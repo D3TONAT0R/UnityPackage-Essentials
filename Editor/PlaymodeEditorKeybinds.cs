@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.ShortcutManagement;
 using UnityEngine;
 
-namespace D3TEditor {
+namespace UnityEssentialsEditor {
 	public static class PlaymodeEditorKeybinds {
 
 		static string FilePath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "LastProfile.tmp");

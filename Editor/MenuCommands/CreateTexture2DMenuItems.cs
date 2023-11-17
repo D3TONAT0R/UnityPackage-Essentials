@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using System.IO;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public static class CreateTexture2DMenuItems
 	{

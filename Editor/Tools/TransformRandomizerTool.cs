@@ -1,9 +1,9 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
 	[EditorTool("Transform Randomizer")]
 	public class TransformRandomizerTool : EditorToolBase

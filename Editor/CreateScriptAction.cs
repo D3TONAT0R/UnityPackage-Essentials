@@ -7,7 +7,7 @@ using System;
 using System.Text.RegularExpressions;
 using Object = UnityEngine.Object;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public class CreateScriptAction : EndNameEditAction
 	{

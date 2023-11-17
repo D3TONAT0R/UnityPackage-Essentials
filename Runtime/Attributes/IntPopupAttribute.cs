@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Shows possible integer values as dropdown options.

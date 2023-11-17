@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEditor;
 
-namespace D3T
+namespace UnityEssentials
 {
 	public enum HelpBoxType { None, Info, Warning, Error }
 

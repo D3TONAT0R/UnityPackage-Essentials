@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public static class DuplicateCustom
 	{

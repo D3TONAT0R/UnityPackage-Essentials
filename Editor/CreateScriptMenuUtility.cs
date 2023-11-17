@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
     public static class CreateScriptMenuUtility
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// An operator for boolean operations.

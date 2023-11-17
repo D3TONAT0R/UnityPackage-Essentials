@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Draws a separator line above an inspector field.

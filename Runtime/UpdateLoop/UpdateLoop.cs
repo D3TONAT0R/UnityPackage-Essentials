@@ -1,4 +1,4 @@
-﻿using D3T.Utility;
+﻿using UnityEssentials.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Utility class for adding subsystems to the game loop.

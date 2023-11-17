@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Makes an inspector text field use a monospace font.

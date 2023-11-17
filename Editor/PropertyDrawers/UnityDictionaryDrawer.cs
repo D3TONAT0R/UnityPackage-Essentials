@@ -1,14 +1,14 @@
-﻿using D3T;
-using D3T.Collections;
+﻿using UnityEssentials;
+using UnityEssentials.Collections;
 using UnityEditor;
 using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
-using D3T.Utility;
+using UnityEssentials.Utility;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(UnityDictionary<,>), true)]
 	public class UnityDictionaryDrawer : PropertyDrawer

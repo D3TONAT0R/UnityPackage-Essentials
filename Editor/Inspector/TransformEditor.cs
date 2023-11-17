@@ -1,4 +1,4 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -6,7 +6,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	[CustomEditor(typeof(Transform))]
 	[CanEditMultipleObjects]

@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-using D3T;
+using UnityEssentials;
 using UnityEditor;
 using System.IO;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public class EssentialsProjectSettings : ScriptableObject
 	{

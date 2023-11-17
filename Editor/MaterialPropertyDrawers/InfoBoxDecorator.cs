@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace D3TEditor.MaterialPropertyDrawers
+namespace UnityEssentialsEditor.MaterialPropertyDrawers
 {
 	public class InfoBoxDecorator : MaterialPropertyDrawer
 	{

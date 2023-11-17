@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Add this attribute to a static method to have it called right before the Update period.

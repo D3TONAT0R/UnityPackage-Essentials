@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 
 	/// <summary>

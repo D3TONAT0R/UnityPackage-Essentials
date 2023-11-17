@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// A nullable value type that can be serialized.

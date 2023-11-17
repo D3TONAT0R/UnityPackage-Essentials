@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// A pool of GameObjects with a specific component attached.

@@ -1,4 +1,4 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public static class EditorGUIExtras
 	{

@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
 	[EditorTool("Prefab Placer")]
 	public class PrefabPlacementTool : EditorToolBase

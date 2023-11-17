@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Defines a range using a min and max value.

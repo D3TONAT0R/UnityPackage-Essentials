@@ -1,10 +1,10 @@
-﻿using D3T;
-using D3T.Utility;
+﻿using UnityEssentials;
+using UnityEssentials.Utility;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(ButtonAttribute), true)]
 	public class ButtonAttributeDrawer : ModificationPropertyDrawer

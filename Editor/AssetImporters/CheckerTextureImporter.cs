@@ -5,7 +5,7 @@ using UnityEditor.Experimental.AssetImporters;
 #endif
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	[ScriptedImporter(0, "checker")]
 	public class CheckerTextureImporter : ScriptedImporter

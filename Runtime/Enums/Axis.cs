@@ -1,4 +1,4 @@
-﻿namespace D3T
+﻿namespace UnityEssentials
 {
 	/// <summary>
 	/// A dimensional axis (X/Y/Z).

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace D3T.Collections
+namespace UnityEssentials.Collections
 {
 	/// <summary>
 	/// Interface for a dictionary that can be serialized by unity.

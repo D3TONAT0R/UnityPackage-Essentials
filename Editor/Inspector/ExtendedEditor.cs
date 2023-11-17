@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.Inspector
+namespace UnityEssentialsEditor.Inspector
 {
 	public abstract class ExtendedEditor : Editor
 	{

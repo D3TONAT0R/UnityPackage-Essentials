@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace D3T.Utility
+namespace UnityEssentials.Utility
 {
 	/// <summary>
 	/// Contains helper classes for getting common file paths to save persistent files in.

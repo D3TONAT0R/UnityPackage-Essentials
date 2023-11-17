@@ -1,9 +1,9 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.TimeTracking
+namespace UnityEssentialsEditor.TimeTracking
 {
 	public static class EditorTimeTrackingGUI
 	{

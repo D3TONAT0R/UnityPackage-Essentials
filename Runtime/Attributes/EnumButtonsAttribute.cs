@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Add this attribute to an Enum field to have it drawn as horizontal buttons instead of the default dropdown.

@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
-namespace D3T.Utility
+namespace UnityEssentials.Utility
 {
 
 	/// <summary>
