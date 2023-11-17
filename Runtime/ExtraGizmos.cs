@@ -25,6 +25,9 @@ namespace D3T
 			cylinder = builder.CreateMesh();
 		}
 
+		/// <summary>
+		/// Draws a wireframe circle gizmo.
+		/// </summary>
 		public static void DrawWireDisc(Vector3 center, Vector3 normal, float radius, int segments = 32)
 		{
 			var lastMatrix = Gizmos.matrix;
@@ -38,6 +41,9 @@ namespace D3T
 			Gizmos.matrix = lastMatrix;
 		}
 
+		/// <summary>
+		/// Draws a solid circle gizmo.
+		/// </summary>
 		public static void DrawDisc(Vector3 center, Vector3 normal, float radius)
 		{
 			var lastMatrix = Gizmos.matrix;
@@ -46,6 +52,9 @@ namespace D3T
 			Gizmos.matrix = lastMatrix;
 		}
 
+		/// <summary>
+		/// Draws an arc between the given angles.
+		/// </summary>
 		public static void DrawArc(Vector3 center, Vector3 up, Vector3 forward, float radius, float fromDegrees, float toDegrees, bool edges = false, int segments = 16)
 		{
 			var lMatrix = Gizmos.matrix;
@@ -65,14 +74,9 @@ namespace D3T
 			Gizmos.matrix = lMatrix;
 		}
 
-		public static void DrawCylinder(Vector3 center, Quaternion rotation, float radius, float height)
-		{
-			var lastMatrix = Gizmos.matrix;
-			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
-			Gizmos.DrawMesh(cylinder);
-			Gizmos.matrix = lastMatrix;
-		}
-
+		/// <summary>
+		/// Draws a wireframe cylinder gizmo.
+		/// </summary>
 		public static void DrawWireCylinder(Vector3 center, Quaternion rotation, float radius, float height)
 		{
 			var lastMatrix = Gizmos.matrix;
@@ -88,12 +92,29 @@ namespace D3T
 			Gizmos.matrix = lastMatrix;
 		}
 
+		/// <summary>
+		/// Draws a solid cylinder gizmo.
+		/// </summary>
+		public static void DrawCylinder(Vector3 center, Quaternion rotation, float radius, float height)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
+			Gizmos.DrawMesh(cylinder);
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a line starting at the given point towards the given direction.
+		/// </summary>
 		public static void DrawLineFrom(Vector3 point, Vector3 direction, float length)
 		{
 			direction = direction.normalized;
 			Gizmos.DrawLine(point, point + direction * length);
 		}
 
+		/// <summary>
+		/// Draws a red, green and blue line representing three axes.
+		/// </summary>
 		public static void DrawAxes(Vector3 position, Quaternion rotation, float size)
 		{
 			var lColor = Gizmos.color;
@@ -109,6 +130,9 @@ namespace D3T
 			Gizmos.matrix = lMatrix;
 		}
 
+		/// <summary>
+		/// Draws a 3D crosshair gizmo.
+		/// </summary>
 		public static void DrawCrosshairs(Vector3 point, float radius)
 		{
 			Gizmos.DrawLine(point + Vector3.left * radius, point + Vector3.right * radius);
@@ -116,6 +140,9 @@ namespace D3T
 			Gizmos.DrawLine(point + Vector3.back * radius, point + Vector3.forward * radius);
 		}
 
+		/// <summary>
+		/// Draws a point gizmo.
+		/// </summary>
 		public static void DrawLocus(Vector3 point, float radius)
 		{
 			Gizmos.DrawLine(point + Vector3.left * radius, point + Vector3.right * radius);
@@ -124,6 +151,9 @@ namespace D3T
 			Gizmos.DrawWireSphere(point, radius * 0.5f);
 		}
 
+		/// <summary>
+		/// Draws a rounded rectangle gizmo.
+		/// </summary>
 		public static void DrawRadiusRectangle(Vector3 center, Vector3 up, Vector2 size, float radius, bool grow = false)
 		{
 			var lMatrix = Gizmos.matrix;
@@ -145,6 +175,10 @@ namespace D3T
 			Gizmos.matrix = lMatrix;
 		}
 
+
+		/// <summary>
+		/// Draws a rouded cube gizmo.
+		/// </summary>
 		public static void DrawWireRadiusCube(Vector3 center, Vector3 size, float radius, bool grow = false)
 		{
 			size = size.Abs();
@@ -157,6 +191,9 @@ namespace D3T
 			DrawRadiusRectangle(center + new Vector3(0, 0, size.z * 0.5f - inset), Vector3.forward, size.XY(), radius, grow);
 		}
 
+		/// <summary>
+		/// Draws a path between the given points.
+		/// </summary>
 		public static void DrawPath(Vector3[] points)
 		{
 			for(int i = 0; i < points.Length - 1; i++)
@@ -165,6 +202,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Draws a GUI text at the given point in the scene.
+		/// </summary>
 		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, bool shadow = false)
 		{
 #if UNITY_EDITOR
@@ -182,6 +222,10 @@ namespace D3T
 #endif
 		}
 
+
+		/// <summary>
+		/// Draws a GUI text box at the given point in the scene.
+		/// </summary>
 		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, GUIStyle style = null)
 		{
 #if UNITY_EDITOR
@@ -285,6 +329,10 @@ namespace D3T
 #endif
 
 		#region Terrain Projected Shapes
+
+		/// <summary>
+		/// Draws a circle that is projected onto the terrain's surface.
+		/// </summary>
 		public static void DrawTerrainProjectedCircle(Vector3 center, float radius, float yOffset = 0, int segments = 32, Terrain terrain = null)
 		{
 			if(!terrain) terrain = Terrain.activeTerrain;
@@ -307,6 +355,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Draws a line that is projected onto the terrain's surface.
+		/// </summary>
 		public static void DrawTerrainProjectedLine(Vector3 from, Vector3 to, float yOffset = 0, int segments = 8, Terrain terrain = null)
 		{
 			if(!terrain) terrain = Terrain.activeTerrain;
@@ -328,6 +379,9 @@ namespace D3T
 			}
 		}
 
+		/// <summary>
+		/// Draws a rectangle that is projected onto the terrain's surface.
+		/// </summary>
 		public static void DrawTerrainProjectedRectangle(Vector3 from, Vector3 to, float yOffset = 0, int segments = 8, Terrain terrain = null)
 		{
 			var p00 = from;
