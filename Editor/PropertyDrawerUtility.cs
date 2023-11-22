@@ -27,19 +27,26 @@ namespace D3TEditor
 		public static void Init()
 		{
 #if D3T_ADVSELECTOR
-			var a = Assembly.Load("D3T.AdvancedObjectSelector");
-			advancedObjectPropertyDrawer = a.GetType("AdvancedObjectSelector.ObjectPropertyDrawer").GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
+			advancedObjectPropertyDrawer = Assembly.Load("D3T.AdvancedObjectSelector")
+				.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
+				.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
 #endif
 			propertyDrawerTypes = new Dictionary<Type, Type>();
-			foreach(var pdType in GetClassesOfType(typeof(PropertyDrawer), true))
+			foreach(var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
 			{
-				var attr = pdType.GetCustomAttribute<CustomPropertyDrawer>(true);
-				if(attr != null)
+				var attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(false);
+				if(attributes == null || attributes.Count() == 0)
 				{
-					Type targetType = (Type)attr.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(attr);
+					//Extend search to include ancestors
+					attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(true);
+				}
+				if(attributes != null && attributes.Count() > 0)
+				{
+					var attribute = attributes.First();
+					Type targetType = (Type)attribute.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(attribute);
 					if(!propertyDrawerTypes.ContainsKey(targetType))
 					{
-						propertyDrawerTypes.Add(targetType, pdType);
+						propertyDrawerTypes.Add(targetType, propertyDrawerType);
 					}
 				}
 			}
@@ -395,7 +402,8 @@ namespace D3TEditor
 
 		private static PropertyDrawer GetDecoratedPropertyDrawerExcept(SerializedProperty property, Type exceptType)
 		{
-			var attrs = GetPropertyAttributes(property, out var fieldInfo).Where(attr => {
+			var attrs = GetPropertyAttributes(property, out var fieldInfo).Where(attr =>
+			{
 				var t = attr.GetType();
 				return !typeof(DecoratorAttribute).IsAssignableFrom(t) && t != exceptType && t != typeof(TooltipAttribute);
 			}).ToArray();
