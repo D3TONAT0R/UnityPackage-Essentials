@@ -22,6 +22,9 @@ namespace D3TEditor
 
 		public bool removeDefaultScriptMenu = true;
 		public string defaultScriptNamespace = "MyNamespace";
+		#if UNITY_2020_2_OR_NEWER
+		[NonReorderable]
+		#endif
 		public string[] additionalDefaultUsings = new string[0];
 
 		[Space(20)]
