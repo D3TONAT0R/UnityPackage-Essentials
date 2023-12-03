@@ -16,6 +16,14 @@ namespace D3T
 		/// </summary>
 		public static Vector4 ToVector4(this Quaternion q) => new Vector4(q.x, q.y, q.z, q.w);
 
+		public static Vector3 ToVector3(this Vector2 v, float z) => new Vector3(v.x, v.y, z);
+
+		public static Vector4 ToVector4(this Vector2 v, float z, float w) => new Vector4(v.x, v.y, z, w);
+
+		public static Vector4 ToVector4(this Vector2 v, Vector2 zw) => new Vector4(v.x, v.y, zw.x, zw.y);
+
+		public static Vector4 ToVector4(this Vector3 v, float w) => new Vector4(v.x, v.y, v.z, w);
+
 		/// <summary>
 		/// Returns a nicely formatted string for this vector, with a specific number of decimal places.
 		/// </summary>
@@ -288,22 +296,37 @@ namespace D3T
 		/// <summary>
 		/// Returns the smallest component of this vector.
 		/// </summary>
-		public static float Min(this Vector3 v) => Mathf.Min(v.x, v.y, v.z);
+		public static float Min(this Vector3 v) => Mathf.Min(v.x, Mathf.Min(v.y, v.z));
 
 		/// <summary>
 		/// Returns the largest component of this vector.
 		/// </summary>
-		public static float Max(this Vector3 v) => Mathf.Max(v.x, v.y, v.z);
+		public static float Max(this Vector3 v) => Mathf.Max(v.x, Mathf.Max(v.y, v.z));
 
 		/// <summary>
 		/// Returns the smallest component of this vector.
 		/// </summary>
-		public static float Min(this Vector4 v) => Mathf.Min(v.x, v.y, v.z, v.w);
+		public static float Min(this Vector4 v) => Mathf.Min(v.x, Mathf.Min(v.y, Mathf.Min(v.z, v.w)));
 
 		/// <summary>
 		/// Returns the largest component of this vector.
 		/// </summary>
-		public static float Max(this Vector4 v) => Mathf.Max(v.x, v.y, v.z, v.w);
+		public static float Max(this Vector4 v) => Mathf.Max(v.x, Mathf.Max(v.y, Mathf.Max(v.z, v.w)));
+
+		/// <summary>
+		/// Returns the average value of the individual components.
+		/// </summary>
+		public static float Average(this Vector2 v) => (v.x + v.y) / 2f;
+
+		/// <summary>
+		/// Returns the average value of the individual components.
+		/// </summary>
+		public static float Average(this Vector3 v) => (v.x + v.y + v.z) / 3f;
+
+		/// <summary>
+		/// Returns the average value of the individual components.
+		/// </summary>
+		public static float Average(this Vector4 v) => (v.x + v.y + v.z + v.w) / 4f;
 
 		/// <summary>
 		/// Converts all components into their absolute values.
@@ -394,7 +417,8 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetweenExcluding(this Vector2 v, Vector2 min, Vector2 max)
 		{
-			return v.x.IsBetweenExcluding(min.x, max.x) && v.y.IsBetweenExcluding(min.y, max.y);
+			return v.x.IsBetweenExcluding(min.x, max.x) 
+				&& v.y.IsBetweenExcluding(min.y, max.y);
 		}
 
 		/// <summary>
@@ -402,7 +426,9 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetweenExcluding(this Vector3 v, Vector3 min, Vector3 max)
 		{
-			return v.x.IsBetweenExcluding(min.x, max.x) && v.y.IsBetweenExcluding(min.y, max.y) && v.z.IsBetweenExcluding(min.z, max.z);
+			return v.x.IsBetweenExcluding(min.x, max.x) 
+				&& v.y.IsBetweenExcluding(min.y, max.y) 
+				&& v.z.IsBetweenExcluding(min.z, max.z);
 		}
 
 		/// <summary>
@@ -410,7 +436,10 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetweenExcluding(this Vector4 v, Vector4 min, Vector4 max)
 		{
-			return v.x.IsBetweenExcluding(min.x, max.x) && v.y.IsBetweenExcluding(min.y, max.y) && v.z.IsBetweenExcluding(min.z, max.z) && v.w.IsBetweenExcluding(min.w, max.w);
+			return v.x.IsBetweenExcluding(min.x, max.x)
+				&& v.y.IsBetweenExcluding(min.y, max.y) 
+				&& v.z.IsBetweenExcluding(min.z, max.z) 
+				&& v.w.IsBetweenExcluding(min.w, max.w);
 		}
 
 		/// <summary>
@@ -418,7 +447,8 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetween(this Vector2 v, Vector2 min, Vector2 max)
 		{
-			return v.x.IsBetween(min.x, max.x) && v.y.IsBetween(min.y, max.y);
+			return v.x.IsBetween(min.x, max.x)
+				&& v.y.IsBetween(min.y, max.y);
 		}
 
 		/// <summary>
@@ -426,7 +456,9 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetween(this Vector3 v, Vector3 min, Vector3 max)
 		{
-			return v.x.IsBetween(min.x, max.x) && v.y.IsBetween(min.y, max.y) && v.z.IsBetween(min.z, max.z);
+			return v.x.IsBetween(min.x, max.x) 
+				&& v.y.IsBetween(min.y, max.y) 
+				&& v.z.IsBetween(min.z, max.z);
 		}
 
 		/// <summary>
@@ -434,7 +466,10 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetween(this Vector4 v, Vector4 min, Vector4 max)
 		{
-			return v.x.IsBetween(min.x, max.x) && v.y.IsBetween(min.y, max.y) && v.z.IsBetween(min.z, max.z) && v.w.IsBetween(min.w, max.w);
+			return v.x.IsBetween(min.x, max.x)
+				&& v.y.IsBetween(min.y, max.y)
+				&& v.z.IsBetween(min.z, max.z) 
+				&& v.w.IsBetween(min.w, max.w);
 		}
 
 		#endregion
