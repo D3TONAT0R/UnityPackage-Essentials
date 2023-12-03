@@ -21,7 +21,7 @@ namespace D3T
 			disc = builder.CreateMesh();
 
 			builder.Clear();
-			builder.AddCylinder(Vector3.zero, Quaternion.identity, 1, 1, 16);
+			builder.AddCylinder(Vector3.zero, 1, 1, 16);
 			cylinder = builder.CreateMesh();
 		}
 

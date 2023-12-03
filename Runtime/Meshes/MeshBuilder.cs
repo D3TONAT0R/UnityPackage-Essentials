@@ -10,6 +10,19 @@ namespace D3T
 	/// </summary>
 	public class MeshBuilder
 	{
+		public class MatrixScope : System.IDisposable
+		{
+			private MeshBuilder builder;
+
+			public MatrixScope(MeshBuilder mb)
+			{
+				builder = mb;
+				mb.PushMatrix();
+			}
+
+			public void Dispose() => builder.PopMatrix();
+		}
+
 
 		public MeshBuilder()
 		{
@@ -48,6 +61,9 @@ namespace D3T
 
 		public List<Vector2> uv0 = new List<Vector2>();
 		public List<Color32> vertexColors = new List<Color32>();
+
+		private List<Matrix4x4> matrixStack = new List<Matrix4x4>();
+		private Matrix4x4 currentMatrix = Matrix4x4.identity;
 
 		public void Clear()
 		{
@@ -90,11 +106,73 @@ namespace D3T
 			return mesh;
 		}
 
+		#region Matrix related methods
+		public void PushMatrix()
+		{
+			matrixStack.Add(currentMatrix);
+		}
+
+		public void PopMatrix()
+		{
+			if(matrixStack.Count > 0)
+			{
+				matrixStack.RemoveAt(matrixStack.Count - 1);
+				currentMatrix = matrixStack.Count > 0 ? matrixStack[matrixStack.Count - 1] : Matrix4x4.identity;
+			}
+		}
+
+		public MatrixScope PushMatrixScope()
+		{
+			return new MatrixScope(this);
+		}
+
+		public void SetMatrix(Matrix4x4 matrix)
+		{
+			currentMatrix = matrix;
+		}
+
+		public void ApplyMatrix(Matrix4x4 matrix)
+		{
+			currentMatrix *= matrix;
+		}
+
+		public void ResetMatrix(bool resetStack = true)
+		{
+			currentMatrix = Matrix4x4.identity;
+			if(resetStack) matrixStack.Clear();
+		}
+
+		public Vector3 TransformPoint(Vector3 point)
+		{
+			return currentMatrix.MultiplyPoint(point);
+		}
+
+		public Vector3 TransformVector(Vector3 vector)
+		{
+			return currentMatrix.MultiplyVector(vector);
+		}
+
+		public void TransformPoint(ref Vector3 point)
+		{
+			currentMatrix.MultiplyPoint(point);
+		}
+
+		public void TransformVector(ref Vector3 vector)
+		{
+			currentMatrix.MultiplyVector(vector);
+		}
+		#endregion
+
 		/// <summary>
 		/// Adds a (flat shaded) triangle to the mesh. Vertices should be arranged clockwise for correct facing.
 		/// </summary>
 		public void AddTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal, Vector2 uv_a, Vector2 uv_b, Vector2 uv_c)
 		{
+			TransformPoint(ref a);
+			TransformPoint(ref b);
+			TransformPoint(ref c);
+			TransformVector(ref normal);
+
 			verts.Add(a);
 			verts.Add(b);
 			verts.Add(c);
@@ -123,6 +201,12 @@ namespace D3T
 		/// </summary>
 		public void AddQuad(Vector3 ll, Vector3 lr, Vector3 ul, Vector3 ur, Vector3 normal, Vector2 uv_ll, Vector2 uv_lr, Vector2 uv_ul, Vector2 uv_ur)
 		{
+			TransformPoint(ref ll);
+			TransformPoint(ref lr);
+			TransformPoint(ref ul);
+			TransformPoint(ref ur);
+			TransformVector(ref normal);
+
 			verts.Add(ul);
 			verts.Add(ur);
 			verts.Add(ll);
@@ -188,14 +272,14 @@ namespace D3T
 			lower -> 0-----1		  o----> x
 			*/
 
-			Vector3 v0 = lower;
-			Vector3 v1 = new Vector3(upper.x, lower.y, lower.z);
-			Vector3 v2 = new Vector3(lower.x, lower.y, upper.z);
-			Vector3 v3 = new Vector3(upper.x, lower.y, upper.z);
-			Vector3 v4 = new Vector3(lower.x, upper.y, lower.z);
-			Vector3 v5 = new Vector3(upper.x, upper.y, lower.z);
-			Vector3 v6 = new Vector3(lower.x, upper.y, upper.z);
-			Vector3 v7 = upper;
+			Vector3 v0 = TransformPoint(lower);
+			Vector3 v1 = TransformPoint(new Vector3(upper.x, lower.y, lower.z));
+			Vector3 v2 = TransformPoint(new Vector3(lower.x, lower.y, upper.z));
+			Vector3 v3 = TransformPoint(new Vector3(upper.x, lower.y, upper.z));
+			Vector3 v4 = TransformPoint(new Vector3(lower.x, upper.y, lower.z));
+			Vector3 v5 = TransformPoint(new Vector3(upper.x, upper.y, lower.z));
+			Vector3 v6 = TransformPoint(new Vector3(lower.x, upper.y, upper.z));
+			Vector3 v7 = TransformPoint(upper);
 
 			Vector2 uv_ll = lowerCornerUV;
 			Vector2 uv_lr = new Vector2(upperCornerUV.x, lowerCornerUV.y);
@@ -204,22 +288,22 @@ namespace D3T
 
 			//Back
 			if (faceFlags.HasFlag(CubeFaces.ZNeg))
-				AddQuad(v0, v1, v4, v5, Vector3.back, uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v0, v1, v4, v5, TransformVector(Vector3.back), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Right
 			if (faceFlags.HasFlag(CubeFaces.XPos))
-				AddQuad(v1, v3, v5, v7, Vector3.right, uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v1, v3, v5, v7, TransformVector(Vector3.right), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Front
 			if (faceFlags.HasFlag(CubeFaces.ZPos))
-				AddQuad(v3, v2, v7, v6, Vector3.forward, uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v3, v2, v7, v6, TransformVector(Vector3.forward), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Left
 			if (faceFlags.HasFlag(CubeFaces.XNeg))
-				AddQuad(v2, v0, v6, v4, Vector3.left, uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v2, v0, v6, v4, TransformVector(Vector3.left), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Top
 			if (faceFlags.HasFlag(CubeFaces.YPos))
-				AddQuad(v4, v5, v6, v7, Vector3.up, uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v4, v5, v6, v7, TransformVector(Vector3.up), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Bottom
 			if (faceFlags.HasFlag(CubeFaces.YNeg))
-				AddQuad(v2, v3, v0, v1, Vector3.down, uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v2, v3, v0, v1, TransformVector(Vector3.down), uv_ll, uv_lr, uv_ul, uv_ur);
 		}
 
 		/// <summary>
@@ -240,8 +324,8 @@ namespace D3T
 					float y = -Mathf.Cos(vAngle);
 					float m = Mathf.Sin(vAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
-					verts.Add(pos + unitVector * radius);
-					normals.Add(unitVector);
+					verts.Add(TransformPoint(pos + unitVector * radius));
+					normals.Add(TransformVector(unitVector));
 					uv0.Add(new Vector2(i / (float)latDetail, v / (float)lonDetail));
 				}
 			}
@@ -272,37 +356,14 @@ namespace D3T
 		}
 
 		/// <summary>
-		/// Adds a capsule to the mesh.
+		/// Adds a vertical capsule to the mesh.
 		/// </summary>
-		public void AddCapsule(Vector3 pos, Axis axis, float radius, float height, int latDetail = 32, int lonDetail = 32)
-		{
-			Vector3 rot;
-			if (axis == Axis.X)
-			{
-				rot = new Vector3(0, 0, 90);
-			}
-			else if (axis == Axis.Y)
-			{
-				rot = Vector3.zero;
-			}
-			else
-			{
-				rot = new Vector3(90, 0, 0);
-			}
-			var matrix = Matrix4x4.TRS(pos, Quaternion.Euler(rot), Vector3.one);
-			AddCapsule(matrix, radius, height, latDetail, lonDetail);
-		}
-
-		/// <summary>
-		/// Adds a sphere to the mesh, transformed by the given matrix.
-		/// </summary>
-		public void AddCapsule(Matrix4x4 matrix, float radius, float height, int latDetail = 32, int lonDetail = 32)
+		public void AddCapsule(Vector3 pos, float radius, float height, int latDetail = 32, int lonDetail = 32)
 		{
 
 			void AddVertRing(int v, float vAngle, float voffset, bool upper)
 			{
-
-				float y = -Mathf.Cos(vAngle);
+								float y = -Mathf.Cos(vAngle);
 				float m = Mathf.Sin(vAngle);
 				float p = Mathf.Abs(y);
 				float sec = radius / Mathf.Max(2 * radius, height);
@@ -323,9 +384,9 @@ namespace D3T
 					float x = Mathf.Sin(hAngle);
 					float z = Mathf.Cos(hAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
-					var pos = matrix.MultiplyPoint(unitVector * radius + Vector3.up * voffset);
-					verts.Add(pos);
-					normals.Add(unitVector);
+					var vert = TransformPoint(unitVector * radius + Vector3.up * voffset);
+					verts.Add(vert);
+					normals.Add(TransformVector(unitVector));
 					uv0.Add(new Vector2(i / (float)latDetail, uvY));
 				}
 			}
@@ -368,6 +429,18 @@ namespace D3T
 						tris.Add(lower + r);
 					}
 				}
+			}
+		}
+
+		/// <summary>
+		/// Adds a capsule to the mesh, aligned to the given axis.
+		/// </summary>
+		public void AddCapsule(Vector3 pos, Axis axis, float radius, float height, int latDetail = 32, int lonDetail = 32)
+		{
+			using(PushMatrixScope())
+			{
+				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(axis), Vector3.one));
+				AddCapsule(Vector3.zero, radius, height, latDetail, lonDetail);
 			}
 		}
 
@@ -416,50 +489,50 @@ namespace D3T
 		}
 
 		/// <summary>
-		/// Adds a vertically aligned cylinder to the mesh, transformed by the given matrix.
+		/// Adds a vertical cylinder to the mesh.
 		/// </summary>
-		public void AddCylinder(Matrix4x4 matrix, float radius, float height, int detail = 32)
+		public void AddCylinder(Vector3 pos, float radius, float height, int detail = 32)
 		{
 			float h2 = height * 0.5f;
 
-			var nrmL = matrix.MultiplyVector(Vector3.down);
-			var nrmU = matrix.MultiplyVector(Vector3.up);
+			var nrmL = TransformVector(Vector3.down);
+			var nrmU = TransformVector(Vector3.up);
 			Vector2[] pts = GetCirclePoints(detail, radius);
 
-			verts.Add(matrix.MultiplyPoint(Vector3.down * h2));
+			verts.Add(TransformPoint(pos + Vector3.down * h2));
 			int bL = verts.Count;
 			normals.Add(nrmL);
 			uv0.Add(new Vector2(0.5f, 0.5f));
 			for (int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint(pts[i].XVY(-h2)));
+				verts.Add(TransformPoint(pos + pts[i].XVY(-h2)));
 				normals.Add(nrmL);
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bL - 1);
 				tris.Add(bL + i);
 				tris.Add(bL + i + 1);
 			}
-			verts.Add(matrix.MultiplyPoint(pts[pts.Length - 1].XVY(-h2)));
+			verts.Add(TransformPoint(pos + pts[pts.Length - 1].XVY(-h2)));
 			normals.Add(nrmL);
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bL - 1);
 			tris.Add(bL + pts.Length - 1);
 			tris.Add(bL);
 
-			verts.Add(matrix.MultiplyPoint(Vector3.up * h2));
+			verts.Add(TransformPoint(pos + Vector3.up * h2));
 			int bU = verts.Count;
 			normals.Add(nrmU);
 			uv0.Add(new Vector2(0.5f, 0.5f));
 			for (int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint(pts[i].XVY(h2)));
+				verts.Add(TransformPoint(pos + pts[i].XVY(h2)));
 				normals.Add(nrmU);
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bU - 1);
 				tris.Add(bU + i + 1);
 				tris.Add(bU + i);
 			}
-			verts.Add(matrix.MultiplyPoint(pts[pts.Length - 1].XVY(h2)));
+			verts.Add(TransformPoint(pos + pts[pts.Length - 1].XVY(h2)));
 			normals.Add(nrmU);
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bU - 1);
@@ -498,32 +571,30 @@ namespace D3T
 		}
 
 		/// <summary>
-		/// Adds a vertically aligned cylinder to the mesh.
+		/// Adds a cylinder to the mesh, aligned to the given axis.
 		/// </summary>
-		public void AddCylinder(Vector3 pos, Quaternion rotation, float radius, float height, int detail = 32)
+		public void AddCylinder(Vector3 pos, Axis axis, float radius, float height, int detail = 32)
 		{
-			AddCylinder(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, height, detail);
+			using(PushMatrixScope())
+			{
+				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(axis), Vector3.one));
+				AddCylinder(Vector3.zero, radius, height, detail);
+			}
 		}
 
 		/// <summary>
 		/// Adds another mesh to this mesh.
 		/// </summary>
-		/// <param name="otherMesh"></param>
 		public void AddMesh(Mesh otherMesh)
-		{
-			AddMesh(otherMesh, Matrix4x4.identity);
-		}
-
-		/// <summary>
-		/// Adds another mesh to this mesh, transformed by the given matrix.
-		/// </summary>
-		/// <param name="otherMesh"></param>
-		public void AddMesh(Mesh otherMesh, Matrix4x4 matrix)
 		{
 			int offset = verts.Count;
 			foreach (var vert in otherMesh.vertices)
 			{
-				verts.Add(matrix.MultiplyPoint(vert));
+				verts.Add(TransformPoint(vert));
+			}
+			foreach (var nrm in otherMesh.normals)
+			{
+				normals.Add(TransformVector(nrm));
 			}
 			foreach (var tri in otherMesh.triangles)
 			{
@@ -533,9 +604,17 @@ namespace D3T
 			{
 				uv0.Add(uv);
 			}
-			foreach (var nrm in otherMesh.normals)
+		}
+
+		/// <summary>
+		/// Adds another mesh to this mesh.
+		/// </summary>
+		public void AddMesh(Mesh otherMesh, Matrix4x4 matrix)
+		{
+			using(PushMatrixScope())
 			{
-				normals.Add(nrm);
+				ApplyMatrix(matrix);
+				AddMesh(otherMesh);
 			}
 		}
 
@@ -572,6 +651,13 @@ namespace D3T
 				pts[i] = new Vector2(Mathf.Cos(angleRad) * radius, Mathf.Sin(angleRad) * radius);
 			}
 			return pts;
+		}
+
+		public static Quaternion GetAxisRotation(Axis a)
+		{
+			if(a == Axis.X) return Quaternion.Euler(0, 0, 90);
+			else if(a == Axis.Z) return Quaternion.Euler(90, 0, 0);
+			else return Quaternion.identity;
 		}
 
 		/// <summary>
