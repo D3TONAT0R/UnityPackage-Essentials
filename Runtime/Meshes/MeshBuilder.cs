@@ -495,25 +495,25 @@ namespace D3T
 		{
 			float h2 = height * 0.5f;
 
-			var nrmL = TransformVector(Vector3.down);
-			var nrmU = TransformVector(Vector3.up);
+			var nrmL = Vector3.down;
+			var nrmU = Vector3.up;
 			Vector2[] pts = GetCirclePoints(detail, radius);
 
 			verts.Add(TransformPoint(pos + Vector3.down * h2));
 			int bL = verts.Count;
-			normals.Add(nrmL);
+			normals.Add(TransformVector(nrmL));
 			uv0.Add(new Vector2(0.5f, 0.5f));
 			for (int i = 0; i < pts.Length - 1; i++)
 			{
 				verts.Add(TransformPoint(pos + pts[i].XVY(-h2)));
-				normals.Add(nrmL);
+				normals.Add(TransformVector(nrmL));
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bL - 1);
 				tris.Add(bL + i);
 				tris.Add(bL + i + 1);
 			}
 			verts.Add(TransformPoint(pos + pts[pts.Length - 1].XVY(-h2)));
-			normals.Add(nrmL);
+			normals.Add(TransformVector(nrmL));
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bL - 1);
 			tris.Add(bL + pts.Length - 1);
@@ -521,19 +521,19 @@ namespace D3T
 
 			verts.Add(TransformPoint(pos + Vector3.up * h2));
 			int bU = verts.Count;
-			normals.Add(nrmU);
+			normals.Add(TransformVector(nrmU));
 			uv0.Add(new Vector2(0.5f, 0.5f));
 			for (int i = 0; i < pts.Length - 1; i++)
 			{
 				verts.Add(TransformPoint(pos + pts[i].XVY(h2)));
-				normals.Add(nrmU);
+				normals.Add(TransformVector(nrmU));
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bU - 1);
 				tris.Add(bU + i + 1);
 				tris.Add(bU + i);
 			}
 			verts.Add(TransformPoint(pos + pts[pts.Length - 1].XVY(h2)));
-			normals.Add(nrmU);
+			normals.Add(TransformVector(nrmU));
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bU - 1);
 			tris.Add(bU);
@@ -544,8 +544,8 @@ namespace D3T
 				int bM = verts.Count;
 				verts.Add(verts[bL + i]);
 				verts.Add(verts[bU + i]);
-				normals.Add(new Vector3(pts[i].x, 0, pts[i].y));
-				normals.Add(new Vector3(pts[i].x, 0, pts[i].y));
+				normals.Add(TransformVector(new Vector3(pts[i].x, 0, pts[i].y)));
+				normals.Add(TransformVector(new Vector3(pts[i].x, 0, pts[i].y)));
 				uv0.Add(new Vector2(i / (float)pts.Length, 0));
 				uv0.Add(new Vector2(i / (float)pts.Length, 1));
 				tris.Add(bM);
@@ -560,8 +560,8 @@ namespace D3T
 			verts.Add(verts[bU]);
 			uv0.Add(new Vector2(1, 0));
 			uv0.Add(new Vector2(1, 1));
-			normals.Add(new Vector3(pts[0].x, 0, pts[0].y));
-			normals.Add(new Vector3(pts[0].x, 0, pts[0].y));
+			normals.Add(TransformVector(new Vector3(pts[0].x, 0, pts[0].y)));
+			normals.Add(TransformVector(new Vector3(pts[0].x, 0, pts[0].y)));
 			int bM2 = verts.Count - 2;
 			
 
