@@ -32,8 +32,7 @@ namespace D3TEditor
 					Debug.LogError("Failed to find Shader to include: " + attr.shaderName);
 					continue;
 				}
-				AddAlwaysIncludedShader(arrayProp, shader);
-				hasChanges = true;
+				hasChanges |= AddAlwaysIncludedShader(arrayProp, shader);
 			}
 
 			if(hasChanges)
@@ -43,9 +42,9 @@ namespace D3TEditor
 			}
 		}
 
-		public static void AddAlwaysIncludedShader(SerializedProperty arrayProp, Shader shader)
+		public static bool AddAlwaysIncludedShader(SerializedProperty arrayProp, Shader shader)
 		{
-			if(shader == null) return;
+			if(shader == null) return false;
 
 			bool hasShader = false;
 			for(int i = 0; i < arrayProp.arraySize; ++i)
@@ -66,7 +65,9 @@ namespace D3TEditor
 				arrayElem.objectReferenceValue = shader;
 
 				Debug.Log($"Added shader '{shader.name}' to the list of always included shaders.");
+				return true;
 			}
+			return false;
 		}
 	}
 }
