@@ -10,16 +10,21 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-			EditorApplication.delayCall += DoCheck;
+			EditorApplication.delayCall += CheckAttributes;
 		}
 
-		private static void DoCheck()
+		private static void CheckAttributes()
 		{
+			var attributes = ReflectionUtility.GetClassAndAssemblyAttributes<AlwaysIncludeShaderAttribute>(false);
+			if(attributes == null || attributes.Count == 0) return;
+
 			var settingsObj = AssetDatabase.LoadAssetAtPath<GraphicsSettings>("ProjectSettings/GraphicsSettings.asset");
 			var serializedObj = new SerializedObject(settingsObj);
 			var arrayProp = serializedObj.FindProperty("m_AlwaysIncludedShaders");
 
-			foreach(var attr in ReflectionUtility.GetClassAndAssemblyAttributes<AlwaysIncludeShaderAttribute>(false))
+			bool hasChanges = false;
+
+			foreach(var attr in attributes)
 			{
 				Shader shader = Shader.Find(attr.shaderName);
 				if(shader == null)
@@ -28,10 +33,14 @@ namespace D3TEditor
 					continue;
 				}
 				AddAlwaysIncludedShader(arrayProp, shader);
+				hasChanges = true;
 			}
 
-			serializedObj.ApplyModifiedProperties();
-			EditorApplication.delayCall += () => AssetDatabase.SaveAssets();
+			if(hasChanges)
+			{
+				serializedObj.ApplyModifiedProperties();
+				EditorApplication.delayCall += () => AssetDatabase.SaveAssets();
+			}
 		}
 
 		public static void AddAlwaysIncludedShader(SerializedProperty arrayProp, Shader shader)
