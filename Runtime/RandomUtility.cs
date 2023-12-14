@@ -93,6 +93,17 @@ namespace D3T
 		}
 
 		/// <summary>
+		/// Picks a random item and removes it from the list.
+		/// </summary>
+		public static T TakeRandomItem<T>(List<T> list)
+		{
+			int i = Random.Range(0, list.Count);
+			var item = list[i];
+			list.RemoveAt(i);
+			return item;
+		}
+
+		/// <summary>
 		/// Picks a random weighted index using the given weighted array.
 		/// </summary>
 		/// <param name="weights">A weighted array. Higher values have a greater chance of being picked.</param>
@@ -111,6 +122,20 @@ namespace D3T
 				}
 			}
 			return weights.Length - 1;
+		}
+
+		/// <summary>
+		/// Returns a shuffled version of the given array.
+		/// </summary>
+		public static T[] Shuffle<T>(T[] array)
+		{
+			T[] shuffled = new T[array.Length];
+			var list = array.ToList();
+			for(int i = 0; i < array.Length; i++)
+			{
+				shuffled[i] = TakeRandomItem(list);
+			}
+			return shuffled;
 		}
 	}
 }
