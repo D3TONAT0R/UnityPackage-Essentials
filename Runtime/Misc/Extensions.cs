@@ -195,34 +195,5 @@ namespace D3T
 			}
 #endif
 		}
-
-		//TODO: untested methods below
-
-		/// <summary>
-		/// Returns the hierarchical depth of this transform.
-		/// </summary>
-		public static int GetHierarchyDepth(this Transform t)
-		{
-			int d = 0;
-			while(t.parent != null)
-			{
-				d++;
-				t = t.parent;
-			}
-			return d;
-		}
-
-		/// <summary>
-		/// Returns the total number of children parented to this transform.
-		/// </summary>
-		public static int GetTotalChildCount(this Transform t)
-		{
-			int childCount = t.childCount;
-			for(int i = 0; i < childCount; i++)
-			{
-				childCount += GetTotalChildCount(t.GetChild(i));
-			}
-			return childCount;
-		}
 	}
 }
