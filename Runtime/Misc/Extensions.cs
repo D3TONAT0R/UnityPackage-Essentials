@@ -1,5 +1,4 @@
-﻿using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace D3T
 {
@@ -52,12 +51,12 @@ namespace D3T
 		public static int Abs(this int i) => Mathf.Abs(i);
 
 		/// <summary>
-		/// Returns the sign of this value.
+		/// Returns the sign of this value. If the value is zero, 0 is returned.
 		/// </summary>
 		public static int Sign(this float f) => f > 0 ? 1 : f < 0 ? -1 : 0;
 
 		/// <summary>
-		/// Returns the sign of this value.
+		/// Returns the sign of this value. If the value is zero, 0 is returned.
 		/// </summary>
 		public static int Sign(this int i) => i > 0 ? 1 : i < 0 ? -1 : 0;
 

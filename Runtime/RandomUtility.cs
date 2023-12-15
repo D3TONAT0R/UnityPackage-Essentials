@@ -137,5 +137,18 @@ namespace D3T
 			}
 			return shuffled;
 		}
+		
+		/// <summary>
+		/// Randomly shuffles the given list.
+		/// </summary>
+		public static void Shuffle<T>(List<T> list)
+		{
+			var elements = new List<T>(list);
+			list.Clear();
+			for(int i = 0; i < elements.Count; i++)
+			{
+				list.Add(TakeRandomItem(elements));
+			}
+		}
 	}
 }
