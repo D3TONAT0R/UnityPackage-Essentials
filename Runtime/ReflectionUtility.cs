@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
 
 namespace D3T.Utility
 {
@@ -17,7 +16,9 @@ namespace D3T.Utility
 
 		private static readonly string[] excludedAssemblyPrefixesNoUnity = new string[]
 		{
-			"Unity",
+			"UnityEngine",
+			"UnityEditor",
+			"Unity.",
 			"mscorlib",
 			"System",
 			"Mono.",
@@ -71,9 +72,9 @@ namespace D3T.Utility
 			}
 
 			var list = new List<Assembly>();
-			foreach (var assembly in assemblyCache)
+			foreach(var assembly in assemblyCache)
 			{
-				if (!ShouldIgnoreAssembly(assembly, excludePrefixes))
+				if(!ShouldIgnoreAssembly(assembly, excludePrefixes))
 				{
 					list.Add(assembly);
 				}
@@ -169,7 +170,7 @@ namespace D3T.Utility
 		{
 			var flags = BindingFlags.Public;
 			flags |= staticOnly ? BindingFlags.Static : BindingFlags.Instance;
-			if (inclideNonPublic) flags |= BindingFlags.NonPublic;
+			if(inclideNonPublic) flags |= BindingFlags.NonPublic;
 			return flags;
 		}
 
