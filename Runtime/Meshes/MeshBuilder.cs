@@ -154,12 +154,12 @@ namespace D3T
 
 		public void TransformPoint(ref Vector3 point)
 		{
-			currentMatrix.MultiplyPoint(point);
+			point = currentMatrix.MultiplyPoint(point);
 		}
 
 		public void TransformVector(ref Vector3 vector)
 		{
-			currentMatrix.MultiplyVector(vector);
+			vector = currentMatrix.MultiplyVector(vector);
 		}
 		#endregion
 
