@@ -23,7 +23,6 @@ namespace D3T
 			public void Dispose() => builder.PopMatrix();
 		}
 
-
 		public MeshBuilder()
 		{
 			verts = new List<Vector3>();
@@ -62,6 +61,8 @@ namespace D3T
 		public List<Vector2> uv0 = new List<Vector2>();
 		public List<Color32> vertexColors = new List<Color32>();
 
+		public Color32? autoVertexColor = null;
+
 		private List<Matrix4x4> matrixStack = new List<Matrix4x4>();
 		private Matrix4x4 currentMatrix = Matrix4x4.identity;
 
@@ -72,20 +73,21 @@ namespace D3T
 			normals.Clear();
 			uv0.Clear();
 			vertexColors.Clear();
+			autoVertexColor = null;
 		}
 
 		public void BuildMesh(Mesh mesh, bool recalculateTangents = true)
 		{
 			mesh.Clear();
-			if (verts.Count > 3)
+			if(verts.Count > 3)
 			{
 				mesh.SetVertices(verts);
 				mesh.SetTriangles(tris, 0);
 				mesh.SetNormals(normals);
 				mesh.SetUVs(0, uv0);
-				if (vertexColors.Count > 0)
+				if(vertexColors.Count > 0)
 				{
-					if (vertexColors.Count == verts.Count)
+					if(vertexColors.Count == verts.Count)
 					{
 						mesh.SetColors(vertexColors);
 					}
@@ -94,7 +96,7 @@ namespace D3T
 						Debug.LogError("vertex color count does not match the number of vertices.");
 					}
 				}
-				if (recalculateTangents) mesh.RecalculateTangents();
+				if(recalculateTangents) mesh.RecalculateTangents();
 				mesh.UploadMeshData(false);
 			}
 		}
@@ -163,6 +165,18 @@ namespace D3T
 		}
 		#endregion
 
+		public void AddVertex(Vector3 pos)
+		{
+			verts.Add(pos);
+			if(autoVertexColor.HasValue)
+			{
+				while(vertexColors.Count < verts.Count)
+				{
+					vertexColors.Add(autoVertexColor.Value);
+				}
+			}
+		}
+
 		/// <summary>
 		/// Adds a (flat shaded) triangle to the mesh. Vertices should be arranged clockwise for correct facing.
 		/// </summary>
@@ -173,9 +187,9 @@ namespace D3T
 			TransformPoint(ref c);
 			TransformVector(ref normal);
 
-			verts.Add(a);
-			verts.Add(b);
-			verts.Add(c);
+			AddVertex(a);
+			AddVertex(b);
+			AddVertex(c);
 			normals.Add(normal);
 			normals.Add(normal);
 			normals.Add(normal);
@@ -207,10 +221,10 @@ namespace D3T
 			TransformPoint(ref ur);
 			TransformVector(ref normal);
 
-			verts.Add(ul);
-			verts.Add(ur);
-			verts.Add(ll);
-			verts.Add(lr);
+			AddVertex(ul);
+			AddVertex(ur);
+			AddVertex(ll);
+			AddVertex(lr);
 			normals.Add(normal);
 			normals.Add(normal);
 			normals.Add(normal);
@@ -287,22 +301,22 @@ namespace D3T
 			Vector2 uv_ur = upperCornerUV;
 
 			//Back
-			if (faceFlags.HasFlag(CubeFaces.ZNeg))
+			if(faceFlags.HasFlag(CubeFaces.ZNeg))
 				AddQuad(v0, v1, v4, v5, TransformVector(Vector3.back), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Right
-			if (faceFlags.HasFlag(CubeFaces.XPos))
+			if(faceFlags.HasFlag(CubeFaces.XPos))
 				AddQuad(v1, v3, v5, v7, TransformVector(Vector3.right), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Front
-			if (faceFlags.HasFlag(CubeFaces.ZPos))
+			if(faceFlags.HasFlag(CubeFaces.ZPos))
 				AddQuad(v3, v2, v7, v6, TransformVector(Vector3.forward), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Left
-			if (faceFlags.HasFlag(CubeFaces.XNeg))
+			if(faceFlags.HasFlag(CubeFaces.XNeg))
 				AddQuad(v2, v0, v6, v4, TransformVector(Vector3.left), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Top
-			if (faceFlags.HasFlag(CubeFaces.YPos))
+			if(faceFlags.HasFlag(CubeFaces.YPos))
 				AddQuad(v4, v5, v6, v7, TransformVector(Vector3.up), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Bottom
-			if (faceFlags.HasFlag(CubeFaces.YNeg))
+			if(faceFlags.HasFlag(CubeFaces.YNeg))
 				AddQuad(v2, v3, v0, v1, TransformVector(Vector3.down), uv_ll, uv_lr, uv_ul, uv_ur);
 		}
 
@@ -313,10 +327,10 @@ namespace D3T
 		{
 			int offset = verts.Count;
 			lonDetail /= 2;
-			for (int v = 0; v <= lonDetail; v++)
+			for(int v = 0; v <= lonDetail; v++)
 			{
 				var vAngle = v / (float)lonDetail * Mathf.PI;
-				for (int i = 0; i <= latDetail; i++)
+				for(int i = 0; i <= latDetail; i++)
 				{
 					var hAngle = i / (float)latDetail * Mathf.PI * -2f;
 					float x = Mathf.Sin(hAngle);
@@ -324,28 +338,28 @@ namespace D3T
 					float y = -Mathf.Cos(vAngle);
 					float m = Mathf.Sin(vAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
-					verts.Add(TransformPoint(pos + unitVector * radius));
+					AddVertex(TransformPoint(pos + unitVector * radius));
 					normals.Add(TransformVector(unitVector));
 					uv0.Add(new Vector2(i / (float)latDetail, v / (float)lonDetail));
 				}
 			}
 
-			for (int i = 0; i < lonDetail; i++)
+			for(int i = 0; i < lonDetail; i++)
 			{
 				int lower = offset + (latDetail + 1) * i;
 				int upper = offset + (latDetail + 1) * (i + 1);
-				for (int l = 0; l < latDetail; l++)
+				for(int l = 0; l < latDetail; l++)
 				{
 					int r = (l + 1);
 
-					if (i < lonDetail - 1)
+					if(i < lonDetail - 1)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + l);
 						tris.Add(upper + r);
 					}
 
-					if (i > 0)
+					if(i > 0)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + r);
@@ -363,13 +377,13 @@ namespace D3T
 
 			void AddVertRing(int v, float vAngle, float voffset, bool upper)
 			{
-								float y = -Mathf.Cos(vAngle);
+				float y = -Mathf.Cos(vAngle);
 				float m = Mathf.Sin(vAngle);
 				float p = Mathf.Abs(y);
 				float sec = radius / Mathf.Max(2 * radius, height);
 				//float uvY = v / (float)lonDetail / 2f;
 				float uvY;
-				if (!upper)
+				if(!upper)
 				{
 					uvY = (1 - p) * sec;
 				}
@@ -378,14 +392,14 @@ namespace D3T
 					uvY = 1 - ((1 - p) * sec);
 				}
 
-				for (int i = 0; i <= latDetail; i++)
+				for(int i = 0; i <= latDetail; i++)
 				{
 					var hAngle = i / (float)latDetail * Mathf.PI * -2f;
 					float x = Mathf.Sin(hAngle);
 					float z = Mathf.Cos(hAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
 					var vert = TransformPoint(unitVector * radius + Vector3.up * voffset);
-					verts.Add(vert);
+					AddVertex(vert);
 					normals.Add(TransformVector(unitVector));
 					uv0.Add(new Vector2(i / (float)latDetail, uvY));
 				}
@@ -395,34 +409,34 @@ namespace D3T
 			int indexOffset = verts.Count;
 			lonDetail /= 2;
 			float offset = -Mathf.Max(0, height / 2f - radius);
-			for (int v = 0; v <= lonDetail; v++)
+			for(int v = 0; v <= lonDetail; v++)
 			{
 				bool middle = v == lonDetail / 2;
 				var vAngle = v / (float)lonDetail * Mathf.PI;
 				AddVertRing(v, vAngle, offset, v > lonDetail / 2);
-				if (middle)
+				if(middle)
 				{
 					offset = -offset;
 					AddVertRing(v, vAngle, offset, true);
 				}
 			}
 
-			for (int i = 0; i <= lonDetail; i++)
+			for(int i = 0; i <= lonDetail; i++)
 			{
 				int lower = indexOffset + (latDetail + 1) * i;
 				int upper = indexOffset + (latDetail + 1) * (i + 1);
-				for (int l = 0; l < latDetail; l++)
+				for(int l = 0; l < latDetail; l++)
 				{
 					int r = (l + 1);
 
-					if (i < lonDetail)
+					if(i < lonDetail)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + l);
 						tris.Add(upper + r);
 					}
 
-					if (i > 0)
+					if(i > 0)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + r);
@@ -451,13 +465,13 @@ namespace D3T
 		{
 			var nrm = matrix.MultiplyVector(Vector3.up);
 			Vector2[] pts = GetCirclePoints(detail, 1f);
-			verts.Add(matrix.MultiplyPoint(Vector3.zero));
+			AddVertex(matrix.MultiplyPoint(Vector3.zero));
 			int b = verts.Count;
 			normals.Add(-nrm);
 			uv0.Add(Vector2.one * 0.5f);
-			for (int i = 0; i < pts.Length - 1; i++)
+			for(int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint((pts[i] * radius).XVY(0)));
+				AddVertex(matrix.MultiplyPoint((pts[i] * radius).XVY(0)));
 				normals.Add(-nrm);
 				Vector2 uv = (pts[i] + Vector2.one) * 0.5f;
 				uv.x = 1 - uv.x;
@@ -467,7 +481,7 @@ namespace D3T
 				tris.Add(b + i + 1);
 			}
 			Vector2 lastPt = pts[pts.Length - 1];
-			verts.Add(matrix.MultiplyPoint((lastPt * radius).XVY(0)));
+			AddVertex(matrix.MultiplyPoint((lastPt * radius).XVY(0)));
 			normals.Add(-nrm);
 			Vector2 lastUV = (lastPt + Vector2.one) * 0.5f;
 			lastUV.x = 1 - lastUV.x;
@@ -499,40 +513,40 @@ namespace D3T
 			var nrmU = Vector3.up;
 			Vector2[] pts = GetCirclePoints(detail, radius);
 
-			verts.Add(TransformPoint(pos + Vector3.down * h2));
+			AddVertex(TransformPoint(pos + Vector3.down * h2));
 			int bL = verts.Count;
 			normals.Add(TransformVector(nrmL));
 			uv0.Add(new Vector2(0.5f, 0.5f));
-			for (int i = 0; i < pts.Length - 1; i++)
+			for(int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(TransformPoint(pos + pts[i].XVY(-h2)));
+				AddVertex(TransformPoint(pos + pts[i].XVY(-h2)));
 				normals.Add(TransformVector(nrmL));
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bL - 1);
 				tris.Add(bL + i);
 				tris.Add(bL + i + 1);
 			}
-			verts.Add(TransformPoint(pos + pts[pts.Length - 1].XVY(-h2)));
+			AddVertex(TransformPoint(pos + pts[pts.Length - 1].XVY(-h2)));
 			normals.Add(TransformVector(nrmL));
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bL - 1);
 			tris.Add(bL + pts.Length - 1);
 			tris.Add(bL);
 
-			verts.Add(TransformPoint(pos + Vector3.up * h2));
+			AddVertex(TransformPoint(pos + Vector3.up * h2));
 			int bU = verts.Count;
 			normals.Add(TransformVector(nrmU));
 			uv0.Add(new Vector2(0.5f, 0.5f));
-			for (int i = 0; i < pts.Length - 1; i++)
+			for(int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(TransformPoint(pos + pts[i].XVY(h2)));
+				AddVertex(TransformPoint(pos + pts[i].XVY(h2)));
 				normals.Add(TransformVector(nrmU));
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bU - 1);
 				tris.Add(bU + i + 1);
 				tris.Add(bU + i);
 			}
-			verts.Add(TransformPoint(pos + pts[pts.Length - 1].XVY(h2)));
+			AddVertex(TransformPoint(pos + pts[pts.Length - 1].XVY(h2)));
 			normals.Add(TransformVector(nrmU));
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bU - 1);
@@ -542,8 +556,8 @@ namespace D3T
 			for(int i = 0; i < pts.Length; i++)
 			{
 				int bM = verts.Count;
-				verts.Add(verts[bL + i]);
-				verts.Add(verts[bU + i]);
+				AddVertex(verts[bL + i]);
+				AddVertex(verts[bU + i]);
 				normals.Add(TransformVector(new Vector3(pts[i].x, 0, pts[i].y)));
 				normals.Add(TransformVector(new Vector3(pts[i].x, 0, pts[i].y)));
 				uv0.Add(new Vector2(i / (float)pts.Length, 0));
@@ -555,15 +569,15 @@ namespace D3T
 				tris.Add(bM + 2);
 				tris.Add(bM + 1);
 			}
-			
-			verts.Add(verts[bL]);
-			verts.Add(verts[bU]);
+
+			AddVertex(verts[bL]);
+			AddVertex(verts[bU]);
 			uv0.Add(new Vector2(1, 0));
 			uv0.Add(new Vector2(1, 1));
 			normals.Add(TransformVector(new Vector3(pts[0].x, 0, pts[0].y)));
 			normals.Add(TransformVector(new Vector3(pts[0].x, 0, pts[0].y)));
 			int bM2 = verts.Count - 2;
-			
+
 
 			/*tris.Add(bM2);
 			tris.Add(bmL - 9);
@@ -588,19 +602,19 @@ namespace D3T
 		public void AddMesh(Mesh otherMesh)
 		{
 			int offset = verts.Count;
-			foreach (var vert in otherMesh.vertices)
+			foreach(var vert in otherMesh.vertices)
 			{
-				verts.Add(TransformPoint(vert));
+				AddVertex(TransformPoint(vert));
 			}
-			foreach (var nrm in otherMesh.normals)
+			foreach(var nrm in otherMesh.normals)
 			{
 				normals.Add(TransformVector(nrm));
 			}
-			foreach (var tri in otherMesh.triangles)
+			foreach(var tri in otherMesh.triangles)
 			{
 				tris.Add(offset + tri);
 			}
-			foreach (var uv in otherMesh.uv)
+			foreach(var uv in otherMesh.uv)
 			{
 				uv0.Add(uv);
 			}
@@ -645,7 +659,7 @@ namespace D3T
 		public static Vector2[] GetCirclePoints(int pointCount, float radius = 1f)
 		{
 			var pts = new Vector2[pointCount];
-			for (int i = 0; i < pointCount; i++)
+			for(int i = 0; i < pointCount; i++)
 			{
 				float angleRad = i / (float)pointCount * Mathf.PI * 2f;
 				pts[i] = new Vector2(Mathf.Cos(angleRad) * radius, Mathf.Sin(angleRad) * radius);
