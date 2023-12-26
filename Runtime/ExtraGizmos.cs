@@ -17,7 +17,7 @@ namespace D3T
 		static ExtraGizmos()
 		{
 			var builder = new MeshBuilder();
-			builder.AddDisc(Vector3.zero, Vector3.up, 1f, 32);
+			builder.AddCircle(Vector3.zero, Vector3.up, 1f, 32);
 			disc = builder.CreateMesh();
 
 			builder.Clear();

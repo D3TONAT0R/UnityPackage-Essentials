@@ -101,9 +101,10 @@ namespace D3T
 			}
 		}
 
-		public Mesh CreateMesh()
+		public Mesh CreateMesh(string name = null)
 		{
 			var mesh = new Mesh();
+			if(name != null) mesh.name = name;
 			BuildMesh(mesh);
 			return mesh;
 		}
@@ -494,7 +495,7 @@ namespace D3T
 		/// <summary>
 		/// Adds a flat disc to the mesh.
 		/// </summary>
-		public void AddDisc(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
+		public void AddCircle(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
 		{
 			upNormal = Vector3.Normalize(upNormal);
 			Quaternion rotation = Quaternion.LookRotation(upNormal) * Quaternion.Euler(90, 180, 0);
