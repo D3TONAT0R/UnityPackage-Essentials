@@ -38,7 +38,7 @@ namespace D3T
 		/// <summary>
 		/// Rounds this value with the given rounding interval.
 		/// </summary>
-		public static float RoundTo(this float f, float rounding) => Mathf.Round(f * rounding) / rounding;
+		public static float RoundTo(this float f, float rounding) => Mathf.Round(f / rounding) * rounding;
 
 		/// <summary>
 		/// Returns the absolute value of this float.
