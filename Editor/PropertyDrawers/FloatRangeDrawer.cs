@@ -5,7 +5,7 @@ using UnityEngine;
 namespace D3TEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(FloatRange))]
-	public class MinMaxFloatDrawer : PropertyDrawer
+	public class FloatRangeDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -22,7 +22,8 @@ namespace D3TEditor.PropertyDrawers
 				max.floatValue = maxValue;
 				position.NextProperty();
 			}
-			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelRect, out position);
+			bool hasLabel = !string.IsNullOrEmpty(label.text);
+			position.SplitHorizontal(hasLabel ? EditorGUIUtility.labelWidth : 0, out var labelRect, out position);
 			if(attr == null)
 			{
 				EditorGUI.LabelField(labelRect, label);
