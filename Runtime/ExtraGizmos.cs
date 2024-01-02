@@ -68,8 +68,8 @@ namespace D3T
 			DrawPath(points);
 			if(edges)
 			{
-				Gizmos.DrawLine(center, points[0]);
-				Gizmos.DrawLine(center, points[points.Length - 1]);
+				Gizmos.DrawLine(Vector3.zero, points[0]);
+				Gizmos.DrawLine(Vector3.zero, points[points.Length - 1]);
 			}
 			Gizmos.matrix = lMatrix;
 		}
