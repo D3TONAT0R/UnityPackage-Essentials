@@ -460,9 +460,9 @@ namespace D3T
 		}
 
 		/// <summary>
-		/// Adds a flat disc to the mesh, transformed by the given matrix.
+		/// Adds a flat circle to the mesh, transformed by the given matrix.
 		/// </summary>
-		public void AddDisc(Matrix4x4 matrix, float radius, int detail = 32)
+		public void AddCircle(Matrix4x4 matrix, float radius, int detail = 32)
 		{
 			var nrm = matrix.MultiplyVector(Vector3.up);
 			Vector2[] pts = GetCirclePoints(detail, 1f);
@@ -500,7 +500,7 @@ namespace D3T
 			upNormal = Vector3.Normalize(upNormal);
 			Quaternion rotation = Quaternion.LookRotation(upNormal) * Quaternion.Euler(90, 180, 0);
 			if(upNormal != Vector3.up && upNormal != Vector3.down) rotation *= Quaternion.Euler(0, 180, 0);
-			AddDisc(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
+			AddCircle(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
 		}
 
 		/// <summary>
@@ -598,6 +598,18 @@ namespace D3T
 		}
 
 		/// <summary>
+		/// Adds a cylinder to the mesh, starting from the given position and extruded with with the given height.
+		/// </summary>
+		public void AddCylinderFrom(Vector3 pos, AxisDirection direction, float radius, float height, int detail = 32)
+		{
+			using(PushMatrixScope())
+			{
+				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(direction), Vector3.one));
+				AddCylinder(Vector3.zero + Vector3.up * height * 0.5f, radius, height, detail);
+			}
+		}
+
+		/// <summary>
 		/// Adds another mesh to this mesh.
 		/// </summary>
 		public void AddMesh(Mesh otherMesh)
@@ -670,9 +682,27 @@ namespace D3T
 
 		public static Quaternion GetAxisRotation(Axis a)
 		{
-			if(a == Axis.X) return Quaternion.Euler(0, 0, 90);
-			else if(a == Axis.Z) return Quaternion.Euler(90, 0, 0);
-			else return Quaternion.identity;
+			switch(a)
+			{
+				case Axis.X: return Quaternion.Euler(-90, -90, 0);
+				case Axis.Y: return Quaternion.identity;
+				case Axis.Z: return Quaternion.Euler(-90, 0, 180);
+				default: throw new System.InvalidOperationException();
+			}
+		}
+
+		public static Quaternion GetAxisRotation(AxisDirection a)
+		{
+			switch(a)
+			{
+				case AxisDirection.XNeg: return Quaternion.Euler(-90, 90, 0);
+				case AxisDirection.XPos: return Quaternion.Euler(-90, -90, 0);
+				case AxisDirection.YNeg: return Quaternion.Euler(180, 0, 0);
+				case AxisDirection.YPos: return Quaternion.identity;
+				case AxisDirection.ZNeg: return Quaternion.Euler(-90, 0, 0);
+				case AxisDirection.ZPos: return Quaternion.Euler(-90, 0, 180);
+				default: throw new System.InvalidOperationException();
+			}
 		}
 
 		/// <summary>
