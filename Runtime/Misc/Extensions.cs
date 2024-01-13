@@ -170,6 +170,7 @@ namespace D3T
 		/// <summary>
 		/// Logs this exception with a custom error message.
 		/// </summary>
+		[System.Diagnostics.DebuggerHidden]
 		public static void LogException(this System.Exception e, string message = null, Object context = null)
 		{
 			Debug.LogException(e.AddMessage(message), context);
