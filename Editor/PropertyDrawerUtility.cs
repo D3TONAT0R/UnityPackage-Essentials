@@ -26,11 +26,14 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-#if D3T_ADVSELECTOR
-			advancedObjectPropertyDrawer = Assembly.Load("D3T.AdvancedObjectSelector")
-				.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
+			try
+			{
+				var assembly = Assembly.Load("D3T.AdvancedObjectSelector");
+				advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
 				.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
-#endif
+			}
+			catch { }
+
 			propertyDrawerTypes = new Dictionary<Type, Type>();
 			foreach(var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
 			{
