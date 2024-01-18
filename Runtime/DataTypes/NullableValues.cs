@@ -73,7 +73,24 @@ namespace UnityEssentials
 			set => hasValue = value;
 		}
 
-		public T? Nullable => hasValue ? Value : (T?)null;
+		public T? Nullable {
+			get
+			{
+				return hasValue? Value : (T?)null;
+			}
+			set
+			{
+				if(value.HasValue)
+				{
+					backingValue = value.Value;
+					hasValue = true;
+				}
+				else
+				{
+					hasValue = false;
+				}
+			}
+		}
 
 		public NullableValue(T? startValue, T fallback = default)
 		{

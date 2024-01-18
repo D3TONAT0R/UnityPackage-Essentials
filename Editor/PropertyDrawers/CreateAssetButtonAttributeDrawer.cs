@@ -1,5 +1,6 @@
 ﻿using UnityEssentials;
 using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,8 +31,9 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private void CreateNewAssetDialog(SerializedObject propRoot, string propPath, Type type, string ext)
 		{
-
-			var path = EditorUtility.SaveFilePanelInProject($"Create new {type.Name}", $"New {type.Name}", ext, "");
+			string name = $"New {type.Name}";
+			var defaultPath = ((CreateAssetButtonAttribute)attribute).defaultPath;
+			var path = EditorUtility.SaveFilePanelInProject($"Create new {type.Name}", name, ext, "", "Assets/" + defaultPath);
 			if(!string.IsNullOrWhiteSpace(path))
 			{
 				var obj = CreateAsset(type);

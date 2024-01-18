@@ -25,11 +25,14 @@ namespace UnityEssentialsEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-#if D3T_ADVSELECTOR
-			advancedObjectPropertyDrawer = Assembly.Load("D3T.AdvancedObjectSelector")
-				.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
+			try
+			{
+				var assembly = Assembly.Load("D3T.AdvancedObjectSelector");
+				advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
 				.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
-#endif
+			}
+			catch { }
+
 			propertyDrawerTypes = new Dictionary<Type, Type>();
 			foreach(var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
 			{
@@ -533,7 +536,7 @@ namespace UnityEssentialsEditor
 				case SerializedPropertyType.Color: prop.colorValue = EditorGUI.ColorField(position, label, prop.colorValue); break;
 				case SerializedPropertyType.ObjectReference: prop.objectReferenceValue = EditorGUI.ObjectField(position, label, prop.objectReferenceValue, GetTypeOfProperty(prop), true); break;
 				case SerializedPropertyType.LayerMask: prop.intValue = EditorGUI.LayerField(position, label, prop.intValue); break;
-				case SerializedPropertyType.Enum: prop.intValue = (int)(object)EditorGUI.EnumPopup(position, label, (Enum)GetTargetObjectOfProperty(prop), textFieldStyle); break;
+				case SerializedPropertyType.Enum: prop.intValue = Convert.ToInt32(EditorGUI.EnumPopup(position, label, (Enum)GetTargetObjectOfProperty(prop))); break;
 				case SerializedPropertyType.Vector2: prop.vector2Value = EditorGUI.Vector2Field(position, label, prop.vector2Value); break;
 				case SerializedPropertyType.Vector3: prop.vector3Value = EditorGUI.Vector3Field(position, label, prop.vector3Value); break;
 				case SerializedPropertyType.Vector4: prop.vector4Value = EditorGUI.Vector4Field(position, label, prop.vector4Value); break;

@@ -10,6 +10,18 @@ namespace UnityEssentials
 	/// </summary>
 	public class MeshBuilder
 	{
+		public class MatrixScope : System.IDisposable
+		{
+			private MeshBuilder builder;
+
+			public MatrixScope(MeshBuilder mb)
+			{
+				builder = mb;
+				mb.PushMatrix();
+			}
+
+			public void Dispose() => builder.PopMatrix();
+		}
 
 		public MeshBuilder()
 		{
@@ -49,6 +61,11 @@ namespace UnityEssentials
 		public List<Vector2> uv0 = new List<Vector2>();
 		public List<Color32> vertexColors = new List<Color32>();
 
+		public Color32? autoVertexColor = null;
+
+		private List<Matrix4x4> matrixStack = new List<Matrix4x4>();
+		private Matrix4x4 currentMatrix = Matrix4x4.identity;
+
 		public void Clear()
 		{
 			verts.Clear();
@@ -56,20 +73,21 @@ namespace UnityEssentials
 			normals.Clear();
 			uv0.Clear();
 			vertexColors.Clear();
+			autoVertexColor = null;
 		}
 
 		public void BuildMesh(Mesh mesh, bool recalculateTangents = true)
 		{
 			mesh.Clear();
-			if (verts.Count > 3)
+			if(verts.Count > 3)
 			{
 				mesh.SetVertices(verts);
 				mesh.SetTriangles(tris, 0);
 				mesh.SetNormals(normals);
 				mesh.SetUVs(0, uv0);
-				if (vertexColors.Count > 0)
+				if(vertexColors.Count > 0)
 				{
-					if (vertexColors.Count == verts.Count)
+					if(vertexColors.Count == verts.Count)
 					{
 						mesh.SetColors(vertexColors);
 					}
@@ -78,16 +96,86 @@ namespace UnityEssentials
 						Debug.LogError("vertex color count does not match the number of vertices.");
 					}
 				}
-				if (recalculateTangents) mesh.RecalculateTangents();
+				if(recalculateTangents) mesh.RecalculateTangents();
 				mesh.UploadMeshData(false);
 			}
 		}
 
-		public Mesh CreateMesh()
+		public Mesh CreateMesh(string name = null)
 		{
 			var mesh = new Mesh();
+			if(name != null) mesh.name = name;
 			BuildMesh(mesh);
 			return mesh;
+		}
+
+		#region Matrix related methods
+		public void PushMatrix()
+		{
+			matrixStack.Add(currentMatrix);
+		}
+
+		public void PopMatrix()
+		{
+			if(matrixStack.Count > 0)
+			{
+				matrixStack.RemoveAt(matrixStack.Count - 1);
+				currentMatrix = matrixStack.Count > 0 ? matrixStack[matrixStack.Count - 1] : Matrix4x4.identity;
+			}
+		}
+
+		public MatrixScope PushMatrixScope()
+		{
+			return new MatrixScope(this);
+		}
+
+		public void SetMatrix(Matrix4x4 matrix)
+		{
+			currentMatrix = matrix;
+		}
+
+		public void ApplyMatrix(Matrix4x4 matrix)
+		{
+			currentMatrix *= matrix;
+		}
+
+		public void ResetMatrix(bool resetStack = true)
+		{
+			currentMatrix = Matrix4x4.identity;
+			if(resetStack) matrixStack.Clear();
+		}
+
+		public Vector3 TransformPoint(Vector3 point)
+		{
+			return currentMatrix.MultiplyPoint(point);
+		}
+
+		public Vector3 TransformVector(Vector3 vector)
+		{
+			return currentMatrix.MultiplyVector(vector);
+		}
+
+		public void TransformPoint(ref Vector3 point)
+		{
+			point = currentMatrix.MultiplyPoint(point);
+		}
+
+		public void TransformVector(ref Vector3 vector)
+		{
+			vector = currentMatrix.MultiplyVector(vector);
+		}
+		#endregion
+
+		public void AddVertex(Vector3 pos)
+		{
+			verts.Add(pos);
+			if(autoVertexColor.HasValue)
+			{
+				while(vertexColors.Count < verts.Count)
+				{
+					vertexColors.Add(autoVertexColor.Value);
+				}
+			}
 		}
 
 		/// <summary>
@@ -95,9 +183,14 @@ namespace UnityEssentials
 		/// </summary>
 		public void AddTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal, Vector2 uv_a, Vector2 uv_b, Vector2 uv_c)
 		{
-			verts.Add(a);
-			verts.Add(b);
-			verts.Add(c);
+			TransformPoint(ref a);
+			TransformPoint(ref b);
+			TransformPoint(ref c);
+			TransformVector(ref normal);
+
+			AddVertex(a);
+			AddVertex(b);
+			AddVertex(c);
 			normals.Add(normal);
 			normals.Add(normal);
 			normals.Add(normal);
@@ -123,10 +216,16 @@ namespace UnityEssentials
 		/// </summary>
 		public void AddQuad(Vector3 ll, Vector3 lr, Vector3 ul, Vector3 ur, Vector3 normal, Vector2 uv_ll, Vector2 uv_lr, Vector2 uv_ul, Vector2 uv_ur)
 		{
-			verts.Add(ul);
-			verts.Add(ur);
-			verts.Add(ll);
-			verts.Add(lr);
+			TransformPoint(ref ll);
+			TransformPoint(ref lr);
+			TransformPoint(ref ul);
+			TransformPoint(ref ur);
+			TransformVector(ref normal);
+
+			AddVertex(ul);
+			AddVertex(ur);
+			AddVertex(ll);
+			AddVertex(lr);
 			normals.Add(normal);
 			normals.Add(normal);
 			normals.Add(normal);
@@ -188,14 +287,14 @@ namespace UnityEssentials
 			lower -> 0-----1		  o----> x
 			*/
 
-			Vector3 v0 = lower;
-			Vector3 v1 = new Vector3(upper.x, lower.y, lower.z);
-			Vector3 v2 = new Vector3(lower.x, lower.y, upper.z);
-			Vector3 v3 = new Vector3(upper.x, lower.y, upper.z);
-			Vector3 v4 = new Vector3(lower.x, upper.y, lower.z);
-			Vector3 v5 = new Vector3(upper.x, upper.y, lower.z);
-			Vector3 v6 = new Vector3(lower.x, upper.y, upper.z);
-			Vector3 v7 = upper;
+			Vector3 v0 = TransformPoint(lower);
+			Vector3 v1 = TransformPoint(new Vector3(upper.x, lower.y, lower.z));
+			Vector3 v2 = TransformPoint(new Vector3(lower.x, lower.y, upper.z));
+			Vector3 v3 = TransformPoint(new Vector3(upper.x, lower.y, upper.z));
+			Vector3 v4 = TransformPoint(new Vector3(lower.x, upper.y, lower.z));
+			Vector3 v5 = TransformPoint(new Vector3(upper.x, upper.y, lower.z));
+			Vector3 v6 = TransformPoint(new Vector3(lower.x, upper.y, upper.z));
+			Vector3 v7 = TransformPoint(upper);
 
 			Vector2 uv_ll = lowerCornerUV;
 			Vector2 uv_lr = new Vector2(upperCornerUV.x, lowerCornerUV.y);
@@ -203,23 +302,23 @@ namespace UnityEssentials
 			Vector2 uv_ur = upperCornerUV;
 
 			//Back
-			if (faceFlags.HasFlag(CubeFaces.ZNeg))
-				AddQuad(v0, v1, v4, v5, Vector3.back, uv_ll, uv_lr, uv_ul, uv_ur);
+			if(faceFlags.HasFlag(CubeFaces.ZNeg))
+				AddQuad(v0, v1, v4, v5, TransformVector(Vector3.back), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Right
-			if (faceFlags.HasFlag(CubeFaces.XPos))
-				AddQuad(v1, v3, v5, v7, Vector3.right, uv_ll, uv_lr, uv_ul, uv_ur);
+			if(faceFlags.HasFlag(CubeFaces.XPos))
+				AddQuad(v1, v3, v5, v7, TransformVector(Vector3.right), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Front
-			if (faceFlags.HasFlag(CubeFaces.ZPos))
-				AddQuad(v3, v2, v7, v6, Vector3.forward, uv_ll, uv_lr, uv_ul, uv_ur);
+			if(faceFlags.HasFlag(CubeFaces.ZPos))
+				AddQuad(v3, v2, v7, v6, TransformVector(Vector3.forward), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Left
-			if (faceFlags.HasFlag(CubeFaces.XNeg))
-				AddQuad(v2, v0, v6, v4, Vector3.left, uv_ll, uv_lr, uv_ul, uv_ur);
+			if(faceFlags.HasFlag(CubeFaces.XNeg))
+				AddQuad(v2, v0, v6, v4, TransformVector(Vector3.left), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Top
-			if (faceFlags.HasFlag(CubeFaces.YPos))
-				AddQuad(v4, v5, v6, v7, Vector3.up, uv_ll, uv_lr, uv_ul, uv_ur);
+			if(faceFlags.HasFlag(CubeFaces.YPos))
+				AddQuad(v4, v5, v6, v7, TransformVector(Vector3.up), uv_ll, uv_lr, uv_ul, uv_ur);
 			//Bottom
-			if (faceFlags.HasFlag(CubeFaces.YNeg))
-				AddQuad(v2, v3, v0, v1, Vector3.down, uv_ll, uv_lr, uv_ul, uv_ur);
+			if(faceFlags.HasFlag(CubeFaces.YNeg))
+				AddQuad(v2, v3, v0, v1, TransformVector(Vector3.down), uv_ll, uv_lr, uv_ul, uv_ur);
 		}
 
 		/// <summary>
@@ -229,10 +328,10 @@ namespace UnityEssentials
 		{
 			int offset = verts.Count;
 			lonDetail /= 2;
-			for (int v = 0; v <= lonDetail; v++)
+			for(int v = 0; v <= lonDetail; v++)
 			{
 				var vAngle = v / (float)lonDetail * Mathf.PI;
-				for (int i = 0; i <= latDetail; i++)
+				for(int i = 0; i <= latDetail; i++)
 				{
 					var hAngle = i / (float)latDetail * Mathf.PI * -2f;
 					float x = Mathf.Sin(hAngle);
@@ -240,28 +339,28 @@ namespace UnityEssentials
 					float y = -Mathf.Cos(vAngle);
 					float m = Mathf.Sin(vAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
-					verts.Add(pos + unitVector * radius);
-					normals.Add(unitVector);
+					AddVertex(TransformPoint(pos + unitVector * radius));
+					normals.Add(TransformVector(unitVector));
 					uv0.Add(new Vector2(i / (float)latDetail, v / (float)lonDetail));
 				}
 			}
 
-			for (int i = 0; i < lonDetail; i++)
+			for(int i = 0; i < lonDetail; i++)
 			{
 				int lower = offset + (latDetail + 1) * i;
 				int upper = offset + (latDetail + 1) * (i + 1);
-				for (int l = 0; l < latDetail; l++)
+				for(int l = 0; l < latDetail; l++)
 				{
 					int r = (l + 1);
 
-					if (i < lonDetail - 1)
+					if(i < lonDetail - 1)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + l);
 						tris.Add(upper + r);
 					}
 
-					if (i > 0)
+					if(i > 0)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + r);
@@ -272,43 +371,20 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Adds a capsule to the mesh.
+		/// Adds a vertical capsule to the mesh.
 		/// </summary>
-		public void AddCapsule(Vector3 pos, Axis axis, float radius, float height, int latDetail = 32, int lonDetail = 32)
-		{
-			Vector3 rot;
-			if (axis == Axis.X)
-			{
-				rot = new Vector3(0, 0, 90);
-			}
-			else if (axis == Axis.Y)
-			{
-				rot = Vector3.zero;
-			}
-			else
-			{
-				rot = new Vector3(90, 0, 0);
-			}
-			var matrix = Matrix4x4.TRS(pos, Quaternion.Euler(rot), Vector3.one);
-			AddCapsule(matrix, radius, height, latDetail, lonDetail);
-		}
-
-		/// <summary>
-		/// Adds a sphere to the mesh, transformed by the given matrix.
-		/// </summary>
-		public void AddCapsule(Matrix4x4 matrix, float radius, float height, int latDetail = 32, int lonDetail = 32)
+		public void AddCapsule(Vector3 pos, float radius, float height, int latDetail = 32, int lonDetail = 32)
 		{
 
 			void AddVertRing(int v, float vAngle, float voffset, bool upper)
 			{
-
 				float y = -Mathf.Cos(vAngle);
 				float m = Mathf.Sin(vAngle);
 				float p = Mathf.Abs(y);
 				float sec = radius / Mathf.Max(2 * radius, height);
 				//float uvY = v / (float)lonDetail / 2f;
 				float uvY;
-				if (!upper)
+				if(!upper)
 				{
 					uvY = (1 - p) * sec;
 				}
@@ -317,15 +393,15 @@ namespace UnityEssentials
 					uvY = 1 - ((1 - p) * sec);
 				}
 
-				for (int i = 0; i <= latDetail; i++)
+				for(int i = 0; i <= latDetail; i++)
 				{
 					var hAngle = i / (float)latDetail * Mathf.PI * -2f;
 					float x = Mathf.Sin(hAngle);
 					float z = Mathf.Cos(hAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
-					var pos = matrix.MultiplyPoint(unitVector * radius + Vector3.up * voffset);
-					verts.Add(pos);
-					normals.Add(unitVector);
+					var vert = TransformPoint(unitVector * radius + Vector3.up * voffset);
+					AddVertex(vert);
+					normals.Add(TransformVector(unitVector));
 					uv0.Add(new Vector2(i / (float)latDetail, uvY));
 				}
 			}
@@ -334,34 +410,34 @@ namespace UnityEssentials
 			int indexOffset = verts.Count;
 			lonDetail /= 2;
 			float offset = -Mathf.Max(0, height / 2f - radius);
-			for (int v = 0; v <= lonDetail; v++)
+			for(int v = 0; v <= lonDetail; v++)
 			{
 				bool middle = v == lonDetail / 2;
 				var vAngle = v / (float)lonDetail * Mathf.PI;
 				AddVertRing(v, vAngle, offset, v > lonDetail / 2);
-				if (middle)
+				if(middle)
 				{
 					offset = -offset;
 					AddVertRing(v, vAngle, offset, true);
 				}
 			}
 
-			for (int i = 0; i <= lonDetail; i++)
+			for(int i = 0; i <= lonDetail; i++)
 			{
 				int lower = indexOffset + (latDetail + 1) * i;
 				int upper = indexOffset + (latDetail + 1) * (i + 1);
-				for (int l = 0; l < latDetail; l++)
+				for(int l = 0; l < latDetail; l++)
 				{
 					int r = (l + 1);
 
-					if (i < lonDetail)
+					if(i < lonDetail)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + l);
 						tris.Add(upper + r);
 					}
 
-					if (i > 0)
+					if(i > 0)
 					{
 						tris.Add(lower + l);
 						tris.Add(upper + r);
@@ -372,19 +448,31 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Adds a flat disc to the mesh, transformed by the given matrix.
+		/// Adds a capsule to the mesh, aligned to the given axis.
 		/// </summary>
-		public void AddDisc(Matrix4x4 matrix, float radius, int detail = 32)
+		public void AddCapsule(Vector3 pos, Axis axis, float radius, float height, int latDetail = 32, int lonDetail = 32)
+		{
+			using(PushMatrixScope())
+			{
+				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(axis), Vector3.one));
+				AddCapsule(Vector3.zero, radius, height, latDetail, lonDetail);
+			}
+		}
+
+		/// <summary>
+		/// Adds a flat circle to the mesh, transformed by the given matrix.
+		/// </summary>
+		public void AddCircle(Matrix4x4 matrix, float radius, int detail = 32)
 		{
 			var nrm = matrix.MultiplyVector(Vector3.up);
 			Vector2[] pts = GetCirclePoints(detail, 1f);
-			verts.Add(matrix.MultiplyPoint(Vector3.zero));
+			AddVertex(matrix.MultiplyPoint(Vector3.zero));
 			int b = verts.Count;
 			normals.Add(-nrm);
 			uv0.Add(Vector2.one * 0.5f);
-			for (int i = 0; i < pts.Length - 1; i++)
+			for(int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint((pts[i] * radius).XVY(0)));
+				AddVertex(matrix.MultiplyPoint((pts[i] * radius).XVY(0)));
 				normals.Add(-nrm);
 				Vector2 uv = (pts[i] + Vector2.one) * 0.5f;
 				uv.x = 1 - uv.x;
@@ -394,7 +482,7 @@ namespace UnityEssentials
 				tris.Add(b + i + 1);
 			}
 			Vector2 lastPt = pts[pts.Length - 1];
-			verts.Add(matrix.MultiplyPoint((lastPt * radius).XVY(0)));
+			AddVertex(matrix.MultiplyPoint((lastPt * radius).XVY(0)));
 			normals.Add(-nrm);
 			Vector2 lastUV = (lastPt + Vector2.one) * 0.5f;
 			lastUV.x = 1 - lastUV.x;
@@ -407,60 +495,60 @@ namespace UnityEssentials
 		/// <summary>
 		/// Adds a flat disc to the mesh.
 		/// </summary>
-		public void AddDisc(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
+		public void AddCircle(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
 		{
 			upNormal = Vector3.Normalize(upNormal);
 			Quaternion rotation = Quaternion.LookRotation(upNormal) * Quaternion.Euler(90, 180, 0);
 			if(upNormal != Vector3.up && upNormal != Vector3.down) rotation *= Quaternion.Euler(0, 180, 0);
-			AddDisc(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
+			AddCircle(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
 		}
 
 		/// <summary>
-		/// Adds a vertically aligned cylinder to the mesh, transformed by the given matrix.
+		/// Adds a vertical cylinder to the mesh.
 		/// </summary>
-		public void AddCylinder(Matrix4x4 matrix, float radius, float height, int detail = 32)
+		public void AddCylinder(Vector3 pos, float radius, float height, int detail = 32)
 		{
 			float h2 = height * 0.5f;
 
-			var nrmL = matrix.MultiplyVector(Vector3.down);
-			var nrmU = matrix.MultiplyVector(Vector3.up);
+			var nrmL = Vector3.down;
+			var nrmU = Vector3.up;
 			Vector2[] pts = GetCirclePoints(detail, radius);
 
-			verts.Add(matrix.MultiplyPoint(Vector3.down * h2));
+			AddVertex(TransformPoint(pos + Vector3.down * h2));
 			int bL = verts.Count;
-			normals.Add(nrmL);
+			normals.Add(TransformVector(nrmL));
 			uv0.Add(new Vector2(0.5f, 0.5f));
-			for (int i = 0; i < pts.Length - 1; i++)
+			for(int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint(pts[i].XVY(-h2)));
-				normals.Add(nrmL);
+				AddVertex(TransformPoint(pos + pts[i].XVY(-h2)));
+				normals.Add(TransformVector(nrmL));
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bL - 1);
 				tris.Add(bL + i);
 				tris.Add(bL + i + 1);
 			}
-			verts.Add(matrix.MultiplyPoint(pts[pts.Length - 1].XVY(-h2)));
-			normals.Add(nrmL);
+			AddVertex(TransformPoint(pos + pts[pts.Length - 1].XVY(-h2)));
+			normals.Add(TransformVector(nrmL));
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bL - 1);
 			tris.Add(bL + pts.Length - 1);
 			tris.Add(bL);
 
-			verts.Add(matrix.MultiplyPoint(Vector3.up * h2));
+			AddVertex(TransformPoint(pos + Vector3.up * h2));
 			int bU = verts.Count;
-			normals.Add(nrmU);
+			normals.Add(TransformVector(nrmU));
 			uv0.Add(new Vector2(0.5f, 0.5f));
-			for (int i = 0; i < pts.Length - 1; i++)
+			for(int i = 0; i < pts.Length - 1; i++)
 			{
-				verts.Add(matrix.MultiplyPoint(pts[i].XVY(h2)));
-				normals.Add(nrmU);
+				AddVertex(TransformPoint(pos + pts[i].XVY(h2)));
+				normals.Add(TransformVector(nrmU));
 				uv0.Add(pts[i] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bU - 1);
 				tris.Add(bU + i + 1);
 				tris.Add(bU + i);
 			}
-			verts.Add(matrix.MultiplyPoint(pts[pts.Length - 1].XVY(h2)));
-			normals.Add(nrmU);
+			AddVertex(TransformPoint(pos + pts[pts.Length - 1].XVY(h2)));
+			normals.Add(TransformVector(nrmU));
 			uv0.Add(pts[pts.Length - 1] / radius * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bU - 1);
 			tris.Add(bU);
@@ -469,10 +557,10 @@ namespace UnityEssentials
 			for(int i = 0; i < pts.Length; i++)
 			{
 				int bM = verts.Count;
-				verts.Add(verts[bL + i]);
-				verts.Add(verts[bU + i]);
-				normals.Add(new Vector3(pts[i].x, 0, pts[i].y));
-				normals.Add(new Vector3(pts[i].x, 0, pts[i].y));
+				AddVertex(verts[bL + i]);
+				AddVertex(verts[bU + i]);
+				normals.Add(TransformVector(new Vector3(pts[i].x, 0, pts[i].y)));
+				normals.Add(TransformVector(new Vector3(pts[i].x, 0, pts[i].y)));
 				uv0.Add(new Vector2(i / (float)pts.Length, 0));
 				uv0.Add(new Vector2(i / (float)pts.Length, 1));
 				tris.Add(bM);
@@ -482,15 +570,15 @@ namespace UnityEssentials
 				tris.Add(bM + 2);
 				tris.Add(bM + 1);
 			}
-			
-			verts.Add(verts[bL]);
-			verts.Add(verts[bU]);
+
+			AddVertex(verts[bL]);
+			AddVertex(verts[bU]);
 			uv0.Add(new Vector2(1, 0));
 			uv0.Add(new Vector2(1, 1));
-			normals.Add(new Vector3(pts[0].x, 0, pts[0].y));
-			normals.Add(new Vector3(pts[0].x, 0, pts[0].y));
+			normals.Add(TransformVector(new Vector3(pts[0].x, 0, pts[0].y)));
+			normals.Add(TransformVector(new Vector3(pts[0].x, 0, pts[0].y)));
 			int bM2 = verts.Count - 2;
-			
+
 
 			/*tris.Add(bM2);
 			tris.Add(bmL - 9);
@@ -498,44 +586,62 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Adds a vertically aligned cylinder to the mesh.
+		/// Adds a cylinder to the mesh, aligned to the given axis.
 		/// </summary>
-		public void AddCylinder(Vector3 pos, Quaternion rotation, float radius, float height, int detail = 32)
+		public void AddCylinder(Vector3 pos, Axis axis, float radius, float height, int detail = 32)
 		{
-			AddCylinder(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, height, detail);
+			using(PushMatrixScope())
+			{
+				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(axis), Vector3.one));
+				AddCylinder(Vector3.zero, radius, height, detail);
+			}
+		}
+
+		/// <summary>
+		/// Adds a cylinder to the mesh, starting from the given position and extruded with with the given height.
+		/// </summary>
+		public void AddCylinderFrom(Vector3 pos, AxisDirection direction, float radius, float height, int detail = 32)
+		{
+			using(PushMatrixScope())
+			{
+				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(direction), Vector3.one));
+				AddCylinder(Vector3.zero + Vector3.up * height * 0.5f, radius, height, detail);
+			}
 		}
 
 		/// <summary>
 		/// Adds another mesh to this mesh.
 		/// </summary>
-		/// <param name="otherMesh"></param>
 		public void AddMesh(Mesh otherMesh)
 		{
-			AddMesh(otherMesh, Matrix4x4.identity);
-		}
-
-		/// <summary>
-		/// Adds another mesh to this mesh, transformed by the given matrix.
-		/// </summary>
-		/// <param name="otherMesh"></param>
-		public void AddMesh(Mesh otherMesh, Matrix4x4 matrix)
-		{
 			int offset = verts.Count;
-			foreach (var vert in otherMesh.vertices)
+			foreach(var vert in otherMesh.vertices)
 			{
-				verts.Add(matrix.MultiplyPoint(vert));
+				AddVertex(TransformPoint(vert));
 			}
-			foreach (var tri in otherMesh.triangles)
+			foreach(var nrm in otherMesh.normals)
+			{
+				normals.Add(TransformVector(nrm));
+			}
+			foreach(var tri in otherMesh.triangles)
 			{
 				tris.Add(offset + tri);
 			}
-			foreach (var uv in otherMesh.uv)
+			foreach(var uv in otherMesh.uv)
 			{
 				uv0.Add(uv);
 			}
-			foreach (var nrm in otherMesh.normals)
+		}
+
+		/// <summary>
+		/// Adds another mesh to this mesh.
+		/// </summary>
+		public void AddMesh(Mesh otherMesh, Matrix4x4 matrix)
+		{
+			using(PushMatrixScope())
 			{
-				normals.Add(nrm);
+				ApplyMatrix(matrix);
+				AddMesh(otherMesh);
 			}
 		}
 
@@ -566,12 +672,37 @@ namespace UnityEssentials
 		public static Vector2[] GetCirclePoints(int pointCount, float radius = 1f)
 		{
 			var pts = new Vector2[pointCount];
-			for (int i = 0; i < pointCount; i++)
+			for(int i = 0; i < pointCount; i++)
 			{
 				float angleRad = i / (float)pointCount * Mathf.PI * 2f;
 				pts[i] = new Vector2(Mathf.Cos(angleRad) * radius, Mathf.Sin(angleRad) * radius);
 			}
 			return pts;
+		}
+
+		public static Quaternion GetAxisRotation(Axis a)
+		{
+			switch(a)
+			{
+				case Axis.X: return Quaternion.Euler(-90, -90, 0);
+				case Axis.Y: return Quaternion.identity;
+				case Axis.Z: return Quaternion.Euler(-90, 0, 180);
+				default: throw new System.InvalidOperationException();
+			}
+		}
+
+		public static Quaternion GetAxisRotation(AxisDirection a)
+		{
+			switch(a)
+			{
+				case AxisDirection.XNeg: return Quaternion.Euler(-90, 90, 0);
+				case AxisDirection.XPos: return Quaternion.Euler(-90, -90, 0);
+				case AxisDirection.YNeg: return Quaternion.Euler(180, 0, 0);
+				case AxisDirection.YPos: return Quaternion.identity;
+				case AxisDirection.ZNeg: return Quaternion.Euler(-90, 0, 0);
+				case AxisDirection.ZPos: return Quaternion.Euler(-90, 0, 180);
+				default: throw new System.InvalidOperationException();
+			}
 		}
 
 		/// <summary>

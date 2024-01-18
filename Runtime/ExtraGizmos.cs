@@ -17,11 +17,11 @@ namespace UnityEssentials
 		static ExtraGizmos()
 		{
 			var builder = new MeshBuilder();
-			builder.AddDisc(Vector3.zero, Vector3.up, 1f, 32);
+			builder.AddCircle(Vector3.zero, Vector3.up, 1f, 32);
 			disc = builder.CreateMesh();
 
 			builder.Clear();
-			builder.AddCylinder(Vector3.zero, Quaternion.identity, 1, 1, 16);
+			builder.AddCylinder(Vector3.zero, 1, 1, 16);
 			cylinder = builder.CreateMesh();
 		}
 
@@ -68,8 +68,8 @@ namespace UnityEssentials
 			DrawPath(points);
 			if(edges)
 			{
-				Gizmos.DrawLine(center, points[0]);
-				Gizmos.DrawLine(center, points[points.Length - 1]);
+				Gizmos.DrawLine(Vector3.zero, points[0]);
+				Gizmos.DrawLine(Vector3.zero, points[points.Length - 1]);
 			}
 			Gizmos.matrix = lMatrix;
 		}

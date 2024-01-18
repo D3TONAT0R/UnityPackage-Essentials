@@ -51,5 +51,32 @@ namespace UnityEssentials
 			}
 			return stringBuilder.ToString();
 		}
+
+		/// <summary>
+		/// Returns the hierarchical depth of this transform.
+		/// </summary>
+		public static int GetHierarchyDepth(this Transform t)
+		{
+			int d = 0;
+			while(t.parent != null)
+			{
+				d++;
+				t = t.parent;
+			}
+			return d;
+		}
+
+		/// <summary>
+		/// Returns the total number of children parented to this transform.
+		/// </summary>
+		public static int GetTotalChildCount(this Transform t)
+		{
+			int recursiveChildCount = t.childCount;
+			for(int i = 0; i < t.childCount; i++)
+			{
+				recursiveChildCount += GetTotalChildCount(t.GetChild(i));
+			}
+			return recursiveChildCount;
+		}
 	}
 }

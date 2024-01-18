@@ -10,16 +10,21 @@ namespace UnityEssentialsEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-			EditorApplication.delayCall += DoCheck;
+			EditorApplication.delayCall += CheckAttributes;
 		}
 
-		private static void DoCheck()
+		private static void CheckAttributes()
 		{
+			var attributes = ReflectionUtility.GetClassAndAssemblyAttributes<AlwaysIncludeShaderAttribute>(false);
+			if(attributes == null || attributes.Count == 0) return;
+
 			var settingsObj = AssetDatabase.LoadAssetAtPath<GraphicsSettings>("ProjectSettings/GraphicsSettings.asset");
 			var serializedObj = new SerializedObject(settingsObj);
 			var arrayProp = serializedObj.FindProperty("m_AlwaysIncludedShaders");
 
-			foreach(var attr in ReflectionUtility.GetClassAndAssemblyAttributes<AlwaysIncludeShaderAttribute>(false))
+			bool hasChanges = false;
+
+			foreach(var attr in attributes)
 			{
 				Shader shader = Shader.Find(attr.shaderName);
 				if(shader == null)
@@ -27,16 +32,19 @@ namespace UnityEssentialsEditor
 					Debug.LogError("Failed to find Shader to include: " + attr.shaderName);
 					continue;
 				}
-				AddAlwaysIncludedShader(arrayProp, shader);
+				hasChanges |= AddAlwaysIncludedShader(arrayProp, shader);
 			}
 
-			serializedObj.ApplyModifiedProperties();
-			EditorApplication.delayCall += () => AssetDatabase.SaveAssets();
+			if(hasChanges)
+			{
+				serializedObj.ApplyModifiedProperties();
+				EditorApplication.delayCall += () => AssetDatabase.SaveAssets();
+			}
 		}
 
-		public static void AddAlwaysIncludedShader(SerializedProperty arrayProp, Shader shader)
+		public static bool AddAlwaysIncludedShader(SerializedProperty arrayProp, Shader shader)
 		{
-			if(shader == null) return;
+			if(shader == null) return false;
 
 			bool hasShader = false;
 			for(int i = 0; i < arrayProp.arraySize; ++i)
@@ -57,7 +65,9 @@ namespace UnityEssentialsEditor
 				arrayElem.objectReferenceValue = shader;
 
 				Debug.Log($"Added shader '{shader.name}' to the list of always included shaders.");
+				return true;
 			}
+			return false;
 		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace UnityEssentials
 {
@@ -39,7 +38,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Rounds this value with the given rounding interval.
 		/// </summary>
-		public static float RoundTo(this float f, float rounding) => Mathf.Round(f * rounding) / rounding;
+		public static float RoundTo(this float f, float rounding) => Mathf.Round(f / rounding) * rounding;
 
 		/// <summary>
 		/// Returns the absolute value of this float.
@@ -52,12 +51,12 @@ namespace UnityEssentials
 		public static int Abs(this int i) => Mathf.Abs(i);
 
 		/// <summary>
-		/// Returns the sign of this value.
+		/// Returns the sign of this value. If the value is zero, 0 is returned.
 		/// </summary>
 		public static int Sign(this float f) => f > 0 ? 1 : f < 0 ? -1 : 0;
 
 		/// <summary>
-		/// Returns the sign of this value.
+		/// Returns the sign of this value. If the value is zero, 0 is returned.
 		/// </summary>
 		public static int Sign(this int i) => i > 0 ? 1 : i < 0 ? -1 : 0;
 
@@ -171,6 +170,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Logs this exception with a custom error message.
 		/// </summary>
+		[System.Diagnostics.DebuggerHidden]
 		public static void LogException(this System.Exception e, string message = null, Object context = null)
 		{
 			Debug.LogException(e.AddMessage(message), context);
