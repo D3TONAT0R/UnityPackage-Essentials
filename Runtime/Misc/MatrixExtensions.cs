@@ -49,9 +49,9 @@ namespace D3T
 		/// <summary>
 		/// Creates a TRS matrix from this transform.
 		/// </summary>
-		public static Matrix4x4 GetTRSMatrix(this Transform t)
+		public static Matrix4x4 GetTRSMatrix(this Transform t, bool includeScale = true)
 		{
-			return Matrix4x4.TRS(t.position, t.rotation, t.localScale);
+			return Matrix4x4.TRS(t.position, t.rotation, includeScale ? t.localScale : Vector3.one);
 		}
 
 		/// <summary>
