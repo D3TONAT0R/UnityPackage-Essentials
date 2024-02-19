@@ -2,7 +2,13 @@
   "name": "com.github.d3tonat0r.essentials",
   "version": "0.9.2",
   "displayName": "Essentials",
+  "description": "Collection of essential scripts and tools suitable for any type of Unity project.",
+  "unity": "2019.4",
   "category": "",
+  "author": {
+    "name": "D3TONAT0R",
+    "url": "https://github.com/d3tonat0r"
+  },
   "hideInEditor": false,
-  "description": "Collection of essential scripts and tools suitable for any type of Unity project."
+  "samples": []
 }
