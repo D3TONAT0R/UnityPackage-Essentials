@@ -23,7 +23,7 @@ namespace D3TEditor.PropertyDrawers
 			var target = PropertyDrawerUtility.GetTargetObjectOfProperty(property);
 			bool preferMonospaceKeys = (bool)target.GetType().GetProperty(nameof(UnityDictionary<Null, Null>.UseMonospaceKeyLabels)).GetValue(target);
 			var dictionaryType = target.GetType();
-			var polymorphicAttr = dictionaryType.GetCustomAttribute<PolymorphicDictionaryAttribute>();
+			var polymorphicAttr = dictionaryType.GetCustomAttribute<PolymorphicAttribute>();
 			bool polymorphic = polymorphicAttr != null;
 			if(polymorphic)
 			{

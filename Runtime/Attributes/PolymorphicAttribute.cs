@@ -3,19 +3,19 @@
 namespace D3T.Collections
 {
 	/// <summary>
-	/// Enables polymorphic support for a UnityDictionary.
+	/// Enables polymorphic support for a <see cref=""/> or <see cref="PolymorphicList"/>.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-	public class PolymorphicDictionaryAttribute : Attribute
+	public class PolymorphicAttribute : Attribute
 	{
 		public Type[] specificTypes = null;
 
-		public PolymorphicDictionaryAttribute()
+		public PolymorphicAttribute()
 		{
 
 		}
 
-		public PolymorphicDictionaryAttribute(params Type[] specificTypes)
+		public PolymorphicAttribute(params Type[] specificTypes)
 		{
 			this.specificTypes = specificTypes;
 		}
