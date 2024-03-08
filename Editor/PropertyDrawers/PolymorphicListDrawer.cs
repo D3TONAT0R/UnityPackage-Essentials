@@ -136,8 +136,7 @@ namespace D3TEditor.PropertyDrawers
 				else
                 {
 					Debug.Log("duplicate detected, copying...");
-					var memberwiseClone = obj.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-					var clone = memberwiseClone.Invoke(obj, null);
+					var clone = JsonUtility.FromJson(JsonUtility.ToJson(obj), obj.GetType());
 					elem.managedReferenceValue = clone;
 					listObjects.Add(clone);
                 }
