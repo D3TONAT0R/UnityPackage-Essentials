@@ -17,8 +17,12 @@ namespace D3TEditor.PropertyDrawers
 	{
 		private static Dictionary<Type, Type[]> polymorphicTypes = new Dictionary<Type, Type[]>();
 
+		private static List<object> listObjects = new List<object>();
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			var listProp = property.FindPropertyRelative(nameof(PolymorphicList<object>.list));
+			CheckForDuplicates(listProp);
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
 			var target = PropertyDrawerUtility.GetTargetObjectOfProperty(property);
 			var baseType = target.GetType();
@@ -50,7 +54,6 @@ namespace D3TEditor.PropertyDrawers
 			}
 			position.height = EditorGUIUtility.singleLineHeight;
 			property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, label);
-			var listProp = property.FindPropertyRelative(nameof(PolymorphicList<object>.list));
 			if(property.isExpanded)
 			{
 				EditorGUI.indentLevel++;
@@ -58,7 +61,7 @@ namespace D3TEditor.PropertyDrawers
 				{
 					var item = listProp.GetArrayElementAtIndex(i);
 					position.NextProperty(EditorGUI.GetPropertyHeight(item));
-					var type = PropertyDrawerUtility.GetTypeOfProperty(item);
+					var type = PropertyDrawerUtility.GetTargetObjectOfProperty(item)?.GetType();
 					string typeName = ObjectNames.NicifyVariableName(type?.Name ?? "(Null)");
 					//GUI.Box(position, GUIContent.none);
 					EditorGUI.PropertyField(position, item, new GUIContent($"Element {i} ({typeName})"), true);
@@ -102,7 +105,8 @@ namespace D3TEditor.PropertyDrawers
 				var menu = new GenericMenu();
 				menu.AddItem("Clear", true, false, () =>
 				{
-					target.GetType().GetMethod("Clear").Invoke(target, new object[] { });
+					so.FindProperty(path + "." + nameof(PolymorphicList<object>.list)).ClearArray();
+					so.ApplyModifiedProperties();
 				});
 				menu.ShowAsContext();
 			}
@@ -116,6 +120,29 @@ namespace D3TEditor.PropertyDrawers
 			so.ApplyModifiedProperties();
 			Undo.RecordObject(so.targetObject, "Add List Element");
 		}
+
+		private void CheckForDuplicates(SerializedProperty list)
+        {
+			if(Application.isPlaying) return;
+			listObjects.Clear();
+			for(int i = 0; i < list.arraySize; i++)
+            {
+				var elem = list.GetArrayElementAtIndex(i);
+				var obj = PropertyDrawerUtility.GetTargetObjectOfProperty(elem);
+				if(!listObjects.Contains(obj))
+                {
+					listObjects.Add(obj);
+                }
+				else
+                {
+					Debug.Log("duplicate detected, copying...");
+					var memberwiseClone = obj.GetType().GetMethod("MemberwiseClone", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+					var clone = memberwiseClone.Invoke(obj, null);
+					elem.managedReferenceValue = clone;
+					listObjects.Add(clone);
+                }
+            }
+        }
 
 		private static string GetTypeName(Type t)
 		{
@@ -132,7 +159,7 @@ namespace D3TEditor.PropertyDrawers
 				var listProp = property.FindPropertyRelative(nameof(PolymorphicList<object>.list));
 				for(int i = 0; i < listProp.arraySize; i++)
 				{
-					h += EditorGUI.GetPropertyHeight(listProp.GetArrayElementAtIndex(i));
+					h += EditorGUI.GetPropertyHeight(listProp.GetArrayElementAtIndex(i)) + EditorGUIUtility.standardVerticalSpacing;
 				}
 				return h;
 			}
