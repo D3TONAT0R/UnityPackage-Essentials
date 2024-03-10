@@ -125,6 +125,7 @@ namespace D3TEditor.PropertyDrawers
         {
 			if(Application.isPlaying) return;
 			listObjects.Clear();
+			if(list == null) return;
 			for(int i = 0; i < list.arraySize; i++)
             {
 				var elem = list.GetArrayElementAtIndex(i);
@@ -135,8 +136,10 @@ namespace D3TEditor.PropertyDrawers
                 }
 				else
                 {
+					if(obj == null) continue;
 					Debug.Log("duplicate detected, copying...");
-					var clone = JsonUtility.FromJson(JsonUtility.ToJson(obj), obj.GetType());
+					string json = JsonUtility.ToJson(obj);
+					var clone = JsonUtility.FromJson(json, obj.GetType());
 					elem.managedReferenceValue = clone;
 					listObjects.Add(clone);
                 }
