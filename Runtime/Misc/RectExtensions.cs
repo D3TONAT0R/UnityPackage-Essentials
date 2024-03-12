@@ -325,5 +325,21 @@ namespace D3T
 			r.x = Mathf.Min(r.x + r.width, bounds.xMax) - r.width;
 			r.y = Mathf.Min(r.y + r.height, bounds.yMax) - r.height;
 		}
+
+		/// <summary>
+		/// Returns the rect's aspect ratio (width / height)
+		/// </summary>
+		public static float GetAspectRatio(this Rect r)
+		{
+			return r.width / (float)r.height;
+		}
+
+		/// <summary>
+		/// Returns the rect's inverse aspect ratio (height / width)
+		/// </summary>
+		public static float GetInverseAspectRatio(this Rect r)
+		{
+			return r.height / (float)r.width;
+		}
 	}
 }
