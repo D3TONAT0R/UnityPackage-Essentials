@@ -34,6 +34,8 @@ namespace D3T
 
 		public bool AutoUpdateActive { get; private set; }
 
+		public int TickNumber { get; private set; } = 0;
+
 		public static RepeatTimer Create(float interval)
 		{
 			return new RepeatTimer() { useRandomInterval = false, interval = interval };
@@ -96,6 +98,7 @@ namespace D3T
 
 			if(time >= nextTickTime)
 			{
+				TickNumber++;
 				lastUpdateTime = time;
 				TriggeredThisFrame = true;
 				Tick?.Invoke();
