@@ -137,7 +137,6 @@ namespace D3TEditor.PropertyDrawers
 				else
                 {
 					if(obj == null) continue;
-					Debug.Log("duplicate detected, copying...");
 					string json = JsonUtility.ToJson(obj);
 					var clone = JsonUtility.FromJson(json, obj.GetType());
 					elem.managedReferenceValue = clone;
