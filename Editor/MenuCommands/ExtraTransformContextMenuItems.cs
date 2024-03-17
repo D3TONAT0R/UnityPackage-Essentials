@@ -8,7 +8,7 @@ namespace D3TEditor
 	internal static class ExtraTransformContextMenuItems
 	{
 		[MenuItem("CONTEXT/Transform/Apply Position")]
-		public static void ApplyTranslation(MenuCommand cmd)
+		public static void ApplyPosition(MenuCommand cmd)
 		{
 			var transform = (Transform)cmd.context;
 			Vector3[] childWorldPositions = new Vector3[transform.childCount];
