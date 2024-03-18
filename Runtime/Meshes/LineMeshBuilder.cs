@@ -97,7 +97,53 @@ namespace D3T
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;
 
-			//TODO
+			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint(pt.XVY(0)), color);
+
+			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + i, startIndex + i + 1);
+			ConnectVertices(startIndex + detail - 1, startIndex);
+		}
+
+		public void AddCylinder(Vector3 center, Quaternion rotation, float radius1, float radius2, float height, int detail = 32, Color32? color = null)
+		{
+			Vector2[] pts = MeshBuilder.GetCirclePoints(detail, 1f);
+			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
+			int startIndex = verts.Count;
+
+			//Lower base
+			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint((pt * radius1).XVY(-height / 2f)), color);
+			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + i, startIndex + i + 1);
+			ConnectVertices(startIndex + detail - 1, startIndex);
+
+			//Upper base
+			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint((pt * radius2).XVY(height / 2f)), color);
+			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + detail + i, startIndex + detail + i + 1);
+			ConnectVertices(startIndex + 2 * detail - 1, startIndex + detail);
+
+			//Connect bases
+			for(int i = 0; i < detail; i++) ConnectVertices(startIndex + i, startIndex + detail + i);
+		}
+
+		public void AddCylinder(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32, Color32? color = null)
+		{
+			AddCylinder(center, rotation, radius, radius, height, detail, color);
+		}
+
+		public void AddCone(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32, Color32? color = null)
+		{
+			Vector2[] pts = MeshBuilder.GetCirclePoints(detail, radius);
+			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
+			int startIndex = verts.Count;
+
+			//Cone tip
+			AddVertex(matrix.MultiplyPoint(Vector3.up * height), color);
+
+			//Base
+			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint(pt.XVY(-height / 2f)), color);
+			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + i + 1, startIndex + i + 2);
+			ConnectVertices(startIndex + detail, startIndex + 1);
+
+			//Connections to cone tip
+			for(int i = 0; i < detail; i++) ConnectVertices(startIndex + i + 1, startIndex);
 		}
 
 		public void AddSphere(Vector3 pos, float radius, int latDetail = 32, int lonDetail = 32, Color32? color = null)
