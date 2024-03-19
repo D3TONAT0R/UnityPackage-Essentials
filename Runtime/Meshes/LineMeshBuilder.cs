@@ -3,27 +3,25 @@ using UnityEngine;
 
 namespace D3T
 {
-	public class LineMeshBuilder
+	public class LineMeshBuilder : MeshBuilderBase
 	{
-		public List<Vector3> verts = new List<Vector3>();
-		public List<Color32> colors = new List<Color32>();
 		public List<int> indices = new List<int>();
 
-		public void AddLine(Vector3 a, Vector3 b, Color32? color = null)
+		public void AddLine(Vector3 a, Vector3 b)
 		{
 			int startIndex = verts.Count;
-			AddVertex(a, color);
-			AddVertex(b, color);
+			AddTransformedVertex(a);
+			AddTransformedVertex(b);
 			ConnectVertices(startIndex, startIndex + 1);
 		}
 
-		public void AddLineStrip(Color32? color, params Vector3[] points)
+		public void AddLineStrip(params Vector3[] points)
 		{
 			int startIndex = verts.Count;
 			int pointCount = 0;
 			foreach(var point in points)
 			{
-				AddVertex(point, color);
+				AddTransformedVertex(point);
 				pointCount++;
 			}
 			for(int i = 0; i < pointCount - 1; i++)
@@ -32,24 +30,19 @@ namespace D3T
 			}
 		}
 
-		public void AddLineStrip(params Vector3[] points)
-		{
-			AddLineStrip(null, points);
-		}
-
 		public void AddCube(Vector3 center, Vector3 size, Color32? color = null)
 		{
 			var extents = size * 0.5f;
 			int startIndex = verts.Count;
 
-			AddVertex(center + new Vector3(-extents.x, -extents.y, -extents.z), color);
-			AddVertex(center + new Vector3(extents.x, -extents.y, -extents.z), color);
-			AddVertex(center + new Vector3(-extents.x, -extents.y, extents.z), color);
-			AddVertex(center + new Vector3(extents.x, -extents.y, extents.z), color);
-			AddVertex(center + new Vector3(-extents.x, extents.y, -extents.z), color);
-			AddVertex(center + new Vector3(extents.x, extents.y, -extents.z), color);
-			AddVertex(center + new Vector3(-extents.x, extents.y, extents.z), color);
-			AddVertex(center + new Vector3(extents.x, extents.y, extents.z), color);
+			AddTransformedVertex(center + new Vector3(-extents.x, -extents.y, -extents.z));
+			AddTransformedVertex(center + new Vector3(extents.x, -extents.y, -extents.z));
+			AddTransformedVertex(center + new Vector3(-extents.x, -extents.y, extents.z));
+			AddTransformedVertex(center + new Vector3(extents.x, -extents.y, extents.z));
+			AddTransformedVertex(center + new Vector3(-extents.x, extents.y, -extents.z));
+			AddTransformedVertex(center + new Vector3(extents.x, extents.y, -extents.z));
+			AddTransformedVertex(center + new Vector3(-extents.x, extents.y, extents.z));
+			AddTransformedVertex(center + new Vector3(extents.x, extents.y, extents.z));
 
 			ConnectVertices(startIndex, startIndex + 1);
 			ConnectVertices(startIndex, startIndex + 2);
@@ -80,10 +73,10 @@ namespace D3T
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;
 
-			AddVertex(matrix.MultiplyPoint(new Vector3(-extents.x, 0, -extents.y)), color);
-			AddVertex(matrix.MultiplyPoint(new Vector3(extents.x, 0, -extents.y)), color);
-			AddVertex(matrix.MultiplyPoint(new Vector3(-extents.x, 0, extents.y)), color);
-			AddVertex(matrix.MultiplyPoint(new Vector3(extents.x, 0, extents.y)), color);
+			AddTransformedVertex(matrix.MultiplyPoint(new Vector3(-extents.x, 0, -extents.y)));
+			AddTransformedVertex(matrix.MultiplyPoint(new Vector3(extents.x, 0, -extents.y)));
+			AddTransformedVertex(matrix.MultiplyPoint(new Vector3(-extents.x, 0, extents.y)));
+			AddTransformedVertex(matrix.MultiplyPoint(new Vector3(extents.x, 0, extents.y)));
 
 			ConnectVertices(startIndex, startIndex + 1);
 			ConnectVertices(startIndex, startIndex + 2);
@@ -91,7 +84,7 @@ namespace D3T
 			ConnectVertices(startIndex + 2, startIndex + 3);
 		}
 
-		public void AddDisc(Vector3 center, Quaternion rotation, float radius, int detail = 32, Color32? color = null)
+		public void AddCircle(Vector3 center, Quaternion rotation, float radius, int detail = 32)
 		{
 			Vector2[] pts = MeshBuilder.GetCirclePoints(detail, radius);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);

@@ -8,20 +8,8 @@ namespace D3T
 	/// <summary>
 	/// Factory class for generating procedural meshes.
 	/// </summary>
-	public class MeshBuilder
+	public class MeshBuilder : MeshBuilderBase
 	{
-		public class MatrixScope : System.IDisposable
-		{
-			private MeshBuilder builder;
-
-			public MatrixScope(MeshBuilder mb)
-			{
-				builder = mb;
-				mb.PushMatrix();
-			}
-
-			public void Dispose() => builder.PopMatrix();
-		}
 
 		public MeshBuilder()
 		{
@@ -54,17 +42,10 @@ namespace D3T
 			All = 0b111111
 		}
 
-		public List<Vector3> verts = new List<Vector3>();
 		public List<int> tris = new List<int>();
 		public List<Vector3> normals = new List<Vector3>();
 
 		public List<Vector2> uv0 = new List<Vector2>();
-		public List<Color32> vertexColors = new List<Color32>();
-
-		public Color32? autoVertexColor = null;
-
-		private List<Matrix4x4> matrixStack = new List<Matrix4x4>();
-		private Matrix4x4 currentMatrix = Matrix4x4.identity;
 
 		public void Clear()
 		{
@@ -73,10 +54,10 @@ namespace D3T
 			normals.Clear();
 			uv0.Clear();
 			vertexColors.Clear();
-			autoVertexColor = null;
+			currentVertexColor = null;
 		}
 
-		public void BuildMesh(Mesh mesh, bool recalculateTangents = true)
+		public override void BuildMesh(Mesh mesh, bool recalculateTangents = true)
 		{
 			mesh.Clear();
 			if(verts.Count > 3)
@@ -98,83 +79,6 @@ namespace D3T
 				}
 				if(recalculateTangents) mesh.RecalculateTangents();
 				mesh.UploadMeshData(false);
-			}
-		}
-
-		public Mesh CreateMesh(string name = null)
-		{
-			var mesh = new Mesh();
-			if(name != null) mesh.name = name;
-			BuildMesh(mesh);
-			return mesh;
-		}
-
-		#region Matrix related methods
-		public void PushMatrix()
-		{
-			matrixStack.Add(currentMatrix);
-		}
-
-		public void PopMatrix()
-		{
-			if(matrixStack.Count > 0)
-			{
-				matrixStack.RemoveAt(matrixStack.Count - 1);
-				currentMatrix = matrixStack.Count > 0 ? matrixStack[matrixStack.Count - 1] : Matrix4x4.identity;
-			}
-		}
-
-		public MatrixScope PushMatrixScope()
-		{
-			return new MatrixScope(this);
-		}
-
-		public void SetMatrix(Matrix4x4 matrix)
-		{
-			currentMatrix = matrix;
-		}
-
-		public void ApplyMatrix(Matrix4x4 matrix)
-		{
-			currentMatrix *= matrix;
-		}
-
-		public void ResetMatrix(bool resetStack = true)
-		{
-			currentMatrix = Matrix4x4.identity;
-			if(resetStack) matrixStack.Clear();
-		}
-
-		public Vector3 TransformPoint(Vector3 point)
-		{
-			return currentMatrix.MultiplyPoint(point);
-		}
-
-		public Vector3 TransformVector(Vector3 vector)
-		{
-			return currentMatrix.MultiplyVector(vector);
-		}
-
-		public void TransformPoint(ref Vector3 point)
-		{
-			point = currentMatrix.MultiplyPoint(point);
-		}
-
-		public void TransformVector(ref Vector3 vector)
-		{
-			vector = currentMatrix.MultiplyVector(vector);
-		}
-		#endregion
-
-		public void AddVertex(Vector3 pos)
-		{
-			verts.Add(pos);
-			if(autoVertexColor.HasValue)
-			{
-				while(vertexColors.Count < verts.Count)
-				{
-					vertexColors.Add(autoVertexColor.Value);
-				}
 			}
 		}
 
@@ -281,8 +185,8 @@ namespace D3T
 			/*
 					   6-----7 <- upper
 					  /|    /|		  y
-					 4-+---5 |		  ^
-					 | 2---|-3		  | ^ z
+					 4-+---5 |		  ^  z
+					 | 2---+-3		  | ^
 					 |/    |/         |/
 			lower -> 0-----1		  o----> x
 			*/
