@@ -7,6 +7,13 @@ namespace D3T
 	{
 		public List<int> indices = new List<int>();
 
+		public override void Clear()
+		{
+			verts.Clear();
+			vertexColors.Clear();
+			indices.Clear();
+		}
+
 		public void AddLine(Vector3 a, Vector3 b)
 		{
 			int startIndex = verts.Count;
@@ -86,11 +93,11 @@ namespace D3T
 
 		public void AddCircle(Vector3 center, Quaternion rotation, float radius, int detail = 32)
 		{
-			Vector2[] pts = MeshBuilder.GetCirclePoints(detail, radius);
+			GetCirclePoints(tempVertexCache, detail, radius);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;
 
-			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint(pt.XVY(0)), color);
+			foreach(var pt in tempVertexCache) AddTransformedVertex(matrix.MultiplyPoint(pt));
 
 			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + i, startIndex + i + 1);
 			ConnectVertices(startIndex + detail - 1, startIndex);
@@ -98,17 +105,17 @@ namespace D3T
 
 		public void AddCylinder(Vector3 center, Quaternion rotation, float radius1, float radius2, float height, int detail = 32, Color32? color = null)
 		{
-			Vector2[] pts = MeshBuilder.GetCirclePoints(detail, 1f);
+			GetCirclePoints(tempVertexCache, detail, 1f);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;
 
 			//Lower base
-			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint((pt * radius1).XVY(-height / 2f)), color);
+			foreach(var pt in tempVertexCache) AddTransformedVertex(matrix.MultiplyPoint((pt * radius1).WithY(-height / 2f)));
 			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + i, startIndex + i + 1);
 			ConnectVertices(startIndex + detail - 1, startIndex);
 
 			//Upper base
-			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint((pt * radius2).XVY(height / 2f)), color);
+			foreach(var pt in tempVertexCache) AddTransformedVertex(matrix.MultiplyPoint((pt * radius2).WithY(height / 2f)));
 			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + detail + i, startIndex + detail + i + 1);
 			ConnectVertices(startIndex + 2 * detail - 1, startIndex + detail);
 
@@ -123,15 +130,15 @@ namespace D3T
 
 		public void AddCone(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32, Color32? color = null)
 		{
-			Vector2[] pts = MeshBuilder.GetCirclePoints(detail, radius);
+			GetCirclePoints(tempVertexCache, detail, radius);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;
 
 			//Cone tip
-			AddVertex(matrix.MultiplyPoint(Vector3.up * height), color);
+			AddTransformedVertex(matrix.MultiplyPoint(Vector3.up * height));
 
 			//Base
-			foreach(var pt in pts) AddVertex(matrix.MultiplyPoint(pt.XVY(-height / 2f)), color);
+			foreach(var pt in tempVertexCache) AddTransformedVertex(matrix.MultiplyPoint(pt.WithY(-height / 2f)));
 			for(int i = 0; i < detail - 1; i++) ConnectVertices(startIndex + i + 1, startIndex + i + 2);
 			ConnectVertices(startIndex + detail, startIndex + 1);
 
@@ -154,7 +161,7 @@ namespace D3T
 					float y = -Mathf.Cos(vAngle);
 					float m = Mathf.Sin(vAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
-					AddVertex(pos + unitVector * radius, color);
+					AddTransformedVertex(pos + unitVector * radius);
 				}
 			}
 
@@ -170,21 +177,12 @@ namespace D3T
 			}
 		}
 
-		public Mesh CreateMesh(string meshName = null)
+		public override void BuildMesh(Mesh mesh)
 		{
-			Mesh mesh = new Mesh();
-			if(meshName != null) mesh.name = meshName;
 			mesh.SetVertices(verts);
-			mesh.SetColors(colors);
+			if(vertexColors != null && vertexColors.Count > 0) mesh.SetColors(vertexColors);
 			mesh.SetIndices(indices, MeshTopology.Lines, 0);
 			mesh.UploadMeshData(false);
-			return mesh;
-		}
-
-		private void AddVertex(Vector3 position, Color32? color)
-		{
-			verts.Add(position);
-			colors.Add(color ?? Color.white);
 		}
 
 		private void ConnectVertices(int i0, int i1)

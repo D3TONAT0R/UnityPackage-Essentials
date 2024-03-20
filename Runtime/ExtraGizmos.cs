@@ -14,6 +14,8 @@ namespace D3T
 
 		internal static GUIStyle labelStyle;
 
+		private static List<Vector3> circlePointCache = new List<Vector3>();
+
 		static ExtraGizmos()
 		{
 			var builder = new MeshBuilder();
@@ -32,12 +34,12 @@ namespace D3T
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
-			var pts = MeshBuilder.GetCirclePoints(segments, 1);
+			MeshBuilderBase.GetCirclePoints(circlePointCache, segments, 1);
 			for(int i = 0; i < segments - 1; i++)
 			{
-				Gizmos.DrawLine(pts[i].XYV(0), pts[i + 1].XYV(0));
+				Gizmos.DrawLine(circlePointCache[i].XZY(), circlePointCache[i + 1].XZY());
 			}
-			Gizmos.DrawLine(pts[31].XYV(0), pts[0].XYV(0));
+			Gizmos.DrawLine(circlePointCache[segments - 1].XZY(), circlePointCache[0].XZY());
 			Gizmos.matrix = lastMatrix;
 		}
 
