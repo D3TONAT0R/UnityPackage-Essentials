@@ -36,6 +36,11 @@ namespace D3T
 
 		public int TickNumber { get; private set; } = 0;
 
+		private RepeatTimer()
+		{
+
+		}
+
 		public static RepeatTimer Create(float interval)
 		{
 			return new RepeatTimer() { useRandomInterval = false, interval = interval };
