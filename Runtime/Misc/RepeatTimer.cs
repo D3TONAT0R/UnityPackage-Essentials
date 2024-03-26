@@ -41,11 +41,25 @@ namespace D3T
 
 		}
 
+		/// <summary>
+		/// Creates a new repeating timer with the given interval.
+		/// </summary>
 		public static RepeatTimer Create(float interval)
 		{
 			return new RepeatTimer() { useRandomInterval = false, interval = interval };
 		}
 
+		/// <summary>
+		/// Creates a new repeating timer with the given frame rate
+		/// </summary>
+		public static RepeatTimer CreateFrameRate(float frameRate)
+		{
+			return Create(1f / frameRate);
+		}
+
+		/// <summary>
+		/// Creates a new repeating timer with a random interval.
+		/// </summary>
 		public static RepeatTimer CreateRandom(FloatRange intervalRange)
 		{
 			return new RepeatTimer() { useRandomInterval = true, intervalRange = intervalRange };
@@ -73,6 +87,15 @@ namespace D3T
 			UpdateLoop.PreUpdate -= AutoUpdate;
 			UpdateLoop.FixedUpdate -= AutoUpdate;
 			AutoUpdateActive = false;
+		}
+
+		public bool Update(float delta)
+		{
+			if(AutoUpdateActive)
+			{
+				throw new System.InvalidOperationException("RepeatTimer is set to auto update, no manual update is required.");
+			}
+			return UpdateInternal(delta);
 		}
 
 		private void AutoUpdate()
@@ -115,15 +138,6 @@ namespace D3T
 				TriggeredThisFrame = false;
 				return false;
 			}
-		}
-
-		public bool Update(float delta)
-		{
-			if(AutoUpdateActive)
-			{
-				throw new System.InvalidOperationException("RepeatTimer is set to auto update, no manual update is required.");
-			}
-			return UpdateInternal(delta);
 		}
 	}
 }
