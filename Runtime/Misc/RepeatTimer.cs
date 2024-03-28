@@ -28,8 +28,6 @@ namespace D3T
 
 		public event System.Action Tick;
 
-		public float NextUpdateTime => (lastUpdateTime + interval) - time;
-
 		public bool TriggeredThisFrame { get; private set; } = false;
 
 		public bool AutoUpdateActive { get; private set; }
@@ -87,6 +85,12 @@ namespace D3T
 			UpdateLoop.PreUpdate -= AutoUpdate;
 			UpdateLoop.FixedUpdate -= AutoUpdate;
 			AutoUpdateActive = false;
+		}
+
+		public void Restart()
+		{
+			lastUpdateTime = 0;
+			time = 0;
 		}
 
 		public bool Update(float delta)
