@@ -83,5 +83,5 @@ namespace D3T
 				default: throw new InvalidOperationException();
 			}
 		}
-	} 
+	}
 }

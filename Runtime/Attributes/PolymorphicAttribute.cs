@@ -3,7 +3,7 @@
 namespace D3T.Collections
 {
 	/// <summary>
-	/// Enables polymorphic support for a <see cref=""/> or <see cref="PolymorphicList"/>.
+	/// Specifies how a <see cref="PolymorphicList{T}"/> or <see cref="UnityDictionary{K, V}"/> should support polymorphism.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 	public class PolymorphicAttribute : Attribute

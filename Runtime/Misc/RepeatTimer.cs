@@ -34,6 +34,8 @@ namespace D3T
 
 		public int TickNumber { get; private set; } = 0;
 
+		public float DeltaTime { get; private set; } = 0;
+
 		private RepeatTimer()
 		{
 
@@ -131,6 +133,7 @@ namespace D3T
 			if(time >= nextTickTime)
 			{
 				TickNumber++;
+				DeltaTime = time - lastUpdateTime;
 				lastUpdateTime = time;
 				TriggeredThisFrame = true;
 				Tick?.Invoke();
