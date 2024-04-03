@@ -157,7 +157,7 @@ namespace D3T
 			void _OnValidate()
 			{
 				UnityEditor.EditorApplication.delayCall -= _OnValidate;
-				if(Application.isPlaying == wasPlaying)
+				if(Application.isPlaying == wasPlaying && m != null)
 				{
 					onValidateAction();
 				}
