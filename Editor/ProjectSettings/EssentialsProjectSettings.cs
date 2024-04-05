@@ -26,6 +26,8 @@ namespace D3TEditor
 		[NonReorderable]
 		#endif
 		public string[] additionalDefaultUsings = new string[0];
+		[Header("Menu Management")]
+		public bool reorganizeAssetMenu = false;
 
 		[Space(20)]
 		public bool enableEditorTimeTracking = true;
