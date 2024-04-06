@@ -6,14 +6,15 @@ namespace D3TEditor
 {
 	public static class CreateTexture2DMenuItems
 	{
+		private const int PRIORITY = 303;
 
-		[MenuItem("Assets/Create/Texture2D/Blank PSD Texture", priority = 301)]
+		[MenuItem("Assets/Create/Texture2D/Blank PSD Texture", priority = PRIORITY)]
 		public static void CreateBlankPSD()
 		{
 			CreateBlankAsset("psd", "New PSD Texture");
 		}
 
-		[MenuItem("Assets/Create/Texture2D/Blank PNG Texture", priority = 301)]
+		[MenuItem("Assets/Create/Texture2D/Blank PNG Texture", priority = PRIORITY)]
 		public static void CreateBlankPNG()
 		{
 			CreateBlankAsset("png", "New PNG Texture");
