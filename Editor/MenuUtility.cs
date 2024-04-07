@@ -22,19 +22,23 @@ namespace D3TEditor
 
 		public static void RemoveMenuItem(string menuPath)
 		{
-			removeMenuItemMethod ??= typeof(Menu).GetMethod("RemoveMenuItem", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+			if(removeMenuItemMethod == null) removeMenuItemMethod = typeof(Menu).GetMethod("RemoveMenuItem", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
 			removeMenuItemMethod.Invoke(null, new object[] { menuPath });
 		}
 
 		public static void AddMenuItem(string name, string shortcut, int priority, Action execute, bool isChecked = false, Func<bool> validate = null)
 		{
-			addMenuItemMethod ??= typeof(Menu).GetMethod("AddMenuItem", BindingFlags.NonPublic | BindingFlags.Static);
+			if(addMenuItemMethod == null) addMenuItemMethod = typeof(Menu).GetMethod("AddMenuItem", BindingFlags.NonPublic | BindingFlags.Static);
 			addMenuItemMethod.Invoke(null, new object[] { name, shortcut, isChecked, priority, execute, validate });
 		}
 
 		public static void ReplaceCreateAssetMenu(string oldPath, string newPath, int priority, Func<UnityEngine.Object> creator, string extension = "asset")
 		{
+#if UNITY_2020_1_OR_NEWER
 			bool moved = MoveAssetMenu("Assets/Create/" + oldPath, "Assets/Create/" + newPath, priority);
+#else
+			bool moved = false;
+#endif
 			if(!moved)
 			{
 				
@@ -128,8 +132,10 @@ namespace D3TEditor
 
 			ReplaceCreateAssetMenu("Lightmap Parameters", "Rendering/Lightmap Parameters", 200,
 				() => new LightmapParameters());
+#if UNITY_2020_1_OR_NEWER
 			ReplaceCreateAssetMenu("Lighting Settings", "Rendering/Lighting Settings", 201,
 				() => new LightingSettings());
+#endif
 
 			ReplaceCreateAssetMenu("Animation", "Animation/Animation Clip", 200,
 				() => new AnimationClip(), "anim");

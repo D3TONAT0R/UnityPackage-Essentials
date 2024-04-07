@@ -1,38 +1,53 @@
-using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using UnityEditor;
 
 namespace D3TEditor
 {
 	public static class RunBuildButtons
 	{
+		private const int PRIORITY = 220;
+
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
 			EditorApplication.delayCall += () =>
 			{
-				string[] applications;
-#if UNITY_EDITOR_WIN
-				applications = Directory.GetFiles("Builds/", "*.exe", SearchOption.AllDirectories);
-#else
-				applications = Directory.GetFiles("Builds/", "*.app", SearchOption.AllDirectories);
-#endif
-				foreach(var app in applications)
+				int appCount = 0;
+				foreach(var app in ListGameBuildsApps())
 				{
-					var filename = Path.GetFileName(app);
-					if(filename.StartsWith("UnityCrashHandler")) continue;
+					appCount++;
 					string folderName = Path.GetFileName(Path.GetDirectoryName(app));
 					string appPath = app;
-					MenuUtility.AddMenuItem("File/Run Build/"+folderName, null, 220, () => RunExe(appPath));
+					MenuUtility.AddMenuItem("File/Run Build/"+folderName, null, PRIORITY, () => RunBuild(appPath));
 				}
+				if(appCount == 0) MenuUtility.AddMenuItem("File/Run Build/No Builds Found", null, PRIORITY, null, false, () => false);
 			};
 		}
 
-		private static void RunExe(string exe)
+		private static IEnumerable<string> ListGameBuildsApps()
 		{
-			Process.Start(exe);
+			List<string> apps = new List<string>();
+#if UNITY_EDITOR_WIN
+			if(Directory.Exists("Build")) apps.AddRange(Directory.GetFiles("Build/", "*.exe", SearchOption.AllDirectories));
+			if(Directory.Exists("Builds")) apps.AddRange(Directory.GetFiles("Builds/", "*.exe", SearchOption.AllDirectories));
+#else
+			if(Directory.Exists("Build")) apps.AddRange(Directory.GetFiles("Build/", "*.app", SearchOption.AllDirectories));
+			if(Directory.Exists("Builds")) apps.AddRange(Directory.GetFiles("Builds/", "*.app", SearchOption.AllDirectories));
+#endif
+			foreach(var app in apps)
+			{
+				var filename = Path.GetFileName(app);
+				if(!filename.StartsWith("UnityCrashHandler"))
+				{
+					yield return app;
+				}
+			}
+		}
+
+		private static void RunBuild(string appPath)
+		{
+			System.Diagnostics.Process.Start(appPath);
 		}
 	}
 }

@@ -81,7 +81,7 @@ namespace D3TEditor.PropertyDrawers
 				List<string> names = new List<string>();
 				foreach(var mat in targetMaterials)
 				{
-					if(mat) names.AddRange(mat.GetPropertyNames(attr.propertyType));
+					if(mat) names.AddRange(GetPropertyNames(mat, attr.propertyType));
 				}
 				if(names.Count > 0)
 				{
@@ -111,9 +111,44 @@ namespace D3TEditor.PropertyDrawers
 			menu.ShowAsContext();
 		}
 
+		private IEnumerable<string> GetPropertyNames(Material mat, MaterialPropertyType type)
+		{
+#if UNITY_2022_2_OR_NEWER
+			return mat.GetPropertyNames(attr.propertyType);
+#endif
+			if(mat.shader)
+			{
+				var shader = mat.shader;
+				//Ints as shader properties are not supported in older versions of unity
+				if(type == MaterialPropertyType.Int) type = MaterialPropertyType.Float;
+
+				for(int i = 0; i < shader.GetPropertyCount(); i++)
+				{
+					var propType = GetPropertyType(shader.GetPropertyType(i));
+					if(propType == type) yield return shader.GetPropertyName(i);
+				}
+			}
+		}
+
 		private MaterialPropertyHintAttribute GetAttribute(SerializedProperty property)
 		{
 			return PropertyDrawerUtility.GetAttribute<MaterialPropertyHintAttribute>(property, true);
+		}
+
+		private MaterialPropertyType GetPropertyType(UnityEngine.Rendering.ShaderPropertyType t)
+		{
+			switch(t)
+			{
+				case UnityEngine.Rendering.ShaderPropertyType.Color: 
+				case UnityEngine.Rendering.ShaderPropertyType.Vector:
+					return MaterialPropertyType.Vector;
+				case UnityEngine.Rendering.ShaderPropertyType.Float:
+				case UnityEngine.Rendering.ShaderPropertyType.Range:
+					return MaterialPropertyType.Float;
+				case UnityEngine.Rendering.ShaderPropertyType.Texture:
+					return MaterialPropertyType.Texture;
+				default: throw new NotImplementedException();
+			}
 		}
 	}
 }
