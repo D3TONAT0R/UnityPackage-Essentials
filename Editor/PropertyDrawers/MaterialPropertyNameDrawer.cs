@@ -81,7 +81,7 @@ namespace D3TEditor.PropertyDrawers
 				List<string> names = new List<string>();
 				foreach(var mat in targetMaterials)
 				{
-					if(mat) names.AddRange(GetPropertyNames(mat, attr.propertyType));
+					if(mat) names.AddRange(GetPropertyNames(mat, attr.propertyType, attr));
 				}
 				if(names.Count > 0)
 				{
@@ -111,10 +111,10 @@ namespace D3TEditor.PropertyDrawers
 			menu.ShowAsContext();
 		}
 
-		private IEnumerable<string> GetPropertyNames(Material mat, MaterialPropertyType type)
+		private IEnumerable<string> GetPropertyNames(Material mat, MaterialPropertyType type, MaterialPropertyHintAttribute attribute)
 		{
 #if UNITY_2022_2_OR_NEWER
-			return mat.GetPropertyNames(attr.propertyType);
+			foreach(var name in mat.GetPropertyNames(attribute.propertyType)) yield return name;
 #endif
 			if(mat.shader)
 			{

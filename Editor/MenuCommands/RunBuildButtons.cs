@@ -11,18 +11,21 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			EditorApplication.delayCall += () =>
+			if(EditorApplication.isPlayingOrWillChangePlaymode)
 			{
-				int appCount = 0;
-				foreach(var app in ListGameBuildsApps())
+				EditorApplication.delayCall += () =>
 				{
-					appCount++;
-					string folderName = Path.GetFileName(Path.GetDirectoryName(app));
-					string appPath = app;
-					MenuUtility.AddMenuItem("File/Run Build/"+folderName, null, PRIORITY, () => RunBuild(appPath));
-				}
-				if(appCount == 0) MenuUtility.AddMenuItem("File/Run Build/No Builds Found", null, PRIORITY, null, false, () => false);
-			};
+					int appCount = 0;
+					foreach(var app in ListGameBuildsApps())
+					{
+						appCount++;
+						string folderName = Path.GetFileName(Path.GetDirectoryName(app));
+						string appPath = app;
+						MenuUtility.AddMenuItem("File/Run Build/" + folderName, null, PRIORITY, () => RunBuild(appPath));
+					}
+					if(appCount == 0) MenuUtility.AddMenuItem("File/Run Build/No Builds Found", null, PRIORITY, null, false, () => false);
+				};
+			}
 		}
 
 		private static IEnumerable<string> ListGameBuildsApps()

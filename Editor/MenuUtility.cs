@@ -98,7 +98,7 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			if(EssentialsProjectSettings.Instance.reorganizeAssetMenu)
+			if(EssentialsProjectSettings.Instance.reorganizeAssetMenu && !EditorApplication.isPlayingOrWillChangePlaymode)
 			{
 				EditorApplication.delayCall += ReorganizeAssetMenu;
 			}
