@@ -16,21 +16,7 @@ namespace D3TEditor
 
 		public static void CreateAsset(string newFileName)
 		{
-			/*
-			string path = AssetDatabase.GetAssetPath(Selection.activeObject);
-			if(path == "")
-			{
-				path = "Assets";
-			}
-			else if(Path.GetExtension(path) != "")
-			{
-				path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), "");
-			}
-			*/
-			//TODO: copy from template files instead of creating a dummy object
-			var newObj = new TextAsset();
-			//path = AssetDatabase.GenerateUniqueAssetPath(path + "/" + newFileName);
-			ProjectWindowUtil.CreateAsset(newObj, newFileName);
+			ProjectWindowUtil.CreateAssetWithContent(newFileName, "");
 		}
 	}
 }

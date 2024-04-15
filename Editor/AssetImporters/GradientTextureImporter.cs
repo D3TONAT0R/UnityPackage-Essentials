@@ -27,7 +27,7 @@ namespace D3TEditor
 			Square,
 		}
 
-		public Vector2Int resolution = new Vector2Int(64, 8);
+		public Vector2Int resolution = new Vector2Int(64, 64);
 		public InputType inputType = InputType.Gradient;
 
 		[ShowIf(nameof(inputType), InputType.Gradient)]
