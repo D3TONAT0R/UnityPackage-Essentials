@@ -32,7 +32,7 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 
 > Make sure to always target a specific tag of the package to avoid breaking changes.
 >
-> The latest tags can be found [here](/tags).
+> The latest tags can be found [here](https://github.com/D3TONAT0R/UnityPackage-Essentials/tags).
 
 Open the Package Manager window, click on "Add Package from Git URL ...", then enter the following:
 ```
