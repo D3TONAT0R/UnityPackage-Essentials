@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 #if !UNITY_2022_2_OR_NEWER
 	public enum MaterialPropertyType

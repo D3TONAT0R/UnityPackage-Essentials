@@ -1,7 +1,6 @@
-using D3T;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	[System.Serializable]
 	public class RepeatTimer

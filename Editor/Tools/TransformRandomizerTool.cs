@@ -36,7 +36,7 @@ namespace UnityEssentialsEditor.Tools
 			{
 				if(toolIcon == null)
 				{
-					var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.github.d3tonat0r.core/Gizmos/tool_random.png");
+					var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.github.d3tonat0r.essentials/Editor/Tools/tool_random.png");
 					if(icon == null) icon = Texture2D.whiteTexture;
 					toolIcon = new GUIContent(icon);
 				}

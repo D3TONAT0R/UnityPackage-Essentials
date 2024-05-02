@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace D3T.Collections
+namespace UnityEssentials.Collections
 {
 	public abstract class PolymorphicList<T> : IEnumerable<T> where T : class
 	{

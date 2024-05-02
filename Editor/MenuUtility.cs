@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
-using D3T;
+using UnityEssentials;
 using UnityEditor.Compilation;
 
 namespace UnityEssentialsEditor

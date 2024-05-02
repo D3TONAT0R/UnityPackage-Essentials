@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	[System.Serializable]
 	public struct MaterialPropertyName

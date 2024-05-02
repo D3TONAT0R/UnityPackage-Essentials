@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	public abstract class MeshBuilderBase
 	{
