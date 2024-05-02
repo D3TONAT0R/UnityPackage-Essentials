@@ -13,7 +13,7 @@ namespace UnityEssentialsEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			SceneHierarchyHooks.addItemsToGameObjectContextMenu += AddContextMenuItems;
+			if(EditorApplication.isPlayingOrWillChangePlaymode) SceneHierarchyHooks.addItemsToGameObjectContextMenu += AddContextMenuItems;
 		}
 
 		private static void AddContextMenuItems(GenericMenu menu, GameObject gameObject)

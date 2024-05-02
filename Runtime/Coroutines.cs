@@ -8,7 +8,7 @@ namespace UnityEssentials {
 	/// <summary>
 	/// Coroutine manager that allows for object-independent coroutines.
 	/// </summary>
-	public static class CoroutineRunner
+	public static class Coroutines
 	{
 
 		private static MonoInstance runnerInstance;

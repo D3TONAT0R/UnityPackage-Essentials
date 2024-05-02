@@ -16,7 +16,7 @@ namespace UnityEssentialsEditor
 
 		//This is called when you click on the 'Tools/Auto Refresh' and toggles its value
 		[MenuItem(menuItem + shortcut, false)]
-		static void AutoRefreshToggle()
+		private static void AutoRefreshToggle()
 		{
 			var status = EditorPrefs.GetInt("kAutoRefresh");
 			EditorPrefs.SetInt("kAutoRefresh", status == 0 ? 1 : 0);
@@ -27,11 +27,17 @@ namespace UnityEssentialsEditor
 		//This is called before 'Tools/Auto Refresh' is shown to check the current value
 		//of kAutoRefresh and update the checkmark
 		[MenuItem(menuItem + shortcut, true)]
-		static bool AutoRefreshToggleValidation()
+		private static bool AutoRefreshToggleValidation()
 		{
 			var status = EditorPrefs.GetInt("kAutoRefresh");
 			Menu.SetChecked(menuItem, status > 0);
 			return true;
+		}
+
+		[MenuItem("Edit/Recompile Scripts")]
+		private static void RequestScriptCopmpilation()
+		{
+			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 		}
 	} 
 }

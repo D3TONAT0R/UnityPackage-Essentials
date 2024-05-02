@@ -25,30 +25,33 @@ namespace UnityEssentialsEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-			try
+			if(EditorApplication.isPlayingOrWillChangePlaymode)
 			{
-				var assembly = Assembly.Load("D3T.AdvancedObjectSelector");
-				advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
-				.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
-			}
-			catch { }
-
-			propertyDrawerTypes = new Dictionary<Type, Type>();
-			foreach(var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
-			{
-				var attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(false);
-				if(attributes == null || attributes.Count() == 0)
+				try
 				{
-					//Extend search to include ancestors
-					attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(true);
+					var assembly = Assembly.Load("D3T.AdvancedObjectSelector");
+					advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
+					.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
 				}
-				if(attributes != null && attributes.Count() > 0)
+				catch { }
+
+				propertyDrawerTypes = new Dictionary<Type, Type>();
+				foreach(var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
 				{
-					var attribute = attributes.First();
-					Type targetType = (Type)attribute.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(attribute);
-					if(!propertyDrawerTypes.ContainsKey(targetType))
+					var attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(false);
+					if(attributes == null || attributes.Count() == 0)
 					{
-						propertyDrawerTypes.Add(targetType, propertyDrawerType);
+						//Extend search to include ancestors
+						attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(true);
+					}
+					if(attributes != null && attributes.Count() > 0)
+					{
+						var attribute = attributes.First();
+						Type targetType = (Type)attribute.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(attribute);
+						if(!propertyDrawerTypes.ContainsKey(targetType))
+						{
+							propertyDrawerTypes.Add(targetType, propertyDrawerType);
+						}
 					}
 				}
 			}

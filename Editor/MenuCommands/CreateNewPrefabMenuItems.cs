@@ -8,7 +8,7 @@ namespace UnityEssentialsEditor
 {
 	public static class CreateNewPrefabMenuItems
 	{
-
+#if !UNITY_2020_1_OR_NEWER
 		[MenuItem("Assets/Create/Empty Prefab", priority = 302)]
 		public static void CreateBlankPrefab()
 		{
@@ -34,6 +34,6 @@ namespace UnityEssentialsEditor
 			}
 			return path;
 		}
+#endif
 	}
-
 }

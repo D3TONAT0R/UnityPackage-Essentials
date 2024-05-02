@@ -129,37 +129,6 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Fills all pixels of this texture with a given color.
-		/// </summary>
-		public static void FillWithColor(this Texture2D tex, Color c)
-		{
-			Color32[] cols = new Color32[tex.width * tex.height];
-			for (int i = 0; i < cols.Length; i++) cols[i] = c;
-			tex.SetPixels32(cols);
-			tex.Apply();
-		}
-
-		/// <summary>
-		/// Returns a copy of this texture which is read/write enabled.
-		/// </summary>
-		public static Texture2D GetReadableCopy(this Texture2D tex)
-		{
-			if (tex.isReadable)
-			{
-				Debug.LogWarning($"Texture '{tex.name}' is already readable.");
-				return tex;
-			}
-			Texture2D copy = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount, false)
-			{
-				wrapMode = tex.wrapMode,
-				filterMode = tex.filterMode
-			};
-			Graphics.CopyTexture(tex, copy);
-			copy.Apply();
-			return copy;
-		}
-
-		/// <summary>
 		/// Adds a custom error message to this exception.
 		/// </summary>
 		public static MessagedException AddMessage(this System.Exception e, string message)
@@ -188,7 +157,7 @@ namespace UnityEssentials
 			void _OnValidate()
 			{
 				UnityEditor.EditorApplication.delayCall -= _OnValidate;
-				if(Application.isPlaying == wasPlaying)
+				if(Application.isPlaying == wasPlaying && m != null)
 				{
 					onValidateAction();
 				}

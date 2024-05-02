@@ -19,7 +19,18 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		public override float GetHeight()
 		{
 			var attr = (HelpBoxAttribute)attribute;
-			var width = EditorGUIUtility.currentViewWidth - EditorGUI.indentLevel * 15;
+			float width = 200;
+			if(Event.current != null)
+			{
+				try
+				{
+					width = EditorGUIUtility.currentViewWidth;
+				}
+				catch(System.ArgumentException e)
+				{
+					e.LogException("hoi");
+				}
+			}
 			return Mathf.Max(20, EditorStyles.helpBox.CalcHeight(new GUIContent(attr.message), width - 30)) + EditorGUIUtility.standardVerticalSpacing;
 		}
 	}

@@ -24,8 +24,8 @@ namespace UnityEssentials
 	[AttributeUsage(AttributeTargets.Field)]
 	public class CurveUsageAttribute : PropertyAttribute
 	{
-		public readonly Color color;
-		public readonly Rect ranges;
+		public readonly Color color = Color.clear;
+		public readonly Rect ranges = Rect.zero;
 
 		public CurveUsageAttribute(float xMin, float yMin, float xMax, float yMax)
 		{
@@ -36,6 +36,21 @@ namespace UnityEssentials
 		public CurveUsageAttribute(float xMin, float yMin, float xMax, float yMax, CurveColor color)  : this(xMin, yMin, xMax, yMax)
 		{
 			this.color = GetColor(color);
+		}
+
+		public CurveUsageAttribute(float xMin, float yMin, float xMax, float yMax, uint colorRGB) : this(xMin, yMin, xMax, yMax)
+		{
+			color = GetColor(colorRGB);
+		}
+
+		public CurveUsageAttribute(CurveColor color)
+		{
+			this.color = GetColor(color);
+		}
+
+		public CurveUsageAttribute(uint colorRGB)
+		{
+			color = GetColor(colorRGB);
 		}
 
 		private Color GetColor(CurveColor color)
@@ -54,6 +69,15 @@ namespace UnityEssentials
 				default: col =  Color.white; break;
 			}
 			return Color.Lerp(Color.white, col, 0.95f);
+		}
+
+		private Color GetColor(uint rgb)
+		{
+			return new Color32(
+				(byte)(rgb >> 16 & 0xFF),
+				(byte)(rgb >> 8 & 0xFF),
+				(byte)(rgb & 0xFF),
+				255);
 		}
 	}
 }

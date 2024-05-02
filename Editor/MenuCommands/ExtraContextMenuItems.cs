@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
-	internal static class ExtraTransformContextMenuItems
+	internal static class ExtraContextMenuItems
 	{
 		[MenuItem("CONTEXT/Transform/Apply Position")]
-		public static void ApplyTranslation(MenuCommand cmd)
+		public static void ApplyPosition(MenuCommand cmd)
 		{
 			var transform = (Transform)cmd.context;
 			Vector3[] childWorldPositions = new Vector3[transform.childCount];
@@ -71,6 +71,29 @@ namespace UnityEssentialsEditor
 		{
 			var transform = (Transform)cmd.context;
 			return transform.childCount > 0;
+		}
+
+		[MenuItem("CONTEXT/MeshFilter/Export Mesh As Asset...")]
+		public static void SaveMeshAsAsset(MenuCommand menuCommand)
+		{
+			MeshFilter mf = menuCommand.context as MeshFilter;
+			Mesh meshToSave = Object.Instantiate(mf.sharedMesh);
+			MeshUtility.Optimize(meshToSave);
+
+			string path = EditorUtility.SaveFilePanel("Save Separate Mesh Asset", "Assets/", meshToSave.name, "asset");
+			if(!string.IsNullOrEmpty(path))
+			{
+				path = FileUtil.GetProjectRelativePath(path);
+				AssetDatabase.CreateAsset(meshToSave, path);
+				AssetDatabase.SaveAssets();
+			}
+		}
+
+		[MenuItem("CONTEXT/MeshFilter/Export Mesh As Asset...", validate = true)]
+		public static bool ValidateSaveMeshAsAsset(MenuCommand cmd)
+		{
+			var filter = (MeshFilter)cmd.context;
+			return filter.sharedMesh != null;
 		}
 	} 
 }

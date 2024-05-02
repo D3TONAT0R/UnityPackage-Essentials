@@ -44,9 +44,13 @@ namespace UnityEssentials
 
 		public float Lerp(float t) => Mathf.Lerp(min, max, t);
 
+		public float LerpUnclamped(float t) => Mathf.LerpUnclamped(min, max, t);
+
 		public float InverseLerp(float v) => Mathf.InverseLerp(min, max, v);
 
-		public float Map(float v) => InverseLerp(v);
+		public float InverseLerpUnclamped(float v) => (v - min) / (max - min);
+
+		public float ClampValue(float v) => Mathf.Clamp(v, min, max);
 
 		public Vector2 ToVector2() => new Vector2(min, max);
 	} 

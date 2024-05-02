@@ -14,6 +14,8 @@ namespace UnityEssentials
 
 		internal static GUIStyle labelStyle;
 
+		private static List<Vector3> circlePointCache = new List<Vector3>();
+
 		static ExtraGizmos()
 		{
 			var builder = new MeshBuilder();
@@ -28,23 +30,23 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a wireframe circle gizmo.
 		/// </summary>
-		public static void DrawWireDisc(Vector3 center, Vector3 normal, float radius, int segments = 32)
+		public static void DrawWireCircle(Vector3 center, Vector3 normal, float radius, int segments = 64)
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
-			var pts = MeshBuilder.GetCirclePoints(segments, 1);
+			MeshBuilderBase.GetCirclePoints(circlePointCache, segments, 1);
 			for(int i = 0; i < segments - 1; i++)
 			{
-				Gizmos.DrawLine(pts[i].XYV(0), pts[i + 1].XYV(0));
+				Gizmos.DrawLine(circlePointCache[i].XZY(), circlePointCache[i + 1].XZY());
 			}
-			Gizmos.DrawLine(pts[31].XYV(0), pts[0].XYV(0));
+			Gizmos.DrawLine(circlePointCache[segments - 1].XZY(), circlePointCache[0].XZY());
 			Gizmos.matrix = lastMatrix;
 		}
 
 		/// <summary>
 		/// Draws a solid circle gizmo.
 		/// </summary>
-		public static void DrawDisc(Vector3 center, Vector3 normal, float radius)
+		public static void DrawCircle(Vector3 center, Vector3 normal, float radius)
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal) * Quaternion.Euler(-90, 180, 0), Vector3.one * radius);
@@ -55,7 +57,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws an arc between the given angles.
 		/// </summary>
-		public static void DrawArc(Vector3 center, Vector3 up, Vector3 forward, float radius, float fromDegrees, float toDegrees, bool edges = false, int segments = 16)
+		public static void DrawArc(Vector3 center, Vector3 up, Vector3 forward, float radius, float fromDegrees, float toDegrees, bool edges = false, int segments = 32)
 		{
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(forward, up), Vector3.one);
@@ -83,8 +85,8 @@ namespace UnityEssentials
 			rotation *= Quaternion.Euler(90, 0, 0);
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
 			float h2 = height * 0.5f;
-			DrawWireDisc(Vector3.back * h2, Vector3.back, radius);
-			DrawWireDisc(Vector3.forward * h2, Vector3.forward, radius);
+			DrawWireCircle(Vector3.back * h2, Vector3.back, radius);
+			DrawWireCircle(Vector3.forward * h2, Vector3.forward, radius);
 			DrawLineFrom(new Vector3(-radius, 0, -h2), Vector3.forward, height);
 			DrawLineFrom(new Vector3(radius, 0, -h2), Vector3.forward, height);
 			DrawLineFrom(new Vector3(0, -radius, -h2), Vector3.forward, height);
@@ -351,7 +353,7 @@ namespace UnityEssentials
 			}
 			else
 			{
-				DrawWireDisc(center.WithY(yOffset), Vector3.up, radius, segments);
+				DrawWireCircle(center.WithY(yOffset), Vector3.up, radius, segments);
 			}
 		}
 

@@ -3,19 +3,19 @@
 namespace UnityEssentials.Collections
 {
 	/// <summary>
-	/// Enables polymorphic support for a UnityDictionary.
+	/// Specifies how a <see cref="PolymorphicList{T}"/> or <see cref="UnityDictionary{K, V}"/> should support polymorphism.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-	public class PolymorphicDictionaryAttribute : Attribute
+	public class PolymorphicAttribute : Attribute
 	{
 		public Type[] specificTypes = null;
 
-		public PolymorphicDictionaryAttribute()
+		public PolymorphicAttribute()
 		{
 
 		}
 
-		public PolymorphicDictionaryAttribute(params Type[] specificTypes)
+		public PolymorphicAttribute(params Type[] specificTypes)
 		{
 			this.specificTypes = specificTypes;
 		}

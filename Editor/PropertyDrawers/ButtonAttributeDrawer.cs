@@ -28,8 +28,15 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static void DrawButtons(SerializedProperty property, ButtonAttribute attr, Rect position)
 		{
-			bool enabled = attr.EnabledIn == ButtonAttribute.Usage.Both ? true :
-				Application.isPlaying && attr.EnabledIn == ButtonAttribute.Usage.PlayMode;
+			bool enabled = true;
+			switch(attr.EnabledIn)
+			{
+				case ButtonAttribute.Usage.Never: enabled = false; break;
+				case ButtonAttribute.Usage.EditMode: enabled = !Application.isPlaying; break;
+				case ButtonAttribute.Usage.PlayMode: enabled = Application.isPlaying; break;
+				case ButtonAttribute.Usage.Both: enabled = true; break;
+			}
+
 			using(new EnabledScope(enabled))
 			{
 				var rects = position.DivideHorizontal(attr.buttonMethodNames.Length, 4);

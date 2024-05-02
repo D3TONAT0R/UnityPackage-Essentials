@@ -95,6 +95,21 @@ namespace UnityEssentials.Utility
 			AssignToComponents();
 		}
 
+		private void Reset()
+		{
+			Mesh mesh = TryGetComponent<MeshCollider>(out var collider) ? collider.sharedMesh : null;
+			if(mesh == null) mesh = TryGetComponent<MeshFilter>(out var filter) ? filter.sharedMesh : null;
+			
+			if(mesh != null && mesh.vertexCount < 256)
+			{
+				vertices = mesh.vertices.ToList();
+			}
+			else
+			{
+				InitCube();
+			}
+		}
+
 		private void OnValidate()
 		{
 			this.EditorDelayCall(Validate);

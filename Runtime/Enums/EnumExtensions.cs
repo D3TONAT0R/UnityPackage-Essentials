@@ -83,5 +83,5 @@ namespace UnityEssentials
 				default: throw new InvalidOperationException();
 			}
 		}
-	} 
+	}
 }
