@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace D3TEditor
 {
-	public class CreateScriptAction : EndNameEditAction
+	internal class CreateScriptAction : EndNameEditAction
 	{
 		public override void Action(int instanceId, string pathName, string resourceFile)
 		{

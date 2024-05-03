@@ -13,7 +13,7 @@ using UnityEngine;
 namespace D3TEditor.Tools
 {
 	[EditorTool(toolName, typeof(ReflectionProbe))]
-	public class ReflectionProbeBoundsDefinitionTool : BoundsDefinitionTool
+	internal class ReflectionProbeBoundsDefinitionTool : BoundsDefinitionTool
 	{
 		protected override BoundsPropertyFlags BoundsProperties => BoundsPropertyFlags.AxisAlignedFixed;
 

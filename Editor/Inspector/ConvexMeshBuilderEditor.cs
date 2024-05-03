@@ -13,7 +13,7 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 namespace D3TEditor
 {
 	[CustomEditor(typeof(ConvexMeshBuilderComponent))]
-	public class ConvexMeshBuilderEditor : Editor
+	internal class ConvexMeshBuilderEditor : Editor
 	{
 		private ConvexMeshBuilderComponent comp;
 

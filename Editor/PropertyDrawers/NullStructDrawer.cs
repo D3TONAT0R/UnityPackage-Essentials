@@ -7,7 +7,7 @@ using UnityEngine;
 namespace D3TEditor
 {
 	[CustomPropertyDrawer(typeof(Null))]
-	public class NullStructDrawer : PropertyDrawer
+	internal class NullStructDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{

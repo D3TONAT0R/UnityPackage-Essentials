@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace D3TEditor
 {
-	public class AutoRefreshMenuItems
+	internal class AutoRefreshMenuItems
 	{
 		/*
 		kAutoRefresh has two posible values

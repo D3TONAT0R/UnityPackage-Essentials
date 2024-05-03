@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace D3TEditor {
-	public class MassReplacePrefabs : ScriptableWizard {
+	internal class MassReplacePrefabs : ScriptableWizard {
 
 		public GameObject replace;
 		public bool keepName;

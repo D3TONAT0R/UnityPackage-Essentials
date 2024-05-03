@@ -6,9 +6,8 @@ using UnityEngine.SceneManagement;
 
 namespace D3TEditor
 {
-	public static class DuplicateCustom
+	internal static class DuplicateCustom
 	{
-
 
 		[MenuItem("Edit/Duplicate Custom %#d", priority = 120)]
 		public static void DuplicateGameObjectCommand()

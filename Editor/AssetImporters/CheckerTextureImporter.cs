@@ -8,7 +8,7 @@ using UnityEngine;
 namespace D3TEditor
 {
 	[ScriptedImporter(0, "checker")]
-	public class CheckerTextureImporter : ScriptedImporter
+	internal class CheckerTextureImporter : ScriptedImporter
 	{
 
 		public Vector2Int resolution = new Vector2Int(128, 128);

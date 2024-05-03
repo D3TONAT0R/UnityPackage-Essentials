@@ -9,7 +9,7 @@ using UnityEngine;
 namespace D3TEditor
 {
 	[ScriptedImporter(0, "gradient")]
-	public class GradientTextureImporter : ScriptedImporter
+	internal class GradientTextureImporter : ScriptedImporter
 	{
 		public enum InputType
 		{

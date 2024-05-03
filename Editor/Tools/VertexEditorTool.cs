@@ -14,7 +14,7 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 namespace D3TEditor.Tools
 {
 	[EditorTool("Edit Vertices", typeof(ConvexMeshBuilderComponent))]
-	public class VertexEditorTool : EditorToolBase
+	internal class VertexEditorTool : EditorToolBase
 	{
 		List<int> selection = new List<int>();
 

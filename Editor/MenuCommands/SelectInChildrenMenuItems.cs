@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace D3TEditor
 {
-	public static class SelectInChildrenMenuItems
+	internal static class SelectInChildrenMenuItems
 	{
 		[InitializeOnLoadMethod]
 		private static void Init()

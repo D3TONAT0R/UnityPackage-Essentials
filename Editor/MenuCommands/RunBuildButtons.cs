@@ -4,7 +4,7 @@ using UnityEditor;
 
 namespace D3TEditor
 {
-	public static class RunBuildButtons
+	internal static class RunBuildButtons
 	{
 		private const int PRIORITY = 220;
 

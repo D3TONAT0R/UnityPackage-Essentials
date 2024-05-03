@@ -5,7 +5,7 @@ using UnityEngine;
 namespace D3TEditor.Tools
 {
 	[EditorTool("Prefab Placer")]
-	public class PrefabPlacementTool : EditorToolBase
+	internal class PrefabPlacementTool : EditorToolBase
 	{
 		public enum Axis
 		{
