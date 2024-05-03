@@ -40,7 +40,7 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			if(EssentialsProjectSettings.Instance.removeDefaultScriptMenu && EditorApplication.isPlayingOrWillChangePlaymode)
+			if(EssentialsProjectSettings.Instance.removeDefaultScriptMenu && !EditorApplication.isPlayingOrWillChangePlaymode)
 			{
 				EditorApplication.delayCall += () => MenuUtility.RemoveMenuItem("Assets/Create/C# Script");
 			}
