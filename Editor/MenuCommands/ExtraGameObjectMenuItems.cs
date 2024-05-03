@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace D3TEditor
 {
-	internal static class ExtraGameObjectMenuItems
+	public class ExtraGameObjectMenuItems
 	{
 		[MenuItem("GameObject/Create Parent", false, 0)]
 		public static void CreateParent(MenuCommand menuCommand)

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace D3TEditor
 {
-    internal static class CreateScriptMenuUtility
+    public static class CreateScriptMenuUtility
     {
 		public const string menuRoot = "Assets/Create/Script/";
 		const string packageTemplateScriptRoot = "Packages/com.github.d3tonat0r.essentials/Editor/TemplateAssets/ScriptTemplates/";
