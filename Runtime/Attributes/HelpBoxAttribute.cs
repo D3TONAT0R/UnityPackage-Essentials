@@ -3,7 +3,16 @@ using UnityEditor;
 
 namespace D3T
 {
-	public enum HelpBoxType { None, Info, Warning, Error }
+	/// <summary>
+	/// The type of help box to display.
+	/// </summary>
+	public enum HelpBoxType
+	{ 
+		None,
+		Info,
+		Warning, 
+		Error
+	}
 
 	/// <summary>
 	/// Add this attribute to a field to draw a help box above it in the inspector.

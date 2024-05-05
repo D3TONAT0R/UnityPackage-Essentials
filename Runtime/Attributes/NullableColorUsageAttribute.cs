@@ -4,7 +4,7 @@ using UnityEngine;
 namespace D3T
 {
 	/// <summary>
-	/// Attribute used to configure the usage of a color field.
+	/// Configure the usage of a color field.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public class NullableColorUsageAttribute : PropertyAttribute

@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Makes a float field display as a progress bar in the inspector.
+	/// </summary>
 	public class ProgressBarAttribute : PropertyAttribute
 	{
 		public readonly float min;
