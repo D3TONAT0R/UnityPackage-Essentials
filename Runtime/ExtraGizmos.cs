@@ -9,8 +9,8 @@ namespace D3T
 	/// </summary>
 	public class ExtraGizmos
 	{
-		internal static Mesh disc;
-		internal static Mesh cylinder;
+		internal static Mesh discMesh;
+		internal static Mesh cylinderMesh;
 
 		internal static GUIStyle labelStyle;
 
@@ -20,11 +20,11 @@ namespace D3T
 		{
 			var builder = new MeshBuilder();
 			builder.AddCircle(Vector3.zero, Vector3.up, 1f, 32);
-			disc = builder.CreateMesh();
+			discMesh = builder.CreateMesh();
 
 			builder.Clear();
 			builder.AddCylinder(Vector3.zero, 1, 1, 16);
-			cylinder = builder.CreateMesh();
+			cylinderMesh = builder.CreateMesh();
 		}
 
 		/// <summary>
@@ -37,9 +37,9 @@ namespace D3T
 			MeshBuilderBase.GetCirclePoints(circlePointCache, segments, 1);
 			for(int i = 0; i < segments - 1; i++)
 			{
-				Gizmos.DrawLine(circlePointCache[i].XZY(), circlePointCache[i + 1].XZY());
+				Gizmos.DrawLine(circlePointCache[i], circlePointCache[i + 1]);
 			}
-			Gizmos.DrawLine(circlePointCache[segments - 1].XZY(), circlePointCache[0].XZY());
+			Gizmos.DrawLine(circlePointCache[segments - 1], circlePointCache[0]);
 			Gizmos.matrix = lastMatrix;
 		}
 
@@ -49,8 +49,8 @@ namespace D3T
 		public static void DrawCircle(Vector3 center, Vector3 normal, float radius)
 		{
 			var lastMatrix = Gizmos.matrix;
-			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal) * Quaternion.Euler(-90, 180, 0), Vector3.one * radius);
-			Gizmos.DrawMesh(disc);
+			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
+			Gizmos.DrawMesh(discMesh);
 			Gizmos.matrix = lastMatrix;
 		}
 
@@ -101,7 +101,7 @@ namespace D3T
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
-			Gizmos.DrawMesh(cylinder);
+			Gizmos.DrawMesh(cylinderMesh);
 			Gizmos.matrix = lastMatrix;
 		}
 
@@ -154,10 +154,34 @@ namespace D3T
 		}
 
 		/// <summary>
+		/// Draws a rectangle gizmo.
+		/// </summary>
+		public static void DrawRectangle(Vector3 center, Vector3 up, Vector2 size)
+		{
+			var lMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(up), Vector3.one);
+			size *= 0.5f;
+			var p0 = new Vector3(-size.x, -size.y, 0);
+			var p1 = new Vector3(size.x, -size.y, 0);
+			var p2 = new Vector3(-size.x, size.y, 0);
+			var p3 = new Vector3(size.x, size.y, 0);
+			Gizmos.DrawLine(p0, p1);
+			Gizmos.DrawLine(p1, p3);
+			Gizmos.DrawLine(p0, p2);
+			Gizmos.DrawLine(p2, p3);
+			Gizmos.matrix = lMatrix;
+		}
+
+		/// <summary>
 		/// Draws a rounded rectangle gizmo.
 		/// </summary>
 		public static void DrawRadiusRectangle(Vector3 center, Vector3 up, Vector2 size, float radius, bool grow = false)
 		{
+			if(radius <= 0)
+			{
+				DrawRectangle(center, up, size);
+				return;
+			}
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(up), Vector3.one);
 			if(!grow) size -= Vector2.one * radius * 2;
@@ -183,6 +207,11 @@ namespace D3T
 		/// </summary>
 		public static void DrawWireRadiusCube(Vector3 center, Vector3 size, float radius, bool grow = false)
 		{
+			if(radius <= 0)
+			{
+				Gizmos.DrawWireCube(center, size);
+				return;
+			}
 			size = size.Abs();
 			float inset = grow ? 0 : radius;
 			DrawRadiusRectangle(center + new Vector3(-size.x * 0.5f + inset, 0, 0), Vector3.right, size.ZY(), radius, grow);

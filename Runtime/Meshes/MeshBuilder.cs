@@ -398,8 +398,8 @@ namespace D3T
 				tris.Add(b + i);
 				tris.Add(b + i + 1);
 			}
-			Vector2 lastPt = tempVertexCache[tempVertexCache.Count - 1];
-			AddVertex(matrix.MultiplyPoint((lastPt * radius).XVY(0)));
+			Vector2 lastPt = tempVertexCache[tempVertexCache.Count - 1] * radius;
+			AddVertex(matrix.MultiplyPoint(lastPt));
 			normals.Add(-nrm);
 			Vector2 lastUV = (lastPt + Vector2.one) * 0.5f;
 			lastUV.x = 1 - lastUV.x;
@@ -443,14 +443,14 @@ namespace D3T
 			uv0.Add(new Vector2(0.5f, 0.5f));
 			for(int i = 0; i < tempVertexCache.Count - 1; i++)
 			{
-				AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius1).WithY(-h2)));
+				AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius1).XZY().WithY(-h2)));
 				normals.Add(TransformVector(nrmL));
 				uv0.Add(tempVertexCache[i].XZ() / radius1 * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bL - 1);
 				tris.Add(bL + i);
 				tris.Add(bL + i + 1);
 			}
-			AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius1).WithY(-h2)));
+			AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius1).XZY().WithY(-h2)));
 			normals.Add(TransformVector(nrmL));
 			uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XZ() / radius1 * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bL - 1);
@@ -463,14 +463,14 @@ namespace D3T
 			uv0.Add(new Vector2(0.5f, 0.5f));
 			for(int i = 0; i < tempVertexCache.Count - 1; i++)
 			{
-				AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius2).WithY(h2)));
+				AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius2).XZY().WithY(h2)));
 				normals.Add(TransformVector(nrmU));
 				uv0.Add(tempVertexCache[i].XZ() / radius2 * 0.5f + new Vector2(0.5f, 0.5f));
 				tris.Add(bU - 1);
 				tris.Add(bU + i + 1);
 				tris.Add(bU + i);
 			}
-			AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius2).WithY(h2)));
+			AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius2).XZY().WithY(h2)));
 			normals.Add(TransformVector(nrmU));
 			uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XZ() / radius2 * 0.5f + new Vector2(0.5f, 0.5f));
 			tris.Add(bU - 1);
