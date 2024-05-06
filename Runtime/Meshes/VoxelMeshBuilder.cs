@@ -9,11 +9,13 @@ namespace D3T
 		{
 			public bool value;
 			public Color32 color;
+			public long data;
 
-			public Voxel(bool value, Color32? color)
+			public Voxel(bool value, Color32? color, long data)
 			{
 				this.value = value;
 				this.color = color ?? new Color32(255, 255, 255, 255);
+				this.data = data;
 			}
 		}
 
@@ -21,6 +23,10 @@ namespace D3T
 		private Voxel[,,] voxelData;
 
 		public float VoxelSize { get; set; } = 1f;
+
+		public delegate Vector4 UVFunctionDelegate(Vector3Int pos, Voxel voxel, AxisDirection axisDirection);
+
+		public UVFunctionDelegate UVFunction { get; set; }
 
 		public bool GenerateBoundary { get; set; } = true;
 
@@ -42,15 +48,16 @@ namespace D3T
 			this.VoxelSize = voxelSize;
 		}
 
-		public void SetVoxel(int x, int y, int z, bool value, Color32? color = null)
+		public void SetVoxel(int x, int y, int z, bool value, Color32? color = null, long data = 0)
 		{
 			voxelData[x, y, z].value = value;
 			voxelData[x, y, z].color = color ?? new Color32(255, 255, 255, 255);
+			voxelData[x, y, z].data = data;
 		}
 
-		public void SetVoxel(Vector3Int pos, bool value, Color32? color = null)
+		public void SetVoxel(Vector3Int pos, bool value, Color32? color = null, long data = 0)
 		{
-			SetVoxel(pos.x, pos.y, pos.z, value, color);
+			SetVoxel(pos.x, pos.y, pos.z, value, color, data);
 		}
 
 		public bool GetVoxel(int x, int y, int z)
@@ -89,7 +96,7 @@ namespace D3T
 					for(int x = 0; x < size.x; x++)
 					{
 						var voxel = voxelData[x, y, z];
-						if(voxel.value) AddVoxelToMesh(x, y, z, voxel.color);
+						if(voxel.value) AddVoxelToMesh(x, y, z, voxel);
 					}
 				}
 			}
@@ -113,10 +120,12 @@ namespace D3T
 			normals.Clear();
 			uvs.Clear();
 			tris.Clear();
+			UVFunction = null;
 		}
 
-		private void AddVoxelToMesh(int x, int y, int z, Color32 color)
+		private void AddVoxelToMesh(int x, int y, int z, Voxel voxel)
 		{
+			Vector3Int block = new Vector3Int(x, y, z);
 			float x1 = x * VoxelSize;
 			float y1 = y * VoxelSize;
 			float z1 = z * VoxelSize;
@@ -126,55 +135,61 @@ namespace D3T
 			//Top face
 			if(!CheckFace(x, y + 1, z))
 			{
-				AddQuad(new Vector3(x1, y2, z1), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, VoxelSize), Vector3.up, color);
+				AddQuad(block, voxel, new Vector3(x1, y2, z1), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, VoxelSize), AxisDirection.YPos);
 			}
 			//Bottom face
 			if(!CheckFace(x, y - 1, z))
 			{
-				AddQuad(new Vector3(x1, y1, z2), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, -VoxelSize), Vector3.down, color);
+				AddQuad(block, voxel, new Vector3(x1, y1, z2), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, -VoxelSize), AxisDirection.XNeg);
 			}
 			//Front face
 			if(!CheckFace(x, y, z - 1))
 			{
-				AddQuad(new Vector3(x1, y1, z1), new Vector3(VoxelSize, 0, 0), new Vector3(0, VoxelSize, 0), Vector3.back, color);
+				AddQuad(block, voxel, new Vector3(x1, y1, z1), new Vector3(VoxelSize, 0, 0), new Vector3(0, VoxelSize, 0), AxisDirection.ZNeg);
 			}
 			//Back face
 			if(!CheckFace(x, y, z + 1))
 			{
-				AddQuad(new Vector3(x2, y1, z2), new Vector3(-VoxelSize, 0, 0), new Vector3(0, VoxelSize, 0), Vector3.forward, color);
+				AddQuad(block, voxel, new Vector3(x2, y1, z2), new Vector3(-VoxelSize, 0, 0), new Vector3(0, VoxelSize, 0), AxisDirection.ZPos);
 			}
 			//Left face
 			if(!CheckFace(x - 1, y, z))
 			{
-				AddQuad(new Vector3(x1, y1, z2), new Vector3(0, 0, -VoxelSize), new Vector3(0, VoxelSize, 0), Vector3.left, color);
+				AddQuad(block, voxel, new Vector3(x1, y1, z2), new Vector3(0, 0, -VoxelSize), new Vector3(0, VoxelSize, 0), AxisDirection.XNeg);
 			}
 			//Right face
 			if(!CheckFace(x + 1, y, z))
 			{
-				AddQuad(new Vector3(x2, y1, z1), new Vector3(0, 0, VoxelSize), new Vector3(0, VoxelSize, 0), Vector3.right, color);
+				AddQuad(block, voxel, new Vector3(x2, y1, z1), new Vector3(0, 0, VoxelSize), new Vector3(0, VoxelSize, 0), AxisDirection.XPos);
 			}
 		}
 
-		private void AddQuad(Vector3 pos, Vector3 right, Vector3 up, Vector3 normal, Color32 color)
+		private void AddQuad(Vector3Int block, Voxel voxel, Vector3 pos, Vector3 right, Vector3 up, AxisDirection face)
 		{
 			int firstIndex = verts.Count;
 			AddTransformedVertex(pos);
 			AddTransformedVertex(pos + right);
 			AddTransformedVertex(pos + up);
 			AddTransformedVertex(pos + right + up);
+			var normal = face.GetDirectionVector();
 			normal = TransformVector(normal);
 			normals.Add(normal);
 			normals.Add(normal);
 			normals.Add(normal);
 			normals.Add(normal);
-			uvs.Add(Vector2.zero);
-			uvs.Add(Vector2.right);
-			uvs.Add(Vector2.up);
-			uvs.Add(Vector2.one);
-			vertexColors.Add(color);
-			vertexColors.Add(color);
-			vertexColors.Add(color);
-			vertexColors.Add(color);
+			Vector4 uv = new Vector4(0, 0, 1, 1);
+			if(UVFunction != null)
+			{
+				uv = UVFunction(block, voxel, face);
+			}
+			uvs.Add(new Vector2(uv.x, uv.y));
+			uvs.Add(new Vector2(uv.z, uv.y));
+			uvs.Add(new Vector2(uv.x, uv.w));
+			uvs.Add(new Vector2(uv.z, uv.w));
+			vertexColors.Add(voxel.color);
+			vertexColors.Add(voxel.color);
+			vertexColors.Add(voxel.color);
+			vertexColors.Add(voxel.color);
 
 			tris.Add(firstIndex);
 			tris.Add(firstIndex + 2);
