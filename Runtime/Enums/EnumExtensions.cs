@@ -83,5 +83,25 @@ namespace D3T
 				default: throw new InvalidOperationException();
 			}
 		}
+
+		/// <summary>
+		/// Returns the axis this direction vector is referring to.
+		/// </summary>
+		public static Axis GetAxis(this AxisDirection d)
+		{
+			switch(d)
+			{
+				case AxisDirection.XNeg:
+				case AxisDirection.XPos:
+					return Axis.X;
+				case AxisDirection.YNeg:
+				case AxisDirection.YPos:
+					return Axis.Y;
+				case AxisDirection.ZNeg:
+				case AxisDirection.ZPos:
+					return Axis.Z;
+				default: throw new InvalidOperationException();
+			}
+		}
 	}
 }

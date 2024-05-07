@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace D3T
+namespace D3T.Pooling
 {
 	/// <summary>
 	/// A pool of GameObjects with a specific component attached.
@@ -17,19 +17,52 @@ namespace D3T
 		private Dictionary<T, float> lastActivationTimes;
 		private T[] iterationCache;
 
+		/// <summary>
+		/// The scene to which this pool is bound to. If set, all objects are destroyed when this scene is unloaded.
+		/// </summary>
 		public Scene? TargetScene { get; private set; }
+		/// <summary>
+		/// The maximum number of objects that can be instantiated for this pool.
+		/// </summary>
 		public int maxPoolSize;
+		/// <summary>
+		/// An optional function that supplies custom instantiation behaviour (when an object is first created)
+		/// </summary>
 		public Func<T> instantiator;
+		/// <summary>
+		/// An optional function that is invoked when an instance should become active.
+		/// </summary>
 		public Action<T> activator = null;
+		/// <summary>
+		/// An optional function that is invoked when an instance should be deactivated.
+		/// </summary>
 		public Action<T> deactivator = null;
+		/// <summary>
+		/// If set to true, old, already active instances are reused if all objects are in use and the max pool size is reached.
+		/// </summary>
 		public bool replaceLast = false;
+		/// <summary>
+		/// If set to true, instances will be independent from any loaded scenes and are not destroyed when loading another scene.
+		/// </summary>
 		public bool dontDestroyOnLoad = false;
+		/// <summary>
+		/// An optional duration that limits the maximum active time for each instance until they are forcefully released.
+		/// </summary>
 		public float? maxActiveTime = null;
 
 		private float lastUpdateTime;
 
+		/// <summary>
+		/// The number of currently unused instances in this pool.
+		/// </summary>
 		public int InactiveInstanceCount => inactivePool.Count;
+		/// <summary>
+		/// The number of currently used instances in this pool.
+		/// </summary>
 		public int ActiveInstanceCount => activePool.Count;
+		/// <summary>
+		/// The total number of instances that exist in this pool.
+		/// </summary>
 		public int TotalInstanceCount => InactiveInstanceCount + ActiveInstanceCount;
 
 		public InstancePool(Scene? scene, int maxPoolSize, Func<T> instantiator = null, Action<T> activator = null, Action<T> deactivator = null, bool dontDestroyOnLoad = false, float? maxActiveTime = null)
