@@ -3,7 +3,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace D3T {
+namespace D3T
+{
 
 	/// <summary>
 	/// Coroutine manager that allows for object-independent coroutines.

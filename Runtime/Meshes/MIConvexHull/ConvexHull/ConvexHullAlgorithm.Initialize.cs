@@ -30,7 +30,7 @@ using System.Linq;
 
 namespace MIConvexHull
 {
-    /*
+	/*
      * This part of the implementation handles initialization of the convex hull algorithm:
      * - Constructor & Process initiation 
      * - Determine the dimension by looking at length of Position vector of 10 random data points from the input. 
@@ -38,10 +38,10 @@ namespace MIConvexHull
      * - Pick (Dimension + 1) points from the extremes and construct the initial simplex.
      */
 
-    /// <summary>
-    /// Class ConvexHullAlgorithm.
-    /// </summary>
-    internal partial class ConvexHullAlgorithm
+	/// <summary>
+	/// Class ConvexHullAlgorithm.
+	/// </summary>
+	internal partial class ConvexHullAlgorithm
     {
         #region Starting functions and constructor
 

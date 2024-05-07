@@ -30,10 +30,10 @@ using System.Linq;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// A factory class for creating a Voronoi mesh.
-    /// </summary>
-    public static class VoronoiMesh
+	/// <summary>
+	/// A factory class for creating a Voronoi mesh.
+	/// </summary>
+	public static class VoronoiMesh
     {
         /// <summary>
         /// Create the voronoi mesh.

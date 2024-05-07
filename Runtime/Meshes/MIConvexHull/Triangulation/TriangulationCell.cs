@@ -26,15 +26,15 @@
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// Representation of the triangulation cell. Pretty much the same as ConvexFace,
-    /// just wanted to distinguish the two.
-    /// To declare your own face type, use class Face : DelaunayFace(of Vertex, of Face)
-    /// </summary>
-    /// <typeparam name="TVertex">The type of the t vertex.</typeparam>
-    /// <typeparam name="TCell">The type of the t cell.</typeparam>
-    /// <seealso cref="MIConvexHull.ConvexFace{TVertex, TCell}" />
-    public abstract class TriangulationCell<TVertex, TCell> : ConvexFace<TVertex, TCell>
+	/// <summary>
+	/// Representation of the triangulation cell. Pretty much the same as ConvexFace,
+	/// just wanted to distinguish the two.
+	/// To declare your own face type, use class Face : DelaunayFace(of Vertex, of Face)
+	/// </summary>
+	/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
+	/// <typeparam name="TCell">The type of the t cell.</typeparam>
+	/// <seealso cref="MIConvexHull.ConvexFace{TVertex, TCell}" />
+	public abstract class TriangulationCell<TVertex, TCell> : ConvexFace<TVertex, TCell>
         where TVertex : IVertex
         where TCell : ConvexFace<TVertex, TCell>
     {

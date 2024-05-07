@@ -26,10 +26,10 @@
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// For deferred face addition.
-    /// </summary>
-    internal sealed class DeferredFace
+	/// <summary>
+	/// For deferred face addition.
+	/// </summary>
+	internal sealed class DeferredFace
     {
         /// <summary>
         /// The faces.

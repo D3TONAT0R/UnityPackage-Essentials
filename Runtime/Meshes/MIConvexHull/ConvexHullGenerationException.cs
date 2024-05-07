@@ -2,12 +2,12 @@ using System;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// Class ConvexHullGenerationException.
-    /// Implements the <see cref="System.Exception" />
-    /// </summary>
-    /// <seealso cref="System.Exception" />
-    public class ConvexHullGenerationException : Exception
+	/// <summary>
+	/// Class ConvexHullGenerationException.
+	/// Implements the <see cref="System.Exception" />
+	/// </summary>
+	/// <seealso cref="System.Exception" />
+	public class ConvexHullGenerationException : Exception
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConvexHullGenerationException"/> class.

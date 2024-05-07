@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
-namespace D3T.Utility {
+namespace D3T.Utility
+{
 
 	/// <summary>
 	/// An empty MonoBehaviour script.

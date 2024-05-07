@@ -26,12 +26,12 @@
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// A class representing an (undirected) edge of the Voronoi graph.
-    /// </summary>
-    /// <typeparam name="TVertex">The type of the t vertex.</typeparam>
-    /// <typeparam name="TCell">The type of the t cell.</typeparam>
-    public class VoronoiEdge<TVertex, TCell>
+	/// <summary>
+	/// A class representing an (undirected) edge of the Voronoi graph.
+	/// </summary>
+	/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
+	/// <typeparam name="TCell">The type of the t cell.</typeparam>
+	public class VoronoiEdge<TVertex, TCell>
         where TVertex : IVertex
         where TCell : TriangulationCell<TVertex, TCell>
     {

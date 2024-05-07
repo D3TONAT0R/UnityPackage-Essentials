@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace D3T
+namespace D3T.Meshes
 {
 	public class VoxelMeshBuilder : MeshBuilderBase
 	{
