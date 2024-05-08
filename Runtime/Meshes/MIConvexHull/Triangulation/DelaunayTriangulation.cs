@@ -29,13 +29,13 @@ using System.Collections.Generic;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// Calculation and representation of Delaunay triangulation.
-    /// </summary>
-    /// <typeparam name="TVertex">The type of the t vertex.</typeparam>
-    /// <typeparam name="TCell">The type of the t cell.</typeparam>
-    /// <seealso cref="MIConvexHull.ITriangulation{TVertex, TCell}" />
-    public class DelaunayTriangulation<TVertex, TCell> : ITriangulation<TVertex, TCell>
+	/// <summary>
+	/// Calculation and representation of Delaunay triangulation.
+	/// </summary>
+	/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
+	/// <typeparam name="TCell">The type of the t cell.</typeparam>
+	/// <seealso cref="MIConvexHull.ITriangulation{TVertex, TCell}" />
+	public class DelaunayTriangulation<TVertex, TCell> : ITriangulation<TVertex, TCell>
         where TCell : TriangulationCell<TVertex, TCell>, new()
         where TVertex : IVertex
     {

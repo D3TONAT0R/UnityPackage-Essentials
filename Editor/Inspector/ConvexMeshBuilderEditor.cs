@@ -1,4 +1,5 @@
-﻿using D3T.Utility;
+﻿using D3T.Meshes;
+using D3T.Utility;
 using D3TEditor.Tools;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 
-namespace D3TEditor
+namespace D3TEditor.Inspector
 {
 	[CustomEditor(typeof(ConvexMeshBuilderComponent))]
 	internal class ConvexMeshBuilderEditor : Editor

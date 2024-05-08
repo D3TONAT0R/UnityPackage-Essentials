@@ -29,12 +29,12 @@ using System.Linq;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// Simple interface to unify different types of triangulations in the future.
-    /// </summary>
-    /// <typeparam name="TVertex">The type of the t vertex.</typeparam>
-    /// <typeparam name="TCell">The type of the t cell.</typeparam>
-    public interface ITriangulation<TVertex, TCell>
+	/// <summary>
+	/// Simple interface to unify different types of triangulations in the future.
+	/// </summary>
+	/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
+	/// <typeparam name="TCell">The type of the t cell.</typeparam>
+	public interface ITriangulation<TVertex, TCell>
         where TCell : TriangulationCell<TVertex, TCell>, new()
         where TVertex : IVertex
     {

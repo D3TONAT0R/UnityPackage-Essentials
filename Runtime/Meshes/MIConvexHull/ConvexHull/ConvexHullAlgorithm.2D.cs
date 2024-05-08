@@ -31,7 +31,7 @@ using System.Runtime.CompilerServices;
 
 namespace MIConvexHull
 {
-    internal static class ConvexHull2DAlgorithm
+	internal static class ConvexHull2DAlgorithm
     {
         /// <summary>
         /// For 2D only: Returns the result in counter-clockwise order starting with the element with the lowest X value.

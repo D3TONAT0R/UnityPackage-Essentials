@@ -1,9 +1,9 @@
 namespace MIConvexHull
 {
-    /// <summary>
-    /// Enum ConvexHullCreationResultOutcome
-    /// </summary>
-    public enum ConvexHullCreationResultOutcome
+	/// <summary>
+	/// Enum ConvexHullCreationResultOutcome
+	/// </summary>
+	public enum ConvexHullCreationResultOutcome
     {
         /// <summary>
         /// Successfully created.

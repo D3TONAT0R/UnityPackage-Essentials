@@ -29,14 +29,14 @@ using System.Linq;
 
 namespace MIConvexHull
 {
-    /*
+	/*
      * Code here handles triangulation related stuff.
      */
 
-    /// <summary>
-    /// Class ConvexHullAlgorithm.
-    /// </summary>
-    internal partial class ConvexHullAlgorithm
+	/// <summary>
+	/// Class ConvexHullAlgorithm.
+	/// </summary>
+	internal partial class ConvexHullAlgorithm
     {
         /// <summary>
         /// Computes the Delaunay triangulation.
