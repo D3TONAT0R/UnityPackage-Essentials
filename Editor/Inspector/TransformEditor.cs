@@ -67,7 +67,7 @@ namespace D3TEditor
 					Undo.RecordObject(_transform, "Rotate (world)");
 					_transform.eulerAngles = worldEuler;
 				}
-				GUI.backgroundColor = Color.white.SetAlpha(0.5f);
+				GUI.backgroundColor = Color.white.WithAlpha(0.5f);
 				EditorGUILayout.Vector3Field("Scale (lossy)", _transform.lossyScale);
 				EditorGUILayout.Space();
 				EditorGUI.BeginChangeCheck();

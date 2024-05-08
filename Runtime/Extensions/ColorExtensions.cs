@@ -7,7 +7,7 @@ namespace D3T
 		/// <summary>
 		/// Returns this color with a different alpha value.
 		/// </summary>
-		public static Color SetAlpha(this Color c, float a)
+		public static Color WithAlpha(this Color c, float a)
 		{
 			return new Color(c.r, c.g, c.b, a);
 		}

@@ -283,7 +283,7 @@ namespace D3T
 					position2.x++;
 					position2.y++;
 					var lastGUIColor = GUI.color;
-					GUI.color = Color.black.SetAlpha(GUI.color.a * 0.8f);
+					GUI.color = Color.black.WithAlpha(GUI.color.a * 0.8f);
 					GUI.Label(position2, content, style);
 					GUI.color = lastGUIColor;
 				}
