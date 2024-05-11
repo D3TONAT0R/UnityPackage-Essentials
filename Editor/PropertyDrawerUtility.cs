@@ -26,7 +26,7 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-			if(EditorApplication.isPlayingOrWillChangePlaymode)
+			if(!EditorApplication.isPlayingOrWillChangePlaymode)
 			{
 				try
 				{

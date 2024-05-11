@@ -113,7 +113,6 @@ namespace D3TEditor.TimeTracking
 			string json = JsonUtility.ToJson(data, true);
 			File.WriteAllText(FileName, json);
 			lastSaveTime = EditorApplication.timeSinceStartup;
-			Debug.Log("Saved editor time data");
 		}
 	}
 }

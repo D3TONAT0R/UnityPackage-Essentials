@@ -10,7 +10,7 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-			if(EditorApplication.isPlayingOrWillChangePlaymode) EditorApplication.delayCall += CheckAttributes;
+			if(!EditorApplication.isPlayingOrWillChangePlaymode) EditorApplication.delayCall += CheckAttributes;
 		}
 
 		private static void CheckAttributes()

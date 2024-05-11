@@ -11,7 +11,7 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			if(EditorApplication.isPlayingOrWillChangePlaymode)
+			if(!EditorApplication.isPlayingOrWillChangePlaymode)
 			{
 				EditorApplication.delayCall += () =>
 				{
