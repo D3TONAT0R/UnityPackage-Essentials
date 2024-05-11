@@ -3,78 +3,121 @@ using UnityEngine;
 
 namespace D3T.Meshes
 {
-	public class VoxelMeshBuilder : MeshBuilderBase
+	public class VoxelMeshBuilder : VoxelMeshBuilder<bool>
 	{
-		public struct Voxel
+		public VoxelMeshBuilder(Vector3Int size, float voxelSize = 1) : base(size, voxelSize)
 		{
-			public bool value;
-			public Color32 color;
-			public long data;
 
-			public Voxel(bool value, Color32? color, long data)
-			{
-				this.value = value;
-				this.color = color ?? new Color32(255, 255, 255, 255);
-				this.data = data;
-			}
 		}
 
-		private Vector3Int size;
-		private Voxel[,,] voxelData;
+		protected override bool IsVisible(bool value) => value;
 
+		protected override bool IsSolid(bool value) => value;
+	}
+
+	public abstract class VoxelMeshBuilder<T> : MeshBuilderBase where T : struct
+	{
+		private readonly T[,,] voxelData;
+		private readonly List<Vector3> normals = new List<Vector3>();
+		private readonly List<Vector2> uvs = new List<Vector2>();
+		private readonly List<int> tris = new List<int>();
+
+		public Vector3Int Dimensions { get; private set; }
 		public float VoxelSize { get; set; } = 1f;
 
-		public delegate Vector4 UVFunctionDelegate(Vector3Int pos, Voxel voxel, AxisDirection axisDirection);
-
-		public UVFunctionDelegate UVFunction { get; set; }
+		public virtual T OutOfBoundsValue => default;
 
 		public bool GenerateBoundary { get; set; } = true;
 
-		private List<Vector3> normals = new List<Vector3>();
-		private List<Vector2> uvs = new List<Vector2>();
-		private List<int> tris = new List<int>();
-
 		public VoxelMeshBuilder(Vector3Int size, float voxelSize = 1f)
 		{
-			this.size = size;
-			voxelData = new Voxel[size.x, size.y, size.z];
-			this.VoxelSize = voxelSize;
+			Dimensions = size;
+			voxelData = new T[size.x, size.y, size.z];
+			VoxelSize = voxelSize;
 		}
 
-		public VoxelMeshBuilder(int sizeX, int sizeY, int sizeZ, float voxelSize = 1f)
+		public void EnsureVertexCapacity(int capacity)
 		{
-			voxelData = new Voxel[sizeX, sizeY, sizeZ];
-			size = new Vector3Int(sizeX, sizeY, sizeZ);
-			this.VoxelSize = voxelSize;
+			EnsureCapacity(verts, capacity);
+			EnsureCapacity(vertexColors, capacity);
+			EnsureCapacity(normals, capacity);
+			EnsureCapacity(uvs, capacity);
+			EnsureCapacity(tris, capacity);
 		}
 
-		public void SetVoxel(int x, int y, int z, bool value, Color32? color = null, long data = 0)
+		private void EnsureCapacity<U>(List<U> list, int capacity)
 		{
-			voxelData[x, y, z].value = value;
-			voxelData[x, y, z].color = color ?? new Color32(255, 255, 255, 255);
-			voxelData[x, y, z].data = data;
+			if(list.Capacity < capacity)
+			{
+				list.Capacity = capacity;
+			}
 		}
 
-		public void SetVoxel(Vector3Int pos, bool value, Color32? color = null, long data = 0)
+		public void SetVoxel(int x, int y, int z, T value)
 		{
-			SetVoxel(pos.x, pos.y, pos.z, value, color, data);
+			voxelData[x, y, z] = value;
 		}
 
-		public bool GetVoxel(int x, int y, int z)
+		public void SetVoxel(Vector3Int pos, T value)
 		{
-			if(!IsWithinBounds(x, y, z)) return false;
-			return voxelData[x, y, z].value;
+			SetVoxel(pos.x, pos.y, pos.z, value);
 		}
 
-		public bool GetVoxel(Vector3Int pos)
+		public T GetVoxel(int x, int y, int z)
+		{
+			if(!IsWithinBounds(x, y, z)) return OutOfBoundsValue;
+			return voxelData[x, y, z];
+		}
+
+		public T GetVoxel(Vector3Int pos)
 		{
 			return GetVoxel(pos.x, pos.y, pos.z);
 		}
 
-		private bool CheckFace(int x, int y, int z)
+		protected abstract bool IsVisible(T value);
+
+		protected abstract bool IsSolid(T value);
+
+		protected virtual bool CheckFace(Vector3Int block, AxisDirection face)
 		{
-			if(!IsWithinBounds(x, y, z)) return !GenerateBoundary;
-			else return voxelData[x, y, z].value;
+			OffsetPosition(ref block, face);
+			if(!IsWithinBounds(block)) return !GenerateBoundary;
+			else return IsSolid(voxelData[block.x, block.y, block.z]);
+		}
+
+		protected virtual Color32 GetFaceColor(T value, AxisDirection face)
+		{
+			return new Color32(255, 255, 255, 255);
+		}
+
+		protected virtual Vector4 GetFaceUVs(Vector3Int pos, T voxel, AxisDirection face)
+		{
+			return new Vector4(0, 0, 1, 1);
+		}
+
+		protected static void OffsetPosition(ref Vector3Int pos, AxisDirection direction)
+		{
+			switch(direction)
+			{
+				case AxisDirection.XNeg:
+					pos.x--;
+					break;
+				case AxisDirection.XPos:
+					pos.x++;
+					break;
+				case AxisDirection.YNeg:
+					pos.y--;
+					break;
+				case AxisDirection.YPos:
+					pos.y++;
+					break;
+				case AxisDirection.ZNeg:
+					pos.z--;
+					break;
+				case AxisDirection.ZPos:
+					pos.z++;
+					break;
+			}
 		}
 
 		public bool IsWithinBounds(Vector3Int pos)
@@ -84,19 +127,24 @@ namespace D3T.Meshes
 
 		public bool IsWithinBounds(int x, int y, int z)
 		{
-			return x >= 0 && x < size.x && y >= 0 && y < size.y && z >= 0 && z < size.z;
+			return x >= 0 && x < Dimensions.x && y >= 0 && y < Dimensions.y && z >= 0 && z < Dimensions.z;
 		}
 
 		public override void BuildMesh(Mesh mesh)
 		{
-			for(int z = 0; z < size.z; z++)
+			verts.Clear();
+			vertexColors.Clear();
+			normals.Clear();
+			uvs.Clear();
+			tris.Clear();
+			for(int z = 0; z < Dimensions.z; z++)
 			{
-				for(int y = 0; y < size.y; y++)
+				for(int y = 0; y < Dimensions.y; y++)
 				{
-					for(int x = 0; x < size.x; x++)
+					for(int x = 0; x < Dimensions.x; x++)
 					{
 						var voxel = voxelData[x, y, z];
-						if(voxel.value) AddVoxelToMesh(x, y, z, voxel);
+						if(IsVisible(voxel)) AddVoxelToMesh(x, y, z, voxel);
 					}
 				}
 			}
@@ -112,18 +160,26 @@ namespace D3T.Meshes
 
 		public override void Clear()
 		{
+			for(int z = 0; z < Dimensions.z; z++)
+			{
+				for(int y = 0; y < Dimensions.y; y++)
+				{
+					for(int x = 0; x < Dimensions.x; x++)
+					{
+						voxelData[x, y, z] = default;
+					}
+				}
+			}
 			currentMatrix = Matrix4x4.identity;
 			matrixStack.Clear();
 			verts.Clear();
 			vertexColors.Clear();
-			voxelData = new Voxel[size.x, size.y, size.z];
 			normals.Clear();
 			uvs.Clear();
 			tris.Clear();
-			UVFunction = null;
 		}
 
-		private void AddVoxelToMesh(int x, int y, int z, Voxel voxel)
+		private void AddVoxelToMesh(int x, int y, int z, T voxel)
 		{
 			Vector3Int block = new Vector3Int(x, y, z);
 			float x1 = x * VoxelSize;
@@ -133,38 +189,38 @@ namespace D3T.Meshes
 			float y2 = y1 + VoxelSize;
 			float z2 = z1 + VoxelSize;
 			//Top face
-			if(!CheckFace(x, y + 1, z))
+			if(!CheckFace(block, AxisDirection.YPos))
 			{
 				AddQuad(block, voxel, new Vector3(x1, y2, z1), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, VoxelSize), AxisDirection.YPos);
 			}
 			//Bottom face
-			if(!CheckFace(x, y - 1, z))
+			if(!CheckFace(block, AxisDirection.YNeg))
 			{
 				AddQuad(block, voxel, new Vector3(x1, y1, z2), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, -VoxelSize), AxisDirection.XNeg);
 			}
 			//Front face
-			if(!CheckFace(x, y, z - 1))
+			if(!CheckFace(block, AxisDirection.ZNeg))
 			{
 				AddQuad(block, voxel, new Vector3(x1, y1, z1), new Vector3(VoxelSize, 0, 0), new Vector3(0, VoxelSize, 0), AxisDirection.ZNeg);
 			}
 			//Back face
-			if(!CheckFace(x, y, z + 1))
+			if(!CheckFace(block, AxisDirection.ZPos))
 			{
 				AddQuad(block, voxel, new Vector3(x2, y1, z2), new Vector3(-VoxelSize, 0, 0), new Vector3(0, VoxelSize, 0), AxisDirection.ZPos);
 			}
 			//Left face
-			if(!CheckFace(x - 1, y, z))
+			if(!CheckFace(block, AxisDirection.XNeg))
 			{
 				AddQuad(block, voxel, new Vector3(x1, y1, z2), new Vector3(0, 0, -VoxelSize), new Vector3(0, VoxelSize, 0), AxisDirection.XNeg);
 			}
 			//Right face
-			if(!CheckFace(x + 1, y, z))
+			if(!CheckFace(block, AxisDirection.XPos))
 			{
 				AddQuad(block, voxel, new Vector3(x2, y1, z1), new Vector3(0, 0, VoxelSize), new Vector3(0, VoxelSize, 0), AxisDirection.XPos);
 			}
 		}
 
-		private void AddQuad(Vector3Int block, Voxel voxel, Vector3 pos, Vector3 right, Vector3 up, AxisDirection face)
+		private void AddQuad(Vector3Int block, T voxel, Vector3 pos, Vector3 right, Vector3 up, AxisDirection face)
 		{
 			int firstIndex = verts.Count;
 			AddTransformedVertex(pos);
@@ -177,19 +233,16 @@ namespace D3T.Meshes
 			normals.Add(normal);
 			normals.Add(normal);
 			normals.Add(normal);
-			Vector4 uv = new Vector4(0, 0, 1, 1);
-			if(UVFunction != null)
-			{
-				uv = UVFunction(block, voxel, face);
-			}
+			Vector4 uv = GetFaceUVs(block, voxel, face);
 			uvs.Add(new Vector2(uv.x, uv.y));
 			uvs.Add(new Vector2(uv.z, uv.y));
 			uvs.Add(new Vector2(uv.x, uv.w));
 			uvs.Add(new Vector2(uv.z, uv.w));
-			vertexColors.Add(voxel.color);
-			vertexColors.Add(voxel.color);
-			vertexColors.Add(voxel.color);
-			vertexColors.Add(voxel.color);
+			Color32 color = GetFaceColor(voxel, face);
+			vertexColors.Add(color);
+			vertexColors.Add(color);
+			vertexColors.Add(color);
+			vertexColors.Add(color);
 
 			tris.Add(firstIndex);
 			tris.Add(firstIndex + 2);
