@@ -196,7 +196,7 @@ namespace D3T.Meshes
 			//Bottom face
 			if(!CheckFace(block, AxisDirection.YNeg))
 			{
-				AddQuad(block, voxel, new Vector3(x1, y1, z2), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, -VoxelSize), AxisDirection.XNeg);
+				AddQuad(block, voxel, new Vector3(x1, y1, z2), new Vector3(VoxelSize, 0, 0), new Vector3(0, 0, -VoxelSize), AxisDirection.YNeg);
 			}
 			//Front face
 			if(!CheckFace(block, AxisDirection.ZNeg))
