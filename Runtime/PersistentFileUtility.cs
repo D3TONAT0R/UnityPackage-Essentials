@@ -13,7 +13,7 @@ namespace D3T.Utility
 		public enum FileLocation
 		{
 			/// <summary>
-			/// The "_Data" folder next to the game's executable or project's root folder when in the editor.
+			/// The "_Data" folder next to the game's executable or the project's root folder when in the editor.
 			/// </summary>
 			DataPath = 0,
 			/// <summary>
