@@ -1,3 +1,4 @@
+﻿using UnityEssentials.Meshes;
 ﻿using UnityEssentials.Utility;
 using UnityEssentialsEditor.Tools;
 using System.Collections;
@@ -13,7 +14,7 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 namespace UnityEssentialsEditor
 {
 	[CustomEditor(typeof(ConvexMeshBuilderComponent))]
-	public class ConvexMeshBuilderEditor : Editor
+	internal class ConvexMeshBuilderEditor : Editor
 	{
 		private ConvexMeshBuilderComponent comp;
 

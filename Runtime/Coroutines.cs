@@ -3,7 +3,8 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace UnityEssentials {
+namespace UnityEssentials
+{
 
 	/// <summary>
 	/// Coroutine manager that allows for object-independent coroutines.

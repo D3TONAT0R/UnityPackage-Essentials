@@ -24,12 +24,11 @@
  *  
  *****************************************************************************/
 
-using System;
 using System.Collections.Generic;
 
 namespace MIConvexHull
 {
-    /*
+	/*
      * Main part of the algorithm 
      * Basic idea:
      * - Create the initial hull (done in Initialize.cs)
@@ -48,10 +47,10 @@ namespace MIConvexHull
      * + Implement it in way that is fast, but hard to understand and maintain.
      */
 
-    /// <summary>
-    /// Class ConvexHullAlgorithm.
-    /// </summary>
-    internal partial class ConvexHullAlgorithm
+	/// <summary>
+	/// Class ConvexHullAlgorithm.
+	/// </summary>
+	internal partial class ConvexHullAlgorithm
     {
         /// <summary>
         /// Tags all faces seen from the current vertex with 1.

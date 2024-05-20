@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace UnityEssentials.Utility
@@ -17,7 +13,7 @@ namespace UnityEssentials.Utility
 		public enum FileLocation
 		{
 			/// <summary>
-			/// The "_Data" folder next to the game's executable or project's root folder when in the editor.
+			/// The "_Data" folder next to the game's executable or the project's root folder when in the editor.
 			/// </summary>
 			DataPath = 0,
 			/// <summary>
@@ -49,7 +45,7 @@ namespace UnityEssentials.Utility
 		{
 			if(Application.isEditor)
 			{
-				return Path.Combine(Application.dataPath, "..");
+				return Directory.GetParent(Application.dataPath).ToString();
 			}
 			if ((int)location >= 10) location -= 10;
 

@@ -26,12 +26,12 @@
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// A convex face representation containing adjacency information.
-    /// </summary>
-    /// <typeparam name="TVertex">The type of the t vertex.</typeparam>
-    /// <typeparam name="TFace">The type of the t face.</typeparam>
-    public abstract class ConvexFace<TVertex, TFace>
+	/// <summary>
+	/// A convex face representation containing adjacency information.
+	/// </summary>
+	/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
+	/// <typeparam name="TFace">The type of the t face.</typeparam>
+	public abstract class ConvexFace<TVertex, TFace>
         where TVertex : IVertex
         where TFace : ConvexFace<TVertex, TFace>
     {

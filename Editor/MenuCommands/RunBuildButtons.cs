@@ -4,14 +4,14 @@ using UnityEditor;
 
 namespace UnityEssentialsEditor
 {
-	public static class RunBuildButtons
+	internal static class RunBuildButtons
 	{
 		private const int PRIORITY = 220;
 
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			if(EditorApplication.isPlayingOrWillChangePlaymode)
+			if(!EditorApplication.isPlayingOrWillChangePlaymode)
 			{
 				EditorApplication.delayCall += () =>
 				{

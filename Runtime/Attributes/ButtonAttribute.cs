@@ -10,6 +10,9 @@ namespace UnityEssentials
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class ButtonAttribute : PropertyAttribute
 	{
+		/// <summary>
+		/// Determines in which context the button is enabled.
+		/// </summary>
 		[Flags]
 		public enum Usage
 		{

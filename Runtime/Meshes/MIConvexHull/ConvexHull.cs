@@ -30,10 +30,10 @@ using System.Linq;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// Factory class for computing convex hulls.
-    /// </summary>
-    public static class ConvexHull
+	/// <summary>
+	/// Factory class for computing convex hulls.
+	/// </summary>
+	public static class ConvexHull
     {
         /// <summary>
         /// Creates a convex hull of the input data.

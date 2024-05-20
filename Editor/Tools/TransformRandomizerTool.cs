@@ -6,7 +6,7 @@ using UnityEngine;
 namespace UnityEssentialsEditor.Tools
 {
 	[EditorTool("Transform Randomizer")]
-	public class TransformRandomizerTool : EditorToolBase
+	internal class TransformRandomizerTool : EditorToolBase
 	{
 		[System.Serializable]
 		public class Settings

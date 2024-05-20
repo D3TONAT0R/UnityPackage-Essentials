@@ -28,12 +28,12 @@ using System;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// A helper class mostly for normal computation. If convex hulls are computed
-    /// in higher dimensions, it might be a good idea to add a specific
-    /// FindNormalVectorND function.
-    /// </summary>
-    internal class MathHelper
+	/// <summary>
+	/// A helper class mostly for normal computation. If convex hulls are computed
+	/// in higher dimensions, it might be a good idea to add a specific
+	/// FindNormalVectorND function.
+	/// </summary>
+	internal class MathHelper
     {
         /// <summary>
         /// The dimension

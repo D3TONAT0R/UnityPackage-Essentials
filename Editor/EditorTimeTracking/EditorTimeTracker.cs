@@ -23,13 +23,16 @@ namespace UnityEssentialsEditor.TimeTracking
 			public TimeSample times;
 		}
 
+		private const float MIN_SAVE_INTERVAL = 60;
+
 		public static bool Enabled => !LoadingFailed && EssentialsProjectSettings.Instance.enableEditorTimeTracking;
 
 		public static bool LoadingFailed { get; set; } = false;
 
 		internal static Dictionary<string, TimeSample> times = new Dictionary<string, TimeSample>();
 
-		private static double lastTime;
+		private static double lastCheckTime;
+		private static double lastSaveTime;
 
 		private static string FileName => PersistentFileUtility.GetFullPath(PersistentFileUtility.FileLocation.DataPath, "EditorTimes.json");
 
@@ -40,18 +43,20 @@ namespace UnityEssentialsEditor.TimeTracking
 			EditorApplication.update += Update;
 			AssemblyReloadEvents.beforeAssemblyReload += OnDestroy;
 			EditorApplication.quitting += OnDestroy;
+			//Save data when the project is changed
+			EditorApplication.projectChanged += () => Save(false);
 		}
 
 		private static void OnDestroy()
 		{
-			WriteToFile();
+			Save(false);
 		}
 
 		private static void Update()
 		{
-			if(Enabled && lastTime != 0)
+			if(Enabled && lastCheckTime != 0)
 			{
-				float delta = (float)(EditorApplication.timeSinceStartup - lastTime);
+				float delta = (float)(EditorApplication.timeSinceStartup - lastCheckTime);
 				string user = GetUserName();
 				if(!times.ContainsKey(user))
 				{
@@ -59,7 +64,7 @@ namespace UnityEssentialsEditor.TimeTracking
 				}
 				times[user].Increase(delta);
 			}
-			lastTime = EditorApplication.timeSinceStartup;
+			lastCheckTime = EditorApplication.timeSinceStartup;
 		}
 
 		private static string GetUserName()
@@ -92,8 +97,13 @@ namespace UnityEssentialsEditor.TimeTracking
 			}
 		}
 
-		private static void WriteToFile()
+		private static void Save(bool force)
 		{
+			if(EditorApplication.timeSinceStartup - lastSaveTime < MIN_SAVE_INTERVAL && !force)
+			{
+				//We already saved not too long ago, don't save again
+				return;
+			}
 			SamplesData data = new SamplesData();
 			foreach(var kv in times)
 			{
@@ -102,6 +112,7 @@ namespace UnityEssentialsEditor.TimeTracking
 			}
 			string json = JsonUtility.ToJson(data, true);
 			File.WriteAllText(FileName, json);
+			lastSaveTime = EditorApplication.timeSinceStartup;
 		}
 	}
 }

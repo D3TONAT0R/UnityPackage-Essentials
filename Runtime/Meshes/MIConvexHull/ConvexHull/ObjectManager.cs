@@ -28,14 +28,14 @@ using System;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// A helper class for object allocation/storage.
-    /// This helps the GC a lot as it prevents the creation of about 75% of
-    /// new face objects (in the case of ConvexFaceInternal). In the case of
-    /// FaceConnectors and DefferedFaces, the difference is even higher (in most
-    /// cases O(1) vs O(number of created faces)).
-    /// </summary>
-    internal class ObjectManager
+	/// <summary>
+	/// A helper class for object allocation/storage.
+	/// This helps the GC a lot as it prevents the creation of about 75% of
+	/// new face objects (in the case of ConvexFaceInternal). In the case of
+	/// FaceConnectors and DefferedFaces, the difference is even higher (in most
+	/// cases O(1) vs O(number of created faces)).
+	/// </summary>
+	internal class ObjectManager
     {
         /// <summary>
         /// The dimension

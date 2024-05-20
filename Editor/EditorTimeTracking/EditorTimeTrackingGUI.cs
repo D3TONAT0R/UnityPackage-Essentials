@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.TimeTracking
 {
-	public static class EditorTimeTrackingGUI
+	internal static class EditorTimeTrackingGUI
 	{
 		public static bool foldout;
 

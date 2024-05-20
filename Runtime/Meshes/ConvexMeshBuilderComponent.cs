@@ -1,10 +1,8 @@
-﻿using MIConvexHull;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace UnityEssentials.Utility
+namespace UnityEssentials.Meshes
 {
 	/// <summary>
 	/// Component that generates a convex mesh.

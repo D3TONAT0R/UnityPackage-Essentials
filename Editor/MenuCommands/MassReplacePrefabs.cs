@@ -1,8 +1,10 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace UnityEssentialsEditor {
-	public class MassReplacePrefabs : ScriptableWizard {
+namespace UnityEssentialsEditor
+{
+	internal class MassReplacePrefabs : ScriptableWizard
+	{
 
 		public GameObject replace;
 		public bool keepName;

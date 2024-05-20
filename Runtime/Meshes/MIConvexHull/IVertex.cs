@@ -26,10 +26,10 @@
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// An interface for a structure with nD position.
-    /// </summary>
-    public interface IVertex
+	/// <summary>
+	/// An interface for a structure with nD position.
+	/// </summary>
+	public interface IVertex
     {
         /// <summary>
         /// Position of the vertex.

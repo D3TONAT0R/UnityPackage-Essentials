@@ -10,8 +10,9 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 
 namespace UnityEssentialsEditor.Tools {
 
+	//TODO: needs some rework
 	[EditorTool("Tape Measure")]
-	public class TapeMeasure : EditorToolBase {
+	internal class TapeMeasure : EditorToolBase {
 
 		public Vector3 p1;
 		public Vector3 p2;

@@ -28,14 +28,14 @@ using System;
 
 namespace MIConvexHull
 {
-    /// <summary>
-    /// A more lightweight alternative to List of T.
-    /// On clear, only resets the count and does not clear the references
-    /// =&gt; this works because of the ObjectManager.
-    /// Includes a stack functionality.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal class SimpleList<T>
+	/// <summary>
+	/// A more lightweight alternative to List of T.
+	/// On clear, only resets the count and does not clear the references
+	/// =&gt; this works because of the ObjectManager.
+	/// Includes a stack functionality.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	internal class SimpleList<T>
     {
         /// <summary>
         /// The capacity

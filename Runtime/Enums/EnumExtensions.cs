@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityEssentials
@@ -80,6 +78,26 @@ namespace UnityEssentials
 				case AxisDirection.YPos: return Vector3.up;
 				case AxisDirection.ZNeg: return Vector3.back;
 				case AxisDirection.ZPos: return Vector3.forward;
+				default: throw new InvalidOperationException();
+			}
+		}
+
+		/// <summary>
+		/// Returns the axis this direction vector is referring to.
+		/// </summary>
+		public static Axis GetAxis(this AxisDirection d)
+		{
+			switch(d)
+			{
+				case AxisDirection.XNeg:
+				case AxisDirection.XPos:
+					return Axis.X;
+				case AxisDirection.YNeg:
+				case AxisDirection.YPos:
+					return Axis.Y;
+				case AxisDirection.ZNeg:
+				case AxisDirection.ZPos:
+					return Axis.Z;
 				default: throw new InvalidOperationException();
 			}
 		}

@@ -59,14 +59,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			if(!valid) GUI.color = errorColor;
 			property.isExpanded = EditorGUI.Foldout(position, property.isExpanded, label);
 			GUI.color = lColor;
-			if(exception != null)
-			{
-				var p2 = position;
-				p2.xMin += EditorGUIUtility.labelWidth + 2;
-				EditorGUI.HelpBox(p2, exception.Message, MessageType.None);
-				//Tooltip
-				EditorGUI.LabelField(p2, new GUIContent("", exception.Message));
-			}
+			var headerPos = position;
 			if(property.isExpanded)
 			{
 				EditorGUI.indentLevel++;
@@ -95,6 +88,15 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				position.NextProperty();
 				DrawAddButton(position, target, dictionaryType, polymorphic, so);
 				EditorGUI.indentLevel--;
+			}
+			//This needs to be done after the foldout to prevent losing focus on text fields
+			if(exception != null)
+			{
+				var p2 = headerPos;
+				p2.xMin += EditorGUIUtility.labelWidth + 2;
+				EditorGUI.HelpBox(p2, exception.Message, MessageType.None);
+				//Tooltip
+				EditorGUI.LabelField(p2, new GUIContent("", exception.Message));
 			}
 			EditorGUI.EndProperty();
 		}

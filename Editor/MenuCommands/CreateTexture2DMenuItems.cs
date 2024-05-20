@@ -4,7 +4,7 @@ using System.IO;
 
 namespace UnityEssentialsEditor
 {
-	public static class CreateTexture2DMenuItems
+	internal static class CreateTexture2DMenuItems
 	{
 		private const int PRIORITY = 303;
 

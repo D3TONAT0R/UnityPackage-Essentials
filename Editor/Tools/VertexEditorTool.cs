@@ -1,5 +1,4 @@
-﻿using UnityEssentials;
-using UnityEssentials.Utility;
+using UnityEssentials.Meshes;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -14,7 +13,7 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 namespace UnityEssentialsEditor.Tools
 {
 	[EditorTool("Edit Vertices", typeof(ConvexMeshBuilderComponent))]
-	public class VertexEditorTool : EditorToolBase
+	internal class VertexEditorTool : EditorToolBase
 	{
 		List<int> selection = new List<int>();
 

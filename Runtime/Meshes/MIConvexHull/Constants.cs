@@ -26,7 +26,7 @@
 
 namespace MIConvexHull
 {
-    internal static class Constants
+	internal static class Constants
     {
         /// <summary>
         /// The default plane distance tolerance

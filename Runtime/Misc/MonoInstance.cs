@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-namespace UnityEssentials.Utility {
-
+namespace UnityEssentials.Utility
+{
 	/// <summary>
 	/// An empty MonoBehaviour script.
 	/// </summary>

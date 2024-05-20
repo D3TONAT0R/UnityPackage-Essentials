@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace UnityEssentialsEditor
 {
-	public class CreateScriptAction : EndNameEditAction
+	internal class CreateScriptAction : EndNameEditAction
 	{
 		public override void Action(int instanceId, string pathName, string resourceFile)
 		{

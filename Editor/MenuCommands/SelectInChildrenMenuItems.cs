@@ -8,12 +8,12 @@ using Object = UnityEngine.Object;
 
 namespace UnityEssentialsEditor
 {
-	public static class SelectInChildrenMenuItems
+	internal static class SelectInChildrenMenuItems
 	{
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			if(EditorApplication.isPlayingOrWillChangePlaymode) SceneHierarchyHooks.addItemsToGameObjectContextMenu += AddContextMenuItems;
+			if(!EditorApplication.isPlayingOrWillChangePlaymode) SceneHierarchyHooks.addItemsToGameObjectContextMenu += AddContextMenuItems;
 		}
 
 		private static void AddContextMenuItems(GenericMenu menu, GameObject gameObject)

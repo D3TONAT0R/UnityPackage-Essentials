@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnityEssentials
 {
 	/// <summary>
-	/// Attribute used to make a nullable float or int field be restricted to a specific range.
+	/// Makes a nullable float or int field restricted to a specific range.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public class NullableRangeAttribute : PropertyAttribute

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace UnityEssentials.Utility
+namespace UnityEssentials.Meshes
 {
 	/// <summary>
 	/// Utility class for generating convex meshes. 
