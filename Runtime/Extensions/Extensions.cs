@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Text;
+using UnityEngine;
 
 namespace D3T
 {
 	public static class Extensions
 	{
+		private static StringBuilder stringBuilder = new StringBuilder();
+
 		#region Numerics
 
 		/// <summary>
@@ -112,20 +115,26 @@ namespace D3T
 		/// <summary>
 		/// Returns a formatted time string from this integer as seconds.
 		/// </summary>
-		public static string ToTimeString(this int t, bool hours)
+		public static string ToTimeString(this int seconds, bool hours)
 		{
-			t = Mathf.Abs(t);
-			string sec = (t % 60).ToString("D2");
-			string min = (hours ? t / 60 % 60 : t / 60).ToString("D2");
+			stringBuilder.Clear();
+			bool positive = seconds >= 0;
+			stringBuilder.Append(positive ? "" : "-");
+			seconds = Mathf.Abs(seconds);
+			string sec = (seconds % 60).ToString("D2");
+			string min = (hours ? seconds / 60 % 60 : seconds / 60).ToString("D2");
 			if(hours)
 			{
-				string hrs = (t / 3600).ToString("D2");
-				return $"{hrs}:{min}:{sec}";
+				string hrs = (seconds / 3600).ToString("D2");
+				stringBuilder.Append(hrs);
+				stringBuilder.Append(":");
 			}
-			else
-			{
-				return $"{min}:{sec}";
-			}
+			stringBuilder.Append(min);
+			stringBuilder.Append(":");
+			stringBuilder.Append(sec);
+			var output = stringBuilder.ToString();
+			stringBuilder.Clear();
+			return output;
 		}
 
 		/// <summary>

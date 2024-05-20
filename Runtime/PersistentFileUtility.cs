@@ -45,7 +45,7 @@ namespace D3T.Utility
 		{
 			if(Application.isEditor)
 			{
-				return Path.Combine(Application.dataPath, "..");
+				return Directory.GetParent(Application.dataPath).ToString();
 			}
 			if ((int)location >= 10) location -= 10;
 
