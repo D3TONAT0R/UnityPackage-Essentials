@@ -6,6 +6,72 @@ using UnityEngine;
 
 namespace D3T.Utility
 {
+	[Flags]
+	public enum SearchFlags
+	{
+		None = 0,
+		Assemblies = 1 << 0,
+
+		Classes = 1 << 1,
+		Structs = 1 << 2,
+		Types = Classes | Structs,
+
+		Methods = 1 << 3,
+		Properties = 1 << 4,
+		Fields = 1 << 5,
+		Events = 1 << 6,
+		Members = Methods | Properties | Fields | Events,
+
+		All = Assemblies | Types | Members
+	}
+
+
+	public class AttributeDefinition<T> where T : Attribute
+	{
+		public T Attribute { get; private set; }
+
+		public Assembly TargetAssembly { get; private set; } = null;
+		public Type TargetType { get; private set; } = null;
+		public MemberInfo TargetMember { get; private set; } = null;
+
+		public AttributeDefinition(T attribute, Assembly targetAssembly)
+		{
+			Attribute = attribute;
+			TargetAssembly = targetAssembly;
+		}
+
+		public AttributeDefinition(T attribute, Type targetType)
+		{
+			Attribute = attribute;
+			TargetType = targetType;
+		}
+
+		public AttributeDefinition(T attribute, MemberInfo targetMember)
+		{
+			Attribute = attribute;
+			TargetMember = targetMember;
+		}
+
+		public override string ToString()
+		{
+			if(TargetMember != null)
+			{
+				return $"{Attribute.GetType().Name} in {TargetMember.DeclaringType.FullName}.{TargetMember.Name}";
+			}
+			else if(TargetType != null)
+			{
+				return $"{Attribute.GetType().Name} in {TargetMember.DeclaringType.FullName}";
+			}
+			else if(TargetAssembly != null)
+			{
+				return $"{Attribute.GetType().Name} in Assembly {TargetAssembly.FullName}";
+			}
+			else
+			{
+				return $"{Attribute.GetType().Name} in Unknown Target";
+			}
+		}
+	}
 
 	/// <summary>
 	/// Utility class for common reflection functions.
@@ -108,17 +174,99 @@ namespace D3T.Utility
 		/// <summary>
 		/// Returns all attributes of the given type.
 		/// </summary>
-		public static List<T> GetAllAttributeDefinitions<T>(bool includeStructs = false) where T : Attribute
+		public static List<AttributeDefinition<T>> GetAllAttributeDefinitions<T>(SearchFlags searchFlags = SearchFlags.All) where T : Attribute
 		{
-			var condition = GetClassOrStructCondition(includeStructs);
+			var condition = GetClassOrStructCondition(searchFlags);
 
-			var attrDefs = new List<T>();
-			attrDefs.AddRange(GetGameAssemblies() // Returns all currenlty loaded assemblies
-				.SelectMany(x => x.GetTypes()) // returns all types defined in this assembly
-				.Where(condition) // classes (and structs) only
-				.SelectMany(x => x.GetCustomAttributes(typeof(T), false)
-				.Cast<T>()));
-			return attrDefs;
+			var defs = new List<AttributeDefinition<T>>();
+			var assemblies = GetGameAssemblies();
+			foreach(var assembly in assemblies)
+			{
+				if(searchFlags.HasFlag(SearchFlags.Assemblies))
+				{
+					foreach(var attr in assembly.GetCustomAttributes<T>())
+					{
+						defs.Add(new AttributeDefinition<T>(attr, assembly));
+					}
+				}
+				if(searchFlags.HasFlag(SearchFlags.Classes)
+					|| searchFlags.HasFlag(SearchFlags.Structs)
+					|| searchFlags.HasFlag(SearchFlags.Properties)
+					|| searchFlags.HasFlag(SearchFlags.Fields)
+					|| searchFlags.HasFlag(SearchFlags.Methods)
+					|| searchFlags.HasFlag(SearchFlags.Events)
+					)
+				{
+					foreach(var t in assembly.GetTypes())
+					{
+						if(condition(t))
+						{
+							foreach(var attr in t.GetCustomAttributes<T>(false))
+							{
+								defs.Add(new AttributeDefinition<T>(attr, t));
+							}
+						}
+						if(searchFlags.HasFlag(SearchFlags.Properties))
+						{
+							foreach(var p in t.GetProperties())
+							{
+								foreach(var attr in p.GetCustomAttributes<T>(false))
+								{
+									defs.Add(new AttributeDefinition<T>(attr, p));
+								}
+							}
+						}
+						if(searchFlags.HasFlag(SearchFlags.Fields))
+						{
+							foreach(var f in t.GetFields())
+							{
+								foreach(var attr in f.GetCustomAttributes<T>(false))
+								{
+									defs.Add(new AttributeDefinition<T>(attr, f));
+								}
+							}
+						}
+						if(searchFlags.HasFlag(SearchFlags.Methods))
+						{
+							foreach(var m in t.GetMethods())
+							{
+								foreach(var attr in m.GetCustomAttributes<T>(false))
+								{
+									defs.Add(new AttributeDefinition<T>(attr, m));
+								}
+							}
+						}
+						if(searchFlags.HasFlag(SearchFlags.Events))
+						{
+							foreach(var e in t.GetEvents())
+							{
+								foreach(var attr in e.GetCustomAttributes<T>(false))
+								{
+									defs.Add(new AttributeDefinition<T>(attr, e));
+								}
+							}
+						}
+					}
+				}
+				foreach(var t in assembly.GetTypes())
+				{
+					if(condition(t))
+					{
+						foreach(var attr in t.GetCustomAttributes<T>(false))
+						{
+							defs.Add(new AttributeDefinition<T>(attr, t));
+						}
+						foreach(var m in t.GetMembers())
+						{
+							foreach(var attr in m.GetCustomAttributes<T>(false))
+							{
+								defs.Add(new AttributeDefinition<T>(attr, m));
+							}
+						}
+					}
+				}
+			}
+			return defs;
 		}
 
 		/// <summary>
@@ -129,7 +277,7 @@ namespace D3T.Utility
 		/// <param name="includeNonPublic">Whether to include private/protected/internal methods in the returned list.</param>
 		public static List<MethodInfo> GetMethodsWithAttribute<T>(bool staticMethods, bool includeNonPublic = true, bool includeStructs = true) where T : Attribute
 		{
-			var condition = GetClassOrStructCondition(includeStructs);
+			var condition = GetClassOrStructCondition(includeStructs ? SearchFlags.Classes | SearchFlags.Structs : SearchFlags.Classes);
 			var bindingFlags = GetBindingFlags(staticMethods, includeNonPublic);
 
 			var methods = new List<MethodInfo>();
@@ -145,28 +293,48 @@ namespace D3T.Utility
 		/// <summary>
 		/// Returns all classes and assembly attributes of the given type.
 		/// </summary>
-		public static List<T> GetClassAndAssemblyAttributes<T>(bool includeUnityAssembly) where T : Attribute
+		public static List<AttributeDefinition<T>> GetClassAndAssemblyAttributes<T>(bool includeUnityAssembly) where T : Attribute
 		{
 			var assemblies = includeUnityAssembly ? GetGameAssembliesIncludingUnity() : GetGameAssemblies();
-			List<T> attributes = new List<T>();
-			attributes.AddRange(assemblies.SelectMany(a => a.GetCustomAttributes<T>()));
-			attributes.AddRange(assemblies.SelectMany(a => a.GetTypes()).SelectMany(t => t.GetCustomAttributes<T>(false)));
-			return attributes;
+			var defs = new List<AttributeDefinition<T>>();
+			foreach(var assembly in assemblies)
+			{
+				foreach(var attr in assembly.GetCustomAttributes<T>())
+				{
+					defs.Add(new AttributeDefinition<T>(attr, assembly));
+				}
+				foreach(var t in assembly.GetTypes())
+				{
+					foreach(var attr in t.GetCustomAttributes<T>(false))
+					{
+						defs.Add(new AttributeDefinition<T>(attr, t));
+					}
+				}
+			}
+			return defs;
 		}
 
-		static Func<Type, bool> GetClassOrStructCondition(bool includeStructs)
+		private static Func<Type, bool> GetClassOrStructCondition(SearchFlags flags)
 		{
-			if(includeStructs)
+			if(flags.HasFlag(SearchFlags.Types))
 			{
-				return (Type x) => x.IsClass || x.IsValueType;
+				return x => x.IsClass || x.IsValueType;
+			}
+			else if(flags.HasFlag(SearchFlags.Classes))
+			{
+				return x => x.IsClass;
+			}
+			else if(flags.HasFlag(SearchFlags.Structs))
+			{
+				return x => x.IsValueType;
 			}
 			else
 			{
-				return (Type x) => x.IsClass;
+				return x => false;
 			}
 		}
 
-		static BindingFlags GetBindingFlags(bool staticOnly, bool inclideNonPublic)
+		private static BindingFlags GetBindingFlags(bool staticOnly, bool inclideNonPublic)
 		{
 			var flags = BindingFlags.Public;
 			flags |= staticOnly ? BindingFlags.Static : BindingFlags.Instance;
