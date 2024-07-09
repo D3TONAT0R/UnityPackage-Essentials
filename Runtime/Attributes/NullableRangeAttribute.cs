@@ -17,5 +17,5 @@ namespace D3T
 			this.min = min;
 			this.max = max;
 		}
-	} 
+	}
 }

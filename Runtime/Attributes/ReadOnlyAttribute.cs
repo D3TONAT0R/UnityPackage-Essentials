@@ -20,5 +20,5 @@ namespace D3T
 		{
 			this.asFields = asFields;
 		}
-	} 
+	}
 }

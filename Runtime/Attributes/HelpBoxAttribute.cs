@@ -7,10 +7,10 @@ namespace D3T
 	/// The type of help box to display.
 	/// </summary>
 	public enum HelpBoxType
-	{ 
+	{
 		None,
 		Info,
-		Warning, 
+		Warning,
 		Error
 	}
 
@@ -18,14 +18,17 @@ namespace D3T
 	/// Add this attribute to a field to draw a help box above it in the inspector.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-	public class HelpBoxAttribute : DecoratorAttribute {
+	public class HelpBoxAttribute : DecoratorAttribute
+	{
 
 		public HelpBoxType type;
 		public string message;
 
 #if UNITY_EDITOR
-		public MessageType MessageType {
-			get {
+		public MessageType MessageType
+		{
+			get
+			{
 				if(type == HelpBoxType.Error) return MessageType.Error;
 				else if(type == HelpBoxType.Warning) return MessageType.Warning;
 				else if(type == HelpBoxType.Info) return MessageType.Info;
@@ -34,9 +37,10 @@ namespace D3T
 		}
 #endif
 
-		public HelpBoxAttribute(string message, HelpBoxType type = HelpBoxType.Info) {
+		public HelpBoxAttribute(string message, HelpBoxType type = HelpBoxType.Info)
+		{
 			this.message = message;
 			this.type = type;
 		}
-	} 
+	}
 }

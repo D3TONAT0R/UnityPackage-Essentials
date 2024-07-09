@@ -16,5 +16,5 @@ namespace D3T
 		{
 			components = requiredComponents;
 		}
-	} 
+	}
 }

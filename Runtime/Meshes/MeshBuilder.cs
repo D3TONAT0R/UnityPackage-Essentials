@@ -22,7 +22,7 @@ namespace D3T.Meshes
 			All = 0b111111
 		}
 
-		const int DEFAULT_CIRCLE_DETAIL = 32;
+		private const int DEFAULT_CIRCLE_DETAIL = 32;
 
 		public List<int> tris = new List<int>();
 		public List<Vector3> normals = new List<Vector3>();

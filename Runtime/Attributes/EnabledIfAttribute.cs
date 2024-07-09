@@ -24,5 +24,5 @@ namespace D3T
 		}
 
 		public virtual bool IsEnabled(object obj) => CheckMemberCondition(obj, memberName, matches);
-	} 
+	}
 }

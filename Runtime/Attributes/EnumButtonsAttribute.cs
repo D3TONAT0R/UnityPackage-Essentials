@@ -10,5 +10,5 @@ namespace D3T
 	public class EnumButtonsAttribute : PropertyAttribute
 	{
 
-	} 
+	}
 }

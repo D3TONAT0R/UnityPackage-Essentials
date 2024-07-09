@@ -9,5 +9,5 @@ namespace D3T.Utility
 	public class MonoInstance : MonoBehaviour
 	{
 
-	} 
+	}
 }

@@ -8,18 +8,19 @@ namespace D3T
 	/// </summary>
 	public enum CharRestrictionType
 	{
-	    None,
+		None,
 		Underscored,
-	    LowercaseUnderscored,
-	    UppercaseUnderscored,
-	    DotPath
+		LowercaseUnderscored,
+		UppercaseUnderscored,
+		DotPath
 	}
 
 	/// <summary>
 	/// Add this attribute to a string field to restrict which characters are allowed in the string.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-	public class CharRestrictionAttribute : PropertyAttribute {
+	public class CharRestrictionAttribute : PropertyAttribute
+	{
 
 		public const string lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
 		public const string uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -31,7 +32,8 @@ namespace D3T
 		public readonly char replacementChar = '_';
 		public bool? forcedCase = null;
 
-		public CharRestrictionAttribute(CharRestrictionType type, string additionalAllowedCharacters = "") {
+		public CharRestrictionAttribute(CharRestrictionType type, string additionalAllowedCharacters = "")
+		{
 			//this.type = type;
 			if(type == CharRestrictionType.Underscored)
 			{
@@ -55,5 +57,5 @@ namespace D3T
 				replacementChar = '.';
 			}
 		}
-	} 
+	}
 }

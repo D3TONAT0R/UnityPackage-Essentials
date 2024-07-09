@@ -19,5 +19,5 @@ namespace D3T.Collections
 		{
 			this.specificTypes = specificTypes;
 		}
-	} 
+	}
 }

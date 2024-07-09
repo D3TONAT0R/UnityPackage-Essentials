@@ -30,66 +30,66 @@ namespace MIConvexHull
 	/// An interface for a structure with nD position.
 	/// </summary>
 	public interface IVertex
-    {
-        /// <summary>
-        /// Position of the vertex.
-        /// </summary>
-        /// <value>The position.</value>
-        double[] Position { get; }
-    }
+	{
+		/// <summary>
+		/// Position of the vertex.
+		/// </summary>
+		/// <value>The position.</value>
+		double[] Position { get; }
+	}
 
-    /// <summary>
-    /// An interface for a structure with nD position.
-    /// </summary>
-    public interface IVertex2D
-    {
-        /// <summary>
-        /// Gets the x.
-        /// </summary>
-        /// <value>The x.</value>
-        double X { get; }
+	/// <summary>
+	/// An interface for a structure with nD position.
+	/// </summary>
+	public interface IVertex2D
+	{
+		/// <summary>
+		/// Gets the x.
+		/// </summary>
+		/// <value>The x.</value>
+		double X { get; }
 
-        /// <summary>
-        /// Gets the y.
-        /// </summary>
-        /// <value>The y.</value>
-        double Y { get; }
-    }
+		/// <summary>
+		/// Gets the y.
+		/// </summary>
+		/// <value>The y.</value>
+		double Y { get; }
+	}
 
-    /// <summary>
-    /// "Default" vertex.
-    /// </summary>
-    /// <seealso cref="MIConvexHull.IVertex" />
-    public class DefaultVertex : IVertex
-    {
-        /// <summary>
-        /// Position of the vertex.
-        /// </summary>
-        /// <value>The position.</value>
-        public double[] Position { get; set; }
-    }
+	/// <summary>
+	/// "Default" vertex.
+	/// </summary>
+	/// <seealso cref="MIConvexHull.IVertex" />
+	public class DefaultVertex : IVertex
+	{
+		/// <summary>
+		/// Position of the vertex.
+		/// </summary>
+		/// <value>The position.</value>
+		public double[] Position { get; set; }
+	}
 
-    /// <summary>
-    /// "Default" 2D vertex.
-    /// </summary>
-    /// <seealso cref="MIConvexHull.IVertex" />
-    public struct DefaultVertex2D : IVertex2D
-    {
-        private double[] p;
+	/// <summary>
+	/// "Default" 2D vertex.
+	/// </summary>
+	/// <seealso cref="MIConvexHull.IVertex" />
+	public struct DefaultVertex2D : IVertex2D
+	{
+		private double[] p;
 
-        public DefaultVertex2D(double[] coordinates) : this()
-        {
-            X = coordinates[0];
-            Y = coordinates[1];
-        }
-        public DefaultVertex2D(double x, double y) : this()
-        {
-            X = x;
-            Y = y;
-        }
+		public DefaultVertex2D(double[] coordinates) : this()
+		{
+			X = coordinates[0];
+			Y = coordinates[1];
+		}
+		public DefaultVertex2D(double x, double y) : this()
+		{
+			X = x;
+			Y = y;
+		}
 
-        public double X { get; private set; }
+		public double X { get; private set; }
 
-        public double Y { get; private set; }
-    }
+		public double Y { get; private set; }
+	}
 }

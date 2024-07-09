@@ -417,7 +417,7 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetweenExcluding(this Vector2 v, Vector2 min, Vector2 max)
 		{
-			return v.x.IsBetweenExcluding(min.x, max.x) 
+			return v.x.IsBetweenExcluding(min.x, max.x)
 				&& v.y.IsBetweenExcluding(min.y, max.y);
 		}
 
@@ -426,8 +426,8 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetweenExcluding(this Vector3 v, Vector3 min, Vector3 max)
 		{
-			return v.x.IsBetweenExcluding(min.x, max.x) 
-				&& v.y.IsBetweenExcluding(min.y, max.y) 
+			return v.x.IsBetweenExcluding(min.x, max.x)
+				&& v.y.IsBetweenExcluding(min.y, max.y)
 				&& v.z.IsBetweenExcluding(min.z, max.z);
 		}
 
@@ -437,8 +437,8 @@ namespace D3T
 		public static bool IsBetweenExcluding(this Vector4 v, Vector4 min, Vector4 max)
 		{
 			return v.x.IsBetweenExcluding(min.x, max.x)
-				&& v.y.IsBetweenExcluding(min.y, max.y) 
-				&& v.z.IsBetweenExcluding(min.z, max.z) 
+				&& v.y.IsBetweenExcluding(min.y, max.y)
+				&& v.z.IsBetweenExcluding(min.z, max.z)
 				&& v.w.IsBetweenExcluding(min.w, max.w);
 		}
 
@@ -456,8 +456,8 @@ namespace D3T
 		/// </summary>
 		public static bool IsBetween(this Vector3 v, Vector3 min, Vector3 max)
 		{
-			return v.x.IsBetween(min.x, max.x) 
-				&& v.y.IsBetween(min.y, max.y) 
+			return v.x.IsBetween(min.x, max.x)
+				&& v.y.IsBetween(min.y, max.y)
 				&& v.z.IsBetween(min.z, max.z);
 		}
 
@@ -468,7 +468,7 @@ namespace D3T
 		{
 			return v.x.IsBetween(min.x, max.x)
 				&& v.y.IsBetween(min.y, max.y)
-				&& v.z.IsBetween(min.z, max.z) 
+				&& v.z.IsBetween(min.z, max.z)
 				&& v.w.IsBetween(min.w, max.w);
 		}
 

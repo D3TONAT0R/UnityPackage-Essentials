@@ -7,6 +7,6 @@ namespace D3T
 	/// </summary>
 	public class LayerPopupAttribute : PropertyAttribute
 	{
-		
+
 	}
 }

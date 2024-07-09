@@ -49,7 +49,7 @@ namespace D3T.Collections
 	/// </summary>
 	/// <typeparam name="K"></typeparam>
 	/// <typeparam name="V"></typeparam>
-	public class UnityDictionary<K, V> : IUnityDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K,V>>
+	public class UnityDictionary<K, V> : IUnityDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K, V>>
 	{
 		protected Dictionary<K, V> dictionary = new Dictionary<K, V>();
 
@@ -60,8 +60,8 @@ namespace D3T.Collections
 
 		public Type KeyType => typeof(K);
 		public Type ValueType => typeof(V);
-		public virtual Dictionary<K,V>.KeyCollection Keys => dictionary.Keys;
-		public virtual Dictionary<K,V>.ValueCollection Values => dictionary.Values;
+		public virtual Dictionary<K, V>.KeyCollection Keys => dictionary.Keys;
+		public virtual Dictionary<K, V>.ValueCollection Values => dictionary.Values;
 		public virtual int Count => dictionary.Count;
 
 		public System.Exception SerializationException { get; private set; }
@@ -71,15 +71,15 @@ namespace D3T.Collections
 
 		public UnityDictionary()
 		{
-			
+
 		}
 
-		public UnityDictionary(IDictionary<K,V> dictionary)
+		public UnityDictionary(IDictionary<K, V> dictionary)
 		{
 			this.dictionary = new Dictionary<K, V>(dictionary);
 		}
 
-		public UnityDictionary(Dictionary<K,V> dictionary)
+		public UnityDictionary(Dictionary<K, V> dictionary)
 		{
 			this.dictionary = new Dictionary<K, V>(dictionary);
 		}
@@ -109,7 +109,7 @@ namespace D3T.Collections
 				_values = dictionary.Values.ToList();
 			}
 		}
-		
+
 		//TODO: has problems when keys are of type UnityEngine.Object (null keys)
 		//TODO: unable to delete a key when dictionary errors are present (e.g. duplicate keys)
 		public void OnAfterDeserialize()

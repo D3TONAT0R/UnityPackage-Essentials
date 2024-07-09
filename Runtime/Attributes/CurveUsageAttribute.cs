@@ -33,7 +33,7 @@ namespace D3T
 			color = Color.green;
 		}
 
-		public CurveUsageAttribute(float xMin, float yMin, float xMax, float yMax, CurveColor color)  : this(xMin, yMin, xMax, yMax)
+		public CurveUsageAttribute(float xMin, float yMin, float xMax, float yMax, CurveColor color) : this(xMin, yMin, xMax, yMax)
 		{
 			this.color = GetColor(color);
 		}
@@ -58,15 +58,15 @@ namespace D3T
 			Color col;
 			switch(color)
 			{
-				case CurveColor.Red: col =  Color.red; break;
-				case CurveColor.Green: col =  Color.green; break;
-				case CurveColor.Blue: col =  Color.blue; break;
-				case CurveColor.Yellow: col =  Color.yellow; break;
-				case CurveColor.Magenta: col =  Color.magenta; break;
-				case CurveColor.Cyan: col =  Color.cyan; break;
-				case CurveColor.White: col =  Color.white; break;
-				case CurveColor.Gray: col =  Color.gray; break;
-				default: col =  Color.white; break;
+				case CurveColor.Red: col = Color.red; break;
+				case CurveColor.Green: col = Color.green; break;
+				case CurveColor.Blue: col = Color.blue; break;
+				case CurveColor.Yellow: col = Color.yellow; break;
+				case CurveColor.Magenta: col = Color.magenta; break;
+				case CurveColor.Cyan: col = Color.cyan; break;
+				case CurveColor.White: col = Color.white; break;
+				case CurveColor.Gray: col = Color.gray; break;
+				default: col = Color.white; break;
 			}
 			return Color.Lerp(Color.white, col, 0.95f);
 		}

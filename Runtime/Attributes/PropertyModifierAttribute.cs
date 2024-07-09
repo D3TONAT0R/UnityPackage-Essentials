@@ -11,7 +11,7 @@ namespace D3T
 	[AttributeUsage(AttributeTargets.Field)]
 	public abstract class PropertyModifierAttribute : PropertyAttribute
 	{
-		
+
 		protected static bool CheckMemberCondition(object target, string memberName, object[] matches)
 		{
 			var m = ReflectionUtility.FindMemberInType(target.GetType(), memberName);
@@ -56,5 +56,5 @@ namespace D3T
 				return true;
 			}
 		}
-	} 
+	}
 }

@@ -104,5 +104,5 @@ namespace D3T
 		{
 			return terrainPosition + Vector3.Scale(tree.position, terrainSize);
 		}
-	} 
+	}
 }

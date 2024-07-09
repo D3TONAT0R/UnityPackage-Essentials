@@ -185,7 +185,7 @@ namespace D3T
 			}
 			return shuffled;
 		}
-		
+
 		/// <summary>
 		/// Randomly shuffles the given list.
 		/// </summary>

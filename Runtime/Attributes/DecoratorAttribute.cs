@@ -9,6 +9,6 @@ namespace D3T
 	[AttributeUsage(AttributeTargets.Field)]
 	public abstract class DecoratorAttribute : PropertyAttribute
 	{
-		
+
 	}
 }

@@ -14,5 +14,5 @@ namespace D3T
 		{
 			this.fullWidth = fullWidth;
 		}
-	} 
+	}
 }

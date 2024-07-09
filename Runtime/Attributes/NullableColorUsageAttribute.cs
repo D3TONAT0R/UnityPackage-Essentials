@@ -22,5 +22,5 @@ namespace D3T
 			this.showAlpha = showAlpha;
 			this.hdr = hdr;
 		}
-	} 
+	}
 }
