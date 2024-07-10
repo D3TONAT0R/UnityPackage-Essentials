@@ -11,6 +11,8 @@ namespace D3T
 	{
 		internal static Mesh discMesh;
 		internal static Mesh cylinderMesh;
+		internal static Mesh capsuleCenterMesh;
+		internal static Mesh capsuleCapMesh;
 
 		internal static GUIStyle labelStyle;
 
@@ -23,8 +25,16 @@ namespace D3T
 			discMesh = builder.CreateMesh();
 
 			builder.Clear();
-			builder.AddCylinder(Vector3.zero, 1, 1, 16);
+			builder.AddCylinder(Vector3.zero, 1, 1, 16, true);
 			cylinderMesh = builder.CreateMesh();
+
+			builder.Clear();
+			builder.AddCylinder(Vector3.zero, 1, 1, 16, false);
+			capsuleCenterMesh = builder.CreateMesh();
+
+			builder.Clear();
+			builder.AddHemisphere(Vector3.zero, 1, 0.5f, 16, 16);
+			capsuleCapMesh = builder.CreateMesh();
 		}
 
 		/// <summary>
@@ -95,6 +105,15 @@ namespace D3T
 		}
 
 		/// <summary>
+		/// Draws a wireframe cylinder gizmo.
+		/// </summary>
+		public static void DrawWireCylinder(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawWireCylinder(center, rotation, radius, height);
+		}
+
+		/// <summary>
 		/// Draws a solid cylinder gizmo.
 		/// </summary>
 		public static void DrawCylinder(Vector3 center, Quaternion rotation, float radius, float height)
@@ -103,6 +122,77 @@ namespace D3T
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
 			Gizmos.DrawMesh(cylinderMesh);
 			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a solid cylinder gizmo.
+		/// </summary>
+		public static void DrawCylinder(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawCylinder(center, rotation, radius, height);
+		}
+
+		/// <summary>
+		/// Draws a wireframe capsule gizmo.
+		/// </summary>
+		public static void DrawWireCapsule(Vector3 center, Quaternion rotation, float radius, float height)
+		{
+			height = Mathf.Max(height - radius * 2, 0);
+			var lastMatrix = Gizmos.matrix;
+			rotation *= Quaternion.Euler(90, 0, 0);
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
+			float h2 = height * 0.5f;
+			DrawWireCircle(Vector3.back * h2, Vector3.back, radius);
+			DrawArc(Vector3.back * h2, Vector3.up, Vector3.back, radius, -90, 90);
+			DrawArc(Vector3.back * h2, Vector3.right, Vector3.back, radius, -90, 90);
+			DrawWireCircle(Vector3.forward * h2, Vector3.forward, radius);
+			DrawArc(Vector3.forward * h2, Vector3.up, Vector3.forward, radius, -90, 90);
+			DrawArc(Vector3.forward * h2, Vector3.right, Vector3.forward, radius, -90, 90);
+			if(height > 0)
+			{
+				DrawLineFrom(new Vector3(-radius, 0, -h2), Vector3.forward, height);
+				DrawLineFrom(new Vector3(radius, 0, -h2), Vector3.forward, height);
+				DrawLineFrom(new Vector3(0, -radius, -h2), Vector3.forward, height);
+				DrawLineFrom(new Vector3(0, radius, -h2), Vector3.forward, height);
+			}
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a wireframe capsule gizmo.
+		/// </summary>
+		public static void DrawWireCapsule(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawWireCapsule(center, rotation, radius, height);
+		}
+
+		/// <summary>
+		/// Draws a solid capsule gizmo.
+		/// </summary>
+		public static void DrawCapsule(Vector3 center, Quaternion rotation, float radius, float height)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
+			height = Mathf.Max(0, height - radius * 2);
+			if(height > 0)
+			{
+				Gizmos.DrawMesh(capsuleCenterMesh, Vector3.zero, Quaternion.identity, new Vector3(radius, height, radius));
+			}
+			float h2 = 0f;
+			Gizmos.DrawMesh(capsuleCapMesh, Vector3.up * h2, Quaternion.identity, Vector3.one * radius);
+			Gizmos.DrawMesh(capsuleCapMesh, Vector3.down * h2, Quaternion.Euler(180, 0, 0), Vector3.one * radius);
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a solid capsule gizmo.
+		/// </summary>
+		public static void DrawCapsule(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawCapsule(center, rotation, radius, height);
 		}
 
 		/// <summary>
@@ -436,5 +526,16 @@ namespace D3T
 			}
 		}
 		#endregion
+
+		private static Quaternion GetAxisRotation(Axis a)
+		{
+			switch(a)
+			{
+				case Axis.X: return Quaternion.Euler(-90, -90, 0);
+				case Axis.Y: return Quaternion.identity;
+				case Axis.Z: return Quaternion.Euler(-90, 0, 180);
+				default: throw new System.InvalidOperationException();
+			}
+		}
 	}
 }
