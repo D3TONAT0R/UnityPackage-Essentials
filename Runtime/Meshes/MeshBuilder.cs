@@ -295,6 +295,7 @@ namespace D3T.Meshes
 			const float HALF_PI = Mathf.PI / 2;
 			int offset = verts.Count;
 			lonDetail /= 4;
+			float heightRatio = height * 2f / radius;
 			for(int v = 0; v <= lonDetail; v++)
 			{
 				var vAngle = HALF_PI + (v / (float)lonDetail * HALF_PI);
@@ -305,8 +306,8 @@ namespace D3T.Meshes
 					float z = Mathf.Cos(hAngle);
 					float y = -Mathf.Cos(vAngle);
 					float m = Mathf.Sin(vAngle);
-					var unitVector = new Vector3(x * m, y, z * m);
-					AddVertex(TransformPoint(pos + unitVector * radius + Vector3.up * height));
+					var unitVector = new Vector3(x * m, y * heightRatio, z * m);
+					AddVertex(TransformPoint(pos + unitVector * radius));
 					normals.Add(TransformVector(unitVector));
 					uv0.Add(new Vector2(i / (float)latDetail, v / (float)lonDetail));
 				}

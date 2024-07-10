@@ -66,6 +66,20 @@ namespace D3T
 		}
 
 		/// <summary>
+		/// Returns the axis direction from this axis.
+		/// </summary>
+		public static AxisDirection GetAxisDirection(this Axis a)
+		{
+			switch(a)
+			{
+				case Axis.X: return AxisDirection.XPos;
+				case Axis.Y: return AxisDirection.YPos;
+				case Axis.Z: return AxisDirection.ZPos;
+				default: throw new InvalidOperationException();
+			}
+		}
+
+		/// <summary>
 		/// Returns a direction vector that represents this axis and direction.
 		/// </summary>
 		public static Vector3 GetDirectionVector(this AxisDirection d)
