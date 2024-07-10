@@ -594,7 +594,6 @@ namespace D3T
 			}
 		}
 
-		//TODO: negative axis directions need testing
 		private static Quaternion GetAxisRotation(AxisDirection a)
 		{
 			switch(a)

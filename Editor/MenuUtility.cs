@@ -106,7 +106,6 @@ namespace D3TEditor
 
 		public static void ReorganizeAssetMenu()
 		{
-			//TODO: remove unity menus & add them manually again
 
 			RemoveMenuItem("Assets/Create/Playables/Playable Behaviour C# Script");
 			RemoveMenuItem("Assets/Create/Playables/Playable Asset C# Script");

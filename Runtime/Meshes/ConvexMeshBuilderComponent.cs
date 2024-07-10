@@ -10,9 +10,6 @@ namespace D3T.Meshes
 	[DisallowMultipleComponent]
 	public class ConvexMeshBuilderComponent : MonoBehaviour
 	{
-		//TODO: do some refactoring here
-
-
 		public enum TargetComponents
 		{
 			None,

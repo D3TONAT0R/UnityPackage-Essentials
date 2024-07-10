@@ -11,8 +11,8 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 namespace D3TEditor.Tools {
 
 	//TODO: needs some rework
-	[EditorTool("Tape Measure")]
-	internal class TapeMeasure : EditorToolBase {
+	[EditorTool("Measure")]
+	internal class MeasuringTool : EditorToolBase {
 
 		public Vector3 p1;
 		public Vector3 p2;
