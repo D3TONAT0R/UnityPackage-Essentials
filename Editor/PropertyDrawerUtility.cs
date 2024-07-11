@@ -1,5 +1,4 @@
 ﻿using D3T;
-using D3T.Utility;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using static D3T.Utility.ReflectionUtility;
+using static D3T.ReflectionUtility;
 
 namespace D3TEditor
 {

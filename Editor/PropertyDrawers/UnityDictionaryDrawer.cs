@@ -5,7 +5,6 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using D3T.Utility;
 using System.Reflection;
 
 namespace D3TEditor.PropertyDrawers

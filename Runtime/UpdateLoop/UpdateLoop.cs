@@ -1,12 +1,12 @@
-﻿using D3T.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
+using UnityPlayerLoop = UnityEngine.LowLevel.PlayerLoop;
 
-namespace D3T
+namespace D3T.PlayerLoop
 {
 	/// <summary>
 	/// Utility class for adding subsystems to the game loop.
@@ -277,7 +277,7 @@ namespace D3T
 		[RuntimeInitializeOnLoadMethod]
 		private static void Init()
 		{
-			var loop = PlayerLoop.GetCurrentPlayerLoop();
+			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
 
 			InsertSubsystem(ref loop, typeof(PreUpdate), typeof(UpdateLoopPreUpdateEvent), () => Invoke(preUpdate), null, false);
 			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopUpdateEvent), () => { Invoke(update); InvokeOnce(updateOnce); }, typeof(Update.ScriptRunBehaviourUpdate), true);
@@ -288,7 +288,7 @@ namespace D3T
 			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopFixedUpdateEvent), () => Invoke(fixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), true);
 			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPostFixedUpdateEvent), () => Invoke(postFixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), false);
 
-			PlayerLoop.SetPlayerLoop(loop);
+			UnityPlayerLoop.SetPlayerLoop(loop);
 
 			UpdateLoopScriptInstance.Init();
 			SubscribeMethodsWithAttributes();
@@ -345,9 +345,9 @@ namespace D3T
 		/// </summary>
 		public static void AddSubsystemFirst(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
 		{
-			var loop = PlayerLoop.GetCurrentPlayerLoop();
+			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
 			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, true);
-			PlayerLoop.SetPlayerLoop(loop);
+			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
 		/// <summary>
@@ -355,9 +355,9 @@ namespace D3T
 		/// </summary>
 		public static void AddSubsystemLast(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
 		{
-			var loop = PlayerLoop.GetCurrentPlayerLoop();
+			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
 			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, false);
-			PlayerLoop.SetPlayerLoop(loop);
+			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
 		/// <summary>
@@ -365,9 +365,9 @@ namespace D3T
 		/// </summary>
 		public static void AddSubsystemBefore(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget, Type beforeSubSystem)
 		{
-			var loop = PlayerLoop.GetCurrentPlayerLoop();
+			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
 			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, beforeSubSystem, false);
-			PlayerLoop.SetPlayerLoop(loop);
+			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
 		private static void InsertSubsystem(ref PlayerLoopSystem root, Type subSystemRoot, Type typeToAdd, PlayerLoopSystem.UpdateFunction invocationTarget, Type referenceSubSystem, bool before)
@@ -466,7 +466,7 @@ namespace D3T
 		public static void LogCurrentPlayerLoop(bool includeFunctionPtrs)
 		{
 			var sb = new StringBuilder();
-			PrintLoopRecursive(sb, PlayerLoop.GetCurrentPlayerLoop(), 0, includeFunctionPtrs);
+			PrintLoopRecursive(sb, UnityPlayerLoop.GetCurrentPlayerLoop(), 0, includeFunctionPtrs);
 			Debug.Log(sb.ToString());
 		}
 

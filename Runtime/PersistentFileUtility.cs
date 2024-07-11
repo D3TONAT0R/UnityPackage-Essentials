@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace D3T.Utility
+namespace D3T
 {
 	/// <summary>
 	/// Contains helper classes for getting common file paths to save persistent files in.

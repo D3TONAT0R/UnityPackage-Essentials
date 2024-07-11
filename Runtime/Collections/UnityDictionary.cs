@@ -126,8 +126,7 @@ namespace D3T.Collections
 			*/
 		}
 
-		//TODO: has problems when keys are of type UnityEngine.Object (null keys)
-		//TODO: unable to delete a key when dictionary errors are present (e.g. duplicate keys)
+		//TODO: has problems when keys are of type UnityEngine.Object
 		public void OnAfterDeserialize()
 		{
 			SerializationException = null;

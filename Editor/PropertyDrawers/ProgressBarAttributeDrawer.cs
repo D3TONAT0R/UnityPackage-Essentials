@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEditor;
-using D3TEditor;
 using UnityEngine.UIElements;
+using D3T;
 
-namespace D3T
+namespace D3TEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(ProgressBarAttribute))]
 	public class ProgressBarAttributeDrawer : PropertyDrawer

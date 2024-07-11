@@ -1,8 +1,5 @@
 ﻿using D3T.Meshes;
-using D3T.Utility;
 using D3TEditor.Tools;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 #if UNITY_2020_1_OR_NEWER

@@ -1,6 +1,4 @@
-﻿using D3T;
-using D3T.Meshes;
-using D3T.Utility;
+﻿using D3T.Meshes;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
