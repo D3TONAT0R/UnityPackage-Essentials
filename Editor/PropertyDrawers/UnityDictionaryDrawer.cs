@@ -5,8 +5,8 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
 using D3T.Utility;
+using System.Reflection;
 
 namespace D3TEditor.PropertyDrawers
 {
@@ -21,6 +21,7 @@ namespace D3TEditor.PropertyDrawers
 		{
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
 			var target = PropertyDrawerUtility.GetTargetObjectOfProperty(property);
+			var dictionary = (IUnityDictionary)target;
 			bool preferMonospaceKeys = (bool)target.GetType().GetProperty(nameof(UnityDictionary<Null, Null>.UseMonospaceKeyLabels)).GetValue(target);
 			var dictionaryType = target.GetType();
 			var polymorphicAttr = dictionaryType.GetCustomAttribute<PolymorphicAttribute>();
@@ -52,7 +53,7 @@ namespace D3TEditor.PropertyDrawers
 					}
 				}
 			}
-			var exception = ((IUnityDictionary)target).SerializationException;
+			var exception = dictionary.SerializationException;
 			bool valid = exception == null;
 			position.height = EditorGUIUtility.singleLineHeight;
 			var lColor = GUI.color;
@@ -83,25 +84,33 @@ namespace D3TEditor.PropertyDrawers
 					var kObj = PropertyDrawerUtility.GetTargetObjectOfProperty(k);
 					var v = values.GetArrayElementAtIndex(i);
 					position.NextProperty();
-					lColor = DrawElement(position, property, target, preferMonospaceKeys, dictionaryType, polymorphic, indentLevel, so, keys, duplicates, i, k, kObj, v);
+					lColor = DrawElement(position, property, dictionary, preferMonospaceKeys, dictionaryType, polymorphic, indentLevel, so, keys, duplicates, i, k, kObj, v);
 				}
 				position.NextProperty();
-				DrawAddButton(position, target, dictionaryType, polymorphic, so);
+				DrawAddButton(position, dictionary, dictionaryType, polymorphic, so);
 				EditorGUI.indentLevel--;
 			}
 			//This needs to be done after the foldout to prevent losing focus on text fields
+			var headerLabelPos = headerPos;
+			headerLabelPos.xMin += EditorGUIUtility.labelWidth + 2;
 			if(exception != null)
 			{
-				var p2 = headerPos;
-				p2.xMin += EditorGUIUtility.labelWidth + 2;
-				EditorGUI.HelpBox(p2, exception.Message, MessageType.None);
+				//Show error message
+				EditorGUI.HelpBox(headerLabelPos, exception.Message, MessageType.None);
 				//Tooltip
-				EditorGUI.LabelField(p2, new GUIContent("", exception.Message));
+				EditorGUI.LabelField(headerLabelPos, new GUIContent("", exception.Message));
+			}
+			else
+			{
+				//Show information about the dictionary
+				var keyType = dictionary.KeyType;
+				var valueType = dictionary.ValueType;
+				GUI.Label(headerLabelPos, $"{keyType.Name} / {valueType.Name} ({dictionary.Count} Elements)", EditorStyles.miniLabel);
 			}
 			EditorGUI.EndProperty();
 		}
 
-		private static void DrawAddButton(Rect position, object target, Type dictionaryType, bool polymorphic, SerializedObject so)
+		private static void DrawAddButton(Rect position, IUnityDictionary dictionary, Type dictionaryType, bool polymorphic, SerializedObject so)
 		{
 			position.SplitHorizontalRight(16, out _, out var addRect);
 			if(polymorphic)
@@ -114,7 +123,7 @@ namespace D3TEditor.PropertyDrawers
 						menu.AddItem(new GUIContent(GetTypeName(t)), false,
 						() =>
 						{
-							AddItem(target, so, t);
+							AddItem(dictionary, so, t);
 						}
 						);
 					}
@@ -127,7 +136,7 @@ namespace D3TEditor.PropertyDrawers
 					var menu = new GenericMenu();
 					menu.AddItem("Clear Dictionary", true, false, () =>
 					{
-						target.GetType().GetMethod("Clear").Invoke(target, new object[] { });
+						dictionary.Clear();
 					});
 					menu.ShowAsContext();
 				}
@@ -136,13 +145,13 @@ namespace D3TEditor.PropertyDrawers
 			{
 				if(GUI.Button(addRect, EditorGUIUtility.IconContent("d_Toolbar Plus"), "IconButton"))
 				{
-					var valueType = ((IUnityDictionary)target).ValueType;
-					EditorApplication.delayCall += () => AddItem(target, so, valueType);
+					var valueType = dictionary.ValueType;
+					EditorApplication.delayCall += () => AddItem(dictionary, so, valueType);
 				}
 			}
 		}
 
-		private static Color DrawElement(Rect position, SerializedProperty property, object target, bool preferMonospaceKeys, Type dictionaryType, bool polymorphic, int indentLevel, SerializedObject so, SerializedProperty keys, List<object> duplicates, int i, SerializedProperty k, object kObj, SerializedProperty v)
+		private static Color DrawElement(Rect position, SerializedProperty property, IUnityDictionary dictionary, bool preferMonospaceKeys, Type dictionaryType, bool polymorphic, int indentLevel, SerializedObject so, SerializedProperty keys, List<object> duplicates, int i, SerializedProperty k, object kObj, SerializedProperty v)
 		{
 			Color lColor;
 			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var keyRect, out var valueRect, 0);
@@ -210,30 +219,27 @@ namespace D3TEditor.PropertyDrawers
 						menu.AddItem(root + GetTypeName(t), true, currentType == t, () =>
 						{
 							Undo.RecordObject(so.targetObject, "Change Element Type");
-							target.GetType().GetProperties().First(x => x.GetIndexParameters().Length > 0)
-								.SetValue(target, Activator.CreateInstance(t), new object[] { kObj });
+							dictionary.Editor_ReplaceValue(kObj, Activator.CreateInstance(t));
 						});
 					}
 				}
-				menu.AddItem("Delete Element", true, false, () => DeleteItem(target, property, kObj, index));
+				menu.AddItem("Delete Element", true, false, () => DeleteItem(dictionary, property, i));
 				menu.ShowAsContext();
 			}
 
 			return lColor;
 		}
 
-		private static void AddItem(object target, SerializedObject so, Type valueType)
+		private static void AddItem(IUnityDictionary dictionary, SerializedObject so, Type valueType)
 		{
-			var adder = target.GetType().GetMethod(nameof(UnityDictionary<Null, Null>.Editor_Add));
 			Undo.RecordObject(so.targetObject, "Add Dictionary Element");
-			adder.Invoke(target, new object[] { valueType });
+			dictionary.Editor_Add(valueType);
 		}
 
-		private static void DeleteItem(object target, SerializedProperty prop, object key, int index)
+		private static void DeleteItem(IUnityDictionary dictionary, SerializedProperty prop, int index)
 		{
-			var remover = target.GetType().GetMethod(nameof(UnityDictionary<Null, Null>.Remove));
 			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
-			remover.Invoke(target, new object[] { key });
+			dictionary.Editor_Remove(index);
 			
 		}
 
