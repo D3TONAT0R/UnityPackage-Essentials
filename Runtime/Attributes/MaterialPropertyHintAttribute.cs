@@ -1,4 +1,7 @@
 using System;
+#if UNITY_2022_2_OR_NEWER
+using UnityEngine;
+#endif
 
 namespace D3T
 {
