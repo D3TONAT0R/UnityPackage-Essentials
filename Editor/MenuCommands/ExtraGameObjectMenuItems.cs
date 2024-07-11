@@ -1,4 +1,4 @@
-﻿using UnityEssentials;
+using UnityEssentials;
 using UnityEssentials.Meshes;
 using System;
 using System.Collections.Generic;

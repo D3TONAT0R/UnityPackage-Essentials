@@ -1,4 +1,4 @@
-﻿using UnityEssentials.Meshes;
+using UnityEssentials.Meshes;
 using UnityEssentialsEditor.Tools;
 using UnityEditor;
 using UnityEngine;
