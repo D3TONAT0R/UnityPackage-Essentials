@@ -241,7 +241,6 @@ namespace D3T.Meshes
 		/// <summary>
 		/// Adds a sphere to the mesh.
 		/// </summary>
-		//TODO: sphere normals broken
 		public void AddSphere(Vector3 pos, float radius, int latDetail = DEFAULT_CIRCLE_DETAIL, int lonDetail = DEFAULT_CIRCLE_DETAIL)
 		{
 			int offset = verts.Count;
@@ -258,10 +257,12 @@ namespace D3T.Meshes
 					float m = Mathf.Sin(vAngle);
 					var unitVector = new Vector3(x * m, y, z * m);
 					AddVertex(TransformPoint(pos + unitVector * radius));
-					Vector3 normal;
+					Vector3 normal = unitVector;
+					/*
 					if(v == 0) normal = Vector3.down;
 					else if(v == lonDetail) normal = Vector3.up;
 					else normal = unitVector;
+					*/
 					normals.Add(TransformVector(normal));
 					uv0.Add(new Vector2(i / (float)latDetail, v / (float)lonDetail));
 				}
@@ -479,7 +480,6 @@ namespace D3T.Meshes
 		/// <summary>
 		/// Adds a vertical cylinder to the mesh.
 		/// </summary>
-		//TODO: cylinder normals are wrong (distorted and seam on one side)
 		public void AddCylinder(Vector3 pos, float radius1, float radius2, float height, int detail = DEFAULT_CIRCLE_DETAIL, bool caps = true)
 		{
 			if(detail < 3 || detail > 256)
@@ -537,13 +537,15 @@ namespace D3T.Meshes
 				tris.Add(bU + tempVertexCache.Count - 1);
 			}
 
+			float sideNormalY = (radius2 - radius1) / height;
 			for(int i = 0; i < tempVertexCache.Count; i++)
 			{
 				int bM = verts.Count;
 				AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius1).XZY().WithY(-h2)));
 				AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius2).XZY().WithY(h2)));
-				normals.Add(TransformVector(tempVertexCache[i].normalized.XZY()));
-				normals.Add(TransformVector(tempVertexCache[i].normalized.XZY()));
+				Vector3 normal = tempVertexCache[i].normalized.XZY().WithY(sideNormalY).normalized;
+				normals.Add(TransformVector(normal));
+				normals.Add(TransformVector(normal));
 				uv0.Add(new Vector2(i / (float)tempVertexCache.Count, 0));
 				uv0.Add(new Vector2(i / (float)tempVertexCache.Count, 1));
 				tris.Add(bM);
@@ -558,8 +560,9 @@ namespace D3T.Meshes
 			AddVertex(TransformPoint(pos + (tempVertexCache[0] * radius2).XZY().WithY(h2)));
 			uv0.Add(new Vector2(1, 0));
 			uv0.Add(new Vector2(1, 1));
-			normals.Add(TransformVector(tempVertexCache[0].normalized.XZY()));
-			normals.Add(TransformVector(tempVertexCache[0].normalized.XZY()));
+			Vector3 normal1 = tempVertexCache[0].normalized.XZY().WithY(sideNormalY).normalized;
+			normals.Add(TransformVector(normal1));
+			normals.Add(TransformVector(normal1));
 		}
 
 		/// <summary>
