@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using UnityEditor.ProjectWindowCallback;
-using UnityEditor;
+﻿using System;
 using System.IO;
-using System;
+using UnityEditor;
+using UnityEditor.ProjectWindowCallback;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace D3TEditor

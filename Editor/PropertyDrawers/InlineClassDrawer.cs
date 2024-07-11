@@ -1,8 +1,8 @@
-using UnityEngine;
 using D3T;
-using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 namespace D3TEditor
 {

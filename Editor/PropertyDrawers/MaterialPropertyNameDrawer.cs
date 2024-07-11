@@ -84,7 +84,7 @@ namespace D3TEditor.PropertyDrawers
 				}
 				if(names.Count > 0)
 				{
-					foreach(var propName in names.Distinct()) 
+					foreach(var propName in names.Distinct())
 					{
 						if(propName.StartsWith("unity_"))
 						{
@@ -138,7 +138,7 @@ namespace D3TEditor.PropertyDrawers
 		{
 			switch(t)
 			{
-				case UnityEngine.Rendering.ShaderPropertyType.Color: 
+				case UnityEngine.Rendering.ShaderPropertyType.Color:
 				case UnityEngine.Rendering.ShaderPropertyType.Vector:
 					return MaterialPropertyType.Vector;
 				case UnityEngine.Rendering.ShaderPropertyType.Float:

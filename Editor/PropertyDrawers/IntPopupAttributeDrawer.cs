@@ -1,6 +1,4 @@
 ﻿using D3T;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +8,7 @@ namespace D3TEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(IntPopupAttribute), true)]
 	public class IntPopupAttributeDrawer : PropertyDrawer
 	{
-		const int maxItemCount = 20;
+		private const int maxItemCount = 20;
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{

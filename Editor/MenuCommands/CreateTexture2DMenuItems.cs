@@ -1,7 +1,5 @@
 using UnityEditor;
 using UnityEngine;
-using System.IO;
-using UnityEditor.ProjectWindowCallback;
 
 namespace D3TEditor
 {

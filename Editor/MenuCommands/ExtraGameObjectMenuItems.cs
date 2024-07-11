@@ -78,7 +78,7 @@ namespace D3TEditor
 			return go;
 		}
 
-		static GameObject CreateChild(GameObject parent, string name, params Type[] components)
+		private static GameObject CreateChild(GameObject parent, string name, params Type[] components)
 		{
 			GameObject child = new GameObject(name, components);
 			child.transform.parent = parent.transform;
@@ -97,5 +97,5 @@ namespace D3TEditor
 
 			methodInfo.Invoke(sceneHierarchy, new object[] { obj.GetInstanceID(), expand });
 		}
-	} 
+	}
 }

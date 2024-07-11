@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace D3TEditor.PropertyDrawers
@@ -25,5 +24,5 @@ namespace D3TEditor.PropertyDrawers
 			return base.GetPropertyHeight(property, label);
 		}
 		*/
-	} 
+	}
 }

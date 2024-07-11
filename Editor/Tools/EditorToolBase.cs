@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-#if UNITY_2020_1_OR_NEWER
+﻿#if UNITY_2020_1_OR_NEWER
 using ToolManager = UnityEditor.EditorTools.ToolManager;
 #else
 using ToolManager = UnityEditor.EditorTools.EditorTools;
@@ -8,15 +6,14 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.PackageManager.UI;
 
 namespace D3TEditor.Tools
 {
-    public abstract class EditorToolBase : EditorTool
-    {
-        public abstract bool ShowToolWindow { get; }
-        public virtual string ToolWindowTitle => ObjectNames.NicifyVariableName(GetType().Name);
-        public virtual int ToolWindowWidth => 250;
+	public abstract class EditorToolBase : EditorTool
+	{
+		public abstract bool ShowToolWindow { get; }
+		public virtual string ToolWindowTitle => ObjectNames.NicifyVariableName(GetType().Name);
+		public virtual int ToolWindowWidth => 250;
 		public virtual bool EscapeKeyDeactivatesTool => true;
 
 		private Rect lastWindowRect;
@@ -194,5 +191,5 @@ namespace D3TEditor.Tools
 		{
 			Event.current.Use();
 		}
-	} 
+	}
 }

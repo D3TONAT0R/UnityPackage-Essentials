@@ -70,7 +70,7 @@ namespace D3TEditor.PropertyDrawers
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.ObjectReference)) return;
-			if (errorString.Length > 0)
+			if(errorString.Length > 0)
 			{
 				var hr = position;
 				hr.xMin += EditorGUIUtility.labelWidth;
@@ -86,7 +86,7 @@ namespace D3TEditor.PropertyDrawers
 			float h = EditorGUIUtility.singleLineHeight;
 			if(property.propertyType != SerializedPropertyType.ObjectReference) return h;
 			CheckTarget(property);
-			if (errorString.Length > 0)
+			if(errorString.Length > 0)
 			{
 				h += +EditorGUIUtility.standardVerticalSpacing + 30;
 				//h += EditorStyles.helpBox.CalcHeight(new GUIContent(errorString), EditorGUIUtility.fieldWidth) + EditorGUIUtility.standardVerticalSpacing;

@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using D3T;
 using UnityEditor;
-using D3T;
+using UnityEngine;
 
 namespace D3TEditor.MaterialPropertyDrawers
 {
-    public class ShowAsVector2Drawer : MaterialPropertyDrawer
-    {
+	public class ShowAsVector2Drawer : MaterialPropertyDrawer
+	{
 		public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
@@ -23,8 +21,8 @@ namespace D3TEditor.MaterialPropertyDrawers
 		}
 	}
 
-    public class ShowAsVector3Drawer : MaterialPropertyDrawer
-    {
+	public class ShowAsVector3Drawer : MaterialPropertyDrawer
+	{
 		public override void OnGUI(Rect position, MaterialProperty prop, GUIContent label, MaterialEditor editor)
 		{
 			EditorGUI.showMixedValue = prop.hasMixedValue;
@@ -42,7 +40,7 @@ namespace D3TEditor.MaterialPropertyDrawers
 
 	public class NamedVectorDrawer : MaterialPropertyDrawer
 	{
-		string[] names;
+		private string[] names;
 
 		public NamedVectorDrawer(string names)
 		{

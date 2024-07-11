@@ -79,7 +79,7 @@ namespace D3TEditor
 			ctx.AddObjectToAsset("gradient", texture);
 		}
 
-		Color32 SampleAt(float pos)
+		private Color32 SampleAt(float pos)
 		{
 			Color sample;
 			if(inputType == InputType.Gradient)
@@ -111,7 +111,7 @@ namespace D3TEditor
 			}
 		}
 
-		float GetSamplePos(Vector2 uv, GradientMode m)
+		private float GetSamplePos(Vector2 uv, GradientMode m)
 		{
 			switch(m)
 			{
@@ -132,5 +132,5 @@ namespace D3TEditor
 				default: return 0;
 			}
 		}
-	} 
+	}
 }

@@ -1,7 +1,5 @@
-﻿using UnityEngine;
-using D3T;
-using UnityEditor;
-using System.IO;
+﻿using System.IO;
+using UnityEngine;
 
 namespace D3TEditor
 {
@@ -22,9 +20,9 @@ namespace D3TEditor
 
 		public bool removeDefaultScriptMenu = true;
 		public string defaultScriptNamespace = "MyNamespace";
-		#if UNITY_2020_2_OR_NEWER
+#if UNITY_2020_2_OR_NEWER
 		[NonReorderable]
-		#endif
+#endif
 		public string[] additionalDefaultUsings = new string[0];
 		[Header("Menu Management")]
 		public bool reorganizeAssetMenu = true;
@@ -49,7 +47,7 @@ namespace D3TEditor
 
 		public void Validate()
 		{
-			
+
 		}
 
 		public void SaveModifiedProperties()

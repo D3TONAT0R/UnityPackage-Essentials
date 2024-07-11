@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -12,11 +11,11 @@ namespace D3TEditor
 		[MenuItem("Edit/Duplicate Custom %#d", priority = 120)]
 		public static void DuplicateGameObjectCommand()
 		{
-			if (Selection.activeGameObject is GameObject)
+			if(Selection.activeGameObject is GameObject)
 			{
 				var selection = new List<Object>();
 				var objectsToDuplicate = new List<GameObject>(Selection.gameObjects);
-				foreach (var go in objectsToDuplicate)
+				foreach(var go in objectsToDuplicate)
 				{
 					//Duplicate object
 					GameObject duplicate = Duplicate(go);
@@ -28,7 +27,7 @@ namespace D3TEditor
 					//Select new object
 					selection.Add(duplicate);
 					//Register Undo
-					if (Selection.gameObjects.Length == 1)
+					if(Selection.gameObjects.Length == 1)
 					{
 						Undo.RegisterCreatedObjectUndo(duplicate, "Duplicate GameObject");
 					}
@@ -71,33 +70,33 @@ namespace D3TEditor
 		{
 
 			string pars = null;
-			if (input.EndsWith(")"))
+			if(input.EndsWith(")"))
 			{
 				pars = "()";
 			}
-			else if (input.EndsWith("]"))
+			else if(input.EndsWith("]"))
 			{
 				pars = "[]";
 			}
-			else if (input.EndsWith(">"))
+			else if(input.EndsWith(">"))
 			{
 				pars = "<>";
 			}
 
-			if (pars != null)
+			if(pars != null)
 			{
 				input = input.TrimEnd(pars[1]);
 			}
 
 			var numStr = new System.Text.StringBuilder("");
 			bool hasNumber = false;
-			while (char.IsDigit(input[input.Length - 1]) && numStr.Length < 5)
+			while(char.IsDigit(input[input.Length - 1]) && numStr.Length < 5)
 			{
 				hasNumber = true;
 				numStr.Insert(0, input[input.Length - 1]);
 				input = input.Substring(0, input.Length - 1);
 			}
-			if (!hasNumber)
+			if(!hasNumber)
 			{
 				numStr.Append("1");
 				input += " ";
@@ -108,7 +107,7 @@ namespace D3TEditor
 
 			string newname = input + num.ToString().PadLeft(numStr.Length, '0') + (pars != null ? pars[1].ToString() : "");
 
-			if (ChildExists(go.scene, go.transform.parent, newname))
+			if(ChildExists(go.scene, go.transform.parent, newname))
 			{
 				return IncrementName(go, newname);
 			}
@@ -119,23 +118,23 @@ namespace D3TEditor
 		private static bool ChildExists(Scene scene, Transform parent, string name)
 		{
 			List<Transform> children = new List<Transform>();
-			if (parent)
+			if(parent)
 			{
-				for (int i = 0; i < parent.childCount; i++)
+				for(int i = 0; i < parent.childCount; i++)
 				{
 					children.Add(parent.GetChild(i));
 				}
 			}
 			else
 			{
-				foreach (var c in scene.GetRootGameObjects())
+				foreach(var c in scene.GetRootGameObjects())
 				{
 					children.Add(c.transform);
 				}
 			}
-			foreach (var t in children)
+			foreach(var t in children)
 			{
-				if (t.name == name) return true;
+				if(t.name == name) return true;
 			}
 			return false;
 		}

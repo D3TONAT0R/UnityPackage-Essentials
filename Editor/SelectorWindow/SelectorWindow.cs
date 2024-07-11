@@ -305,12 +305,12 @@ namespace D3TEditor
 			return null;
 		}
 
-		void UpdateSearch()
+		private void UpdateSearch()
 		{
 
 		}
 
-		void Apply(ListItem<T> item)
+		private void Apply(ListItem<T> item)
 		{
 			ApplyValue(targetPropertyObject.FindProperty(targetPropertyPath), item);
 			targetPropertyObject.ApplyModifiedProperties();

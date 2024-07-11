@@ -56,5 +56,5 @@ namespace D3TEditor
 			texture.Apply();
 			ctx.AddObjectToAsset("texture", texture);
 		}
-	} 
+	}
 }

@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEditor;
-using UnityEngine.UIElements;
 using D3T;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace D3TEditor.PropertyDrawers
 {

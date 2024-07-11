@@ -5,14 +5,15 @@ using UnityEngine;
 #if UNITY_2020_1_OR_NEWER
 using ToolManager = UnityEditor.EditorTools.ToolManager;
 #else
-using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 
-namespace D3TEditor.Tools {
+namespace D3TEditor.Tools
+{
 
 	//TODO: needs some rework
 	[EditorTool("Measure")]
-	internal class MeasuringTool : EditorToolBase {
+	internal class MeasuringTool : EditorToolBase
+	{
 
 		public Vector3 p1;
 		public Vector3 p2;
@@ -21,9 +22,8 @@ namespace D3TEditor.Tools {
 		public float distance2d;
 		public float angle2d;
 		public int setPoint = 1;
-
-		Color color1 = Color.red;
-		Color color2 = Color.blue;
+		private Color color1 = Color.red;
+		private Color color2 = Color.blue;
 
 		public override bool ShowToolWindow => true;
 
@@ -124,7 +124,8 @@ namespace D3TEditor.Tools {
 			}
 		}
 
-		void DrawPoint(Vector3 vec, Color c) {
+		private void DrawPoint(Vector3 vec, Color c)
+		{
 			Handles.color = Color.red;
 			Handles.DrawDottedLine(vec + Vector3.left, vec + Vector3.right, 1);
 			Handles.color = Color.green;
@@ -134,5 +135,5 @@ namespace D3TEditor.Tools {
 			Handles.color = c;
 			Handles.DrawWireCube(vec, Vector3.one * 0.1f);
 		}
-	} 
+	}
 }

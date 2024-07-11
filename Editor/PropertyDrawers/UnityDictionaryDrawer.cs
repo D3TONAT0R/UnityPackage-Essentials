@@ -1,11 +1,11 @@
 ﻿using D3T;
 using D3T.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace D3TEditor.PropertyDrawers
 {
@@ -239,7 +239,7 @@ namespace D3TEditor.PropertyDrawers
 		{
 			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
 			dictionary.Editor_Remove(index);
-			
+
 		}
 
 		private static string GetTypeName(Type t)

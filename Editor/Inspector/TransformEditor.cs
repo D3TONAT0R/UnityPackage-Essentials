@@ -1,8 +1,5 @@
 ﻿using D3T;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,8 +12,7 @@ namespace D3TEditor
 
 		private Editor _defaultEditor;
 		private Transform _transform;
-
-		static bool foldoutExtraInfo = false;
+		private static bool foldoutExtraInfo = false;
 
 		private GUIStyle pathLabelStyle;
 
@@ -34,7 +30,7 @@ namespace D3TEditor
 			var disableMethod = _defaultEditor.GetType().GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 			try
 			{
-				if (disableMethod != null) disableMethod.Invoke(_defaultEditor, null);
+				if(disableMethod != null) disableMethod.Invoke(_defaultEditor, null);
 				DestroyImmediate(_defaultEditor);
 			}
 			catch { }
@@ -42,7 +38,7 @@ namespace D3TEditor
 
 		public override void OnInspectorGUI()
 		{
-			if (pathLabelStyle == null)
+			if(pathLabelStyle == null)
 			{
 				pathLabelStyle = new GUIStyle(EditorStyles.miniLabel)
 				{
@@ -51,18 +47,18 @@ namespace D3TEditor
 			}
 			_defaultEditor.OnInspectorGUI();
 			foldoutExtraInfo = EditorGUILayout.Foldout(foldoutExtraInfo, "Additional Info");
-			if (foldoutExtraInfo)
+			if(foldoutExtraInfo)
 			{
 				EditorGUI.BeginChangeCheck();
 				var worldPos = EditorGUILayout.Vector3Field("Position (world)", _transform.position);
-				if (EditorGUI.EndChangeCheck())
+				if(EditorGUI.EndChangeCheck())
 				{
 					Undo.RecordObject(_transform, "Move (world)");
 					_transform.position = worldPos;
 				}
 				EditorGUI.BeginChangeCheck();
 				var worldEuler = EditorGUILayout.Vector3Field("Rotation (world)", _transform.eulerAngles);
-				if (EditorGUI.EndChangeCheck())
+				if(EditorGUI.EndChangeCheck())
 				{
 					Undo.RecordObject(_transform, "Rotate (world)");
 					_transform.eulerAngles = worldEuler;
@@ -94,7 +90,7 @@ namespace D3TEditor
 		private int RecursiveChildCount(Transform transform)
 		{
 			int count = transform.childCount;
-			for (int i = 0; i < transform.childCount; i++)
+			for(int i = 0; i < transform.childCount; i++)
 			{
 				count += RecursiveChildCount(transform.GetChild(i));
 			}
@@ -104,11 +100,11 @@ namespace D3TEditor
 		private int RecursiveParentCount(Transform transform)
 		{
 			int count = 0;
-			if (transform.parent)
+			if(transform.parent)
 			{
 				count += RecursiveParentCount(transform.parent) + 1;
 			}
 			return count;
 		}
-	} 
+	}
 }

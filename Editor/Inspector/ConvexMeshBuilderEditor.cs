@@ -39,5 +39,5 @@ namespace D3TEditor.Inspector
 
 			base.OnInspectorGUI();
 		}
-	} 
+	}
 }

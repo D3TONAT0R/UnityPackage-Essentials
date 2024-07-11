@@ -1,7 +1,4 @@
 ﻿using D3T;
-using D3TEditor;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -28,5 +25,5 @@ namespace D3TEditor.PropertyDrawers
 			var attr = PropertyDrawerUtility.GetAttribute<EnabledIfAttribute>(property, true);
 			return attr?.IsEnabled(PropertyDrawerUtility.GetParent(property)) ?? true;
 		}
-	} 
+	}
 }

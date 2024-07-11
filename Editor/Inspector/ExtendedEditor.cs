@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
-using UnityEngine;
 
 namespace D3TEditor.Inspector
 {
@@ -55,5 +52,5 @@ namespace D3TEditor.Inspector
 				m.Invoke(defaultEditor, new object[0]);
 			}
 		}
-	} 
+	}
 }

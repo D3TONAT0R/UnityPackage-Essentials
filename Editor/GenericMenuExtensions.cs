@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -86,5 +85,5 @@ namespace D3TEditor
 			var type = typeof(GenericMenu).GetNestedType("MenuItem", System.Reflection.BindingFlags.NonPublic);
 			return Activator.CreateInstance(type, new object[] { content, separator, on, enabled ? func : null });
 		}
-	} 
+	}
 }

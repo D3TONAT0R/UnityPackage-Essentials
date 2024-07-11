@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using D3T;
+﻿using D3TEditor.TimeTracking;
 using UnityEditor;
-using System;
-using D3TEditor.TimeTracking;
+using UnityEngine;
 
 namespace D3TEditor
 {

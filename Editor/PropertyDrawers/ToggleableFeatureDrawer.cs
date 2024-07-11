@@ -6,8 +6,10 @@ using UnityEngine;
 namespace D3TEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(ToggleableFeature), true)]
-	public class ToggleableFeatureDrawer : PropertyDrawer {
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
+	public class ToggleableFeatureDrawer : PropertyDrawer
+	{
+		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		{
 			var obj = PropertyDrawerUtility.GetTargetObjectOfProperty<ToggleableFeature>(property);
 			DrawBgBox(position);
 			position.height = EditorGUIUtility.singleLineHeight;
@@ -19,9 +21,11 @@ namespace D3TEditor.PropertyDrawers
 			GUI.backgroundColor = Color.white;
 			EditorGUI.Foldout(position, property.isExpanded, GUIContent.none);
 			GUI.enabled = enabled;
-			if(property.isExpanded) {
+			if(property.isExpanded)
+			{
 				position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-				foreach(SerializedProperty p in GetChildren(property)) {
+				foreach(SerializedProperty p in GetChildren(property))
+				{
 					var h = EditorGUI.GetPropertyHeight(p);
 					position.height = h;
 					EditorGUI.PropertyField(position, p, true);
@@ -31,13 +35,15 @@ namespace D3TEditor.PropertyDrawers
 			GUI.enabled = true;
 		}
 
-		void DrawBgBox(Rect position) {
+		private void DrawBgBox(Rect position)
+		{
 			position.xMin -= 15;
 			position.xMax += 2;
 			GUI.Box(position, "", EditorStyles.helpBox);
 		}
 
-		bool DrawCheckbox(Rect position, SerializedProperty property) {
+		private bool DrawCheckbox(Rect position, SerializedProperty property)
+		{
 			var checkPos = position;
 			checkPos.x += EditorGUIUtility.labelWidth + 2;
 			checkPos.y += 2;
@@ -47,31 +53,37 @@ namespace D3TEditor.PropertyDrawers
 			return prop.boolValue;
 		}
 
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
+		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+		{
 			return EditorGUI.GetPropertyHeight(property, true) + 5;
 		}
 
-		public static IEnumerable<SerializedProperty> GetChildren(SerializedProperty property) {
+		public static IEnumerable<SerializedProperty> GetChildren(SerializedProperty property)
+		{
 			property = property.Copy();
 			var nextElement = property.Copy();
 			bool hasNextElement = nextElement.NextVisible(false);
-			if(!hasNextElement) {
+			if(!hasNextElement)
+			{
 				nextElement = null;
 			}
 
 			property.NextVisible(true);
-			while(true) {
-				if((SerializedProperty.EqualContents(property, nextElement))) {
+			while(true)
+			{
+				if((SerializedProperty.EqualContents(property, nextElement)))
+				{
 					yield break;
 				}
 
 				yield return property;
 
 				bool hasNext = property.NextVisible(false);
-				if(!hasNext) {
+				if(!hasNext)
+				{
 					break;
 				}
 			}
 		}
-	} 
+	}
 }

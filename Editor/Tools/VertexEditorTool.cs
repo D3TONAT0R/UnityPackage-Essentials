@@ -15,11 +15,10 @@ namespace D3TEditor.Tools
 	[EditorTool("Edit Vertices", typeof(ConvexMeshBuilderComponent))]
 	internal class VertexEditorTool : EditorToolBase
 	{
-		List<int> selection = new List<int>();
-
-		float snapDistance = 0.1f;
-		bool alwaysSnap = false;
-		float scatterDistance = 0.1f;
+		private List<int> selection = new List<int>();
+		private float snapDistance = 0.1f;
+		private bool alwaysSnap = false;
+		private float scatterDistance = 0.1f;
 
 		private ConvexMeshBuilderComponent component;
 

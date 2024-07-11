@@ -1,11 +1,11 @@
 ﻿using D3T;
 using D3T.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace D3TEditor.PropertyDrawers
 {
@@ -121,28 +121,28 @@ namespace D3TEditor.PropertyDrawers
 		}
 
 		private void CheckForDuplicates(SerializedProperty list)
-        {
+		{
 			if(Application.isPlaying) return;
 			listObjects.Clear();
 			if(list == null) return;
 			for(int i = 0; i < list.arraySize; i++)
-            {
+			{
 				var elem = list.GetArrayElementAtIndex(i);
 				var obj = PropertyDrawerUtility.GetTargetObjectOfProperty(elem);
 				if(!listObjects.Contains(obj))
-                {
+				{
 					listObjects.Add(obj);
-                }
+				}
 				else
-                {
+				{
 					if(obj == null) continue;
 					string json = JsonUtility.ToJson(obj);
 					var clone = JsonUtility.FromJson(json, obj.GetType());
 					elem.managedReferenceValue = clone;
 					listObjects.Add(clone);
-                }
-            }
-        }
+				}
+			}
+		}
 
 		private static string GetTypeName(Type t)
 		{

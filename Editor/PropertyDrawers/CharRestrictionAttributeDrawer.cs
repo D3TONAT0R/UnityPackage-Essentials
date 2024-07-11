@@ -9,11 +9,11 @@ namespace D3TEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(CharRestrictionAttribute))]
 	public class CharRestrictionAttributeDrawer : PropertyDrawer
 	{
-		static Texture infoIcon;
+		private static Texture infoIcon;
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent content)
 		{
-			
+
 			var attr = fieldInfo.GetCustomAttribute<CharRestrictionAttribute>(true);
 			DrawRestrictedTextField(position, property, content, true, attr.allowedChars, attr.forcedCase, attr.replacementChar);
 		}
@@ -59,11 +59,11 @@ namespace D3TEditor.PropertyDrawers
 			}
 		}
 
-		static string ApplyRestrictions(string value, string allowedChars, bool? forcedCase, char replacementChar)
+		private static string ApplyRestrictions(string value, string allowedChars, bool? forcedCase, char replacementChar)
 		{
-			if (forcedCase != null)
+			if(forcedCase != null)
 			{
-				if (forcedCase.Value)
+				if(forcedCase.Value)
 				{
 					value = value.ToUpper();
 				}
@@ -72,12 +72,12 @@ namespace D3TEditor.PropertyDrawers
 					value = value.ToLower();
 				}
 			}
-			if (allowedChars != null)
+			if(allowedChars != null)
 			{
 				var arr = value.ToCharArray();
-				for (int i = 0; i < arr.Length; i++)
+				for(int i = 0; i < arr.Length; i++)
 				{
-					if (allowedChars.IndexOf(arr[i]) < 0)
+					if(allowedChars.IndexOf(arr[i]) < 0)
 					{
 						arr[i] = replacementChar;
 					}
