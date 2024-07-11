@@ -24,5 +24,5 @@ namespace UnityEssentials
 		}
 
 		public virtual bool IsEnabled(object obj) => CheckMemberCondition(obj, memberName, matches);
-	} 
+	}
 }

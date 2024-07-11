@@ -1,6 +1,5 @@
 using UnityEditor;
 using UnityEngine;
-using System.IO;
 
 namespace UnityEssentialsEditor
 {
@@ -20,35 +19,11 @@ namespace UnityEssentialsEditor
 			CreateBlankAsset("png", "New PNG Texture");
 		}
 
-		static void CreateBlankAsset(string extension, string newName)
+		private static void CreateBlankAsset(string extension, string newName)
 		{
 			string templatePath = $"Packages/com.github.d3tonat0r.essentials/Editor/TemplateAssets/template_{extension}.{extension}";
-			string newPath = AssetDatabase.GenerateUniqueAssetPath(GetSelectedPathOrFallback() + "/" + newName + "." + extension);
-			if (AssetDatabase.CopyAsset(templatePath, newPath))
-			{
-				Selection.activeObject = AssetDatabase.LoadAssetAtPath<Texture2D>(newPath);
-				//TODO: start in 'rename' mode
-			}
-			else
-			{
-				Debug.LogError("Failed to create blank " + extension + " file.");
-			}
+			var icon = EditorGUIUtility.IconContent("d_Texture2D Icon").image as Texture2D;
+			AssetDatabaseUtility.BeginAssetCreationFromTemplateFile(templatePath, newName, icon);
 		}
-
-		static string GetSelectedPathOrFallback()
-		{
-			string path = "Assets";
-
-			foreach (Object obj in Selection.GetFiltered(typeof(Object), SelectionMode.Assets))
-			{
-				path = AssetDatabase.GetAssetPath(obj);
-				if (!string.IsNullOrEmpty(path) && File.Exists(path))
-				{
-					path = Path.GetDirectoryName(path);
-					break;
-				}
-			}
-			return path;
-		}
-	} 
+	}
 }

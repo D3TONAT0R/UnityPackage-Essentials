@@ -101,7 +101,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawOnRepaint(this GUIStyle s, Rect r)
 		{
-			if (Event.current.type == EventType.Repaint) s.Draw(r, false, false, false, false);
+			if(Event.current.type == EventType.Repaint) s.Draw(r, false, false, false, false);
 		}
 
 		/// <summary>
@@ -109,7 +109,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawOnRepaint(this GUIStyle s, Rect r, bool isHover, bool isActive, bool on, bool hasKeyboardFocus)
 		{
-			if (Event.current.type == EventType.Repaint) s.Draw(r, isHover, isActive, on, hasKeyboardFocus);
+			if(Event.current.type == EventType.Repaint) s.Draw(r, isHover, isActive, on, hasKeyboardFocus);
 		}
 
 		/// <summary>

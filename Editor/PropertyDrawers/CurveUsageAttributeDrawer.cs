@@ -16,5 +16,5 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				property.animationCurveValue = EditorGUI.CurveField(position, label, property.animationCurveValue, usageAttribute.color, usageAttribute.ranges);
 			}
 		}
-	} 
+	}
 }

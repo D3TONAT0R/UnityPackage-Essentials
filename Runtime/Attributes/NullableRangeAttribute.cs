@@ -17,5 +17,5 @@ namespace UnityEssentials
 			this.min = min;
 			this.max = max;
 		}
-	} 
+	}
 }

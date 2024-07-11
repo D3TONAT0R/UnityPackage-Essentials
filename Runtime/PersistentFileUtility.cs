@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace UnityEssentials.Utility
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Contains helper classes for getting common file paths to save persistent files in.
@@ -47,11 +47,11 @@ namespace UnityEssentials.Utility
 			{
 				return Directory.GetParent(Application.dataPath).ToString();
 			}
-			if ((int)location >= 10) location -= 10;
+			if((int)location >= 10) location -= 10;
 
-			if (location == FileLocation.PersistentDataPath) return Application.persistentDataPath;
-			else if (location == FileLocation.Documents) return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName);
-			else if (location == FileLocation.DataPath) return Application.dataPath;
+			if(location == FileLocation.PersistentDataPath) return Application.persistentDataPath;
+			else if(location == FileLocation.Documents) return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName);
+			else if(location == FileLocation.DataPath) return Application.dataPath;
 			else throw new NotImplementedException();
 		}
 

@@ -1,5 +1,4 @@
-﻿using UnityEssentials;
-using UnityEssentials.Utility;
+using UnityEssentials;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;

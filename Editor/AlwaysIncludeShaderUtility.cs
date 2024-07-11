@@ -1,4 +1,4 @@
-﻿using UnityEssentials.Utility;
+﻿using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -15,8 +15,8 @@ namespace UnityEssentialsEditor
 
 		private static void CheckAttributes()
 		{
-			var attributes = ReflectionUtility.GetClassAndAssemblyAttributes<AlwaysIncludeShaderAttribute>(false);
-			if(attributes == null || attributes.Count == 0) return;
+			var attributeDefs = ReflectionUtility.GetClassAndAssemblyAttributes<AlwaysIncludeShaderAttribute>(false);
+			if(attributeDefs == null || attributeDefs.Count == 0) return;
 
 			var settingsObj = AssetDatabase.LoadAssetAtPath<GraphicsSettings>("ProjectSettings/GraphicsSettings.asset");
 			var serializedObj = new SerializedObject(settingsObj);
@@ -24,12 +24,12 @@ namespace UnityEssentialsEditor
 
 			bool hasChanges = false;
 
-			foreach(var attr in attributes)
+			foreach(var def in attributeDefs)
 			{
-				Shader shader = Shader.Find(attr.shaderName);
+				Shader shader = Shader.Find(def.Attribute.shaderName);
 				if(shader == null)
 				{
-					Debug.LogError("Failed to find Shader to include: " + attr.shaderName);
+					Debug.LogError($"Failed to find Shader to include: {def.Attribute.shaderName}\nDefined in: {def}");
 					continue;
 				}
 				hasChanges |= AddAlwaysIncludedShader(arrayProp, shader);

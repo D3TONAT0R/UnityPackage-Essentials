@@ -11,8 +11,8 @@ namespace UnityEssentialsEditor
 		1 = Auto Refresh Enabled
 		*/
 
-		const string menuItem = "Edit/Toggle Auto Asset Refresh";
-		const string shortcut = " %#&r";
+		private const string menuItem = "Edit/Toggle Auto Asset Refresh";
+		private const string shortcut = " %#&r";
 
 		//This is called when you click on the 'Tools/Auto Refresh' and toggles its value
 		[MenuItem(menuItem + shortcut, false)]
@@ -39,5 +39,5 @@ namespace UnityEssentialsEditor
 		{
 			UnityEditor.Compilation.CompilationPipeline.RequestScriptCompilation();
 		}
-	} 
+	}
 }

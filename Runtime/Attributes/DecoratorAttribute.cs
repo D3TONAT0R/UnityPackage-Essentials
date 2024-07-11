@@ -9,6 +9,6 @@ namespace UnityEssentials
 	[AttributeUsage(AttributeTargets.Field)]
 	public abstract class DecoratorAttribute : PropertyAttribute
 	{
-		
+
 	}
 }

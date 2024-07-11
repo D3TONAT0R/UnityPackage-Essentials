@@ -22,5 +22,5 @@ namespace UnityEssentials
 			this.showAlpha = showAlpha;
 			this.hdr = hdr;
 		}
-	} 
+	}
 }

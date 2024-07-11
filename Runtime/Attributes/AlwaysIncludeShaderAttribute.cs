@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace UnityEssentials.Utility
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Ensures that a given shader is always included in builds.

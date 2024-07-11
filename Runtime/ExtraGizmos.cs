@@ -11,6 +11,8 @@ namespace UnityEssentials
 	{
 		internal static Mesh discMesh;
 		internal static Mesh cylinderMesh;
+		internal static Mesh capsuleCenterMesh;
+		internal static Mesh capsuleCapMesh;
 
 		internal static GUIStyle labelStyle;
 
@@ -23,8 +25,16 @@ namespace UnityEssentials
 			discMesh = builder.CreateMesh();
 
 			builder.Clear();
-			builder.AddCylinder(Vector3.zero, 1, 1, 16);
+			builder.AddCylinder(Vector3.zero, 1, 1, 16, true);
 			cylinderMesh = builder.CreateMesh();
+
+			builder.Clear();
+			builder.AddCylinder(Vector3.zero, 1, 1, 16, false);
+			capsuleCenterMesh = builder.CreateMesh();
+
+			builder.Clear();
+			builder.AddHemisphere(Vector3.zero, 1, 0.5f, 16, 16);
+			capsuleCapMesh = builder.CreateMesh();
 		}
 
 		/// <summary>
@@ -95,6 +105,15 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
+		/// Draws a wireframe cylinder gizmo.
+		/// </summary>
+		public static void DrawWireCylinder(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawWireCylinder(center, rotation, radius, height);
+		}
+
+		/// <summary>
 		/// Draws a solid cylinder gizmo.
 		/// </summary>
 		public static void DrawCylinder(Vector3 center, Quaternion rotation, float radius, float height)
@@ -103,6 +122,102 @@ namespace UnityEssentials
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
 			Gizmos.DrawMesh(cylinderMesh);
 			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a solid cylinder gizmo.
+		/// </summary>
+		public static void DrawCylinder(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawCylinder(center, rotation, radius, height);
+		}
+
+		/// <summary>
+		/// Draws a wireframe capsule gizmo.
+		/// </summary>
+		public static void DrawWireCapsule(Vector3 center, Quaternion rotation, float radius, float height)
+		{
+			height = Mathf.Max(height - radius * 2, 0);
+			var lastMatrix = Gizmos.matrix;
+			rotation *= Quaternion.Euler(90, 0, 0);
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
+			float h2 = height * 0.5f;
+			DrawWireCircle(Vector3.back * h2, Vector3.back, radius);
+			DrawArc(Vector3.back * h2, Vector3.up, Vector3.back, radius, -90, 90);
+			DrawArc(Vector3.back * h2, Vector3.right, Vector3.back, radius, -90, 90);
+			DrawWireCircle(Vector3.forward * h2, Vector3.forward, radius);
+			DrawArc(Vector3.forward * h2, Vector3.up, Vector3.forward, radius, -90, 90);
+			DrawArc(Vector3.forward * h2, Vector3.right, Vector3.forward, radius, -90, 90);
+			if(height > 0)
+			{
+				DrawLineFrom(new Vector3(-radius, 0, -h2), Vector3.forward, height);
+				DrawLineFrom(new Vector3(radius, 0, -h2), Vector3.forward, height);
+				DrawLineFrom(new Vector3(0, -radius, -h2), Vector3.forward, height);
+				DrawLineFrom(new Vector3(0, radius, -h2), Vector3.forward, height);
+			}
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a wireframe capsule gizmo.
+		/// </summary>
+		public static void DrawWireCapsule(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawWireCapsule(center, rotation, radius, height);
+		}
+
+		/// <summary>
+		/// Draws a solid capsule gizmo.
+		/// </summary>
+		public static void DrawCapsule(Vector3 center, Quaternion rotation, float radius, float height)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
+			height = Mathf.Max(0, height - radius * 2);
+			if(height > 0)
+			{
+				Gizmos.DrawMesh(capsuleCenterMesh, Vector3.zero, Quaternion.identity, new Vector3(radius, height, radius));
+			}
+			float h2 = height / 2f;
+			Gizmos.DrawMesh(capsuleCapMesh, Vector3.up * h2, Quaternion.identity, Vector3.one * radius);
+			Gizmos.DrawMesh(capsuleCapMesh, Vector3.down * h2, Quaternion.Euler(180, 0, 0), Vector3.one * radius);
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a solid capsule gizmo.
+		/// </summary>
+		public static void DrawCapsule(Vector3 center, Axis axis, float radius, float height)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawCapsule(center, rotation, radius, height);
+		}
+
+		/// <summary>
+		/// Draws a wireframe cone gizmo.
+		/// </summary>
+		public static void DrawWireCone(Vector3 center, Quaternion rotation, float radius, float height, int circleSegments = 64)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
+			DrawWireCircle(Vector3.zero, Vector3.up, radius, circleSegments);
+			var top = Vector3.up * height;
+			Gizmos.DrawLine(Vector3.left * radius, top);
+			Gizmos.DrawLine(Vector3.right * radius, top);
+			Gizmos.DrawLine(Vector3.forward * radius, top);
+			Gizmos.DrawLine(Vector3.back * radius, top);
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a wireframe cone gizmo.
+		/// </summary>
+		public static void DrawWireCone(Vector3 center, AxisDirection direction, float radius, float height, int circleSegments = 64)
+		{
+			var rotation = GetAxisRotation(direction);
+			DrawWireCone(center, rotation, radius, height, circleSegments);
 		}
 
 		/// <summary>
@@ -123,11 +238,11 @@ namespace UnityEssentials
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(position, rotation, Vector3.one);
 			Gizmos.color = Color.red;
-			Gizmos.DrawLine(Vector3.zero, Vector3.right * size);
+			DrawArrow(Vector3.zero, Vector3.right, size);
 			Gizmos.color = Color.green;
-			Gizmos.DrawLine(Vector3.zero, Vector3.up * size);
+			DrawArrow(Vector3.zero, Vector3.up, size);
 			Gizmos.color = Color.blue;
-			Gizmos.DrawLine(Vector3.zero, Vector3.forward * size);
+			DrawArrow(Vector3.zero, Vector3.forward, size);
 			Gizmos.color = lColor;
 			Gizmos.matrix = lMatrix;
 		}
@@ -151,6 +266,36 @@ namespace UnityEssentials
 			Gizmos.DrawLine(point + Vector3.down * radius, point + Vector3.up * radius);
 			Gizmos.DrawLine(point + Vector3.back * radius, point + Vector3.forward * radius);
 			Gizmos.DrawWireSphere(point, radius * 0.5f);
+		}
+
+		/// <summary>
+		/// Draws an arrow gizmo.
+		/// </summary>
+		public static void DrawArrow(Vector3 origin, Quaternion rotation, float length, float? fixedHeadLength = null)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(origin, rotation, Vector3.one);
+			Gizmos.DrawLine(Vector3.zero, Vector3.forward * length);
+			float headLength = fixedHeadLength ?? length * 0.25f;
+			float headStart = length - headLength;
+			DrawWireCone(Vector3.forward * headStart, AxisDirection.ZPos, headLength * 0.25f, headLength, 16);
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws an arrow gizmo.
+		/// </summary>
+		public static void DrawArrow(Vector3 origin, Vector3 direction, float length, float? fixedHeadLength = null)
+		{
+			DrawArrow(origin, Quaternion.LookRotation(direction), length, fixedHeadLength);
+		}
+
+		/// <summary>
+		/// Draws an arrow gizmo.
+		/// </summary>
+		public static void DrawArrow(Vector3 origin, AxisDirection direction, float length, float? fixedHeadLength = null)
+		{
+			DrawArrow(origin, Quaternion.LookRotation(direction.GetDirectionVector()), length, fixedHeadLength);
 		}
 
 		/// <summary>
@@ -436,5 +581,30 @@ namespace UnityEssentials
 			}
 		}
 		#endregion
+
+		private static Quaternion GetAxisRotation(Axis a)
+		{
+			switch(a)
+			{
+				case Axis.X: return Quaternion.Euler(-90, -90, 0);
+				case Axis.Y: return Quaternion.identity;
+				case Axis.Z: return Quaternion.Euler(-90, 0, 180);
+				default: throw new System.InvalidOperationException();
+			}
+		}
+
+		private static Quaternion GetAxisRotation(AxisDirection a)
+		{
+			switch(a)
+			{
+				case AxisDirection.XPos: return Quaternion.Euler(-90, -90, 0);
+				case AxisDirection.XNeg: return Quaternion.Euler(90, -90, 0);
+				case AxisDirection.YPos: return Quaternion.identity;
+				case AxisDirection.YNeg: return Quaternion.Euler(180, 0, 0);
+				case AxisDirection.ZPos: return Quaternion.Euler(-90, 0, 180);
+				case AxisDirection.ZNeg: return Quaternion.Euler(90, 0, 180);
+				default: throw new System.InvalidOperationException();
+			}
+		}
 	}
 }

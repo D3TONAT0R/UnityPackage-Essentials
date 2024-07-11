@@ -27,18 +27,18 @@
 namespace MIConvexHull
 {
 	internal static class Constants
-    {
-        /// <summary>
-        /// The default plane distance tolerance
-        /// </summary>
-        internal const double DefaultPlaneDistanceTolerance = 1e-10;
-        /// <summary>
-        /// The starting delta dot product in simplex
-        /// </summary>
-        internal const double StartingDeltaDotProductInSimplex = 0.5;
-        /// <summary>
-        /// The connector table size
-        /// </summary>
-        internal const int ConnectorTableSize = 2017;
-    }
+	{
+		/// <summary>
+		/// The default plane distance tolerance
+		/// </summary>
+		internal const double DefaultPlaneDistanceTolerance = 1e-10;
+		/// <summary>
+		/// The starting delta dot product in simplex
+		/// </summary>
+		internal const double StartingDeltaDotProductInSimplex = 0.5;
+		/// <summary>
+		/// The connector table size
+		/// </summary>
+		internal const int ConnectorTableSize = 2017;
+	}
 }

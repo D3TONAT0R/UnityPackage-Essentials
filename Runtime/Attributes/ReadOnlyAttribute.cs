@@ -20,5 +20,5 @@ namespace UnityEssentials
 		{
 			this.asFields = asFields;
 		}
-	} 
+	}
 }

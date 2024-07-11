@@ -1,5 +1,4 @@
-﻿using UnityEssentials.Utility;
-using System;
+﻿using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -11,7 +10,7 @@ namespace UnityEssentials
 	[AttributeUsage(AttributeTargets.Field)]
 	public abstract class PropertyModifierAttribute : PropertyAttribute
 	{
-		
+
 		protected static bool CheckMemberCondition(object target, string memberName, object[] matches)
 		{
 			var m = ReflectionUtility.FindMemberInType(target.GetType(), memberName);
@@ -56,5 +55,5 @@ namespace UnityEssentials
 				return true;
 			}
 		}
-	} 
+	}
 }

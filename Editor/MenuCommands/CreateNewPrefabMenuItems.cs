@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,7 +17,7 @@ namespace UnityEssentialsEditor
 			Selection.activeObject = AssetDatabase.LoadAssetAtPath<GameObject>(newPath);
 		}
 
-		static string GetSelectedPathOrFallback()
+		private static string GetSelectedPathOrFallback()
 		{
 			string path = "Assets";
 

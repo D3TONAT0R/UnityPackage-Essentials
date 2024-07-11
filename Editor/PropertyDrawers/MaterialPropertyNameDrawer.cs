@@ -1,5 +1,4 @@
-﻿using UnityEssentials;
-using UnityEssentials.Utility;
+using UnityEssentials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -85,7 +84,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				}
 				if(names.Count > 0)
 				{
-					foreach(var propName in names.Distinct()) 
+					foreach(var propName in names.Distinct())
 					{
 						if(propName.StartsWith("unity_"))
 						{
@@ -139,7 +138,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			switch(t)
 			{
-				case UnityEngine.Rendering.ShaderPropertyType.Color: 
+				case UnityEngine.Rendering.ShaderPropertyType.Color:
 				case UnityEngine.Rendering.ShaderPropertyType.Vector:
 					return MaterialPropertyType.Vector;
 				case UnityEngine.Rendering.ShaderPropertyType.Float:

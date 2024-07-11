@@ -16,5 +16,5 @@ namespace UnityEssentials
 		{
 			this.defaultPath = defaultPath;
 		}
-	} 
+	}
 }

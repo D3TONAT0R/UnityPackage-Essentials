@@ -6,20 +6,18 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using static UnityEssentials.Utility.ReflectionUtility;
+using static UnityEssentials.ReflectionUtility;
 
 namespace UnityEssentialsEditor
 {
 	public static class PropertyDrawerUtility
 	{
-
-		const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+		private const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
 		//Object property drawer method from AdvancedObjectSelector package
-		static MethodInfo advancedObjectPropertyDrawer;
-
-		static Dictionary<Type, Type> propertyDrawerTypes = new Dictionary<Type, Type>();
-		static Dictionary<Type, PropertyDrawer> propertyDrawersCache = new Dictionary<Type, PropertyDrawer>();
+		private static MethodInfo advancedObjectPropertyDrawer;
+		private static Dictionary<Type, Type> propertyDrawerTypes = new Dictionary<Type, Type>();
+		private static Dictionary<Type, PropertyDrawer> propertyDrawersCache = new Dictionary<Type, PropertyDrawer>();
 
 		[System.Diagnostics.DebuggerHidden]
 		[InitializeOnLoadMethod]
@@ -144,7 +142,7 @@ namespace UnityEssentialsEditor
 			return fieldInfo.FieldType;
 		}
 
-		static PropertyInfo GetIndexer(Type type)
+		private static PropertyInfo GetIndexer(Type type)
 		{
 			foreach(PropertyInfo pi in type.GetProperties())
 			{

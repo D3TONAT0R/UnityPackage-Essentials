@@ -56,5 +56,5 @@ namespace UnityEssentialsEditor
 			texture.Apply();
 			ctx.AddObjectToAsset("texture", texture);
 		}
-	} 
+	}
 }

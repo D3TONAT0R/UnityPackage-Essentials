@@ -1,8 +1,5 @@
 ﻿using UnityEssentials.Meshes;
-﻿using UnityEssentials.Utility;
 using UnityEssentialsEditor.Tools;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 #if UNITY_2020_1_OR_NEWER
@@ -11,7 +8,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 
-namespace UnityEssentialsEditor
+namespace UnityEssentialsEditor.Inspector
 {
 	[CustomEditor(typeof(ConvexMeshBuilderComponent))]
 	internal class ConvexMeshBuilderEditor : Editor
@@ -42,5 +39,5 @@ namespace UnityEssentialsEditor
 
 			base.OnInspectorGUI();
 		}
-	} 
+	}
 }

@@ -162,7 +162,7 @@ namespace UnityEssentialsEditor.Tools
 			Handles.matrix = lMatrix;
 		}
 
-		Vector3 SetPosition(RaycastHit hit, SceneView s)
+		private Vector3 SetPosition(RaycastHit hit, SceneView s)
 		{
 			if(groundOffset > 0)
 			{
@@ -180,7 +180,7 @@ namespace UnityEssentialsEditor.Tools
 			return SnapPosition(hit.point, hit.normal);
 		}
 
-		Vector3 SnapPosition(Vector3 pos, Vector3 normal)
+		private Vector3 SnapPosition(Vector3 pos, Vector3 normal)
 		{
 			float snapThreshold = 1f;// Mathf.Sqrt(0.5f);
 			if(snapDistance > 0)

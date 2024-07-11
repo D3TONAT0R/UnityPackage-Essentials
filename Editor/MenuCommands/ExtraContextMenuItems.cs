@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -95,5 +93,19 @@ namespace UnityEssentialsEditor
 			var filter = (MeshFilter)cmd.context;
 			return filter.sharedMesh != null;
 		}
-	} 
+
+		[MenuItem("CONTEXT/MeshRenderer/Instantiate Materials")]
+		public static void InstantiateMaterials(MenuCommand cmd)
+		{
+			var renderer = (MeshRenderer)cmd.context;
+			var materials = renderer.sharedMaterials;
+			for(int i = 0; i < materials.Length; i++)
+			{
+				var name = materials[i].name;
+				materials[i] = Object.Instantiate(materials[i]);
+				if(!materials[i].name.EndsWith("(Instance)")) materials[i].name = name + " (Instance)";
+			}
+			renderer.sharedMaterials = materials;
+		}
+	}
 }

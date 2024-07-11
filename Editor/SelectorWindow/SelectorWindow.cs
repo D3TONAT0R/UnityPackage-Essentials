@@ -1,9 +1,9 @@
-﻿using System;
+using UnityEssentials;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEssentials;
 
 namespace UnityEssentialsEditor
 {
@@ -305,12 +305,12 @@ namespace UnityEssentialsEditor
 			return null;
 		}
 
-		void UpdateSearch()
+		private void UpdateSearch()
 		{
 
 		}
 
-		void Apply(ListItem<T> item)
+		private void Apply(ListItem<T> item)
 		{
 			ApplyValue(targetPropertyObject.FindProperty(targetPropertyPath), item);
 			targetPropertyObject.ApplyModifiedProperties();

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -55,7 +53,7 @@ namespace UnityEssentialsEditor
 			if(lastIndentLevel != null) EditorGUI.indentLevel = lastIndentLevel.Value;
 			EditorGUIUtility.labelWidth = lastLabelWidth;
 		}
-	} 
+	}
 
 	public class EnabledScope : IDisposable
 	{

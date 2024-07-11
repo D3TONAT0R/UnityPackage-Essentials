@@ -19,5 +19,5 @@ namespace UnityEssentials.Collections
 		{
 			this.specificTypes = specificTypes;
 		}
-	} 
+	}
 }

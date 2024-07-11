@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
-    [CustomPropertyDrawer(typeof(MonospaceAttribute))]
-    public class MonospaceAttributeDrawer : PropertyDrawer
-    {
+	[CustomPropertyDrawer(typeof(MonospaceAttribute))]
+	public class MonospaceAttributeDrawer : PropertyDrawer
+	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.String, SerializedPropertyType.Float, SerializedPropertyType.Integer)) return;
@@ -25,5 +25,5 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			EditorGUI.EndProperty();
 		}
-	} 
+	}
 }

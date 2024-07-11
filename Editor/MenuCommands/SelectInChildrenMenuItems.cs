@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace UnityEssentialsEditor
@@ -38,7 +37,7 @@ namespace UnityEssentialsEditor
 			index++;
 		}
 
-		static void SelectInChildren<T>(Transform[] parents, Func<T, bool> predicate = null) where T : Component
+		private static void SelectInChildren<T>(Transform[] parents, Func<T, bool> predicate = null) where T : Component
 		{
 			List<Object> selection = new List<Object>();
 			foreach(var parent in parents)
@@ -54,5 +53,5 @@ namespace UnityEssentialsEditor
 			Selection.objects = selection.ToArray();
 			//Debug.Log($"Selected {selection.Count} GameObjects.");
 		}
-	} 
+	}
 }

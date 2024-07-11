@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace UnityEssentialsEditor.PropertyDrawers
@@ -25,5 +24,5 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			return base.GetPropertyHeight(property, label);
 		}
 		*/
-	} 
+	}
 }

@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.EditorTools;
-using UnityEssentials.Utility;
 #if UNITY_2020_1_OR_NEWER
 using ToolManager = UnityEditor.EditorTools.ToolManager;
 #else
-using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 using UnityEngine;
 

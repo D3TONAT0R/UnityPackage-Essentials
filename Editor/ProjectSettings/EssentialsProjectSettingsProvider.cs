@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using UnityEssentials;
-using UnityEditor;
-using System;
 using UnityEssentialsEditor.TimeTracking;
+using UnityEditor;
+using UnityEngine;
 
 namespace UnityEssentialsEditor
 {

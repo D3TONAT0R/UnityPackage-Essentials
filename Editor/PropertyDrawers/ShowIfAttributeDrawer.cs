@@ -1,5 +1,4 @@
-﻿using UnityEssentials;
-using System.Collections.Generic;
+using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 

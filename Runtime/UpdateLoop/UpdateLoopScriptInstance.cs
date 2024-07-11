@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace UnityEssentials.Utility
+namespace UnityEssentials.PlayerLoop
 {
 	internal class UpdateLoopScriptInstance : MonoBehaviour
 	{

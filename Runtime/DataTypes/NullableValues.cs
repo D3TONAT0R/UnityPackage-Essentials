@@ -73,10 +73,11 @@ namespace UnityEssentials
 			set => hasValue = value;
 		}
 
-		public T? Nullable {
+		public T? Nullable
+		{
 			get
 			{
-				return hasValue? Value : (T?)null;
+				return hasValue ? Value : (T?)null;
 			}
 			set
 			{

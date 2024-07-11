@@ -14,5 +14,5 @@ namespace UnityEssentials
 		{
 			this.fullWidth = fullWidth;
 		}
-	} 
+	}
 }

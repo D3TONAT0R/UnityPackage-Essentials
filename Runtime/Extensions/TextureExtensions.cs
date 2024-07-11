@@ -39,15 +39,15 @@ namespace UnityEssentials
 		/// Returns the texture's width and height as a <see cref="Vector2Int"/>.
 		/// </summary>
 		public static Vector2Int GetResolution(this Texture tex)
-        {
+		{
 			return new Vector2Int(tex.width, tex.height);
-        }
+		}
 
 		/// <summary>
 		/// Returns the texture's aspect ratio (width / height)
 		/// </summary>
 		public static float GetAspectRatio(this Texture tex)
-        {
+		{
 			return tex.width / (float)tex.height;
 		}
 

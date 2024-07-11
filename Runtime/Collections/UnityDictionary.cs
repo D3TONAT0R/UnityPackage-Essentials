@@ -16,7 +16,21 @@ namespace UnityEssentials.Collections
 		Type KeyType { get; }
 		Type ValueType { get; }
 
+		int Count { get; }
+
 		System.Exception SerializationException { get; }
+
+		void Clear();
+
+#if UNITY_EDITOR
+		void Editor_Add(Type valueType);
+
+		void Editor_Remove(int index);
+
+		void Editor_Swap(int from, int to);
+
+		void Editor_ReplaceValue(object key, object newValue);
+#endif
 	}
 
 	/// <summary>
@@ -49,7 +63,7 @@ namespace UnityEssentials.Collections
 	/// </summary>
 	/// <typeparam name="K"></typeparam>
 	/// <typeparam name="V"></typeparam>
-	public class UnityDictionary<K, V> : IUnityDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K,V>>
+	public class UnityDictionary<K, V> : IUnityDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K, V>>
 	{
 		protected Dictionary<K, V> dictionary = new Dictionary<K, V>();
 
@@ -60,8 +74,8 @@ namespace UnityEssentials.Collections
 
 		public Type KeyType => typeof(K);
 		public Type ValueType => typeof(V);
-		public virtual Dictionary<K,V>.KeyCollection Keys => dictionary.Keys;
-		public virtual Dictionary<K,V>.ValueCollection Values => dictionary.Values;
+		public virtual Dictionary<K, V>.KeyCollection Keys => dictionary.Keys;
+		public virtual Dictionary<K, V>.ValueCollection Values => dictionary.Values;
 		public virtual int Count => dictionary.Count;
 
 		public System.Exception SerializationException { get; private set; }
@@ -71,15 +85,15 @@ namespace UnityEssentials.Collections
 
 		public UnityDictionary()
 		{
-			
+
 		}
 
-		public UnityDictionary(IDictionary<K,V> dictionary)
+		public UnityDictionary(IDictionary<K, V> dictionary)
 		{
 			this.dictionary = new Dictionary<K, V>(dictionary);
 		}
 
-		public UnityDictionary(Dictionary<K,V> dictionary)
+		public UnityDictionary(Dictionary<K, V> dictionary)
 		{
 			this.dictionary = new Dictionary<K, V>(dictionary);
 		}
@@ -103,15 +117,16 @@ namespace UnityEssentials.Collections
 
 		public void OnBeforeSerialize()
 		{
+			/*
 			if(dictionary != null)
 			{
 				_keys = dictionary.Keys.ToList();
 				_values = dictionary.Values.ToList();
 			}
+			*/
 		}
-		
-		//TODO: has problems when keys are of type UnityEngine.Object (null keys)
-		//TODO: unable to delete a key when dictionary errors are present (e.g. duplicate keys)
+
+		//TODO: has problems when keys are of type UnityEngine.Object
 		public void OnAfterDeserialize()
 		{
 			SerializationException = null;
@@ -120,12 +135,24 @@ namespace UnityEssentials.Collections
 				dictionary = new Dictionary<K, V>();
 				for(int i = 0; i < _keys.Count; i++)
 				{
-					dictionary.Add(_keys[i], _values[i]);
+					bool notNull;
+					if(typeof(UnityEngine.Object).IsAssignableFrom(KeyType))
+					{
+						notNull = (_keys[i] as UnityEngine.Object) != null;
+					}
+					else
+					{
+						notNull = _keys[i] != null;
+					}
+					if(notNull)
+					{
+						dictionary.Add(_keys[i], _values[i]);
+					}
 				}
 			}
 			catch(Exception e)
 			{
-				e.LogException();
+				//e.LogException();
 				SerializationException = e;
 				dictionary = null;
 			}
@@ -141,11 +168,30 @@ namespace UnityEssentials.Collections
 			OnAfterDeserialize();
 		}
 
+		public virtual void Editor_Remove(int index)
+		{
+			OnBeforeSerialize();
+			_keys.RemoveAt(index);
+			_values.RemoveAt(index);
+			OnAfterDeserialize();
+		}
+
 		public virtual void Editor_Swap(int from, int to)
 		{
 			OnBeforeSerialize();
 			(_keys[to], _keys[from]) = (_keys[from], _keys[to]);
 			(_values[to], _values[from]) = (_values[from], _values[to]);
+			OnAfterDeserialize();
+		}
+
+		public virtual void Editor_ReplaceValue(object key, object newValue)
+		{
+			OnBeforeSerialize();
+			int index = _keys.IndexOf((K)key);
+			if(index >= 0)
+			{
+				_values[index] = (V)newValue;
+			}
 			OnAfterDeserialize();
 		}
 

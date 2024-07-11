@@ -104,5 +104,5 @@ namespace UnityEssentials
 		{
 			return terrainPosition + Vector3.Scale(tree.position, terrainSize);
 		}
-	} 
+	}
 }

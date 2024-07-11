@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UnityEssentials.Utility
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Defines properties for a bounding box.

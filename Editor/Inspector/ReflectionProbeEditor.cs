@@ -1,7 +1,5 @@
 using UnityEssentialsEditor.Tools;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 #if UNITY_2020_1_OR_NEWER

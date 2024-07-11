@@ -53,5 +53,5 @@ namespace UnityEssentials
 		public float ClampValue(float v) => Mathf.Clamp(v, min, max);
 
 		public Vector2 ToVector2() => new Vector2(min, max);
-	} 
+	}
 }

@@ -7,6 +7,6 @@ namespace UnityEssentials
 	/// </summary>
 	public class LayerPopupAttribute : PropertyAttribute
 	{
-		
+
 	}
 }

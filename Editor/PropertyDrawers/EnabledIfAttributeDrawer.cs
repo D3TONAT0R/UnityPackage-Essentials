@@ -1,7 +1,4 @@
-﻿using UnityEssentials;
-using UnityEssentialsEditor;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 
@@ -28,5 +25,5 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var attr = PropertyDrawerUtility.GetAttribute<EnabledIfAttribute>(property, true);
 			return attr?.IsEnabled(PropertyDrawerUtility.GetParent(property)) ?? true;
 		}
-	} 
+	}
 }

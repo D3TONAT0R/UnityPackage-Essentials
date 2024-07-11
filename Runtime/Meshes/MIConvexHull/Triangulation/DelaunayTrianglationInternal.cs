@@ -37,60 +37,60 @@ namespace MIConvexHull
 	/// Class ConvexHullAlgorithm.
 	/// </summary>
 	internal partial class ConvexHullAlgorithm
-    {
-        /// <summary>
-        /// Computes the Delaunay triangulation.
-        /// </summary>
-        /// <typeparam name="TVertex">The type of the t vertex.</typeparam>
-        /// <typeparam name="TCell">The type of the t cell.</typeparam>
-        /// <param name="data">The data.</param>
-        /// <param name="PlaneDistanceTolerance">The plane distance tolerance.</param>
-        /// <returns>TCell[].</returns>
-        internal static TCell[] GetDelaunayTriangulation<TVertex, TCell>(IList<TVertex> data,
-            double PlaneDistanceTolerance)
-            where TCell : TriangulationCell<TVertex, TCell>, new()
-            where TVertex : IVertex
-        {
-            var ch = new ConvexHullAlgorithm(data.Cast<IVertex>().ToArray(), true, PlaneDistanceTolerance);
-            ch.GetConvexHull();
-            ch.RemoveUpperFaces();
-            return ch.GetConvexFaces<TVertex, TCell>();
-        }
+	{
+		/// <summary>
+		/// Computes the Delaunay triangulation.
+		/// </summary>
+		/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
+		/// <typeparam name="TCell">The type of the t cell.</typeparam>
+		/// <param name="data">The data.</param>
+		/// <param name="PlaneDistanceTolerance">The plane distance tolerance.</param>
+		/// <returns>TCell[].</returns>
+		internal static TCell[] GetDelaunayTriangulation<TVertex, TCell>(IList<TVertex> data,
+			double PlaneDistanceTolerance)
+			where TCell : TriangulationCell<TVertex, TCell>, new()
+			where TVertex : IVertex
+		{
+			var ch = new ConvexHullAlgorithm(data.Cast<IVertex>().ToArray(), true, PlaneDistanceTolerance);
+			ch.GetConvexHull();
+			ch.RemoveUpperFaces();
+			return ch.GetConvexFaces<TVertex, TCell>();
+		}
 
-        /// <summary>
-        /// Removes up facing Tetrahedrons from the triangulation.
-        /// </summary>
-        private void RemoveUpperFaces()
-        {
-            var delaunayFaces = ConvexFaces;
-            var dimension = NumOfDimensions - 1;
+		/// <summary>
+		/// Removes up facing Tetrahedrons from the triangulation.
+		/// </summary>
+		private void RemoveUpperFaces()
+		{
+			var delaunayFaces = ConvexFaces;
+			var dimension = NumOfDimensions - 1;
 
-            // Remove the "upper" faces
-            for (var i = delaunayFaces.Count - 1; i >= 0; i--)
-            {
-                var candidateIndex = delaunayFaces[i];
-                var candidate = FacePool[candidateIndex];
-                if (candidate.Normal[dimension] >= 0.0)
-                {
-                    for (var fi = 0; fi < candidate.AdjacentFaces.Length; fi++)
-                    {
-                        var af = candidate.AdjacentFaces[fi];
-                        if (af >= 0)
-                        {
-                            var face = FacePool[af];
-                            for (var j = 0; j < face.AdjacentFaces.Length; j++)
-                            {
-                                if (face.AdjacentFaces[j] == candidateIndex)
-                                {
-                                    face.AdjacentFaces[j] = -1;
-                                }
-                            }
-                        }
-                    }
-                    delaunayFaces[i] = delaunayFaces[delaunayFaces.Count - 1];
-                    delaunayFaces.Pop();
-                }
-            }
-        }
-    }
+			// Remove the "upper" faces
+			for(var i = delaunayFaces.Count - 1; i >= 0; i--)
+			{
+				var candidateIndex = delaunayFaces[i];
+				var candidate = FacePool[candidateIndex];
+				if(candidate.Normal[dimension] >= 0.0)
+				{
+					for(var fi = 0; fi < candidate.AdjacentFaces.Length; fi++)
+					{
+						var af = candidate.AdjacentFaces[fi];
+						if(af >= 0)
+						{
+							var face = FacePool[af];
+							for(var j = 0; j < face.AdjacentFaces.Length; j++)
+							{
+								if(face.AdjacentFaces[j] == candidateIndex)
+								{
+									face.AdjacentFaces[j] = -1;
+								}
+							}
+						}
+					}
+					delaunayFaces[i] = delaunayFaces[delaunayFaces.Count - 1];
+					delaunayFaces.Pop();
+				}
+			}
+		}
+	}
 }

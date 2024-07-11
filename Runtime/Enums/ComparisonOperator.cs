@@ -5,7 +5,7 @@ namespace UnityEssentials
 	/// <summary>
 	/// An operator for comparing two values.
 	/// </summary>
-	public enum ComparisonOperator 
+	public enum ComparisonOperator
 	{
 		[InspectorName("<")] Less,
 		[InspectorName("<=")] LessOrEqual,

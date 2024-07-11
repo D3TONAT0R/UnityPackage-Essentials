@@ -1,6 +1,4 @@
-﻿using UnityEssentials;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,5 +18,5 @@ namespace UnityEssentialsEditor
 		{
 			return EditorGUIUtility.singleLineHeight;
 		}
-	} 
+	}
 }

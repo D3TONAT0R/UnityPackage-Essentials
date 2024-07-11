@@ -1,6 +1,4 @@
-﻿using UnityEssentials;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,12 +9,12 @@ namespace UnityEssentialsEditor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			
+
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			return -EditorGUIUtility.standardVerticalSpacing;
 		}
-	} 
+	}
 }

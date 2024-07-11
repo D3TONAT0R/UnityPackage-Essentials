@@ -32,38 +32,38 @@ namespace MIConvexHull
 	/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
 	/// <typeparam name="TFace">The type of the t face.</typeparam>
 	public abstract class ConvexFace<TVertex, TFace>
-        where TVertex : IVertex
-        where TFace : ConvexFace<TVertex, TFace>
-    {
-        /// <summary>
-        /// Adjacency. Array of length "dimension".
-        /// If F = Adjacency[i] then the vertices shared with F are Vertices[j] where j != i.
-        /// In the context of triangulation, can be null (indicates the cell is at boundary).
-        /// </summary>
-        /// <value>The adjacency.</value>
-        public TFace[] Adjacency { get; set; }
+		where TVertex : IVertex
+		where TFace : ConvexFace<TVertex, TFace>
+	{
+		/// <summary>
+		/// Adjacency. Array of length "dimension".
+		/// If F = Adjacency[i] then the vertices shared with F are Vertices[j] where j != i.
+		/// In the context of triangulation, can be null (indicates the cell is at boundary).
+		/// </summary>
+		/// <value>The adjacency.</value>
+		public TFace[] Adjacency { get; set; }
 
-        /// <summary>
-        /// The vertices stored in clockwise order for dimensions 2 - 4, in higher dimensions the order is arbitrary.
-        /// Unless I accidentally switch some index somewhere in which case the order is CCW. Either way, it is consistent.
-        /// 3D Normal = (V[1] - V[0]) x (V[2] - V[1]).
-        /// </summary>
-        /// <value>The vertices.</value>
-        public TVertex[] Vertices { get; set; }
+		/// <summary>
+		/// The vertices stored in clockwise order for dimensions 2 - 4, in higher dimensions the order is arbitrary.
+		/// Unless I accidentally switch some index somewhere in which case the order is CCW. Either way, it is consistent.
+		/// 3D Normal = (V[1] - V[0]) x (V[2] - V[1]).
+		/// </summary>
+		/// <value>The vertices.</value>
+		public TVertex[] Vertices { get; set; }
 
-        /// <summary>
-        /// The normal vector of the face. Null if used in triangulation.
-        /// </summary>
-        /// <value>The normal.</value>
-        public double[] Normal { get; set; }
-    }
+		/// <summary>
+		/// The normal vector of the face. Null if used in triangulation.
+		/// </summary>
+		/// <value>The normal.</value>
+		public double[] Normal { get; set; }
+	}
 
-    /// <summary>
-    /// A default convex face representation.
-    /// </summary>
-    /// <typeparam name="TVertex">The type of the t vertex.</typeparam>
-    public class DefaultConvexFace<TVertex> : ConvexFace<TVertex, DefaultConvexFace<TVertex>>
-        where TVertex : IVertex
-    {
-    }
+	/// <summary>
+	/// A default convex face representation.
+	/// </summary>
+	/// <typeparam name="TVertex">The type of the t vertex.</typeparam>
+	public class DefaultConvexFace<TVertex> : ConvexFace<TVertex, DefaultConvexFace<TVertex>>
+		where TVertex : IVertex
+	{
+	}
 }

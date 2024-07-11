@@ -1,10 +1,9 @@
-﻿using UnityEngine;
-using UnityEditor.ProjectWindowCallback;
-using UnityEditor;
+﻿using System;
 using System.IO;
 using System.Reflection;
-using System;
 using System.Text.RegularExpressions;
+using UnityEditor;
+using UnityEditor.ProjectWindowCallback;
 using Object = UnityEngine.Object;
 
 namespace UnityEssentialsEditor

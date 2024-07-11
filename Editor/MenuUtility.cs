@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
-using UnityEngine;
-using System.Linq;
-using UnityEssentials;
 using UnityEditor.Compilation;
+using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
@@ -41,14 +37,14 @@ namespace UnityEssentialsEditor
 #endif
 			if(!moved)
 			{
-				
+
 				RemoveMenuItem("Assets/Create/" + oldPath);
 				AddMenuItem("Assets/Create/" + newPath, "", priority, () =>
 				{
 					var instance = creator.Invoke();
 					ProjectWindowUtil.CreateAsset(instance, $"New {instance.GetType().Name}.{extension}");
 				});
-				
+
 			}
 		}
 
@@ -106,7 +102,6 @@ namespace UnityEssentialsEditor
 
 		public static void ReorganizeAssetMenu()
 		{
-			//TODO: remove unity menus & add them manually again
 
 			RemoveMenuItem("Assets/Create/Playables/Playable Behaviour C# Script");
 			RemoveMenuItem("Assets/Create/Playables/Playable Asset C# Script");

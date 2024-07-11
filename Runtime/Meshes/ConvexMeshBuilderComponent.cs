@@ -10,9 +10,6 @@ namespace UnityEssentials.Meshes
 	[DisallowMultipleComponent]
 	public class ConvexMeshBuilderComponent : MonoBehaviour
 	{
-		//TODO: do some refactoring here
-
-
 		public enum TargetComponents
 		{
 			None,
@@ -21,7 +18,7 @@ namespace UnityEssentials.Meshes
 			Both
 		}
 
-		const float cubeExtents = 0.5f;
+		private const float cubeExtents = 0.5f;
 
 		public TargetComponents applyTo = TargetComponents.MeshCollider;
 		public List<Vector3> vertices;
@@ -30,7 +27,7 @@ namespace UnityEssentials.Meshes
 		public Mesh GeneratedMesh { get; private set; }
 
 		// Start is called before the first frame update
-		void Awake()
+		private void Awake()
 		{
 			RebuildMesh();
 			AssignToComponents();
@@ -97,7 +94,7 @@ namespace UnityEssentials.Meshes
 		{
 			Mesh mesh = TryGetComponent<MeshCollider>(out var collider) ? collider.sharedMesh : null;
 			if(mesh == null) mesh = TryGetComponent<MeshFilter>(out var filter) ? filter.sharedMesh : null;
-			
+
 			if(mesh != null && mesh.vertexCount < 256)
 			{
 				vertices = mesh.vertices.ToList();
