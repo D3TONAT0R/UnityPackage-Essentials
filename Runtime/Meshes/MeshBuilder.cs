@@ -586,7 +586,7 @@ namespace D3T.Meshes
 		}
 
 		/// <summary>
-		/// Adds a cylinder to the mesh, starting from the given position and extruded with with the given height.
+		/// Adds a cylinder to the mesh, starting from the given position and extruded with the given height.
 		/// </summary>
 		public void AddCylinderFrom(Vector3 pos, AxisDirection direction, float radius, float height, int detail = DEFAULT_CIRCLE_DETAIL, bool caps = true)
 		{
@@ -594,6 +594,19 @@ namespace D3T.Meshes
 			{
 				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(direction), Vector3.one));
 				AddCylinder(Vector3.zero + Vector3.up * height * 0.5f, radius, height, detail, caps);
+			}
+		}
+
+		/// <summary>
+		/// Adds a cone to the mesh, starting from the given position and extruded with the given height.
+		/// </summary>
+		public void AddCone(Vector3 pos, AxisDirection direction, float radius, float height, int detail = DEFAULT_CIRCLE_DETAIL, bool cap = true)
+		{
+			//TODO: create separate method for cone to avoid unnecessary top cap
+			using(PushMatrixScope())
+			{
+				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(direction), Vector3.one));
+				AddCylinder(Vector3.up * height * 0.5f, radius, 0, height, detail, cap);
 			}
 		}
 
