@@ -602,11 +602,50 @@ namespace D3T.Meshes
 		/// </summary>
 		public void AddCone(Vector3 pos, AxisDirection direction, float radius, float height, int detail = DEFAULT_CIRCLE_DETAIL, bool cap = true)
 		{
-			//TODO: create separate method for cone to avoid unnecessary top cap
 			using(PushMatrixScope())
 			{
 				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(direction), Vector3.one));
-				AddCylinder(Vector3.up * height * 0.5f, radius, 0, height, detail, cap);
+
+				GetCirclePoints(tempVertexCache, detail, radius);
+				if (cap)
+				{
+					int start = verts.Count;
+					AddTransformedVertex(Vector3.zero);
+					normals.Add(TransformVector(Vector3.down));
+					uv0.Add(new Vector2(0.5f, 0.5f));
+					for (int i = 0; i < detail; i++)
+					{
+						AddTransformedVertex(tempVertexCache[i].XZY());
+						normals.Add(TransformVector(Vector3.down));
+						uv0.Add(tempVertexCache[i].XY() * new Vector2(1, -1) / radius * 0.5f + new Vector2(0.5f, 0.5f));
+					}
+
+					for (int i = 0; i < detail - 1; i++)
+					{
+						MakeTriangle(start + i + 1, start + i + 2, start);
+					}
+					MakeTriangle(start + detail, start + 1, start);
+				}
+
+				int topVertex = verts.Count;
+				AddTransformedVertex(Vector3.up * height);
+				normals.Add(TransformVector(Vector3.up));
+				uv0.Add(new Vector2(0.5f, 0.5f));
+
+				float sideNormalY = radius / height;
+				for(int i = 0; i < detail; i++)
+				{
+					AddTransformedVertex(tempVertexCache[i].XZY());
+					Vector3 normal = tempVertexCache[i].normalized.XZY().WithY(sideNormalY).normalized;
+					normals.Add(TransformVector(normal));
+					uv0.Add(tempVertexCache[i].XY() / radius * 0.5f + new Vector2(0.5f, 0.5f));
+				}
+
+				for(int i = 0; i < detail - 1; i++)
+				{
+					MakeTriangle(topVertex + i + 2, topVertex + i + 1, topVertex);
+				}
+				MakeTriangle(topVertex + detail, topVertex, topVertex + 1);
 			}
 		}
 
@@ -644,6 +683,13 @@ namespace D3T.Meshes
 				ApplyMatrix(matrix);
 				AddMesh(otherMesh);
 			}
+		}
+
+		private void MakeTriangle(int i0, int i1, int i2)
+		{
+			tris.Add(i0);
+			tris.Add(i1);
+			tris.Add(i2);
 		}
 
 		/// <summary>
