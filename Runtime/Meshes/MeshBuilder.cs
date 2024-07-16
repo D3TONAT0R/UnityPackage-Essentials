@@ -428,21 +428,20 @@ namespace D3T.Meshes
 			int b = verts.Count;
 			normals.Add(-nrm);
 			uv0.Add(Vector2.one * 0.5f);
-			for(int i = 0; i < tempVertexCache.Count - 1; i++)
+
+			for(int i = 0; i < tempVertexCache.Count; i++)
 			{
-				AddVertex(matrix.MultiplyPoint(tempVertexCache[i] * radius));
+				AddVertex(matrix.MultiplyPoint(tempVertexCache[i].XZY() * radius));
 				normals.Add(-nrm);
-				Vector2 uv = (tempVertexCache[i].XZ() + Vector2.one) * 0.5f;
+				Vector2 uv = (tempVertexCache[i].XY() + Vector2.one) * 0.5f;
 				uv.x = 1 - uv.x;
 				uv0.Add(uv);
+			}
+
+			for (int i = 0; i < tempVertexCache.Count - 1; i++)
+			{
 				MakeTriangle(b - 1, b + i, b + i + 1);
 			}
-			Vector2 lastPt = tempVertexCache[tempVertexCache.Count - 1] * radius;
-			AddVertex(matrix.MultiplyPoint(lastPt));
-			normals.Add(-nrm);
-			Vector2 lastUV = (lastPt + Vector2.one) * 0.5f;
-			lastUV.x = 1 - lastUV.x;
-			uv0.Add(lastUV);
 			MakeTriangle(b - 1, b + tempVertexCache.Count - 1, b);
 		}
 
@@ -484,12 +483,12 @@ namespace D3T.Meshes
 				{
 					AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius1).XZY().WithY(-h2)));
 					normals.Add(TransformVector(nrmL));
-					uv0.Add(tempVertexCache[i].XZ() / radius1 * 0.5f + new Vector2(0.5f, 0.5f));
+					uv0.Add(tempVertexCache[i].XY() * 0.5f + new Vector2(0.5f, 0.5f));
 					MakeTriangle(bL - 1, bL + i, bL + i + 1);
 				}
 				AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius1).XZY().WithY(-h2)));
 				normals.Add(TransformVector(nrmL));
-				uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XZ() / radius1 * 0.5f + new Vector2(0.5f, 0.5f));
+				uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XY() * 0.5f + new Vector2(0.5f, 0.5f));
 				MakeTriangle(bL - 1, bL + tempVertexCache.Count - 1, bL);
 
 				AddVertex(TransformPoint(pos + Vector3.up * h2));
@@ -500,12 +499,12 @@ namespace D3T.Meshes
 				{
 					AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius2).XZY().WithY(h2)));
 					normals.Add(TransformVector(nrmU));
-					uv0.Add(tempVertexCache[i].XZ() / radius2 * 0.5f + new Vector2(0.5f, 0.5f));
+					uv0.Add(tempVertexCache[i].XY() * 0.5f + new Vector2(0.5f, 0.5f));
 					MakeTriangle(bU - 1, bU + i + 1, bU + i);
 				}
 				AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius2).XZY().WithY(h2)));
 				normals.Add(TransformVector(nrmU));
-				uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XZ() / radius2 * 0.5f + new Vector2(0.5f, 0.5f));
+				uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XY() * 0.5f + new Vector2(0.5f, 0.5f));
 				MakeTriangle(bU - 1, bU, bU + tempVertexCache.Count - 1);
 			}
 
