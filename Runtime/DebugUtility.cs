@@ -90,7 +90,7 @@ namespace UnityEssentials
 
 			public override void Draw()
 			{
-				ExtraGizmos.DrawCrosshairs(position, size);
+				ExtraGizmos.DrawCrosshair(position, size);
 			}
 		}
 
