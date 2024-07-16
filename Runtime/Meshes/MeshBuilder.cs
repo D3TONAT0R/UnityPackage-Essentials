@@ -29,6 +29,8 @@ namespace D3T.Meshes
 
 		public List<Vector2> uv0 = new List<Vector2>();
 
+		public bool Reversed { get; set; } = false;
+
 
 		public MeshBuilder()
 		{
@@ -56,6 +58,7 @@ namespace D3T.Meshes
 			uv0.Clear();
 			vertexColors.Clear();
 			currentVertexColor = null;
+			Reversed = false;
 			ResetMatrix();
 		}
 
@@ -115,9 +118,7 @@ namespace D3T.Meshes
 			uv0.Add(uv_b);
 			uv0.Add(uv_c);
 			var i = verts.Count;
-			tris.Add(i - 3);
-			tris.Add(i - 2);
-			tris.Add(i - 1);
+			MakeTriangle(i - 3, i - 2, i - 1);
 		}
 
 		/// <summary>
@@ -153,13 +154,8 @@ namespace D3T.Meshes
 			uv0.Add(uv_lr);
 
 			var i = verts.Count;
-			tris.Add(i - 4);
-			tris.Add(i - 3);
-			tris.Add(i - 2);
-
-			tris.Add(i - 3);
-			tris.Add(i - 1);
-			tris.Add(i - 2);
+			MakeTriangle(i - 4, i - 3, i - 2);
+			MakeTriangle(i - 3, i - 1, i - 2);
 		}
 
 		/// <summary>
@@ -278,16 +274,12 @@ namespace D3T.Meshes
 
 					if(i < lonDetail - 1)
 					{
-						tris.Add(lower + l);
-						tris.Add(upper + l);
-						tris.Add(upper + r);
+						MakeTriangle(lower + l, upper + l, upper + r);
 					}
 
 					if(i > 0)
 					{
-						tris.Add(lower + l);
-						tris.Add(upper + r);
-						tris.Add(lower + r);
+						MakeTriangle(lower + l, upper + r, lower + r);
 					}
 				}
 			}
@@ -329,16 +321,12 @@ namespace D3T.Meshes
 
 					if(i < lonDetail - 1)
 					{
-						tris.Add(lower + l);
-						tris.Add(upper + l);
-						tris.Add(upper + r);
+						MakeTriangle(lower + l, upper + l, upper + r);
 					}
 
 					if(i >= 0)
 					{
-						tris.Add(lower + l);
-						tris.Add(upper + r);
-						tris.Add(lower + r);
+						MakeTriangle(lower + l, upper + r, lower + r);
 					}
 				}
 			}
@@ -406,16 +394,12 @@ namespace D3T.Meshes
 
 					if(i < lonDetail)
 					{
-						tris.Add(lower + l);
-						tris.Add(upper + l);
-						tris.Add(upper + r);
+						MakeTriangle(lower + l, upper + l, upper + r);
 					}
 
 					if(i > 0)
 					{
-						tris.Add(lower + l);
-						tris.Add(upper + r);
-						tris.Add(lower + r);
+						MakeTriangle(lower + l, upper + r, lower + r);
 					}
 				}
 			}
@@ -451,9 +435,7 @@ namespace D3T.Meshes
 				Vector2 uv = (tempVertexCache[i].XZ() + Vector2.one) * 0.5f;
 				uv.x = 1 - uv.x;
 				uv0.Add(uv);
-				tris.Add(b - 1);
-				tris.Add(b + i);
-				tris.Add(b + i + 1);
+				MakeTriangle(b - 1, b + i, b + i + 1);
 			}
 			Vector2 lastPt = tempVertexCache[tempVertexCache.Count - 1] * radius;
 			AddVertex(matrix.MultiplyPoint(lastPt));
@@ -461,9 +443,7 @@ namespace D3T.Meshes
 			Vector2 lastUV = (lastPt + Vector2.one) * 0.5f;
 			lastUV.x = 1 - lastUV.x;
 			uv0.Add(lastUV);
-			tris.Add(b - 1);
-			tris.Add(b + tempVertexCache.Count - 1);
-			tris.Add(b);
+			MakeTriangle(b - 1, b + tempVertexCache.Count - 1, b);
 		}
 
 		/// <summary>
@@ -505,16 +485,12 @@ namespace D3T.Meshes
 					AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius1).XZY().WithY(-h2)));
 					normals.Add(TransformVector(nrmL));
 					uv0.Add(tempVertexCache[i].XZ() / radius1 * 0.5f + new Vector2(0.5f, 0.5f));
-					tris.Add(bL - 1);
-					tris.Add(bL + i);
-					tris.Add(bL + i + 1);
+					MakeTriangle(bL - 1, bL + i, bL + i + 1);
 				}
 				AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius1).XZY().WithY(-h2)));
 				normals.Add(TransformVector(nrmL));
 				uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XZ() / radius1 * 0.5f + new Vector2(0.5f, 0.5f));
-				tris.Add(bL - 1);
-				tris.Add(bL + tempVertexCache.Count - 1);
-				tris.Add(bL);
+				MakeTriangle(bL - 1, bL + tempVertexCache.Count - 1, bL);
 
 				AddVertex(TransformPoint(pos + Vector3.up * h2));
 				int bU = verts.Count;
@@ -525,16 +501,12 @@ namespace D3T.Meshes
 					AddVertex(TransformPoint(pos + (tempVertexCache[i] * radius2).XZY().WithY(h2)));
 					normals.Add(TransformVector(nrmU));
 					uv0.Add(tempVertexCache[i].XZ() / radius2 * 0.5f + new Vector2(0.5f, 0.5f));
-					tris.Add(bU - 1);
-					tris.Add(bU + i + 1);
-					tris.Add(bU + i);
+					MakeTriangle(bU - 1, bU + i + 1, bU + i);
 				}
 				AddVertex(TransformPoint(pos + (tempVertexCache[tempVertexCache.Count - 1] * radius2).XZY().WithY(h2)));
 				normals.Add(TransformVector(nrmU));
 				uv0.Add(tempVertexCache[tempVertexCache.Count - 1].XZ() / radius2 * 0.5f + new Vector2(0.5f, 0.5f));
-				tris.Add(bU - 1);
-				tris.Add(bU);
-				tris.Add(bU + tempVertexCache.Count - 1);
+				MakeTriangle(bU - 1, bU, bU + tempVertexCache.Count - 1);
 			}
 
 			float sideNormalY = (radius2 - radius1) / height;
@@ -548,12 +520,8 @@ namespace D3T.Meshes
 				normals.Add(TransformVector(normal));
 				uv0.Add(new Vector2(i / (float)tempVertexCache.Count, 0));
 				uv0.Add(new Vector2(i / (float)tempVertexCache.Count, 1));
-				tris.Add(bM);
-				tris.Add(bM + 1);
-				tris.Add(bM + 2);
-				tris.Add(bM + 3);
-				tris.Add(bM + 2);
-				tris.Add(bM + 1);
+				MakeTriangle(bM, bM + 1, bM + 2);
+				MakeTriangle(bM + 3, bM + 2, bM + 1);
 			}
 
 			AddVertex(TransformPoint(pos + (tempVertexCache[0] * radius1).XZY().WithY(-h2)));
@@ -607,20 +575,20 @@ namespace D3T.Meshes
 				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(direction), Vector3.one));
 
 				GetCirclePoints(tempVertexCache, detail, radius);
-				if (cap)
+				if(cap)
 				{
 					int start = verts.Count;
 					AddTransformedVertex(Vector3.zero);
 					normals.Add(TransformVector(Vector3.down));
 					uv0.Add(new Vector2(0.5f, 0.5f));
-					for (int i = 0; i < detail; i++)
+					for(int i = 0; i < detail; i++)
 					{
 						AddTransformedVertex(tempVertexCache[i].XZY());
 						normals.Add(TransformVector(Vector3.down));
 						uv0.Add(tempVertexCache[i].XY() * new Vector2(1, -1) / radius * 0.5f + new Vector2(0.5f, 0.5f));
 					}
 
-					for (int i = 0; i < detail - 1; i++)
+					for(int i = 0; i < detail - 1; i++)
 					{
 						MakeTriangle(start + i + 1, start + i + 2, start);
 					}
@@ -663,13 +631,13 @@ namespace D3T.Meshes
 			{
 				normals.Add(TransformVector(nrm));
 			}
-			foreach(var tri in otherMesh.triangles)
-			{
-				tris.Add(offset + tri);
-			}
 			foreach(var uv in otherMesh.uv)
 			{
 				uv0.Add(uv);
+			}
+			for (int i = 0; i < otherMesh.triangles.Length; i += 3)
+			{
+				MakeTriangle(offset + otherMesh.triangles[i], offset + otherMesh.triangles[i + 1], offset + otherMesh.triangles[i + 2]);
 			}
 		}
 
@@ -687,9 +655,18 @@ namespace D3T.Meshes
 
 		private void MakeTriangle(int i0, int i1, int i2)
 		{
-			tris.Add(i0);
-			tris.Add(i1);
-			tris.Add(i2);
+			if (Reversed)
+			{
+				tris.Add(i0);
+				tris.Add(i2);
+				tris.Add(i1);
+			}
+			else
+			{
+				tris.Add(i0);
+				tris.Add(i1);
+				tris.Add(i2);
+			}
 		}
 
 		/// <summary>
