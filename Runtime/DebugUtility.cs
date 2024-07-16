@@ -90,7 +90,7 @@ namespace D3T
 
 			public override void Draw()
 			{
-				ExtraGizmos.DrawCrosshairs(position, size);
+				ExtraGizmos.DrawCrosshair(position, size);
 			}
 		}
 

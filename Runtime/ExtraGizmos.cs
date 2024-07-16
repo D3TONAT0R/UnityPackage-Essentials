@@ -14,6 +14,7 @@ namespace D3T
 		internal static Mesh cylinderMesh;
 		internal static Mesh capsuleCenterMesh;
 		internal static Mesh capsuleCapMesh;
+		internal static Mesh coneMesh;
 
 		internal static GUIStyle labelStyle;
 
@@ -32,10 +33,13 @@ namespace D3T
 			builder.Clear();
 			builder.AddCylinder(Vector3.zero, 1, 1, 16, false);
 			capsuleCenterMesh = builder.CreateMesh();
-
 			builder.Clear();
 			builder.AddHemisphere(Vector3.zero, 1, 0.5f, 16, 16);
 			capsuleCapMesh = builder.CreateMesh();
+
+			builder.Clear();
+			builder.AddCone(Vector3.zero, AxisDirection.YPos, 1f, 1f, 16, true);
+			coneMesh = builder.CreateMesh();
 		}
 
 		/// <summary>
@@ -197,6 +201,26 @@ namespace D3T
 		}
 
 		/// <summary>
+		/// Draws a solid cone gizmo.
+		/// </summary>
+		public static void DrawCone(Vector3 center, Quaternion rotation, float radius, float height)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
+			Gizmos.DrawMesh(coneMesh);
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a solid cone gizmo.
+		/// </summary>
+		public static void DrawCone(Vector3 center, AxisDirection direction, float radius, float height)
+		{
+			var rotation = GetAxisRotation(direction);
+			DrawCone(center, rotation, radius, height);
+		}
+
+		/// <summary>
 		/// Draws a wireframe cone gizmo.
 		/// </summary>
 		public static void DrawWireCone(Vector3 center, Quaternion rotation, float radius, float height, int circleSegments = 64)
@@ -251,7 +275,7 @@ namespace D3T
 		/// <summary>
 		/// Draws a 3D crosshair gizmo.
 		/// </summary>
-		public static void DrawCrosshairs(Vector3 point, float radius)
+		public static void DrawCrosshair(Vector3 point, float radius)
 		{
 			Gizmos.DrawLine(point + Vector3.left * radius, point + Vector3.right * radius);
 			Gizmos.DrawLine(point + Vector3.down * radius, point + Vector3.up * radius);
