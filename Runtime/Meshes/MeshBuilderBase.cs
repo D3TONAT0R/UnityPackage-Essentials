@@ -81,24 +81,26 @@ namespace D3T.Meshes
 			if(resetStack) matrixStack.Clear();
 		}
 
-		public Vector3 TransformPoint(Vector3 point)
-		{
-			return currentMatrix.MultiplyPoint(point);
-		}
-
-		public Vector3 TransformVector(Vector3 vector)
-		{
-			return currentMatrix.MultiplyVector(vector);
-		}
-
-		public void TransformPoint(ref Vector3 point)
+		public virtual void TransformPoint(ref Vector3 point)
 		{
 			point = currentMatrix.MultiplyPoint(point);
 		}
 
-		public void TransformVector(ref Vector3 vector)
+		public virtual void TransformVector(ref Vector3 vector)
 		{
 			vector = currentMatrix.MultiplyVector(vector);
+		}
+
+		public Vector3 TransformPoint(Vector3 point)
+		{
+			TransformPoint(ref point);
+			return point;
+		}
+
+		public Vector3 TransformVector(Vector3 vector)
+		{
+			TransformVector(ref vector);
+			return vector;
 		}
 
 		#endregion
