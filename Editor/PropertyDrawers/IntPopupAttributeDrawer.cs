@@ -12,6 +12,7 @@ namespace D3TEditor.PropertyDrawers
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			EditorGUI.BeginProperty(position, label, property);
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.Integer)) return;
 			var choices = PropertyDrawerUtility.GetAttribute<IntPopupAttribute>(property, true).choices;
 			if(choices.Length > maxItemCount)
@@ -30,6 +31,7 @@ namespace D3TEditor.PropertyDrawers
 			{
 				property.intValue = sel;
 			}
+			EditorGUI.EndProperty();
 		}
 	}
 }

@@ -9,6 +9,7 @@ namespace D3TEditor.PropertyDrawers
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			EditorGUI.BeginProperty(position, label, property);
 			position.height = EditorGUIUtility.singleLineHeight;
 			var min = property.FindPropertyRelative("min");
 			var max = property.FindPropertyRelative("max");
@@ -40,6 +41,7 @@ namespace D3TEditor.PropertyDrawers
 				min.floatValue = Mathf.Clamp(min.floatValue, attr.min, attr.max);
 				max.floatValue = Mathf.Clamp(max.floatValue, attr.min, attr.max);
 			}
+			EditorGUI.EndProperty();
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

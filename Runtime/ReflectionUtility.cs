@@ -60,7 +60,7 @@ namespace D3T
 			}
 			else if(TargetType != null)
 			{
-				return $"{Attribute.GetType().Name} in {TargetMember.DeclaringType.FullName}";
+				return $"{Attribute.GetType().Name} in {TargetType.FullName}";
 			}
 			else if(TargetAssembly != null)
 			{

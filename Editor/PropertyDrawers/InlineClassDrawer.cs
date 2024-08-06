@@ -12,6 +12,7 @@ namespace D3TEditor
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			position.height = EditorGUIUtility.singleLineHeight;
+			EditorGUI.BeginProperty(position, label, property);
 
 			EditorGUI.LabelField(position, label);
 			position.xMin += EditorGUIUtility.labelWidth + 3;
@@ -24,6 +25,8 @@ namespace D3TEditor
 				PropertyDrawerUtility.DrawPropertyField(rects[i], property, GUIContent.none);
 				i++;
 			}
+
+			EditorGUI.EndProperty();
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
