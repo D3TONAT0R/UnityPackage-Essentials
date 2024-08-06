@@ -25,9 +25,14 @@ namespace D3TEditor
 			}
 			index++;
 			AddItem<Renderer>(menu, ref index);
-			AddItem<Renderer>(menu, ref index, "Renderer (GI Static)", (r) => GameObjectUtility.GetStaticEditorFlags(r.gameObject).HasFlag(StaticEditorFlags.ContributeGI));
+			AddItem<Renderer>(menu, ref index, "Renderer (GI Static)", r => GameObjectUtility.GetStaticEditorFlags(r.gameObject).HasFlag(StaticEditorFlags.ContributeGI));
 			AddItem<Collider>(menu, ref index);
+			AddItem<Collider>(menu, ref index, "Trigger", c => c.isTrigger);
 			AddItem<AudioSource>(menu, ref index);
+			AddItem<Light>(menu, ref index);
+			AddItem<ParticleSystem>(menu, ref index);
+			AddItem<Camera>(menu, ref index);
+			AddItem<MonoBehaviour>(menu, ref index);
 		}
 
 		private static void AddItem<T>(GenericMenu menu, ref int index, string name = null, Func<T, bool> predicate = null) where T : Component
