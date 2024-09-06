@@ -5,6 +5,10 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.EditorTools;
+#if !UNITY_2020_2_OR_NEWER
+using ToolManager = UnityEditor.EditorTools.EditorTools;
+#endif
+
 using UnityEngine;
 
 namespace D3TEditor
