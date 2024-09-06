@@ -1,8 +1,10 @@
 ﻿using D3T;
+using D3TEditor.Tools;
 using System;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.EditorTools;
 using UnityEngine;
 
 namespace D3TEditor
@@ -191,6 +193,40 @@ namespace D3TEditor
 			using(new ColorScope(new Color(1, 0.3f, 0.3f)))
 			{
 				EditorGUI.LabelField(position, label, label2);
+			}
+		}
+
+		public static bool ToolButton(Rect rect, string label, GUIContent icon, bool state)
+		{
+			var buttonRect = new Rect(rect.x, rect.y, 30, 20);
+			if(label != null)
+			{
+				GUI.Label(rect, label);
+				buttonRect.x += EditorGUIUtility.labelWidth;
+			}
+			return GUI.Toggle(buttonRect, state, icon, GUI.skin.button);
+		}
+
+		public static bool ToolButton(string label, GUIContent icon, bool state)
+		{
+			var position = EditorGUILayout.GetControlRect(true, 20);
+			var buttonRect = new Rect(0, 0, 30, 20);
+			if(label != null)
+			{
+				GUI.Label(position, label);
+				buttonRect.x += EditorGUIUtility.labelWidth;
+			}
+			return GUI.Toggle(buttonRect, state, BoundsDefinitionTool.ToolIcon, GUI.skin.button);
+		}
+
+		public static void ToolButton<T>(string label, GUIContent icon) where T : EditorTool
+		{
+			bool state = ToolManager.activeToolType == typeof(T);
+			bool newState = ToolButton(label, icon, state);
+			if(newState != state)
+			{
+				if(newState) ToolManager.SetActiveTool<T>();
+				else ToolManager.RestorePreviousTool();
 			}
 		}
 	}
