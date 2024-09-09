@@ -68,17 +68,19 @@ namespace D3TEditor
 			var assetMetaPath = AssetDatabase.GetTextMetaFilePathFromAssetPath(assetPath);
 			var assetMetaLines = File.ReadAllLines(assetMetaPath);
 			string originalGUID = assetMetaLines[1].Split(':')[1].Trim();
+			File.Delete(assetPath);
+			File.Delete(assetMetaPath);
 
 			var scriptedImporter = (ScriptedTextureGenerator)GetAtPath(assetPath);
 			var linear = scriptedImporter.linear;
 			var generateMipMaps = scriptedImporter.generateMipMaps;
 			var wrapMode = scriptedImporter.wrapMode;
 			var filterMode = scriptedImporter.filterMode;
-			AssetDatabase.MoveAssetToTrash(assetPath);
 
 			var textureMetaLines = File.ReadAllLines(textureMetaPath);
 			textureMetaLines[1] = $"guid: {originalGUID}";
 			File.WriteAllLines(textureMetaPath, textureMetaLines);
+			//AssetDatabase.CreateAsset(Instantiate(texture), assetPath);
 
 			var pngImporter = (TextureImporter)GetAtPath(pngPath);
 			pngImporter.sRGBTexture = !linear;
