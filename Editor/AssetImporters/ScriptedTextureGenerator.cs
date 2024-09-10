@@ -15,10 +15,6 @@ namespace D3TEditor
 		public TextureWrapMode wrapMode = TextureWrapMode.Clamp;
 		public FilterMode filterMode = FilterMode.Bilinear;
 
-		//TODO: write custom editor for this so the button shows up at the very bottom
-		[EditorButton("Bake")]
-		public Null _;
-
 		public override void OnImportAsset(AssetImportContext ctx)
 		{
 			resolution.x = Mathf.Clamp(resolution.x, 1, 4096);
@@ -38,6 +34,7 @@ namespace D3TEditor
 			}
 			texture.Apply();
 			ctx.AddObjectToAsset("texture", texture);
+			ctx.SetMainObject(texture);
 		}
 
 		protected abstract Color GetPixelColor(int x, int y, Vector2 uv);
@@ -58,6 +55,12 @@ namespace D3TEditor
 		//TODO: bake operation breaks references in other assets (such as materials)
 		public static string BakeTexture(string assetPath)
 		{
+			var scriptedImporter = (ScriptedTextureGenerator)GetAtPath(assetPath);
+			var linear = scriptedImporter.linear;
+			var generateMipMaps = scriptedImporter.generateMipMaps;
+			var wrapMode = scriptedImporter.wrapMode;
+			var filterMode = scriptedImporter.filterMode;
+
 			var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
 			var pngData = texture.EncodeToPNG();
 			string pngPath = Path.ChangeExtension(assetPath, "png");
@@ -70,12 +73,8 @@ namespace D3TEditor
 			string originalGUID = assetMetaLines[1].Split(':')[1].Trim();
 			File.Delete(assetPath);
 			File.Delete(assetMetaPath);
+			AssetDatabase.Refresh();
 
-			var scriptedImporter = (ScriptedTextureGenerator)GetAtPath(assetPath);
-			var linear = scriptedImporter.linear;
-			var generateMipMaps = scriptedImporter.generateMipMaps;
-			var wrapMode = scriptedImporter.wrapMode;
-			var filterMode = scriptedImporter.filterMode;
 
 			var textureMetaLines = File.ReadAllLines(textureMetaPath);
 			textureMetaLines[1] = $"guid: {originalGUID}";
