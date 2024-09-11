@@ -1,7 +1,11 @@
 using System.IO;
-using D3T;
 using UnityEditor;
-using UnityEditor.Experimental.AssetImporters;
+#if UNITY_2020_2_OR_NEWER
+using ScriptedImporter = UnityEditor.AssetImporters.ScriptedImporter;
+#else
+using ScriptedImporter = UnityEditor.Experimental.AssetImporters.ScriptedImporter;
+#endif
+
 using UnityEngine;
 
 namespace D3TEditor
@@ -15,7 +19,7 @@ namespace D3TEditor
 		public TextureWrapMode wrapMode = TextureWrapMode.Clamp;
 		public FilterMode filterMode = FilterMode.Bilinear;
 
-		public override void OnImportAsset(AssetImportContext ctx)
+		public override void OnImportAsset(UnityEditor.AssetImporters.AssetImportContext ctx)
 		{
 			resolution.x = Mathf.Clamp(resolution.x, 1, 4096);
 			resolution.y = Mathf.Clamp(resolution.y, 1, 4096);

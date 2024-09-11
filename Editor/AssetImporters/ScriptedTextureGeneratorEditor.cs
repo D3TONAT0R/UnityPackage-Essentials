@@ -1,12 +1,12 @@
 ﻿using D3TEditor;
 using UnityEditor;
-using UnityEditor.Experimental.AssetImporters;
+
 using UnityEngine;
 
 namespace D3T
 {
 	[CustomEditor(typeof(ScriptedTextureGenerator), true)]
-	public class ScriptedTextureGeneratorEditor : ScriptedImporterEditor
+	public class ScriptedTextureGeneratorEditor : UnityEditor.AssetImporters.ScriptedImporterEditor
 	{
 		public override void OnInspectorGUI()
 		{
