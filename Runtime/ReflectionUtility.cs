@@ -105,6 +105,7 @@ namespace D3T
 		private static Assembly[] gameAssemblyCache;
 		private static Assembly[] gameAssemblyWithUnityCache;
 
+		private static Dictionary<Type, Type[]> interfaceCache = new Dictionary<Type, Type[]>();
 
 		/// <summary>
 		/// Returns all game related assemblies (excluding unity assemblies).
@@ -146,6 +147,20 @@ namespace D3T
 				}
 			}
 			return list.ToArray();
+		}
+
+		public static Type[] GetInterfaces(Type type)
+		{
+			if(interfaceCache.TryGetValue(type, out var interfaces))
+			{
+				return interfaces;
+			}
+			else
+			{
+				interfaces = type.GetInterfaces();
+				interfaceCache.Add(type, interfaces);
+				return interfaces;
+			}
 		}
 
 		private static bool ShouldIgnoreAssembly(Assembly assembly, string[] excludePrefixes)

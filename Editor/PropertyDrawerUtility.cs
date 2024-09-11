@@ -12,12 +12,35 @@ namespace D3TEditor
 {
 	public static class PropertyDrawerUtility
 	{
-		private const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+		private struct FromToType : IEquatable<FromToType>
+		{
+			public Type from;
+			public Type to;
+
+			public FromToType(Type from, Type to)
+			{
+				this.from = from;
+				this.to = to;
+			}
+
+			public bool Equals(FromToType other)
+			{
+				return GetHashCode() == other.GetHashCode();
+			}
+
+			public override int GetHashCode()
+			{
+				return HashCode.Combine(from, to);
+			}
+		}
 
 		//Object property drawer method from AdvancedObjectSelector package
 		private static MethodInfo advancedObjectPropertyDrawer;
+
 		private static Dictionary<Type, Type> propertyDrawerTypes = new Dictionary<Type, Type>();
 		private static Dictionary<Type, PropertyDrawer> propertyDrawersCache = new Dictionary<Type, PropertyDrawer>();
+
+		private static Dictionary<FromToType, bool> assignabilityToGenericTypeCache = new Dictionary<FromToType, bool>();
 
 		[System.Diagnostics.DebuggerHidden]
 		[InitializeOnLoadMethod]
@@ -28,10 +51,16 @@ namespace D3TEditor
 				try
 				{
 					var assembly = Assembly.Load("D3T.AdvancedObjectSelector");
-					advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
-					.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
+					if(assembly != null)
+					{
+						advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
+							.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
+					}
 				}
-				catch { }
+				catch(Exception e)
+				{
+					e.LogException();
+				}
 
 				propertyDrawerTypes = new Dictionary<Type, Type>();
 				foreach(var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
@@ -62,6 +91,16 @@ namespace D3TEditor
 		{
 			if(prop == null) return null;
 
+#if UNITY_2022_1_OR_NEWER
+			if(prop.isArray) return GetPropertyValueViaReflection(prop);
+			else return prop.boxedValue;
+#else
+			return GetPropertyValueViaReflection(prop);
+#endif
+		}
+
+		public static object GetPropertyValueViaReflection(SerializedProperty prop)
+		{
 			var path = prop.propertyPath.Replace(".Array.data[", "[");
 			object obj = prop.serializedObject.targetObject;
 			var elements = path.Split('.');
@@ -163,16 +202,12 @@ namespace D3TEditor
 		{
 			var enumerable = collection as System.Collections.IEnumerable;
 			if(enumerable == null) return null;
-			var enm = enumerable.GetEnumerator();
-			//while (index-- >= 0)
-			//    enm.MoveNext();
-			//return enm.Current;
-
+			var enumerator = enumerable.GetEnumerator();
 			for(int i = 0; i <= index; i++)
 			{
-				if(!enm.MoveNext()) return null;
+				if(!enumerator.MoveNext()) return null;
 			}
-			return enm.Current;
+			return enumerator.Current;
 		}
 
 		public static SerializedProperty GetParentProperty(SerializedProperty prop)
@@ -312,7 +347,14 @@ namespace D3TEditor
 
 		private static bool IsAssignableToGenericType(Type givenType, Type genericType)
 		{
-			var interfaceTypes = givenType.GetInterfaces();
+			var fromTo = new FromToType(givenType, genericType);
+
+			if(assignabilityToGenericTypeCache.TryGetValue(fromTo, out var result))
+			{
+				return result;
+			}
+
+			var interfaceTypes = givenType.GetInterfacesNonAlloc();
 
 			foreach(var it in interfaceTypes)
 			{
@@ -326,7 +368,9 @@ namespace D3TEditor
 			Type baseType = givenType.BaseType;
 			if(baseType == null) return false;
 
-			return IsAssignableToGenericType(baseType, genericType);
+			result = IsAssignableToGenericType(baseType, genericType);
+			assignabilityToGenericTypeCache[new FromToType(baseType, genericType)] = result;
+			return result;
 		}
 
 		private static Type GetPropertyDrawerType(Type objectOrAttributeType)
