@@ -11,15 +11,31 @@ namespace D3T.Collections
 	/// </summary>
 	public interface IUnityDictionary
 	{
+		/// <summary>
+		/// Returns true if the contents of the dictionary are valid.
+		/// </summary>
 		bool Valid { get; }
 
+		/// <summary>
+		/// The type of the keys in the dictionary.
+		/// </summary>
 		Type KeyType { get; }
+
+		/// <summary>
+		/// The type of the values in the dictionary.
+		/// </summary>
 		Type ValueType { get; }
 
+		/// <summary>
+		/// The number of items in the dictionary.
+		/// </summary>
 		int Count { get; }
 
 		System.Exception SerializationException { get; }
 
+		/// <summary>
+		/// Clears the dictionary.
+		/// </summary>
 		void Clear();
 
 #if UNITY_EDITOR

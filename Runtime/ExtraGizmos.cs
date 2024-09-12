@@ -353,7 +353,7 @@ namespace D3T
 			}
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(up), Vector3.one);
-			if(!grow) size -= Vector2.one * radius * 2;
+			if(!grow) size -= 2 * radius * Vector2.one;
 			size *= 0.5f;
 			var p0 = new Vector3(-size.x, -size.y, 0);
 			var p1 = new Vector3(size.x, -size.y, 0);

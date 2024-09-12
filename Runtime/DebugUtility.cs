@@ -17,7 +17,7 @@ namespace D3T
 			public float timeLeft;
 			public Color color;
 
-			public GizmoInstance(Color color, float duration)
+			protected GizmoInstance(Color color, float duration)
 			{
 				this.duration = duration;
 				timeLeft = duration;
@@ -78,9 +78,8 @@ namespace D3T
 
 		private class PointGizmoInstance : GizmoInstance
 		{
-			public Vector3 position;
-			public float size;
-
+			private Vector3 position;
+			private float size;
 
 			public PointGizmoInstance(Vector3 position, float size, Color color, float duration) : base(color, duration)
 			{
@@ -115,29 +114,6 @@ namespace D3T
 		private static List<GizmoInstance> instances = new List<GizmoInstance>();
 
 		private static StringBuilder stringBuilder = new StringBuilder();
-
-		[OnDrawGizmosRuntime]
-		private static void OnDrawGizmos()
-		{
-			foreach(var i in instances)
-			{
-				bool decrTime = true;
-#if UNITY_EDITOR
-				if(!UnityEditor.EditorApplication.isPlaying || UnityEditor.EditorApplication.isPaused)
-				{
-					decrTime = false;
-				}
-#endif
-				if(decrTime)
-				{
-					i.timeLeft -= Time.unscaledDeltaTime;
-				}
-				float alpha = i.duration > 0 ? i.timeLeft / i.duration : 1f;
-				Gizmos.color = i.color.MultiplyAlpha(alpha);
-				i.Draw();
-			}
-			instances.RemoveAll((i) => i.timeLeft <= 0);
-		}
 
 		private static void AddGizmo(GizmoInstance instance)
 		{
@@ -245,6 +221,29 @@ namespace D3T
 				if(scale) stringBuilder.Append(" Scale (Local): " + t.localScale);
 			}
 			Debug.Log(stringBuilder.ToString());
+		}
+
+		[OnDrawGizmosRuntime]
+		private static void OnDrawGizmos()
+		{
+			foreach(var i in instances)
+			{
+				bool decrTime = true;
+#if UNITY_EDITOR
+				if(!UnityEditor.EditorApplication.isPlaying || UnityEditor.EditorApplication.isPaused)
+				{
+					decrTime = false;
+				}
+#endif
+				if(decrTime)
+				{
+					i.timeLeft -= Time.unscaledDeltaTime;
+				}
+				float alpha = i.duration > 0 ? i.timeLeft / i.duration : 1f;
+				Gizmos.color = i.color.MultiplyAlpha(alpha);
+				i.Draw();
+			}
+			instances.RemoveAll((i) => i.timeLeft <= 0);
 		}
 
 		private static float GetMaxDistance(RaycastHit[] hits, int hitCount, float maxDistance)

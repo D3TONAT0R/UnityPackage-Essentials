@@ -65,6 +65,9 @@ namespace D3T.Pooling
 		/// </summary>
 		public int TotalInstanceCount => InactiveInstanceCount + ActiveInstanceCount;
 
+		/// <summary>
+		/// Creates a new instance pool.
+		/// </summary>
 		public InstancePool(Scene? scene, int maxPoolSize, Func<T> instantiator = null, Action<T> activator = null, Action<T> deactivator = null, bool dontDestroyOnLoad = false, float? maxActiveTime = null)
 		{
 			if(scene.HasValue && !scene.Value.IsValid()) throw new ArgumentException("Scene is invalid");

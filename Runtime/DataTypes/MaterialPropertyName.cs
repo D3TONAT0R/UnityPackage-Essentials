@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace D3T
 {
+	/// <summary>
+	/// Definition of a material property name,
+	/// </summary>
 	[System.Serializable]
 	public struct MaterialPropertyName
 	{

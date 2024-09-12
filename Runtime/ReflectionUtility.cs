@@ -131,24 +131,9 @@ namespace D3T
 			return gameAssemblyWithUnityCache;
 		}
 
-		private static Assembly[] GetAssembliesExcluding(string[] excludePrefixes)
-		{
-			if(assemblyCache == null)
-			{
-				assemblyCache = AppDomain.CurrentDomain.GetAssemblies();
-			}
-
-			var list = new List<Assembly>();
-			foreach(var assembly in assemblyCache)
-			{
-				if(!ShouldIgnoreAssembly(assembly, excludePrefixes))
-				{
-					list.Add(assembly);
-				}
-			}
-			return list.ToArray();
-		}
-
+		/// <summary>
+		/// Returns all interfaces implemented by the given type.
+		/// </summary>
 		public static Type[] GetInterfaces(Type type)
 		{
 			if(interfaceCache.TryGetValue(type, out var interfaces))
@@ -327,34 +312,6 @@ namespace D3T
 				}
 			}
 			return defs;
-		}
-
-		private static Func<Type, bool> GetClassOrStructCondition(SearchFlags flags)
-		{
-			if(flags.HasFlag(SearchFlags.Types))
-			{
-				return x => x.IsClass || x.IsValueType;
-			}
-			else if(flags.HasFlag(SearchFlags.Classes))
-			{
-				return x => x.IsClass;
-			}
-			else if(flags.HasFlag(SearchFlags.Structs))
-			{
-				return x => x.IsValueType;
-			}
-			else
-			{
-				return x => false;
-			}
-		}
-
-		private static BindingFlags GetBindingFlags(bool staticOnly, bool inclideNonPublic)
-		{
-			var flags = BindingFlags.Public;
-			flags |= staticOnly ? BindingFlags.Static : BindingFlags.Instance;
-			if(inclideNonPublic) flags |= BindingFlags.NonPublic;
-			return flags;
 		}
 
 		/// <summary>
@@ -565,18 +522,34 @@ namespace D3T
 			return memberPath;
 		}
 
+		private static Assembly[] GetAssembliesExcluding(string[] excludePrefixes)
+		{
+			if(assemblyCache == null)
+			{
+				assemblyCache = AppDomain.CurrentDomain.GetAssemblies();
+			}
+
+			var list = new List<Assembly>();
+			foreach(var assembly in assemblyCache)
+			{
+				if(!ShouldIgnoreAssembly(assembly, excludePrefixes))
+				{
+					list.Add(assembly);
+				}
+			}
+			return list.ToArray();
+		}
+
 		private static void Resolve(ref object obj, MemberInfo[] path, int index, Action<object> action, bool set)
 		{
-			MemberInfo memberInfo;
 			while(index < path.Length - 1)
 			{
-				memberInfo = path[index];
+				var memberInfo = path[index];
 				var lObj = obj;
 				obj = GetValueOfMember(obj, memberInfo);
 				if(obj.GetType().IsValueType)
 				{
 					Resolve(ref obj, path, index + 1, action, set);
-					action = null;
 					if(set)
 					{
 						SetValueOfMember(lObj, memberInfo, obj);
@@ -589,6 +562,34 @@ namespace D3T
 				}
 			}
 			action?.Invoke(obj);
+		}
+
+		private static Func<Type, bool> GetClassOrStructCondition(SearchFlags flags)
+		{
+			if(flags.HasFlag(SearchFlags.Types))
+			{
+				return x => x.IsClass || x.IsValueType;
+			}
+			else if(flags.HasFlag(SearchFlags.Classes))
+			{
+				return x => x.IsClass;
+			}
+			else if(flags.HasFlag(SearchFlags.Structs))
+			{
+				return x => x.IsValueType;
+			}
+			else
+			{
+				return x => false;
+			}
+		}
+
+		private static BindingFlags GetBindingFlags(bool staticOnly, bool inclideNonPublic)
+		{
+			var flags = BindingFlags.Public;
+			flags |= staticOnly ? BindingFlags.Static : BindingFlags.Instance;
+			if(inclideNonPublic) flags |= BindingFlags.NonPublic;
+			return flags;
 		}
 	}
 }
