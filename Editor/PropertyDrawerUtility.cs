@@ -30,7 +30,7 @@ namespace D3TEditor
 
 			public override int GetHashCode()
 			{
-				return HashCode.Combine(from, to);
+				return unchecked(from.GetHashCode() * 17 + to.GetHashCode());
 			}
 		}
 
