@@ -43,6 +43,12 @@ namespace D3T
 	/// Add this attribute to a static method to have it called after the FixedUpdate period.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]
+	public class LateFixedUpdateAttribute : Attribute { }
+
+	/// <summary>
+	/// Add this attribute to a static method to have it called after the FixedUpdate and LateFixedUpdate period.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Method)]
 	public class PostFixedUpdateAttribute : Attribute { }
 
 
@@ -52,6 +58,12 @@ namespace D3T
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]
 	public class UpdateOnceAttribute : Attribute { }
+
+	/// <summary>
+	/// Add this attribute to a static method to have it called exactly once during the fixed update period.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Method)]
+	public class FixedUpdateOnceAttribute : Attribute { }
 
 
 	/// <summary>
