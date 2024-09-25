@@ -485,9 +485,10 @@ namespace D3T
 		/// </summary>
 		public static object GetValueOfMember(object obj, MemberInfo member)
 		{
+			if(member == null) throw new ArgumentNullException("member");
 			if(member is FieldInfo f) return f.GetValue(obj);
 			else if(member is PropertyInfo p) return p.GetValue(obj);
-			else throw new InvalidOperationException();
+			else throw new InvalidOperationException("Invalid member type: "+member.GetType().Name);
 		}
 
 		/// <summary>
