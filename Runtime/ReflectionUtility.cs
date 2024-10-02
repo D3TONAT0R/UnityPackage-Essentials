@@ -165,10 +165,26 @@ namespace D3T
 		/// </summary>
 		public static IEnumerable<Type> GetClassesOfType(Type baseType, bool includeUnityAssembly = false)
 		{
-			Func<Assembly[]> assemblyGetter;
-			if(includeUnityAssembly) assemblyGetter = GetGameAssembliesIncludingUnity;
-			else assemblyGetter = GetGameAssemblies;
-			return assemblyGetter.Invoke().SelectMany(a => a.GetTypes().Where(t => baseType.IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface));
+			var types = new List<Type>();
+			var assemblies = includeUnityAssembly ? GetGameAssembliesIncludingUnity() : GetGameAssemblies();
+			foreach(var assembly in assemblies)
+			{
+				try
+				{
+					foreach(var t in assembly.GetTypes())
+					{
+						if(baseType.IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
+						{
+							types.Add(t);
+						}
+					}
+				}
+				catch(ReflectionTypeLoadException)
+				{
+					//Ignore this exception
+				}
+			}
+			return types;
 		}
 
 		/// <summary>
@@ -182,21 +198,76 @@ namespace D3T
 			var assemblies = GetGameAssemblies();
 			foreach(var assembly in assemblies)
 			{
-				if(searchFlags.HasFlag(SearchFlags.Assemblies))
+				try
 				{
-					foreach(var attr in assembly.GetCustomAttributes<T>())
+					if(searchFlags.HasFlag(SearchFlags.Assemblies))
 					{
-						defs.Add(new AttributeDefinition<T>(attr, assembly));
+						foreach(var attr in assembly.GetCustomAttributes<T>())
+						{
+							defs.Add(new AttributeDefinition<T>(attr, assembly));
+						}
 					}
-				}
-				if(searchFlags.HasFlag(SearchFlags.Classes)
-					|| searchFlags.HasFlag(SearchFlags.Structs)
-					|| searchFlags.HasFlag(SearchFlags.Properties)
-					|| searchFlags.HasFlag(SearchFlags.Fields)
-					|| searchFlags.HasFlag(SearchFlags.Methods)
-					|| searchFlags.HasFlag(SearchFlags.Events)
-					)
-				{
+					if(searchFlags.HasFlag(SearchFlags.Classes)
+						|| searchFlags.HasFlag(SearchFlags.Structs)
+						|| searchFlags.HasFlag(SearchFlags.Properties)
+						|| searchFlags.HasFlag(SearchFlags.Fields)
+						|| searchFlags.HasFlag(SearchFlags.Methods)
+						|| searchFlags.HasFlag(SearchFlags.Events)
+						)
+					{
+						foreach(var t in assembly.GetTypes())
+						{
+							if(condition(t))
+							{
+								foreach(var attr in t.GetCustomAttributes<T>(false))
+								{
+									defs.Add(new AttributeDefinition<T>(attr, t));
+								}
+							}
+							if(searchFlags.HasFlag(SearchFlags.Properties))
+							{
+								foreach(var p in t.GetProperties())
+								{
+									foreach(var attr in p.GetCustomAttributes<T>(false))
+									{
+										defs.Add(new AttributeDefinition<T>(attr, p));
+									}
+								}
+							}
+							if(searchFlags.HasFlag(SearchFlags.Fields))
+							{
+								foreach(var f in t.GetFields())
+								{
+									foreach(var attr in f.GetCustomAttributes<T>(false))
+									{
+										defs.Add(new AttributeDefinition<T>(attr, f));
+									}
+								}
+							}
+							if(searchFlags.HasFlag(SearchFlags.Methods))
+							{
+								foreach(var m in t.GetMethods())
+								{
+									foreach(var attr in m.GetCustomAttributes<T>(false))
+									{
+										defs.Add(new AttributeDefinition<T>(attr, m));
+									}
+								}
+							}
+							if(searchFlags.HasFlag(SearchFlags.Events))
+							{
+								foreach(var e in t.GetEvents())
+								{
+									foreach(var attr in e.GetCustomAttributes<T>(false))
+									{
+										defs.Add(new AttributeDefinition<T>(attr, e));
+									}
+								}
+							}
+						}
+					}
+					/*
+					//Test if this is really needed
 					foreach(var t in assembly.GetTypes())
 					{
 						if(condition(t))
@@ -205,30 +276,7 @@ namespace D3T
 							{
 								defs.Add(new AttributeDefinition<T>(attr, t));
 							}
-						}
-						if(searchFlags.HasFlag(SearchFlags.Properties))
-						{
-							foreach(var p in t.GetProperties())
-							{
-								foreach(var attr in p.GetCustomAttributes<T>(false))
-								{
-									defs.Add(new AttributeDefinition<T>(attr, p));
-								}
-							}
-						}
-						if(searchFlags.HasFlag(SearchFlags.Fields))
-						{
-							foreach(var f in t.GetFields())
-							{
-								foreach(var attr in f.GetCustomAttributes<T>(false))
-								{
-									defs.Add(new AttributeDefinition<T>(attr, f));
-								}
-							}
-						}
-						if(searchFlags.HasFlag(SearchFlags.Methods))
-						{
-							foreach(var m in t.GetMethods())
+							foreach(var m in t.GetMembers())
 							{
 								foreach(var attr in m.GetCustomAttributes<T>(false))
 								{
@@ -236,34 +284,12 @@ namespace D3T
 								}
 							}
 						}
-						if(searchFlags.HasFlag(SearchFlags.Events))
-						{
-							foreach(var e in t.GetEvents())
-							{
-								foreach(var attr in e.GetCustomAttributes<T>(false))
-								{
-									defs.Add(new AttributeDefinition<T>(attr, e));
-								}
-							}
-						}
 					}
+					*/
 				}
-				foreach(var t in assembly.GetTypes())
+				catch(ReflectionTypeLoadException)
 				{
-					if(condition(t))
-					{
-						foreach(var attr in t.GetCustomAttributes<T>(false))
-						{
-							defs.Add(new AttributeDefinition<T>(attr, t));
-						}
-						foreach(var m in t.GetMembers())
-						{
-							foreach(var attr in m.GetCustomAttributes<T>(false))
-							{
-								defs.Add(new AttributeDefinition<T>(attr, m));
-							}
-						}
-					}
+					//Ignore this exception
 				}
 			}
 			return defs;
@@ -281,12 +307,22 @@ namespace D3T
 			var bindingFlags = GetBindingFlags(staticMethods, includeNonPublic);
 
 			var methods = new List<MethodInfo>();
-			methods.AddRange(GetGameAssemblies() // Returns all currenlty loaded assemblies
-				.SelectMany(x => x.GetTypes()) // returns all types defined in this assembly
-				.Where(condition) // classes only
-				.SelectMany(x => x.GetMethods(bindingFlags)) // returns all methods
-				.Where(x => x.GetCustomAttributes(typeof(T), false).FirstOrDefault() != null) // returns only methods that have the Attribute
-			);
+			foreach(var assembly in GetGameAssemblies())
+			{
+				try
+				{
+					methods.AddRange(assembly.GetTypes() // returns all types defined in this assembly
+						.Where(condition) // classes only
+						.SelectMany(x => x.GetMethods(bindingFlags)) // returns all methods
+						.Where(x => x.GetCustomAttributes(typeof(T), false).FirstOrDefault() != null) // returns only methods that have the Attribute
+					);
+				}
+				catch(ReflectionTypeLoadException)
+				{
+					//Ignore this exception
+				}
+			}
+			
 			return methods;
 		}
 
@@ -299,16 +335,23 @@ namespace D3T
 			var defs = new List<AttributeDefinition<T>>();
 			foreach(var assembly in assemblies)
 			{
-				foreach(var attr in assembly.GetCustomAttributes<T>())
+				try
 				{
-					defs.Add(new AttributeDefinition<T>(attr, assembly));
-				}
-				foreach(var t in assembly.GetTypes())
-				{
-					foreach(var attr in t.GetCustomAttributes<T>(false))
+					foreach(var attr in assembly.GetCustomAttributes<T>())
 					{
-						defs.Add(new AttributeDefinition<T>(attr, t));
+						defs.Add(new AttributeDefinition<T>(attr, assembly));
 					}
+					foreach(var t in assembly.GetTypes())
+					{
+						foreach(var attr in t.GetCustomAttributes<T>(false))
+						{
+							defs.Add(new AttributeDefinition<T>(attr, t));
+						}
+					}
+				}
+				catch(ReflectionTypeLoadException)
+				{
+					//Ignore this exception
 				}
 			}
 			return defs;
@@ -488,7 +531,7 @@ namespace D3T
 			if(member == null) throw new ArgumentNullException("member");
 			if(member is FieldInfo f) return f.GetValue(obj);
 			else if(member is PropertyInfo p) return p.GetValue(obj);
-			else throw new InvalidOperationException("Invalid member type: "+member.GetType().Name);
+			else throw new InvalidOperationException("Invalid member type: " + member.GetType().Name);
 		}
 
 		/// <summary>
