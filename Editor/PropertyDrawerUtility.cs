@@ -57,9 +57,9 @@ namespace D3TEditor
 							.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
 					}
 				}
-				catch(Exception e)
+				catch
 				{
-					e.LogException();
+					
 				}
 
 				propertyDrawerTypes = new Dictionary<Type, Type>();
