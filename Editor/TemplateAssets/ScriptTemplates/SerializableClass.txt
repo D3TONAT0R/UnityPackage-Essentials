@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 #USINGS#
 
-namespace #NAMESPACE#
-{
+#NAMESPACE#
+#{#
 	[System.Serializable]
 	public class #SCRIPTNAME#
 	{
 		
 	}
-}
+#}#

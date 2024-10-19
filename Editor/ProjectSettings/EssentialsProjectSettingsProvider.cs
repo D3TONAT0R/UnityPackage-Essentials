@@ -14,26 +14,14 @@ namespace D3TEditor
 			provider = new SettingsProvider("Project/Essentials", SettingsScope.Project)
 			{
 				guiHandler = OnGUI,
+				deactivateHandler = OnClose
 			};
-			provider.deactivateHandler += OnClose;
 			return provider;
 		}
 
 		private static void OnGUI(string search)
 		{
-			EditorGUIUtility.labelWidth = 250;
-			var so = new SerializedObject(EssentialsProjectSettings.Instance);
-			var prop = so.GetIterator();
-			prop.NextVisible(true);
-			so.Update();
-			while(prop.NextVisible(false))
-			{
-				EditorGUILayout.PropertyField(prop);
-			}
-			if(so.ApplyModifiedProperties())
-			{
-				EssentialsProjectSettings.Instance.SaveModifiedProperties();
-			}
+			EssentialsProjectSettings.Instance.DrawEditorGUI();
 			GUILayout.Space(20);
 			EditorTimeTrackingGUI.DrawGUI("Tracked Editor Times");
 			provider.Repaint();
@@ -41,7 +29,7 @@ namespace D3TEditor
 
 		private static void OnClose()
 		{
-			EssentialsProjectSettings.Instance.SaveModifiedProperties();
+			EssentialsProjectSettings.Instance.EditorSave();
 		}
 	}
 }

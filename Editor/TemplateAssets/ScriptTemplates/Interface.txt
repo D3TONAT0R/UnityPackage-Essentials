@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 #USINGS#
 
-namespace #NAMESPACE#
-{
+#NAMESPACE#
+#{#
 	public interface #SCRIPTNAME#
 	{
 		
 	}
-}
+#}#
