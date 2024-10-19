@@ -9,7 +9,32 @@ namespace D3T
 
 		public string ProjectAssetPath => Path.Combine("ProjectSettings", ProjectAssetName + ".asset");
 
-		protected void OnEnable()
+		public static T CreateSettingsAsset<T>() where T : ProjectSettingsAsset
+		{
+			//Destroy existing instances
+			foreach(var obj in Resources.FindObjectsOfTypeAll<T>())
+			{
+				DestroyImmediate(obj);
+			}
+			var asset = CreateInstance<T>();
+			try
+			{
+				asset.Initialize();
+				asset.OnInitialize();
+			}
+			catch(System.Exception e)
+			{
+				e.LogException("Project settings asset initialization failed.");
+			}
+			return asset;
+		}
+
+		protected virtual void OnCreateNewSettings()
+		{
+
+		}
+
+		protected void Initialize()
 		{
 #if UNITY_EDITOR
 			if(!File.Exists(ProjectAssetPath))
@@ -22,15 +47,9 @@ namespace D3T
 				EditorLoad(File.ReadAllText(ProjectAssetPath));
 			}
 #endif
-			Initialize();
 		}
 
-		protected virtual void OnCreateNewSettings()
-		{
-
-		}
-
-		protected virtual void Initialize()
+		protected virtual void OnInitialize()
 		{
 
 		}

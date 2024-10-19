@@ -12,7 +12,7 @@ namespace D3TEditor
 		{
 			get
 			{
-				if(instance == null) instance = CreateInstance<EssentialsProjectSettings>();
+				if(instance == null) instance = CreateSettingsAsset<EssentialsProjectSettings>();
 				return instance;
 			}
 		}
@@ -27,8 +27,10 @@ namespace D3TEditor
 		[NonReorderable]
 #endif
 		public string[] additionalDefaultUsings = Array.Empty<string>();
-		[Header("Menu Management")]
+		[Header("Menu Management", order = 0)]
+		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1), SerializeField]
 		public bool reorganizeAssetMenu = true;
+		public string[] menuItemsToRemove;
 
 		[Space(20)]
 		public bool enableEditorTimeTracking = true;
@@ -36,6 +38,17 @@ namespace D3TEditor
 		protected override void OnCreateNewSettings()
 		{
 			Debug.Log("Unity Essentials: Creating new project settings asset.");
+		}
+
+		protected override void OnInitialize()
+		{
+			if(menuItemsToRemove != null)
+			{
+				foreach(var item in menuItemsToRemove)
+				{
+					if(!string.IsNullOrWhiteSpace(item)) MenuUtility.RemoveMenuItem(item);
+				}
+			}
 		}
 	}
 }
