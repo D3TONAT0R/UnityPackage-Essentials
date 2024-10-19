@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using D3T;
+using UnityEssentials;
 using UnityEngine;
 
-namespace D3TEditor.TimeTracking
+namespace UnityEssentialsEditor.TimeTracking
 {
 	[System.Serializable]
 	public class TrackedUserTimes

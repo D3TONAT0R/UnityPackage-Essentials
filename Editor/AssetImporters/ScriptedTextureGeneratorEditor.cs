@@ -1,9 +1,7 @@
-﻿using D3TEditor;
-using UnityEditor;
-
+﻿using UnityEditor;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentialsEditor
 {
 	[CustomEditor(typeof(ScriptedTextureGenerator), true)]
 #if UNITY_2020_2_OR_NEWER

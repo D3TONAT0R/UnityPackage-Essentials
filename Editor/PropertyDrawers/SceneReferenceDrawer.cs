@@ -1,10 +1,9 @@
-﻿using D3T;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using UnityEssentials;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	[CustomPropertyDrawer(typeof(SceneReference))]
 	internal class SceneReferenceDrawer : PropertyDrawer

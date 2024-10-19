@@ -1,4 +1,5 @@
 using System.IO;
+using UnityEngine;
 using UnityEditor;
 #if UNITY_2020_2_OR_NEWER
 using ScriptedImporter = UnityEditor.AssetImporters.ScriptedImporter;
@@ -8,9 +9,7 @@ using ScriptedImporter = UnityEditor.Experimental.AssetImporters.ScriptedImporte
 using AssetImportContext = UnityEditor.Experimental.AssetImporters.AssetImportContext;
 #endif
 
-using UnityEngine;
-
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public abstract class ScriptedTextureGenerator : ScriptedImporter
 	{
