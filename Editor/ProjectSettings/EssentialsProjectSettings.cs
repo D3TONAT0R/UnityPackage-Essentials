@@ -29,7 +29,9 @@ namespace D3TEditor
 		public string[] additionalDefaultUsings = Array.Empty<string>();
 		[Header("Menu Management", order = 0)]
 		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1), SerializeField]
+#if !UNITY_6000_0_OR_NEWER
 		public bool reorganizeAssetMenu = true;
+#endif
 		public string[] menuItemsToRemove;
 
 		[Space(20)]

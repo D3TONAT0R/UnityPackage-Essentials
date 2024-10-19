@@ -7,8 +7,19 @@ namespace D3TEditor
 {
 	public static class CreateScriptMenuUtility
 	{
-		public const string menuRoot = "Assets/Create/Script/";
-		private const string packageTemplateScriptRoot = "Packages/com.github.d3tonat0r.essentials/Editor/TemplateAssets/ScriptTemplates/";
+#if UNITY_6000_0_OR_NEWER
+		public const string MENU_ROOT = "Assets/Create/Scripting/";
+#else
+		public const string MENU_ROOT = "Assets/Create/Script/";
+#endif
+
+#if UNITY_6000_0_OR_NEWER
+		public const int PRIORITY = -145;
+#else
+		public const int PRIORITY = 80;
+#endif
+
+		private const string PACKAGE_TEMPLATE_SCRIPT_ROOT = "Packages/com.github.d3tonat0r.essentials/Editor/TemplateAssets/ScriptTemplates/";
 
 		public static string DefaultNamespace
 		{
@@ -40,7 +51,17 @@ namespace D3TEditor
 		{
 			if(EssentialsProjectSettings.Instance.removeDefaultScriptMenu && !EditorApplication.isPlayingOrWillChangePlaymode)
 			{
+#if UNITY_6000_0_OR_NEWER
+				EditorApplication.delayCall += () =>
+				{
+					MenuUtility.RemoveMenuItem("Assets/Create/MonoBehaviour Script");
+					MenuUtility.RemoveMenuItem("Assets/Create/Scripting/MonoBehaviour Script");
+					MenuUtility.RemoveMenuItem("Assets/Create/Scripting/ScriptableObject Script");
+					MenuUtility.RemoveMenuItem("Assets/Create/Scripting/Empty C# Script");
+				};
+#else
 				EditorApplication.delayCall += () => MenuUtility.RemoveMenuItem("Assets/Create/C# Script");
+#endif
 			}
 		}
 
@@ -51,19 +72,19 @@ namespace D3TEditor
 			ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, ScriptableObject.CreateInstance<CreateScriptAction>(), defaultFileName, icon, templatePath);
 		}
 
-		[MenuItem(menuRoot + "Behaviour Script", priority = 80)]
-		private static void CreateBehaviourScript() => CreateScriptAsset(packageTemplateScriptRoot + "BehaviourScript.txt", "NewBehaviourScript");
+		[MenuItem(MENU_ROOT + "Behaviour Script", priority = PRIORITY)]
+		private static void CreateBehaviourScript() => CreateScriptAsset(PACKAGE_TEMPLATE_SCRIPT_ROOT + "BehaviourScript.txt", "NewBehaviourScript");
 
-		[MenuItem(menuRoot + "ScriptableObject", priority = 80)]
-		private static void CreateScriptableObject() => CreateScriptAsset(packageTemplateScriptRoot + "ScriptableObject.txt", "NewScriptableObject");
+		[MenuItem(MENU_ROOT + "ScriptableObject", priority = PRIORITY)]
+		private static void CreateScriptableObject() => CreateScriptAsset(PACKAGE_TEMPLATE_SCRIPT_ROOT + "ScriptableObject.txt", "NewScriptableObject");
 
-		[MenuItem(menuRoot + "Class", priority = 80)]
-		private static void CreateClass() => CreateScriptAsset(packageTemplateScriptRoot + "SerializableClass.txt", "NewClass");
+		[MenuItem(MENU_ROOT + "Class", priority = PRIORITY)]
+		private static void CreateClass() => CreateScriptAsset(PACKAGE_TEMPLATE_SCRIPT_ROOT + "SerializableClass.txt", "NewClass");
 
-		[MenuItem(menuRoot + "Interface", priority = 80)]
-		private static void CreateInterface() => CreateScriptAsset(packageTemplateScriptRoot + "Interface.txt", "INewInterface");
+		[MenuItem(MENU_ROOT + "Interface", priority = PRIORITY)]
+		private static void CreateInterface() => CreateScriptAsset(PACKAGE_TEMPLATE_SCRIPT_ROOT + "Interface.txt", "INewInterface");
 
-		[MenuItem(menuRoot + "Static Class", priority = 80)]
-		private static void CreateStaticClass() => CreateScriptAsset(packageTemplateScriptRoot + "StaticClass.txt", "NewStaticClass");
+		[MenuItem(MENU_ROOT + "Static Class", priority = PRIORITY)]
+		private static void CreateStaticClass() => CreateScriptAsset(PACKAGE_TEMPLATE_SCRIPT_ROOT + "StaticClass.txt", "NewStaticClass");
 	}
 }

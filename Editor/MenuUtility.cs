@@ -171,12 +171,15 @@ namespace D3TEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
+#if !UNITY_6000_0_OR_NEWER
 			if(EssentialsProjectSettings.Instance.reorganizeAssetMenu && !EditorApplication.isPlayingOrWillChangePlaymode)
 			{
 				EditorApplication.delayCall += () => EditorApplication.delayCall += ReorganizeAssetMenu;
 			}
+#endif
 		}
 
+#if !UNITY_6000_0_OR_NEWER
 		public static void ReorganizeAssetMenu()
 		{
 			/*
@@ -242,6 +245,7 @@ namespace D3TEditor
 			ReplaceCreateAssetMenu("GUI Skin", "Legacy/GUI Skin", 501,
 								() => ScriptableObject.CreateInstance<GUISkin>(), "guiskin");
 		}
+#endif
 
 		private static bool AssemblyExists(string assemblyName)
 		{
@@ -274,4 +278,5 @@ namespace D3TEditor
 			return CreateAssetOfType(type);
 		}
 	}
+
 }
