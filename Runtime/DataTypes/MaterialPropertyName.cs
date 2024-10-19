@@ -2,6 +2,9 @@ using UnityEngine;
 
 namespace UnityEssentials
 {
+	/// <summary>
+	/// Definition of a material property name,
+	/// </summary>
 	[System.Serializable]
 	public struct MaterialPropertyName
 	{

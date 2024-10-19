@@ -5,15 +5,21 @@ namespace UnityEssentialsEditor
 {
 	internal static class CreateTexture2DMenuItems
 	{
-		private const int PRIORITY = 303;
+		private const string MENU_ROOT = "Assets/Create/Texture/";
 
-		[MenuItem("Assets/Create/Texture2D/Blank PSD Texture", priority = PRIORITY)]
+#if UNITY_6000_0_OR_NEWER
+		private const int PRIORITY = -125;
+#else
+		private const int PRIORITY = 303;
+#endif
+
+		[MenuItem(MENU_ROOT + "Blank PSD Texture", priority = PRIORITY)]
 		public static void CreateBlankPSD()
 		{
 			CreateBlankAsset("psd", "New PSD Texture");
 		}
 
-		[MenuItem("Assets/Create/Texture2D/Blank PNG Texture", priority = PRIORITY)]
+		[MenuItem(MENU_ROOT + "Blank PNG Texture", priority = PRIORITY)]
 		public static void CreateBlankPNG()
 		{
 			CreateBlankAsset("png", "New PNG Texture");

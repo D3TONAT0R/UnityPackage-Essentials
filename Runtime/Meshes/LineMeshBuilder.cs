@@ -14,6 +14,9 @@ namespace UnityEssentials.Meshes
 			indices.Clear();
 		}
 
+		/// <summary>
+		/// Adds a line between the given points.
+		/// </summary>
 		public void AddLine(Vector3 a, Vector3 b)
 		{
 			int startIndex = verts.Count;
@@ -22,6 +25,9 @@ namespace UnityEssentials.Meshes
 			ConnectVertices(startIndex, startIndex + 1);
 		}
 
+		/// <summary>
+		/// Adds a line strip connecting the given points.
+		/// </summary>
 		public void AddLineStrip(params Vector3[] points)
 		{
 			int startIndex = verts.Count;
@@ -37,6 +43,9 @@ namespace UnityEssentials.Meshes
 			}
 		}
 
+		/// <summary>
+		/// Adds an outlined cube.
+		/// </summary>
 		public void AddCube(Vector3 center, Vector3 size, Color32? color = null)
 		{
 			var extents = size * 0.5f;
@@ -67,6 +76,9 @@ namespace UnityEssentials.Meshes
 			ConnectVertices(startIndex + 6, startIndex + 7);
 		}
 
+		/// <summary>
+		/// Adds an outlined cube between the given points.
+		/// </summary>
 		public void AddCubeFromTo(Vector3 a, Vector3 b, Color32? color = null)
 		{
 			var center = (a + b) / 2f;
@@ -74,6 +86,9 @@ namespace UnityEssentials.Meshes
 			AddCube(center, size, color);
 		}
 
+		/// <summary>
+		/// Adds a rectangular line.
+		/// </summary>
 		public void AddRectangle(Vector3 center, Quaternion rotation, Vector2 size, Color32? color = null)
 		{
 			var extents = size / 2f;
@@ -91,6 +106,9 @@ namespace UnityEssentials.Meshes
 			ConnectVertices(startIndex + 2, startIndex + 3);
 		}
 
+		/// <summary>
+		/// Adds a circular line.
+		/// </summary>
 		public void AddCircle(Vector3 center, Quaternion rotation, float radius, int detail = 32)
 		{
 			GetCirclePoints(tempVertexCache, detail, radius);
@@ -103,6 +121,9 @@ namespace UnityEssentials.Meshes
 			ConnectVertices(startIndex + detail - 1, startIndex);
 		}
 
+		/// <summary>
+		/// Adds a cylinder.
+		/// </summary>
 		public void AddCylinder(Vector3 center, Quaternion rotation, float radius1, float radius2, float height, int detail = 32, Color32? color = null)
 		{
 			GetCirclePoints(tempVertexCache, detail, 1f);
@@ -123,11 +144,17 @@ namespace UnityEssentials.Meshes
 			for(int i = 0; i < detail; i++) ConnectVertices(startIndex + i, startIndex + detail + i);
 		}
 
+		/// <summary>
+		/// Adds a cylinder.
+		/// </summary>
 		public void AddCylinder(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32, Color32? color = null)
 		{
 			AddCylinder(center, rotation, radius, radius, height, detail, color);
 		}
 
+		/// <summary>
+		/// Adds a cone.
+		/// </summary>
 		public void AddCone(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32, Color32? color = null)
 		{
 			GetCirclePoints(tempVertexCache, detail, radius);
@@ -146,6 +173,9 @@ namespace UnityEssentials.Meshes
 			for(int i = 0; i < detail; i++) ConnectVertices(startIndex + i + 1, startIndex);
 		}
 
+		/// <summary>
+		/// Adds a sphere.
+		/// </summary>
 		public void AddSphere(Vector3 pos, float radius, int latDetail = 32, int lonDetail = 32, Color32? color = null)
 		{
 			int offset = verts.Count;
@@ -177,6 +207,9 @@ namespace UnityEssentials.Meshes
 			}
 		}
 
+		/// <summary>
+		/// Builds the mesh.
+		/// </summary>
 		public override void BuildMesh(Mesh mesh)
 		{
 			mesh.SetVertices(verts);

@@ -11,6 +11,9 @@ namespace UnityEssentials {
 		[HideInInspector, SerializeField]
 		protected bool enabled = true;
 
+		/// <summary>
+		/// Whether this feature is enabled, represented by a checkbox in the inspector.
+		/// </summary>
 		public bool Enabled
 		{
 			get { return enabled; }
@@ -34,6 +37,9 @@ namespace UnityEssentials {
 			}
 		}
 
+		/// <summary>
+		/// An optional custom name for this feature.
+		/// </summary>
 		public virtual string CustomName => null;
 
 		public ToggleableFeature(bool enabled)

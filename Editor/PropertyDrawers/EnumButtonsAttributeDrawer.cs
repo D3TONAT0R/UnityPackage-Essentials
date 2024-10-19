@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
-	[CustomPropertyDrawer(typeof(EnumButtonsAttribute))]
+	[CustomPropertyDrawer(typeof(EnumButtonGroupAttribute))]
 	public class EnumButtonsAttributeDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

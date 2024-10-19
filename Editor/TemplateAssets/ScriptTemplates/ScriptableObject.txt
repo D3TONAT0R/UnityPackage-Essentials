@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 #USINGS#
 
-namespace #NAMESPACE#
-{
+#NAMESPACE#
+#{#
 	[CreateAssetMenu(menuName = "#SCRIPTNAME#", order = 100)]
 	public class #SCRIPTNAME# : ScriptableObject
-    {
-        
-    } 
-}
+	{
+		
+	} 
+#}#

@@ -9,7 +9,9 @@ namespace UnityEssentials
 	/// </summary>
 	public static class PersistentFileUtility
 	{
-
+		/// <summary>
+		/// The possible file location to store files in.
+		/// </summary>
 		public enum FileLocation
 		{
 			/// <summary>

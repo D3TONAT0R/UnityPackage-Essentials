@@ -13,6 +13,12 @@ namespace UnityEssentials.PlayerLoop
 	/// </summary>
 	public static class UpdateLoop
 	{
+		public enum Position
+		{
+			Before,
+			After
+		}
+
 		public struct UpdateLoopPreUpdateEvent { }
 		public struct UpdateLoopUpdateEvent { }
 		public struct UpdateLoopPreLateUpdateEvent { }
@@ -20,6 +26,7 @@ namespace UnityEssentials.PlayerLoop
 		public struct UpdateLoopPostLateUpdateEvent { }
 
 		public struct UpdateLoopFixedUpdateEvent { }
+		public struct UpdateLoopLateFixedUpdateEvent { }
 		public struct UpdateLoopPostFixedUpdateEvent { }
 
 		internal class InvocationList
@@ -156,6 +163,15 @@ namespace UnityEssentials.PlayerLoop
 		}
 
 		/// <summary>
+		/// Event that is invoked during the regular FixedUpdate period.
+		/// </summary>
+		public static event Action LateFixedUpdate
+		{
+			add => lateFixedUpdate.Add(value);
+			remove => lateFixedUpdate.Remove(value);
+		}
+
+		/// <summary>
 		/// Event that is invoked after the regular FixedUpdate period.
 		/// </summary>
 		public static event Action PostFixedUpdate
@@ -172,6 +188,15 @@ namespace UnityEssentials.PlayerLoop
 		{
 			add => updateOnce.Add(value);
 			remove => updateOnce.Remove(value);
+		}
+
+		/// <summary>
+		/// Event that is invoked only once for each subscriber during the fixed Update event.
+		/// </summary>
+		public static event Action FixedUpdateOnce
+		{
+			add => fixedUpdateOnce.Add(value);
+			remove => fixedUpdateOnce.Remove(value);
 		}
 
 
@@ -200,9 +225,11 @@ namespace UnityEssentials.PlayerLoop
 		private static readonly InvocationList postLateUpdate = new InvocationList("PostLateUpdate");
 
 		private static readonly InvocationList fixedUpdate = new InvocationList("FixedUpdate");
+		private static readonly InvocationList lateFixedUpdate = new InvocationList("LateFixedUpdate");
 		private static readonly InvocationList postFixedUpdate = new InvocationList("PostFixedUpdate");
 
 		private static readonly InvocationList updateOnce = new InvocationList("UpdateOnce");
+		private static readonly InvocationList fixedUpdateOnce = new InvocationList("FixedUpdateOnce");
 
 		private static readonly InvocationList onGUI = new InvocationList("OnGUI");
 		private static readonly InvocationList onDrawGizmosRuntime = new InvocationList("OnDrawGizmosRuntime");
@@ -279,19 +306,22 @@ namespace UnityEssentials.PlayerLoop
 		{
 			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
 
-			InsertSubsystem(ref loop, typeof(PreUpdate), typeof(UpdateLoopPreUpdateEvent), () => Invoke(preUpdate), null, false);
-			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopUpdateEvent), () => { Invoke(update); InvokeOnce(updateOnce); }, typeof(Update.ScriptRunBehaviourUpdate), true);
-			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopPreLateUpdateEvent), () => Invoke(preLateUpdate), typeof(Update.ScriptRunBehaviourUpdate), false);
-			InsertSubsystem(ref loop, typeof(PreLateUpdate), typeof(UpdateLoopLateUpdateEvent), () => Invoke(lateUpdate), typeof(PreLateUpdate.ScriptRunBehaviourLateUpdate), true);
-			InsertSubsystem(ref loop, typeof(PostLateUpdate), typeof(UpdateLoopPostLateUpdateEvent), () => Invoke(postLateUpdate), null, false);
+			InsertSubsystem(ref loop, typeof(PreUpdate), typeof(UpdateLoopPreUpdateEvent), () => Invoke(preUpdate), null, Position.After);
+			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopUpdateEvent), () => { Invoke(update); InvokeOnce(updateOnce); }, typeof(Update.ScriptRunBehaviourUpdate), Position.Before);
+			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopPreLateUpdateEvent), () => Invoke(preLateUpdate), typeof(Update.ScriptRunBehaviourUpdate), Position.After);
+			InsertSubsystem(ref loop, typeof(PreLateUpdate), typeof(UpdateLoopLateUpdateEvent), () => Invoke(lateUpdate), typeof(PreLateUpdate.ScriptRunBehaviourLateUpdate), Position.Before);
+			InsertSubsystem(ref loop, typeof(PostLateUpdate), typeof(UpdateLoopPostLateUpdateEvent), () => Invoke(postLateUpdate), null, Position.After);
 
-			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopFixedUpdateEvent), () => Invoke(fixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), true);
-			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPostFixedUpdateEvent), () => Invoke(postFixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), false);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopFixedUpdateEvent), () => { Invoke(fixedUpdate); InvokeOnce(fixedUpdateOnce); }, typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), Position.Before);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopLateFixedUpdateEvent), () => Invoke(lateFixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), Position.After);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPostFixedUpdateEvent), () => Invoke(postFixedUpdate), typeof(UpdateLoopLateFixedUpdateEvent), Position.After);
 
 			UnityPlayerLoop.SetPlayerLoop(loop);
 
 			UpdateLoopScriptInstance.Init();
 			SubscribeMethodsWithAttributes();
+
+			//LogCurrentPlayerLoop(false);
 
 			Application.quitting += Cleanup;
 		}
@@ -321,8 +351,10 @@ namespace UnityEssentials.PlayerLoop
 			SubscribeAttributeToEvent<LateUpdateAttribute>(lateUpdate);
 			SubscribeAttributeToEvent<PostLateUpdateAttribute>(postLateUpdate);
 			SubscribeAttributeToEvent<FixedUpdateAttribute>(fixedUpdate);
+			SubscribeAttributeToEvent<LateFixedUpdateAttribute>(lateFixedUpdate);
 			SubscribeAttributeToEvent<PostFixedUpdateAttribute>(postFixedUpdate);
 			SubscribeAttributeToEvent<UpdateOnceAttribute>(updateOnce);
+			SubscribeAttributeToEvent<FixedUpdateOnceAttribute>(fixedUpdateOnce);
 			SubscribeAttributeToEvent<OnGUIAttribute>(onGUI);
 			SubscribeAttributeToEvent<OnDrawGizmosRuntimeAttribute>(onDrawGizmosRuntime);
 		}
@@ -346,7 +378,7 @@ namespace UnityEssentials.PlayerLoop
 		public static void AddSubsystemFirst(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
 		{
 			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
-			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, true);
+			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, Position.Before);
 			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
@@ -356,7 +388,7 @@ namespace UnityEssentials.PlayerLoop
 		public static void AddSubsystemLast(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
 		{
 			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
-			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, false);
+			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, Position.After);
 			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
@@ -366,11 +398,21 @@ namespace UnityEssentials.PlayerLoop
 		public static void AddSubsystemBefore(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget, Type beforeSubSystem)
 		{
 			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
-			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, beforeSubSystem, false);
+			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, beforeSubSystem, Position.Before);
 			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
-		private static void InsertSubsystem(ref PlayerLoopSystem root, Type subSystemRoot, Type typeToAdd, PlayerLoopSystem.UpdateFunction invocationTarget, Type referenceSubSystem, bool before)
+		/// <summary>
+		/// Adds a subsystem to the given root system and after the given child system.
+		/// </summary>
+		public static void AddSubsystemAfter(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget, Type afterSubSystem)
+		{
+			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
+			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, afterSubSystem, Position.After);
+			UnityPlayerLoop.SetPlayerLoop(loop);
+		}
+
+		private static void InsertSubsystem(ref PlayerLoopSystem root, Type subSystemRoot, Type typeToAdd, PlayerLoopSystem.UpdateFunction invocationTarget, Type referenceSubSystem, Position position)
 		{
 			int index = -1;
 			for(int i = 0; i < root.subSystemList.Length; i++)
@@ -388,11 +430,11 @@ namespace UnityEssentials.PlayerLoop
 			}
 
 			var sub = root.subSystemList[index];
-			Insert(ref sub, new PlayerLoopSystem() { updateDelegate = invocationTarget, type = typeToAdd }, referenceSubSystem, before);
+			Insert(ref sub, new PlayerLoopSystem() { updateDelegate = invocationTarget, type = typeToAdd }, referenceSubSystem, position);
 			root.subSystemList[index] = sub;
 		}
 
-		private static void Insert(ref PlayerLoopSystem system, PlayerLoopSystem systemToAdd, Type reference, bool before)
+		private static void Insert(ref PlayerLoopSystem system, PlayerLoopSystem systemToAdd, Type reference, Position position)
 		{
 			List<PlayerLoopSystem> subsystems;
 			if(system.subSystemList == null)
@@ -412,7 +454,7 @@ namespace UnityEssentials.PlayerLoop
 					throw new NullReferenceException($"Subsystem of type '{reference}' not found, system not added.");
 				}
 				systemToAdd.loopConditionFunction = subsystems[index].loopConditionFunction;
-				if(before)
+				if(position == Position.Before)
 				{
 					subsystems.Insert(index, systemToAdd);
 				}
@@ -423,7 +465,7 @@ namespace UnityEssentials.PlayerLoop
 			}
 			else
 			{
-				if(before)
+				if(position == Position.Before)
 				{
 					subsystems.Insert(0, systemToAdd);
 				}
@@ -434,31 +476,6 @@ namespace UnityEssentials.PlayerLoop
 			}
 			system.subSystemList = subsystems.ToArray();
 		}
-
-		/*
-		public static void InsertCallback(ref PlayerLoopSystem system, Type parentSystem, Type childSystem, PlayerLoopSystem.UpdateFunction callback)
-		{
-			bool added = false;
-			for(int i = 0; i < system.subSystemList.Length; i++)
-			{
-				if(system.subSystemList[i].GetType() == parentSystem)
-				{
-					for(int j = 0; j < system.subSystemList[i].subSystemList.Length; j++)
-					{
-						if(system.subSystemList[i].subSystemList[j].GetType() == childSystem)
-						{
-							system.subSystemList[i].subSystemList[j].updateDelegate += callback;
-							added = true;
-						}
-					}
-				}
-			}
-			if(!added)
-			{
-				throw new NullReferenceException($"Failed to add callback to subsystem '{childSystem}'.");
-			}
-		}
-		*/
 
 		/// <summary>
 		/// Logs the entire hierarchy of player loop systems to the console.

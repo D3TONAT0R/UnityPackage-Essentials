@@ -98,6 +98,12 @@ namespace UnityEssentials.Meshes
 			BuildMesh(mesh, true);
 		}
 
+		public override void TransformVector(ref Vector3 vector)
+		{
+			base.TransformVector(ref vector);
+			if(Reversed) vector = -vector;
+		}
+
 		/// <summary>
 		/// Adds a (flat shaded) triangle to the mesh. Vertices should be arranged clockwise for correct facing.
 		/// </summary>
@@ -216,22 +222,22 @@ namespace UnityEssentials.Meshes
 
 			//Back
 			if(faceFlags.HasFlag(CubeFaces.ZNeg))
-				AddQuad(v0, v1, v4, v5, TransformVector(Vector3.back), uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v0, v1, v4, v5, Vector3.back, uv_ll, uv_lr, uv_ul, uv_ur);
 			//Right
 			if(faceFlags.HasFlag(CubeFaces.XPos))
-				AddQuad(v1, v3, v5, v7, TransformVector(Vector3.right), uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v1, v3, v5, v7, Vector3.right, uv_ll, uv_lr, uv_ul, uv_ur);
 			//Front
 			if(faceFlags.HasFlag(CubeFaces.ZPos))
-				AddQuad(v3, v2, v7, v6, TransformVector(Vector3.forward), uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v3, v2, v7, v6, Vector3.forward, uv_ll, uv_lr, uv_ul, uv_ur);
 			//Left
 			if(faceFlags.HasFlag(CubeFaces.XNeg))
-				AddQuad(v2, v0, v6, v4, TransformVector(Vector3.left), uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v2, v0, v6, v4, Vector3.left, uv_ll, uv_lr, uv_ul, uv_ur);
 			//Top
 			if(faceFlags.HasFlag(CubeFaces.YPos))
-				AddQuad(v4, v5, v6, v7, TransformVector(Vector3.up), uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v4, v5, v6, v7, Vector3.up, uv_ll, uv_lr, uv_ul, uv_ur);
 			//Bottom
 			if(faceFlags.HasFlag(CubeFaces.YNeg))
-				AddQuad(v2, v3, v0, v1, TransformVector(Vector3.down), uv_ll, uv_lr, uv_ul, uv_ur);
+				AddQuad(v2, v3, v0, v1, Vector3.down, uv_ll, uv_lr, uv_ul, uv_ur);
 		}
 
 		/// <summary>
@@ -422,17 +428,17 @@ namespace UnityEssentials.Meshes
 		/// </summary>
 		public void AddCircle(Matrix4x4 matrix, float radius, int detail = 32)
 		{
-			var nrm = matrix.MultiplyVector(Vector3.back);
+			var nrm = -TransformVector(Vector3.back);
 			GetCirclePoints(tempVertexCache, detail, 1f);
 			AddVertex(matrix.MultiplyPoint(Vector3.zero));
 			int b = verts.Count;
-			normals.Add(-nrm);
+			normals.Add(nrm);
 			uv0.Add(Vector2.one * 0.5f);
 
 			for(int i = 0; i < tempVertexCache.Count; i++)
 			{
 				AddVertex(matrix.MultiplyPoint(tempVertexCache[i].XZY() * radius));
-				normals.Add(-nrm);
+				normals.Add(nrm);
 				Vector2 uv = (tempVertexCache[i].XY() + Vector2.one) * 0.5f;
 				uv.x = 1 - uv.x;
 				uv0.Add(uv);

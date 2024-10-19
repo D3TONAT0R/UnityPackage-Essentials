@@ -15,22 +15,23 @@ namespace UnityEssentialsEditor.TimeTracking
 			if(foldout)
 			{
 				EditorGUI.indentLevel++;
-				float total = EditorTimeTracker.times.Sum(kv => kv.Value.CombinedTime);
+				float total = EditorTimeTracker.users.Sum(kv => kv.Value.GetTotalTime());
 
 				GUILayout.Space(5);
 				EditorGUILayout.LabelField("Total", ToTimeString(total), EditorStyles.boldLabel);
 
-				foreach(var kv in EditorTimeTracker.times)
+				foreach(var kv in EditorTimeTracker.users)
 				{
 					bool isLocalUser = CloudProjectSettings.userId == kv.Key;
 					GUI.contentColor = isLocalUser ? new Color(0.3f, 1f, 0.3f) : Color.white;
 					GUILayout.Space(5);
-					var times = kv.Value;
-					EditorGUILayout.LabelField("User: " + kv.Key, ToTimeString(times.CombinedTime), EditorStyles.boldLabel);
+					var user = kv.Value;
+					EditorGUILayout.LabelField("User: " + kv.Key, ToTimeString(user.GetTotalTime()), EditorStyles.boldLabel);
 					EditorGUI.indentLevel++;
-					EditorGUILayout.LabelField("Active Editor Time", ToTimeString(times.activeEditTime));
-					EditorGUILayout.LabelField("Unfocussed Editor Time", ToTimeString(times.unfocussedEditTime));
-					EditorGUILayout.LabelField("Playmode Time", ToTimeString(times.playmodeTime));
+					EditorGUILayout.LabelField("Active Editor Time", ToTimeString(user.GetTotalTime(TrackedTimeType.ActiveEditorTime)));
+					EditorGUILayout.LabelField("Unfocussed Editor Time", ToTimeString(user.GetTotalTime(TrackedTimeType.UnfocusedEditorTime)));
+					EditorGUILayout.LabelField("Playmode Time", ToTimeString(user.GetTotalTime(TrackedTimeType.PlaymodeTime)));
+					EditorGUILayout.LabelField("Inactive Time", ToTimeString(user.GetTotalTime(TrackedTimeType.InactiveTime)));
 					EditorGUI.indentLevel--;
 				}
 				EditorGUI.indentLevel--;

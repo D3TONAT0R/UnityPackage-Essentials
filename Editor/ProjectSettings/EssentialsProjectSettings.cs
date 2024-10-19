@@ -1,60 +1,56 @@
-﻿using System.IO;
+﻿using D3T;
+using System;
 using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
-	public class EssentialsProjectSettings : ScriptableObject
+	public class EssentialsProjectSettings : ProjectSettingsAsset
 	{
-		private static string ProjectRootPath => Directory.GetParent(Application.dataPath).ToString();
-		private static string SettingsAssetPath => Path.Combine(ProjectRootPath, "ProjectSettings", "EssentialsProjectSettings.asset");
+		public override string ProjectAssetName => "EssentialsProjectSettings";
 
 		public static EssentialsProjectSettings Instance
 		{
 			get
 			{
-				if(instance == null) InitSettings();
+				if(instance == null) instance = CreateSettingsAsset<EssentialsProjectSettings>();
 				return instance;
 			}
 		}
 		private static EssentialsProjectSettings instance;
 
+		[Header("Scripts")]
 		public bool removeDefaultScriptMenu = true;
-		public string defaultScriptNamespace = "MyNamespace";
+		public bool useDefaultNamespace = true;
+		[EnabledIf(nameof(useDefaultNamespace))]
+		public string defaultScriptNamespace = "";
 #if UNITY_2020_2_OR_NEWER
 		[NonReorderable]
 #endif
-		public string[] additionalDefaultUsings = new string[0];
-		[Header("Menu Management")]
+		public string[] additionalDefaultUsings = Array.Empty<string>();
+		[Header("Menu Management", order = 0)]
+		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1), SerializeField]
+#if !UNITY_6000_0_OR_NEWER
 		public bool reorganizeAssetMenu = true;
+#endif
+		public string[] menuItemsToRemove;
 
 		[Space(20)]
 		public bool enableEditorTimeTracking = true;
 
-		private static void InitSettings()
+		protected override void OnCreateNewSettings()
 		{
-			if(File.Exists(SettingsAssetPath))
-			{
-				instance = CreateInstance<EssentialsProjectSettings>();
-				string json = File.ReadAllText(SettingsAssetPath);
-				JsonUtility.FromJsonOverwrite(json, instance);
-			}
-			else
-			{
-				Debug.Log("Essentials Package: Creating new project settings ...");
-				instance = CreateInstance<EssentialsProjectSettings>();
-			}
+			Debug.Log("Unity Essentials: Creating new project settings asset.");
 		}
 
-		public void Validate()
+		protected override void OnInitialize()
 		{
-
-		}
-
-		public void SaveModifiedProperties()
-		{
-			Validate();
-			string json = JsonUtility.ToJson(this, true);
-			File.WriteAllText(SettingsAssetPath, json);
+			if(menuItemsToRemove != null)
+			{
+				foreach(var item in menuItemsToRemove)
+				{
+					if(!string.IsNullOrWhiteSpace(item)) MenuUtility.RemoveMenuItem(item);
+				}
+			}
 		}
 	}
 }

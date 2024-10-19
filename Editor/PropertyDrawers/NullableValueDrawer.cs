@@ -13,15 +13,17 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var hv = property.FindPropertyRelative("hasValue");
 			var v = property.FindPropertyRelative("backingValue");
 
+			EditorGUI.BeginProperty(position, label, property);
 			var togglePos = position;
 			togglePos.width = EditorGUIUtility.labelWidth + 16;
-			EditorGUI.PropertyField(togglePos, hv, label);
+			hv.boolValue = EditorGUI.Toggle(togglePos, label, hv.boolValue);
 			var guiEnabled = GUI.enabled;
 			GUI.enabled &= hv.boolValue;
 			EditorGUIUtility.labelWidth += 16;
 			DrawValueField(position, v, " ");
 			EditorGUIUtility.labelWidth -= 16;
 			GUI.enabled = guiEnabled;
+			EditorGUI.EndProperty();
 		}
 
 		protected virtual void DrawValueField(Rect position, SerializedProperty v, string displayName)

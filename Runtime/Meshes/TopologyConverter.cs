@@ -6,6 +6,9 @@ namespace UnityEssentials.Meshes
 {
 	public static class TopologyConverter
 	{
+		/// <summary>
+		/// Converts the given triangular mesh into a line mesh.
+		/// </summary>
 		public static Mesh ConvertToLineMesh(Mesh triangleMesh, bool avoidDuplicates = true)
 		{
 			Mesh lineMesh = Object.Instantiate(triangleMesh);
@@ -64,6 +67,9 @@ namespace UnityEssentials.Meshes
 			return lineMesh;
 		}
 
+		/// <summary>
+		/// Converts the given mesh into a point cloud mesh.
+		/// </summary>
 		public static Mesh ConvertToPointMesh(Mesh mesh)
 		{
 			var pointMesh = Object.Instantiate(mesh);

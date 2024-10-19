@@ -96,13 +96,13 @@ namespace D3TEditor.PropertyDrawers
 				{
 					menu.AddItem("No Scenes in Build Settings", false, false, null);
 				}
+				menu.AddItem("(None)", true, string.IsNullOrEmpty(stringValue), () => SetStringValue(serializedObject, propertyPath, ""));
 				for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
 				{
 					var scene = SceneManager.GetSceneByBuildIndex(i);
 					var name = GetSceneName(i);
 					menu.AddItem($"{name} ({i})", true, name == stringValue, () => SetStringValue(serializedObject, propertyPath, name));
 				}
-				menu.AddItem("Invalidate", true, false, () => SetStringValue(serializedObject, propertyPath, "Random Test Scene"));
 			}
 			else
 			{
@@ -116,6 +116,7 @@ namespace D3TEditor.PropertyDrawers
 				{
 					menu.AddItem("No Scenes in Build Settings", false, false, null);
 				}
+				menu.AddItem("(None)", true, intValue < 0, () => SetIntValue(serializedObject, propertyPath, -1));
 				for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
 				{
 					var scene = SceneManager.GetSceneByBuildIndex(i);
@@ -123,7 +124,6 @@ namespace D3TEditor.PropertyDrawers
 					int j = i;
 					menu.AddItem($"{j}: {name}", true, j == intValue, () => SetIntValue(serializedObject, propertyPath, j));
 				}
-				menu.AddItem("Invalidate", true, false, () => SetIntValue(serializedObject, propertyPath, 7));
 			}
 			menu.AddSeparator("");
 			menu.AddItem("Build Settings ...", true, false, () => EditorWindow.GetWindow(System.Type.GetType("UnityEditor.BuildPlayerWindow, UnityEditor")));

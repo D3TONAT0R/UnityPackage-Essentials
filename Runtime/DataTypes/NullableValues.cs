@@ -9,11 +9,15 @@ namespace UnityEssentials
 	/// </summary>
 	public abstract class NullableValue
 	{
+		/// <summary>
+		/// Gets or sets whether there is a value defined.
+		/// </summary>
 		public abstract bool HasValue { get; set; }
 
+		/// <summary>
+		/// Gets the value as a System.object.
+		/// </summary>
 		public abstract object ValueObject { get; }
-
-		public abstract object GetSystemNullableObject();
 
 		public static NullableValue CreateInstance(bool hasValue, object value)
 		{
@@ -130,8 +134,6 @@ namespace UnityEssentials
 				throw new NullReferenceException("Nullable does not have a value.");
 			}
 		}
-
-		public override object GetSystemNullableObject() => Nullable;
 
 		public override bool Equals(object obj)
 		{

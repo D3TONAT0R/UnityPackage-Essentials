@@ -122,8 +122,15 @@ namespace UnityEssentialsEditor
 
 		private void OnEnable()
 		{
+
+#if UNITY_2022_1_OR_NEWER
+			searchField = "ToolbarSearchTextField";
+			searchFieldEnd = "ToolbarSearchCancelButton";
+#else
 			searchField = "ToolbarSeachTextField";
 			searchFieldEnd = "ToolbarSeachCancelButton";
+#endif
+
 			listItemEven = "ObjectPickerResultsEven";
 			listItemOdd = "ObjectPickerResultsOdd";
 			listItemSelected = "OL SelectedRow";

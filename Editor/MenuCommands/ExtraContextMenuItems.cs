@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -75,7 +77,7 @@ namespace UnityEssentialsEditor
 		public static void SaveMeshAsAsset(MenuCommand menuCommand)
 		{
 			MeshFilter mf = menuCommand.context as MeshFilter;
-			Mesh meshToSave = Object.Instantiate(mf.sharedMesh);
+			Mesh meshToSave = UnityEngine.Object.Instantiate(mf.sharedMesh);
 			MeshUtility.Optimize(meshToSave);
 
 			string path = EditorUtility.SaveFilePanel("Save Separate Mesh Asset", "Assets/", meshToSave.name, "asset");
@@ -102,10 +104,40 @@ namespace UnityEssentialsEditor
 			for(int i = 0; i < materials.Length; i++)
 			{
 				var name = materials[i].name;
-				materials[i] = Object.Instantiate(materials[i]);
+				materials[i] = UnityEngine.Object.Instantiate(materials[i]);
 				if(!materials[i].name.EndsWith("(Instance)")) materials[i].name = name + " (Instance)";
 			}
 			renderer.sharedMaterials = materials;
+		}
+
+		[MenuItem("CONTEXT/Component/Search Similar")]
+		public static void SearchSimilarComponents(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			SceneModeUtility.SearchForType(comp.GetType());
+		}
+
+		[MenuItem("CONTEXT/Component/Search Similar (Base Type)")]
+		public static void SearchSimilarComponentsBaseType(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			SceneModeUtility.SearchForType(comp.GetType().BaseType);
+		}
+
+		[MenuItem("CONTEXT/Component/Search Similar (Base Type)", validate = true)]
+		public static bool ValidateSearchSimilarComponentsBaseType(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			var baseType = comp.GetType().BaseType;
+			return baseType != null && baseType != typeof(Component) && baseType != typeof(Behaviour);
+		}
+
+		[MenuItem("CONTEXT/MonoBehaviour/Select Script", priority = 110)]
+		public static void SelectScript(MenuCommand cmd)
+		{
+			var script = (MonoBehaviour)cmd.context;
+			Selection.activeObject = MonoScript.FromMonoBehaviour(script);
+			EditorGUIUtility.PingObject(Selection.activeObject);
 		}
 	}
 }

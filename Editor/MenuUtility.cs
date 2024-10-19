@@ -6,11 +6,72 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.ProjectWindowCallback;
+using D3T;
+using UnityEditorInternal;
 
 namespace UnityEssentialsEditor
 {
 	public static class MenuUtility
 	{
+		public abstract class CreateAssetAction : EndNameEditAction
+		{
+			public abstract Texture2D Icon { get; }
+
+			public abstract string DefaultName { get; }
+		}
+
+		private class CreateAnimatorControllerAction : CreateAssetAction
+		{
+			public override Texture2D Icon => (Texture2D)EditorGUIUtility.IconContent("d_AnimatorController Icon").image;
+
+			public override string DefaultName => "Animator Controller";
+
+			public override void Action(int instanceId, string pathName, string resourceFile)
+			{
+				var instance = UnityEditor.Animations.AnimatorController.CreateAnimatorControllerAtPath(pathName + ".controller");
+				Selection.activeObject = instance;
+			}
+		}
+
+		private class CreateAssemblyDefinitionAction : CreateAssetAction
+		{
+			public override Texture2D Icon => (Texture2D)EditorGUIUtility.IconContent("d_AssemblyDefinitionAsset Icon").image;
+
+			public override string DefaultName => "NewAssembly";
+
+			public override void Action(int instanceId, string pathName, string resourceFile)
+			{
+				string content =
+					"{\n" +
+					$"\t\"name\": \"{System.IO.Path.GetFileNameWithoutExtension(pathName)}\"\n" +
+					"}\n";
+				string finalPath = pathName + ".asmdef";
+				System.IO.File.WriteAllText(finalPath, content);
+				AssetDatabase.ImportAsset(finalPath);
+				Selection.activeObject = AssetDatabase.LoadAssetAtPath(finalPath, typeof(UnityEngine.Object));
+			}
+		}
+
+		private class CreateAssemblyDefinitionReferenceAction : CreateAssetAction
+		{
+			public override Texture2D Icon => (Texture2D)EditorGUIUtility.IconContent("d_AssemblyDefinitionReferenceAsset Icon").image;
+
+			public override string DefaultName => "NewAssemblyReference";
+
+			public override void Action(int instanceId, string pathName, string resourceFile)
+			{
+				string content =
+					"{\n" +
+					"\t\"reference\": \"\"\n" +
+					"}";
+				string finalPath = pathName + ".asmref";
+				System.IO.File.WriteAllText(finalPath, content);
+				AssetDatabase.ImportAsset(finalPath);
+				Selection.activeObject = AssetDatabase.LoadAssetAtPath(finalPath, typeof(UnityEngine.Object));
+			}
+		}
+
 		private static MethodInfo addMenuItemMethod;
 		private static MethodInfo removeMenuItemMethod;
 
@@ -31,7 +92,7 @@ namespace UnityEssentialsEditor
 			addMenuItemMethod.Invoke(null, new object[] { name, shortcut, isChecked, priority, execute, validate });
 		}
 
-		public static void ReplaceCreateAssetMenu(string oldPath, string newPath, int priority, Func<UnityEngine.Object> creator, string extension = "asset")
+		public static void ReplaceCreateAssetMenu(string oldPath, string newPath, int priority, Action createAction, string extension = "asset")
 		{
 #if UNITY_2020_1_OR_NEWER
 			bool moved = MoveAssetMenu("Assets/Create/" + oldPath, "Assets/Create/" + newPath, priority);
@@ -42,13 +103,26 @@ namespace UnityEssentialsEditor
 			{
 
 				RemoveMenuItem("Assets/Create/" + oldPath);
-				AddMenuItem("Assets/Create/" + newPath, "", priority, () =>
-				{
-					var instance = creator.Invoke();
-					ProjectWindowUtil.CreateAsset(instance, $"New {instance.GetType().Name}.{extension}");
-				});
-
+				AddMenuItem("Assets/Create/" + newPath, "", priority, createAction);
 			}
+		}
+
+		public static void ReplaceCreateAssetMenu(string oldPath, string newPath, int priority, Func<UnityEngine.Object> creator, string extension = "asset")
+		{
+			ReplaceCreateAssetMenu(oldPath, newPath, priority, () =>
+			{
+				var instance = creator.Invoke();
+				ProjectWindowUtil.CreateAsset(instance, $"New {instance.GetType().Name}.{extension}");
+			}, extension);
+		}
+
+		public static void ReplaceCreateAssetMenu(string oldPath, string newPath, int priority, Func<CreateAssetAction> creator, string extension = "asset")
+		{
+			ReplaceCreateAssetMenu(oldPath, newPath, priority, () =>
+			{
+				var endAction = creator.Invoke();
+				ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, endAction, $"New {endAction.DefaultName}", endAction.Icon, null);
+			}, extension);
 		}
 
 #if UNITY_2021_1_OR_NEWER
@@ -97,17 +171,28 @@ namespace UnityEssentialsEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
+#if !UNITY_6000_0_OR_NEWER
 			if(EssentialsProjectSettings.Instance.reorganizeAssetMenu && !EditorApplication.isPlayingOrWillChangePlaymode)
 			{
-				EditorApplication.delayCall += ReorganizeAssetMenu;
+				EditorApplication.delayCall += () => EditorApplication.delayCall += ReorganizeAssetMenu;
 			}
+#endif
 		}
 
+#if !UNITY_6000_0_OR_NEWER
 		public static void ReorganizeAssetMenu()
 		{
-
+			/*
 			RemoveMenuItem("Assets/Create/Playables/Playable Behaviour C# Script");
-			RemoveMenuItem("Assets/Create/Playables/Playable Asset C# Script");
+			//Not a typo, the menu item does have an extra space at the end
+			RemoveMenuItem("Assets/Create/Playables/Playable Asset C# Script ");
+			*/
+			RemoveMenuItem("Assets/Create/Playables");
+
+			ReplaceCreateAssetMenu("Assembly Definition", "Script/Assembly Definition", 990, 
+				() => ScriptableObject.CreateInstance<CreateAssemblyDefinitionAction>(), "asmdef");
+			ReplaceCreateAssetMenu("Assembly Definition Reference", "Script/Assembly Definition Reference", 991,
+				() => ScriptableObject.CreateInstance<CreateAssemblyDefinitionReferenceAction>(), "asmref");
 
 			ReplaceCreateAssetMenu("Shader Variant Collection", "Shader/Shader Variant Collection", 20000,
 				() => new ShaderVariantCollection());
@@ -135,28 +220,32 @@ namespace UnityEssentialsEditor
 				() => new LightingSettings());
 #endif
 
-			ReplaceCreateAssetMenu("Animation", "Animation/Animation Clip", 200,
+			ReplaceCreateAssetMenu("Animation", "Animation/Animation Clip", 110,
 				() => new AnimationClip(), "anim");
-			ReplaceCreateAssetMenu("Animator Controller", "Animation/Animator Controller", 201,
-				() => new UnityEditor.Animations.AnimatorController(), "controller");
-			ReplaceCreateAssetMenu("Animator Override Controller", "Animation/Animator Override Controller", 202,
+			ReplaceCreateAssetMenu("Animator Controller", "Animation/Animator Controller", 111,
+				() => ScriptableObject.CreateInstance<CreateAnimatorControllerAction>(), "controller");
+			ReplaceCreateAssetMenu("Animator Override Controller", "Animation/Animator Override Controller", 112,
 				() => new AnimatorOverrideController(), "overrideController");
-			ReplaceCreateAssetMenu("Avatar Mask", "Animation/Avatar Mask", 203,
+			ReplaceCreateAssetMenu("Avatar Mask", "Animation/Avatar Mask", 113,
 				() => new AvatarMask(), "mask");
+
+			if(AssemblyExists("Unity.Timeline"))
+			{
+				ReplaceCreateAssetMenu("Timeline", "Animation/Timeline", 200,
+					() => CreateAssetOfType("UnityEngine.Timeline.TimelineAsset, Unity.Timeline"),
+					"playable");
+				ReplaceCreateAssetMenu("Signal", "Animation/Signal", 201,
+					() => CreateAssetOfType("UnityEngine.Timeline.TimelineSignal, Unity.Timeline"),
+					"signal");
+			}
 
 			ReplaceCreateAssetMenu("Custom Font", "Text/Custom Font", 500,
 				() => new Font(), "fontsettings");
 
-			if(AssemblyExists("Unity.Timeline"))
-			{
-				ReplaceCreateAssetMenu("Timeline", "Animation/Timeline", 310,
-					() => CreateAssetOfType("UnityEngine.Timeline.TimelineAsset, Unity.Timeline"),
-					"playable");
-				ReplaceCreateAssetMenu("Signal", "Animation/Signal", 311,
-					() => CreateAssetOfType("UnityEngine.Timeline.TimelineSignal, Unity.Timeline"),
-					"signal");
-			}
+			ReplaceCreateAssetMenu("GUI Skin", "Legacy/GUI Skin", 501,
+								() => ScriptableObject.CreateInstance<GUISkin>(), "guiskin");
 		}
+#endif
 
 		private static bool AssemblyExists(string assemblyName)
 		{
@@ -170,9 +259,24 @@ namespace UnityEssentialsEditor
 			return false;
 		}
 
+		private static UnityEngine.Object CreateAssetOfType(Type type)
+		{
+			//Create instance of scriptable object if it is a child of ScriptableObject
+			if(typeof(ScriptableObject).IsAssignableFrom(type))
+			{
+				return ScriptableObject.CreateInstance(type);
+			}
+			else
+			{
+				return (UnityEngine.Object)Activator.CreateInstance(type, true);
+			}
+		}
+
 		private static UnityEngine.Object CreateAssetOfType(string qualifiedTypeName)
 		{
-			return (UnityEngine.Object)Activator.CreateInstance(Type.GetType(qualifiedTypeName, true));
+			var type = Type.GetType(qualifiedTypeName, false);
+			return CreateAssetOfType(type);
 		}
 	}
+
 }

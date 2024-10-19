@@ -16,10 +16,13 @@ namespace UnityEssentials
 			FixedDeltaTime
 		}
 
+		[Tooltip("Whether to use a random interval.")]
 		public bool useRandomInterval = false;
 		[ShowIf(nameof(useRandomInterval), false)]
+		[Tooltip("The fixed interval on which this timer will trigger.")]
 		public float interval = 1f;
 		[ShowIf(nameof(useRandomInterval), true)]
+		[Tooltip("The random interval range on which this timer will trigger.")]
 		public FloatRange intervalRange = new FloatRange(0.5f, 1f);
 
 		private float time = 0;

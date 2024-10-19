@@ -9,7 +9,7 @@ using UnityEngine;
 namespace UnityEssentialsEditor
 {
 	[ScriptedImporter(0, "gradient")]
-	internal class GradientTextureImporter : ScriptedImporter
+	internal class GradientTextureImporter : ScriptedTextureGenerator
 	{
 		public enum InputType
 		{
@@ -27,7 +27,6 @@ namespace UnityEssentialsEditor
 			Square,
 		}
 
-		public Vector2Int resolution = new Vector2Int(64, 64);
 		public InputType inputType = InputType.Gradient;
 
 		[ShowIf(nameof(inputType), InputType.Gradient)]
@@ -48,38 +47,14 @@ namespace UnityEssentialsEditor
 		public bool reversed = false;
 		public bool dithering = false;
 
-		[Space(10)]
-		public bool linear = false;
-		public bool generateMipMaps = true;
-		public TextureWrapMode wrapMode = TextureWrapMode.Clamp;
-		public FilterMode filterMode = FilterMode.Bilinear;
-
-		public override void OnImportAsset(AssetImportContext ctx)
+		protected override Color GetPixelColor(int x, int y, Vector2 uv)
 		{
-			resolution.x = Mathf.Clamp(resolution.x, 1, 4096);
-			resolution.y = Mathf.Clamp(resolution.y, 1, 4096);
-			var texture = new Texture2D(resolution.x, resolution.y, TextureFormat.RGBA32, generateMipMaps, linear);
-			texture.alphaIsTransparency = true;
-			texture.wrapMode = wrapMode;
-			texture.filterMode = filterMode;
-
-			Random.InitState(0);
-			for(int x = 0; x < resolution.x; x++)
-			{
-				for(int y = 0; y < resolution.y; y++)
-				{
-					Vector2 uv = new Vector2((x + 0.5f) / resolution.x, (y + 0.5f) / resolution.y);
-					float pos = GetSamplePos(uv, mode);
-					if(reversed) pos = 1f - pos;
-					var color = SampleAt(pos);
-					texture.SetPixel(x, y, color);
-				}
-			}
-			texture.Apply();
-			ctx.AddObjectToAsset("gradient", texture);
+			float pos = GetSamplePos(uv, mode);
+			if(reversed) pos = 1f - pos;
+			return SampleAt(pos);
 		}
 
-		private Color32 SampleAt(float pos)
+		Color32 SampleAt(float pos)
 		{
 			Color sample;
 			if(inputType == InputType.Gradient)
@@ -111,7 +86,7 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		private float GetSamplePos(Vector2 uv, GradientMode m)
+		float GetSamplePos(Vector2 uv, GradientMode m)
 		{
 			switch(m)
 			{

@@ -9,41 +9,41 @@ namespace UnityEssentialsEditor.TimeTracking
 {
 	public static class EditorTimeTracker
 	{
-		[System.Serializable]
-		public class SamplesData
-		{
-			public List<UserTimeSample> times = new List<UserTimeSample>();
-		}
-
-		[System.Serializable]
-		public class UserTimeSample
-		{
-			public string userId;
-			public TimeSample times;
-		}
-
 		private const float MIN_SAVE_INTERVAL = 60;
 
-		public static bool Enabled => !LoadingFailed && EssentialsProjectSettings.Instance.enableEditorTimeTracking;
-
-		public static bool LoadingFailed { get; set; } = false;
-
-		internal static Dictionary<string, TimeSample> times = new Dictionary<string, TimeSample>();
+		internal static Dictionary<string, TrackedUserTimes> users = new Dictionary<string, TrackedUserTimes>();
 
 		private static double lastCheckTime;
 		private static double lastSaveTime;
 
-		private static string FileName => PersistentFileUtility.GetFullPath(PersistentFileUtility.FileLocation.DataPath, "EditorTimes.json");
+		public static bool Enabled => EssentialsProjectSettings.Instance.enableEditorTimeTracking;
+
+		internal static string FileRootDirectory => PersistentFileUtility.GetFullPath(PersistentFileUtility.FileLocation.DataPath, "EditorTimes");
+		internal static string LegacyFilePath => PersistentFileUtility.GetFullPath(PersistentFileUtility.FileLocation.DataPath, "EditorTimes.json");
+
+		public static float GetTotalTime(string userId, TrackedTimeType typeFlags = TrackedTimeType.All)
+		{
+			if(users.TryGetValue(userId, out var u))
+			{
+				return u.GetTotalTime(typeFlags);
+			}
+			return 0;
+		}
 
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			LoadFromFile();
 			EditorApplication.update += Update;
+			SceneView.duringSceneGui += DuringSceneGui;
 			AssemblyReloadEvents.beforeAssemblyReload += OnDestroy;
 			EditorApplication.quitting += OnDestroy;
 			//Save data when the project is changed
 			EditorApplication.projectChanged += () => Save(false);
+		}
+
+		private static void DuringSceneGui(SceneView sv)
+		{
+			var mousePos = Event.current.mousePosition;
 		}
 
 		private static void OnDestroy()
@@ -57,41 +57,38 @@ namespace UnityEssentialsEditor.TimeTracking
 			{
 				float delta = (float)(EditorApplication.timeSinceStartup - lastCheckTime);
 				string user = GetUserName();
-				if(!times.ContainsKey(user))
+				if(!users.ContainsKey(user))
 				{
-					times.Add(user, new TimeSample());
+					users.Add(user, TrackedUserTimes.Create(user));
 				}
-				times[user].Increase(delta);
+				users[user].Increase(delta);
 			}
 			lastCheckTime = EditorApplication.timeSinceStartup;
+			
 		}
 
 		private static string GetUserName()
 		{
 			string id = CloudProjectSettings.userId;
 			if(!string.IsNullOrWhiteSpace(id)) return id;
-			else return $"({Environment.UserName})";
+			else return $"_{Environment.UserName}";
 		}
 
-		private static void LoadFromFile()
+		private static void LoadTimeFiles()
 		{
-			LoadingFailed = false;
-			if(File.Exists(FileName))
+			if(Directory.Exists(FileRootDirectory))
 			{
-				try
+				foreach(var f in Directory.EnumerateFiles(FileRootDirectory, "*.json"))
 				{
-					string json = File.ReadAllText(FileName);
-					var data = JsonUtility.FromJson<SamplesData>(json);
-					times.Clear();
-					foreach(var d in data.times)
+					try
 					{
-						times.Add(d.userId, d.times);
+						string name = Path.GetFileNameWithoutExtension(f);
+						users.Add(name, TrackedUserTimes.Create(name));
 					}
-				}
-				catch(Exception e)
-				{
-					e.LogException("Failed to read tracked editor times, disabling time tracking");
-					LoadingFailed = true;
+					catch(Exception e)
+					{
+						e.LogException("Failed to load editor time data for user " + f);
+					}
 				}
 			}
 		}
@@ -103,14 +100,13 @@ namespace UnityEssentialsEditor.TimeTracking
 				//We already saved not too long ago, don't save again
 				return;
 			}
-			SamplesData data = new SamplesData();
-			foreach(var kv in times)
+			foreach(var user in users.Values)
 			{
-				if(kv.Value.CombinedTime < 10f) continue;
-				data.times.Add(new UserTimeSample() { userId = kv.Key, times = kv.Value });
+				if(user.IsDirty)
+				{
+					user.SaveToFile();
+				}
 			}
-			string json = JsonUtility.ToJson(data, true);
-			File.WriteAllText(FileName, json);
 			lastSaveTime = EditorApplication.timeSinceStartup;
 		}
 	}

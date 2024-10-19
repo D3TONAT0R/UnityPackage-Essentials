@@ -73,6 +73,7 @@ namespace UnityEssentialsEditor.Tools
 			Handles.matrix = Matrix4x4.identity;
 			DrawWindowIfEnabled();
 			GUI.enabled = true;
+			AfterSceneGUI(window, AllowClicks);
 			if(EscapeKeyDeactivatesTool && KeyUp(KeyCode.Escape))
 			{
 				Event.current.Use();
@@ -126,6 +127,7 @@ namespace UnityEssentialsEditor.Tools
 
 		protected abstract void OnWindowGUI();
 		protected abstract void OnSceneGUI(EditorWindow window, bool enableInteraction);
+		protected virtual void AfterSceneGUI(EditorWindow window, bool enableInteraction) { }
 
 		protected bool ShiftDown => Event.current.shift;
 		protected bool CtrlDown
