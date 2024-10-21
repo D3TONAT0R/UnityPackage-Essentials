@@ -16,6 +16,8 @@ namespace D3TEditor.TimeTracking
 
 		public bool IsDirty => currentSessionSample.CombinedTime > 0;
 
+		public float TotalCurrentSessionTime => currentSessionSample.GetTotal(TrackedTimeType.All);
+
 		public string FileLocation => Path.Combine(EditorTimeTracker.FileRootDirectory, userId + ".json");
 
 		private TrackedUserTimes(string userId)

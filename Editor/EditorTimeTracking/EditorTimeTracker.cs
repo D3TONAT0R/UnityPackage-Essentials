@@ -104,6 +104,8 @@ namespace D3TEditor.TimeTracking
 			{
 				if(user.IsDirty)
 				{
+					//Only save anonymous times if it exceeds 180 seconds in total
+					if(string.IsNullOrEmpty(user.userId) && user.TotalCurrentSessionTime < 180) continue;
 					user.SaveToFile();
 				}
 			}
