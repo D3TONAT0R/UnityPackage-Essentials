@@ -7,12 +7,12 @@ namespace D3T
 		/// <summary>
 		/// Fills all pixels of this texture with a given color.
 		/// </summary>
-		public static void FillWithColor(this Texture2D tex, Color c)
+		public static void FillWithColor(this Texture2D tex, Color c, bool apply = true)
 		{
 			Color32[] cols = new Color32[tex.width * tex.height];
 			for(int i = 0; i < cols.Length; i++) cols[i] = c;
 			tex.SetPixels32(cols);
-			tex.Apply();
+			if(apply) tex.Apply();
 		}
 
 		/// <summary>
