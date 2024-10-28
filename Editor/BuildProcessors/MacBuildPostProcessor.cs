@@ -21,6 +21,7 @@ namespace D3TEditor.BuildProcessors
 		//-rwxr-xr-x
 		//No X:	0x81a40000
 		//X: 	0x81ed0000
+		const uint FINAL_UNIX_FLAGS = 0x81FF0000;
 
 		public int callbackOrder => int.MaxValue;
 
@@ -50,7 +51,8 @@ namespace D3TEditor.BuildProcessors
 					var entry = zip.GetEntry(executableFilePath);
 					unchecked
 					{
-						entry.ExternalAttributes |= (int)UNIX_FLAGS;
+						int i = (int)FINAL_UNIX_FLAGS;
+						entry.ExternalAttributes |= i;
 					}
 				}
 				
@@ -69,10 +71,12 @@ namespace D3TEditor.BuildProcessors
 				//var zipNoX = ZipFile.OpenRead(rootPath + "-no-x.zip");
 				//var zipX = ZipFile.OpenRead(rootPath + "-x.zip");
 				var attributes = zip.GetEntry(executableFilePath).ExternalAttributes;
-				bool test = attributes == UNIX_FLAGS;
+				bool test = attributes == FINAL_UNIX_FLAGS;
+				/*
 				test &= (attributes & X_OWNER_BIT) == X_OWNER_BIT;
 				test &= (attributes & X_GROUP_BIT) == X_GROUP_BIT;
 				test &= (attributes & X_OTHER_BIT) == X_OTHER_BIT;
+				*/
 				if(!test) Debug.LogError("Unix perms test failed: "+Convert.ToString(zip.GetEntry(executableFilePath).ExternalAttributes, 2));
 			}
 		}
