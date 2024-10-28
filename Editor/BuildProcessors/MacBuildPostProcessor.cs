@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -32,7 +31,7 @@ namespace D3TEditor.BuildProcessors
 				var rootPath = report.summary.outputPath;
 				var executableFilePath = "Contents/MacOS/" + PlayerSettings.productName;
 				//Clear the executable file
-				File.WriteAllBytes(rootPath + "/" + executableFilePath, new byte[0]);
+				//File.WriteAllBytes(rootPath + "/" + executableFilePath, Array.Empty<byte>());
 
 				//Delete existing zip if present
 				if(File.Exists(rootPath + ".zip"))
@@ -40,7 +39,7 @@ namespace D3TEditor.BuildProcessors
 					File.Delete(rootPath + ".zip");
 				}
 				//Compress executable into a zip file
-				ZipFile.CreateFromDirectory(rootPath, rootPath + ".zip");
+				ZipFile.CreateFromDirectory(rootPath, rootPath + ".zip", System.IO.Compression.CompressionLevel.NoCompression, true);
 
 				//RemoveOtherStuff(rootPath + ".zip");
 
@@ -54,7 +53,7 @@ namespace D3TEditor.BuildProcessors
 						entry.ExternalAttributes |= (int)UNIX_FLAGS;
 					}
 				}
-
+				
 				//Self test
 				//PerformAttributeTest(rootPath, executableFilePath);
 
@@ -63,17 +62,18 @@ namespace D3TEditor.BuildProcessors
 			}
 		}
 
-
-
 		private static void PerformAttributeTest(string rootPath, string executableFilePath)
 		{
 			using(var zip = ZipFile.OpenRead(rootPath + ".zip"))
 			{
 				//var zipNoX = ZipFile.OpenRead(rootPath + "-no-x.zip");
 				//var zipX = ZipFile.OpenRead(rootPath + "-x.zip");
-				bool test = (zip.GetEntry(executableFilePath).ExternalAttributes & ALL_X_BITS) == ALL_X_BITS;
-				if(test) Debug.Log("Perms test passed");
-				else Debug.LogError("Perms test failed: "+Convert.ToString(zip.GetEntry(executableFilePath).ExternalAttributes, 2));
+				var attributes = zip.GetEntry(executableFilePath).ExternalAttributes;
+				bool test = attributes == UNIX_FLAGS;
+				test &= (attributes & X_OWNER_BIT) == X_OWNER_BIT;
+				test &= (attributes & X_GROUP_BIT) == X_GROUP_BIT;
+				test &= (attributes & X_OTHER_BIT) == X_OTHER_BIT;
+				if(!test) Debug.LogError("Unix perms test failed: "+Convert.ToString(zip.GetEntry(executableFilePath).ExternalAttributes, 2));
 			}
 		}
 
