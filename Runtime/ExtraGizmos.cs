@@ -1,4 +1,5 @@
 ﻿using D3T.Meshes;
+using log4net.Util;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -405,7 +406,7 @@ namespace D3T
 		/// <summary>
 		/// Draws a GUI text at the given point in the scene.
 		/// </summary>
-		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, bool shadow = false)
+		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, Vector2? offsetUnits = null, bool shadow = false)
 		{
 #if UNITY_EDITOR
 			if(labelStyle == null)
@@ -417,7 +418,7 @@ namespace D3T
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color;
-			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offset, shadow);
+			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offset, offsetUnits ?? Vector2.zero, shadow);
 			GUI.color = lastColor;
 #endif
 		}
@@ -426,26 +427,26 @@ namespace D3T
 		/// <summary>
 		/// Draws a GUI text box at the given point in the scene.
 		/// </summary>
-		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, GUIStyle style = null)
+		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null)
 		{
 #if UNITY_EDITOR
 			var boxStyle = style ?? GUI.skin.box;
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color;
-			Box(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), boxStyle, anchor, offset);
+			Box(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), boxStyle, anchor, offset, offsetUnits ?? Vector2.zero);
 			GUI.color = lastColor;
 #endif
 		}
 
 #if UNITY_EDITOR
-		private static void Label(Vector3 position, GUIContent content, GUIStyle style, float offset, bool shadow)
+		private static void Label(Vector3 position, GUIContent content, GUIStyle style, float offset, Vector2 offsetUnits, bool shadow)
 		{
 			Vector3 vector = UnityEditor.HandleUtility.WorldToGUIPointWithDepth(position);
 			if(!(vector.z < 0f))
 			{
 				UnityEditor.Handles.BeginGUI();
-				var rect = WorldPointToSizedRect(position, content, style, style.alignment, offset);
+				var rect = WorldPointToSizedRect(position, content, style, style.alignment, offset, offsetUnits);
 				if(shadow)
 				{
 					var position2 = rect;
@@ -461,23 +462,25 @@ namespace D3T
 			}
 		}
 
-		private static void Box(Vector3 position, GUIContent content, GUIStyle style, TextAnchor anchor, float offset)
+		private static void Box(Vector3 position, GUIContent content, GUIStyle style, TextAnchor anchor, float offset, Vector2 offsetUnits)
 		{
 			Vector3 vector = UnityEditor.HandleUtility.WorldToGUIPointWithDepth(position);
 			if(!(vector.z < 0f))
 			{
 				UnityEditor.Handles.BeginGUI();
-				var rect = WorldPointToSizedRect(position, content, style, anchor, offset);
+				var rect = WorldPointToSizedRect(position, content, style, anchor, offset, offsetUnits);
 				GUI.Label(rect, content, style);
 				UnityEditor.Handles.EndGUI();
 			}
 		}
 
-		private static Rect WorldPointToSizedRect(Vector3 position, GUIContent content, GUIStyle style, TextAnchor anchor, float offset)
+		private static Rect WorldPointToSizedRect(Vector3 position, GUIContent content, GUIStyle style, TextAnchor anchor, float offset, Vector2 offsetUnits)
 		{
-			Vector2 vector = UnityEditor.HandleUtility.WorldToGUIPoint(position);
-			Vector2 vector2 = style.CalcSize(content);
-			Rect rect = new Rect(vector.x, vector.y, vector2.x, vector2.y);
+			Vector2 pos = UnityEditor.HandleUtility.WorldToGUIPoint(position);
+			var size = UnityEditor.HandleUtility.GetHandleSize(position);
+			pos += (1f / size) * offsetUnits * 80;
+			Vector2 rectSize = style.CalcSize(content);
+			Rect rect = new Rect(pos.x, pos.y, rectSize.x, rectSize.y);
 			switch(anchor)
 			{
 				case TextAnchor.UpperCenter:

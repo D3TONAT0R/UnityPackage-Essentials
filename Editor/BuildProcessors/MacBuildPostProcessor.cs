@@ -9,6 +9,7 @@ using UnityEngine;
 
 namespace D3TEditor.BuildProcessors
 {
+#if UNITY_6000_0_OR_NEWER
 	public class MacBuildPostProcessor : IPostprocessBuildWithReport
 	{
 		const int WHATEVER_BIT = 1 << 31;
@@ -93,4 +94,5 @@ namespace D3TEditor.BuildProcessors
 			}
 		}
 	} 
+#endif
 }
