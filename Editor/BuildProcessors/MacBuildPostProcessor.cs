@@ -18,9 +18,12 @@ namespace D3TEditor.BuildProcessors
 		const int X_GROUP_BIT = 1 << 19;
 		const int X_OTHER_BIT = 1 << 16;
 		const int ALL_X_BITS = X_OWNER_BIT | X_GROUP_BIT | X_OTHER_BIT;
-		const uint UNIX_FLAGS   = 0b10000001111011010000000000000000;
-		const uint UNIX_FLAGS_2 = 0b00000001111111110000000000000000;
-		//						    \------/\------/\------/\------/
+		const uint UNIX_FLAGS_X   = 0b00000001111011010000000000000000;
+		const uint UNIX_FLAGS_ALL = 0b00000001111111110000000000000000;
+		const uint UNIX_FLAGS_STD = 0b00000001101001000000000000000000;
+		//							  _______rwxrwxrwx________________
+		//						      \------/\------/\------/\------/
+		//TODO: test with first bit set
 		//-rwxr-xr-x
 		//No X:	0x81a40000
 		//X: 	0x81ed0000
@@ -51,21 +54,19 @@ namespace D3TEditor.BuildProcessors
 				using(var zip = ZipFile.Open(rootPath + ".zip", ZipArchiveMode.Update))
 				{
 					entryCount = zip.Entries.Count;
-					SetUnixFlags(zip.GetEntry(executableFilePath));
-					/*
-					//Set unix flags for all files
+					//Set standard unix flags for all files and executable flags for the executable
 					foreach(var entry in zip.Entries)
 					{
-						SetUnixFlags(entry);
+						bool executable = entry.FullName == executableFilePath;
+						SetUnixFlags(entry, executable ? UNIX_FLAGS_X : UNIX_FLAGS_STD);
 					}
-					*/
 				}
 
 				//Manual trickery to pretend that the zip was created on unix
 				SetHostOS(rootPath, entryCount);
 
 				//Self test
-				PerformAttributeTest(rootPath, executableFilePath);
+				CheckExecutableFlags(rootPath, executableFilePath);
 
 				//Delete original build directory
 				//Directory.Delete(rootPath, true);
@@ -93,24 +94,31 @@ namespace D3TEditor.BuildProcessors
 				{
 					bytes[i + 5] = 0x03;
 					modifiedEntries++;
+					//Approximate minimum central directory entry length
+					i += 22;
 				}
-				//Approximate minimum central directory entry length
-				i += 22;
 			}
-			Assert.AreEqual(entryCount, modifiedEntries);
+			if(entryCount != modifiedEntries)
+			{
+				Debug.LogError($"Number of modified entries does not match actual entry count (expected: {entryCount}, modified: {modifiedEntries})");
+			}
+			else
+			{
+				Debug.Log($"Host OS changed successfully ({modifiedEntries} entries modified)");
+			}
 			File.WriteAllBytes(rootPath + ".zip", bytes);
 		}
 
-		private static void SetUnixFlags(ZipArchiveEntry entry)
+		private static void SetUnixFlags(ZipArchiveEntry entry, uint flags)
 		{
 			unchecked
 			{
-				int i = (int)ALL_X_BITS;
+				int i = (int)flags;
 				entry.ExternalAttributes |= i;
 			}
 		}
 
-		private static void PerformAttributeTest(string rootPath, string executableFilePath)
+		private static void CheckExecutableFlags(string rootPath, string executableFilePath)
 		{
 			using(var zip = ZipFile.OpenRead(rootPath + ".zip"))
 			{
@@ -120,14 +128,14 @@ namespace D3TEditor.BuildProcessors
 				bool test;
 				unchecked
 				{
-					test = ((uint)attributes & ALL_X_BITS) == ALL_X_BITS;
+					test = ((uint)attributes & UNIX_FLAGS_X) == UNIX_FLAGS_X;
 				}
 				/*
 				test &= (attributes & X_OWNER_BIT) == X_OWNER_BIT;
 				test &= (attributes & X_GROUP_BIT) == X_GROUP_BIT;
 				test &= (attributes & X_OTHER_BIT) == X_OTHER_BIT;
 				*/
-				string base2 = Convert.ToString(zip.GetEntry(executableFilePath).ExternalAttributes, 2);
+				string base2 = Convert.ToString(zip.GetEntry(executableFilePath).ExternalAttributes, 2).PadLeft(32, '0');
 				if(!test) Debug.LogError("Unix perms test failed: "+base2);
 				else Debug.Log("Unix perms test passed: " + base2);
 			}
