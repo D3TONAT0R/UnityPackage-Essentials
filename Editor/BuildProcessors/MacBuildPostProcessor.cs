@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace D3TEditor.BuildProcessors
 {
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_2022_1_OR_NEWER
 	public class MacBuildPostProcessor : IPostprocessBuildWithReport
 	{
 		const uint UNIX_FLAGS_EXECUTABLE = 0b10000001111111110000000000000000;
