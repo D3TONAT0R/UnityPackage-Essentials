@@ -18,9 +18,10 @@ namespace D3TEditor.BuildProcessors
 		const int X_GROUP_BIT = 1 << 19;
 		const int X_OTHER_BIT = 1 << 16;
 		const int ALL_X_BITS = X_OWNER_BIT | X_GROUP_BIT | X_OTHER_BIT;
-		const uint UNIX_FLAGS_X   = 0b00000001111011010000000000000000;
-		const uint UNIX_FLAGS_ALL = 0b00000001111111110000000000000000;
-		const uint UNIX_FLAGS_STD = 0b00000001101001000000000000000000;
+		const uint UNIX_FLAGS_X   = 0b10000001111011010000000000000000;
+		const uint UNIX_FLAGS_ALL = 0b10000001111111110000000000000000;
+		const uint UNIX_FLAGS_STD = 0b10000001101001000000000000000000;
+		const uint UNIX_FLAGS_B6  = 0b10000001101101100000000000000000;
 		//							  _______rwxrwxrwx________________
 		//						      \------/\------/\------/\------/
 		//TODO: test with first bit set
@@ -58,7 +59,7 @@ namespace D3TEditor.BuildProcessors
 					foreach(var entry in zip.Entries)
 					{
 						bool executable = entry.FullName == executableFilePath;
-						SetUnixFlags(entry, executable ? UNIX_FLAGS_X : UNIX_FLAGS_STD);
+						SetUnixFlags(entry, executable ? UNIX_FLAGS_ALL : UNIX_FLAGS_B6);
 					}
 				}
 
@@ -128,7 +129,7 @@ namespace D3TEditor.BuildProcessors
 				bool test;
 				unchecked
 				{
-					test = ((uint)attributes & UNIX_FLAGS_X) == UNIX_FLAGS_X;
+					test = ((uint)attributes & UNIX_FLAGS_ALL) == UNIX_FLAGS_ALL;
 				}
 				/*
 				test &= (attributes & X_OWNER_BIT) == X_OWNER_BIT;
