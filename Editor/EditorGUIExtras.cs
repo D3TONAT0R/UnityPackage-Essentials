@@ -86,7 +86,13 @@ namespace D3TEditor
 
 		public static Enum EnumButtons(Rect position, GUIContent label, Enum value, Type enumType)
 		{
-			int[] values = (int[])Enum.GetValues(enumType);
+			//TODO: could use some caching
+			var valuesArray = Enum.GetValues(enumType);
+			int[] values = new int[valuesArray.Length];
+			for(int i = 0; i < valuesArray.Length; i++)
+			{
+				values[i] = Convert.ToInt32(valuesArray.GetValue(i));
+			}
 			string[] names = Enum.GetNames(enumType);
 			for(int i = 0; i < values.Length; i++)
 			{
@@ -101,7 +107,7 @@ namespace D3TEditor
 					names[i] = ObjectNames.NicifyVariableName(Enum.GetName(enumType, values[i]));
 				}
 			}
-			int input = (int)(object)value;
+			int input = Convert.ToInt32(value);
 			int output = IntButtonField(position, label, input, values, names);
 			return (Enum)Enum.ToObject(enumType, output);
 		}
