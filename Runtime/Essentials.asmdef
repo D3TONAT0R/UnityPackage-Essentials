@@ -1,5 +1,6 @@
 {
-    "name": "D3T.Essentials",
+    "name": "Essentials",
+    "rootNamespace": "",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
