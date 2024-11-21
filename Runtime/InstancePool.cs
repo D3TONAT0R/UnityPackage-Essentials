@@ -12,13 +12,8 @@ namespace UnityEssentials.Pooling
 	/// <typeparam name="T">The component attached to each instance of this pool.</typeparam>
 	public class InstancePool<T> where T : Component
 	{
-		private List<T> inactivePool;
-		private List<T> activePool;
-		private Dictionary<T, float> lastActivationTimes;
-		private T[] iterationCache;
-
 		/// <summary>
-		/// The scene to which this pool is bound to. If set, all objects are destroyed when this scene is unloaded.
+		/// The scene to which this pool is bound to. If set, all objects are destroyed when this scene is unloaded. If left null, instances are created in the active scene (unless <see cref="dontDestroyOnLoad"/> is set)
 		/// </summary>
 		public Scene? TargetScene { get; private set; }
 		/// <summary>
@@ -30,11 +25,11 @@ namespace UnityEssentials.Pooling
 		/// </summary>
 		public Func<T> instantiator;
 		/// <summary>
-		/// An optional function that is invoked when an instance should become active.
+		/// An optional callback that is invoked when an instance is activated.
 		/// </summary>
 		public Action<T> activator = null;
 		/// <summary>
-		/// An optional function that is invoked when an instance should be deactivated.
+		/// An optional callback that is invoked when an instance is deactivated.
 		/// </summary>
 		public Action<T> deactivator = null;
 		/// <summary>
@@ -49,9 +44,6 @@ namespace UnityEssentials.Pooling
 		/// An optional duration that limits the maximum active time for each instance until they are forcefully released.
 		/// </summary>
 		public float? maxActiveTime = null;
-
-		private float lastUpdateTime;
-
 		/// <summary>
 		/// The number of currently unused instances in this pool.
 		/// </summary>
@@ -65,10 +57,17 @@ namespace UnityEssentials.Pooling
 		/// </summary>
 		public int TotalInstanceCount => InactiveInstanceCount + ActiveInstanceCount;
 
+		private List<T> inactivePool;
+		private List<T> activePool;
+		private Dictionary<T, float> lastActivationTimes;
+		private T[] iterationCache;
+		private float lastUpdateTime;
+
 		/// <summary>
 		/// Creates a new instance pool.
 		/// </summary>
-		public InstancePool(Scene? scene, int maxPoolSize, Func<T> instantiator = null, Action<T> activator = null, Action<T> deactivator = null, bool dontDestroyOnLoad = false, float? maxActiveTime = null)
+		public InstancePool(Scene? scene, int maxPoolSize, Func<T> instantiator = null, Action<T> activator = null, Action<T> deactivator = null, 
+			bool dontDestroyOnLoad = false, bool createAllInstances = false, float? maxActiveTime = null)
 		{
 			if(scene.HasValue && !scene.Value.IsValid()) throw new ArgumentException("Scene is invalid");
 			inactivePool = new List<T>();
@@ -82,6 +81,10 @@ namespace UnityEssentials.Pooling
 			this.dontDestroyOnLoad = dontDestroyOnLoad;
 			this.maxActiveTime = maxActiveTime;
 			iterationCache = new T[maxPoolSize];
+			if(createAllInstances)
+			{
+				CreateAllInstances();
+			}
 			SceneManager.sceneUnloaded += OnSceneUnloaded;
 			Application.quitting += OnApplicationQuit;
 #if UNITY_EDITOR
@@ -131,27 +134,12 @@ namespace UnityEssentials.Pooling
 			{
 				inst = inactivePool[0];
 				inactivePool.RemoveAt(0);
-				inst.gameObject.SetActive(true);
 			}
 			else
 			{
 				if(TotalInstanceCount < maxPoolSize)
 				{
-					inst = instantiator.Invoke();
-					if(inst == null)
-					{
-						throw new NullReferenceException("Instantiated object was null.");
-					}
-					if(dontDestroyOnLoad)
-					{
-						Object.DontDestroyOnLoad(inst.gameObject);
-					}
-					else if(TargetScene.HasValue && inst.gameObject.scene != TargetScene)
-					{
-						SceneManager.MoveGameObjectToScene(inst.gameObject, TargetScene.Value);
-					}
-					//The instantiated object may be inactive if the prefab was stored in the scene, activate it now.
-					inst.gameObject.SetActive(true);
+					inst = CreateInstance();
 				}
 				else
 				{
@@ -162,7 +150,6 @@ namespace UnityEssentials.Pooling
 						activePool.RemoveAt(0);
 						inst.gameObject.SetActive(false);
 						deactivator?.Invoke(inst);
-						inst.gameObject.SetActive(true);
 					}
 					else
 					{
@@ -172,6 +159,7 @@ namespace UnityEssentials.Pooling
 				}
 			}
 			activePool.Add(inst);
+			inst.gameObject.SetActive(true);
 			lastActivationTimes[inst] = Time.time;
 			activator?.Invoke(inst);
 			return inst;
@@ -270,6 +258,18 @@ namespace UnityEssentials.Pooling
 		}
 
 		/// <summary>
+		/// Instantiates all objects used by this pool.
+		/// </summary>
+		public void CreateAllInstances()
+		{
+			while(TotalInstanceCount < maxPoolSize)
+			{
+				var inst = CreateInstance();
+				inactivePool.Add(inst);
+			}
+		}
+
+		/// <summary>
 		/// Transfers all instances to the given scene. Newly created instances will also become part of the given scene.
 		/// </summary>
 		/// <param name="includeDontDestroyOnLoad">If true, instances that are marked as 'DontDestroyOnLoad' will also be moved to the scene.</param>
@@ -303,6 +303,26 @@ namespace UnityEssentials.Pooling
 				Debug.LogError("Unable to get life time for this instance, object is not active or not part of this pool.");
 				return 0;
 			}
+		}
+
+		private T CreateInstance()
+		{
+			T inst;
+			inst = instantiator.Invoke();
+			if(inst == null)
+			{
+				throw new NullReferenceException("Instantiated object was null.");
+			}
+			if(dontDestroyOnLoad)
+			{
+				Object.DontDestroyOnLoad(inst.gameObject);
+			}
+			else if(TargetScene.HasValue && inst.gameObject.scene != TargetScene)
+			{
+				SceneManager.MoveGameObjectToScene(inst.gameObject, TargetScene.Value);
+			}
+
+			return inst;
 		}
 
 		private T DefaultInstantiator()

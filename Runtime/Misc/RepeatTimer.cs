@@ -9,11 +9,11 @@ namespace UnityEssentials
 	[System.Serializable]
 	public class RepeatTimer
 	{
-		public enum UpdateMode
+		public enum UpdateMode : byte
 		{
-			DeltaTime,
-			UnscaledDeltaTime,
-			FixedDeltaTime
+			DeltaTime = 0,
+			UnscaledDeltaTime = 1,
+			FixedDeltaTime = 2
 		}
 
 		[Tooltip("Whether to use a random interval.")]
@@ -31,6 +31,15 @@ namespace UnityEssentials
 
 		private UpdateMode autoUpdateMode;
 		private MonoBehaviour autoUpdateOwner;
+
+		/// <summary>
+		/// An optional name for debugging purposes.
+		/// </summary>
+		public static string Name
+		{
+			get;
+			set;
+		}
 
 		/// <summary>
 		/// Called when the timer triggers a tick.
@@ -57,9 +66,31 @@ namespace UnityEssentials
 		/// </summary>
 		public float DeltaTime { get; private set; } = 0;
 
-		private RepeatTimer()
+		/// <summary>
+		/// The current time interval this timer runs at. If random interval is used, this value is randomized every tick.
+		/// </summary>
+		public float Interval
 		{
+			get
+			{
+				if(!useRandomInterval) return lastUpdateTime + interval;
+				else return lastUpdateTime + intervalRange.Lerp(nextTickRandom);
+			}
+		}
 
+		/// <summary>
+		/// The time elapsed since the last tick.
+		/// </summary>
+		public float LastUpdateDelta => time;
+
+		/// <summary>
+		/// The time until the next tick is triggered.
+		/// </summary>
+		public float NextUpdateDelta => Interval - time;
+
+		private RepeatTimer(float interval)
+		{
+			this.interval = interval;
 		}
 
 		/// <summary>
@@ -67,7 +98,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static RepeatTimer Create(float interval)
 		{
-			return new RepeatTimer() { useRandomInterval = false, interval = interval };
+			return new RepeatTimer(interval);
 		}
 
 		/// <summary>
@@ -75,7 +106,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static RepeatTimer CreateFrameRate(float frameRate)
 		{
-			return Create(1f / frameRate);
+			return new RepeatTimer(1f / frameRate);
 		}
 
 		/// <summary>
@@ -83,19 +114,20 @@ namespace UnityEssentials
 		/// </summary>
 		public static RepeatTimer CreateRandom(FloatRange intervalRange)
 		{
-			return new RepeatTimer() { useRandomInterval = true, intervalRange = intervalRange };
+			return new RepeatTimer(intervalRange.min) { useRandomInterval = true, intervalRange = intervalRange };
 		}
 
 		/// <summary>
 		/// Enabled automatic updating of the timer.
 		/// </summary>
-		public void EnableAutoUpdate(MonoBehaviour owner, UpdateMode mode)
+		public void EnableAutoUpdate(MonoBehaviour owner, UpdateMode mode, bool early = true)
 		{
 			if(!owner) throw new System.NullReferenceException("Owner object must not be null.");
 			autoUpdateMode = mode;
 			if(mode == UpdateMode.DeltaTime || mode == UpdateMode.UnscaledDeltaTime)
 			{
-				UpdateLoop.PreUpdate += AutoUpdate;
+				if(early) UpdateLoop.PreUpdate += AutoUpdate;
+				else UpdateLoop.Update += AutoUpdate;
 			}
 			else if(mode == UpdateMode.FixedDeltaTime)
 			{
@@ -112,6 +144,7 @@ namespace UnityEssentials
 		{
 			autoUpdateOwner = null;
 			UpdateLoop.PreUpdate -= AutoUpdate;
+			UpdateLoop.Update -= AutoUpdate;
 			UpdateLoop.FixedUpdate -= AutoUpdate;
 			AutoUpdateActive = false;
 		}
@@ -137,6 +170,14 @@ namespace UnityEssentials
 			return UpdateInternal(delta);
 		}
 
+		/// <summary>
+		/// Forces this timer to trigger immediately.
+		/// </summary>
+		public void ForceTick()
+		{
+			PerformTick();
+		}
+
 		private void AutoUpdate()
 		{
 			if(autoUpdateOwner == null)
@@ -159,18 +200,9 @@ namespace UnityEssentials
 
 			if(useRandomInterval && nextTickRandom < 0) nextTickRandom = Random.value;
 
-			float nextTickTime;
-			if(!useRandomInterval) nextTickTime = lastUpdateTime + interval;
-			else nextTickTime = lastUpdateTime + intervalRange.Lerp(nextTickRandom);
-
-			if(time >= nextTickTime)
+			if(time >= Interval)
 			{
-				TickNumber++;
-				DeltaTime = time - lastUpdateTime;
-				lastUpdateTime = time;
-				TriggeredThisFrame = true;
-				Tick?.Invoke();
-				if(useRandomInterval) nextTickRandom = Random.value;
+				PerformTick();
 				return true;
 			}
 			else
@@ -178,6 +210,25 @@ namespace UnityEssentials
 				TriggeredThisFrame = false;
 				return false;
 			}
+		}
+
+		private void PerformTick()
+		{
+			TickNumber++;
+			DeltaTime = time - lastUpdateTime;
+			lastUpdateTime = time;
+			TriggeredThisFrame = true;
+			Tick?.Invoke();
+			if(useRandomInterval) nextTickRandom = Random.value;
+		}
+
+		public override string ToString()
+		{
+			string s = "";
+			if(Name != null) s += Name;
+			if(useRandomInterval) s += $"({intervalRange.min}-{intervalRange.max})";
+			else s += $"({interval})";
+			return s;
 		}
 	}
 }
