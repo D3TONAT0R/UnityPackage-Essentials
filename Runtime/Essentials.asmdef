@@ -1,10 +1,6 @@
 {
-<<<<<<<< HEAD:Runtime/UnityEssentials.asmdef
-    "name": "UnityEssentials",
-========
     "name": "Essentials",
     "rootNamespace": "",
->>>>>>>> d3t-namespace:Runtime/Essentials.asmdef
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
