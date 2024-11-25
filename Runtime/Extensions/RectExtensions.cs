@@ -17,9 +17,9 @@ namespace D3T
 		}
 
 		/// <summary>
-		/// Snaps this rect's corners to the nearest integer coordinates.
+		/// Rounds this rect's corners to the nearest integer coordinates.
 		/// </summary>
-		public static Rect Snap(this Rect r)
+		public static Rect Round(this Rect r)
 		{
 			Rect r2 = new Rect(r);
 			r2.x = Mathf.Round(r2.x);
