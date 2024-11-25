@@ -445,7 +445,7 @@ namespace UnityEssentials
 			if(!(vector.z < 0f))
 			{
 				UnityEditor.Handles.BeginGUI();
-				var rect = WorldPointToSizedRect(position, content, style, style.alignment, offset, offsetUnits);
+				var rect = WorldPointToSizedRect(position, content, style, style.alignment, offset, offsetUnits).Round();
 				if(shadow)
 				{
 					var position2 = rect;

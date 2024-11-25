@@ -28,6 +28,21 @@ namespace UnityEssentialsEditor.Tools
 		public override bool ShowToolWindow => true;
 
 		public override int ToolWindowWidth => 300;
+		
+		public override GUIContent toolbarIcon
+		{
+			get
+			{
+				if(toolIcon == null)
+				{
+					var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.github.d3tonat0r.essentials/Editor/Icons/tool_measure.png");
+					if(icon == null) icon = Texture2D.whiteTexture;
+					toolIcon = new GUIContent(icon);
+				}
+				return toolIcon;
+			}
+		}
+		private static GUIContent toolIcon;
 
 		protected override void OnWindowGUI()
 		{

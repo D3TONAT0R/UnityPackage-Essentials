@@ -70,7 +70,7 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 
 Open the Package Manager window, click on "Add Package from Git URL ...", then enter the following:
 ```
-https://github.com/d3tonat0r/unitypackage-essentials.git#0.9.2
+https://github.com/d3tonat0r/unitypackage-essentials.git#0.9.7-unity-namespace
 ```
 
 ### Option 2: Manually Editing packages.json
@@ -78,7 +78,7 @@ https://github.com/d3tonat0r/unitypackage-essentials.git#0.9.2
 Add the following line to your project's `Packages/manifest.json`:
 
 ```json
-"com.example.package": "https://github.com/d3tonat0r/unitypackage-essentials.git#0.9.2"
+"com.example.package": "https://github.com/d3tonat0r/unitypackage-essentials.git#0.9.7-unity-namespace"
 ```
 
 ### Option 3: Manual Installation (not recommended)
