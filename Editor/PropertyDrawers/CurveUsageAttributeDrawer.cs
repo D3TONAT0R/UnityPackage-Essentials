@@ -13,7 +13,14 @@ namespace D3TEditor.PropertyDrawers
 			var usageAttribute = (CurveUsageAttribute)attribute;
 			using(new EditorGUI.PropertyScope(position, label, property))
 			{
-				property.animationCurveValue = EditorGUI.CurveField(position, label, property.animationCurveValue, usageAttribute.color, usageAttribute.ranges);
+				EditorGUI.BeginChangeCheck();
+				EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+				var newCurve = EditorGUI.CurveField(position, label, property.animationCurveValue, usageAttribute.color, usageAttribute.ranges);
+				EditorGUI.showMixedValue = false;
+				if(EditorGUI.EndChangeCheck())
+				{
+					property.animationCurveValue = newCurve;
+				}
 			}
 		}
 	}
