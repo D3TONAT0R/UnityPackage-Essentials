@@ -13,6 +13,7 @@ namespace D3TEditor.PropertyDrawers
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
+			EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.Integer)) return;
 			var choices = PropertyDrawerUtility.GetAttribute<IntPopupAttribute>(property, true).choices;
 			if(choices.Length > maxItemCount)
@@ -23,7 +24,7 @@ namespace D3TEditor.PropertyDrawers
 			EditorGUI.BeginChangeCheck();
 			GUIContent[] choiceStrings = choices.Select((i) => new GUIContent(i.ToString())).ToArray();
 			var sel = EditorGUI.IntPopup(position, label, property.intValue, choiceStrings, choices);
-			if(!choices.Contains(property.intValue))
+			if(!choices.Contains(property.intValue) && !EditorGUI.showMixedValue)
 			{
 				EditorGUI.LabelField(position, " ", $" ({property.intValue})", EditorStyles.boldLabel);
 			}
@@ -31,6 +32,7 @@ namespace D3TEditor.PropertyDrawers
 			{
 				property.intValue = sel;
 			}
+			EditorGUI.showMixedValue = false;
 			EditorGUI.EndProperty();
 		}
 	}

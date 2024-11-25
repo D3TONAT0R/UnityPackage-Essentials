@@ -10,7 +10,14 @@ namespace D3TEditor
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
-			property.intValue = EditorGUI.LayerField(position, label, property.intValue);
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+			var value = EditorGUI.LayerField(position, label, property.intValue);
+			EditorGUI.showMixedValue = false;
+			if(EditorGUI.EndChangeCheck())
+			{
+				property.intValue = value;
+			}
 			EditorGUI.EndProperty();
 		}
 	}

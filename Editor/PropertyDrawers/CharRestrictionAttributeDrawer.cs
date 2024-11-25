@@ -35,6 +35,8 @@ namespace D3TEditor.PropertyDrawers
 					position.SplitHorizontalRight(16, out position, out infoRect, 2);
 				}
 				var value = property.stringValue;
+				EditorGUI.BeginChangeCheck();
+				EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
 				value = EditorGUI.TextField(position, content, value, EditorGUIExtras.GetMonospaceTextField(property));
 				if(restricted)
 				{
@@ -50,7 +52,11 @@ namespace D3TEditor.PropertyDrawers
 					GUI.color = GUI.color.MultiplyAlpha(4.0f);
 					value = ApplyRestrictions(value, allowedChars, forcedCase, replacementChar);
 				}
-				property.stringValue = value;
+				if(EditorGUI.EndChangeCheck())
+				{
+					property.stringValue = value;
+				}
+				EditorGUI.showMixedValue = false;
 				EditorGUI.EndProperty();
 			}
 			catch(Exception e)

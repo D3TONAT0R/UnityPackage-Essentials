@@ -10,6 +10,7 @@ namespace D3TEditor.PropertyDrawers
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
+			EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
 			position.height = EditorGUIUtility.singleLineHeight;
 			var min = property.FindPropertyRelative("min");
 			var max = property.FindPropertyRelative("max");
@@ -18,9 +19,14 @@ namespace D3TEditor.PropertyDrawers
 			{
 				var minValue = min.floatValue;
 				var maxValue = max.floatValue;
+				EditorGUI.BeginChangeCheck();
+				EditorGUI.showMixedValue = min.hasMultipleDifferentValues || max.hasMultipleDifferentValues;
 				EditorGUI.MinMaxSlider(position, label, ref minValue, ref maxValue, attr.min, attr.max);
-				min.floatValue = minValue;
-				max.floatValue = maxValue;
+				if(EditorGUI.EndChangeCheck())
+				{
+					min.floatValue = minValue;
+					max.floatValue = maxValue;
+				}
 				position.NextProperty();
 			}
 			bool hasLabel = !string.IsNullOrEmpty(label.text);
@@ -33,14 +39,19 @@ namespace D3TEditor.PropertyDrawers
 			int indent = EditorGUI.indentLevel;
 			EditorGUI.indentLevel = 0;
 			EditorGUIUtility.labelWidth = 30;
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = min.hasMultipleDifferentValues;
 			EditorGUI.PropertyField(minRect, min);
+			if(EditorGUI.EndChangeCheck()) min.floatValue = Mathf.Clamp(min.floatValue, attr.min, attr.max);
+
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = max.hasMultipleDifferentValues;
 			EditorGUI.PropertyField(maxRect, max);
+			if(EditorGUI.EndChangeCheck()) max.floatValue = Mathf.Clamp(max.floatValue, attr.min, attr.max);
+
 			EditorGUI.indentLevel = indent;
-			if(attr != null)
-			{
-				min.floatValue = Mathf.Clamp(min.floatValue, attr.min, attr.max);
-				max.floatValue = Mathf.Clamp(max.floatValue, attr.min, attr.max);
-			}
+			EditorGUI.showMixedValue = false;
 			EditorGUI.EndProperty();
 		}
 

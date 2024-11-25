@@ -28,7 +28,7 @@ namespace D3TEditor.PropertyDrawers
 			}
 
 			var texture = GetTextureFromProperty(property);
-			if(texture)
+			if(texture && !property.hasMultipleDifferentValues)
 			{
 				float imageAspect = (float)texture.width / texture.height;
 				if(texturePos.GetAspectRatio() > imageAspect)
@@ -54,7 +54,7 @@ namespace D3TEditor.PropertyDrawers
 			var attr = GetAttribute();
 			var texture = GetTextureFromProperty(property);
 			float h = 0;
-			if(texture)
+			if(texture && !property.hasMultipleDifferentValues)
 			{
 				if(attr.showObjectField)
 				{
