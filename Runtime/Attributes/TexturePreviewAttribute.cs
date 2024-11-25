@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Add this attribute to a texture field to show a preview of the texture in the inspector.
