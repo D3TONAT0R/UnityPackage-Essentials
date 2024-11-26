@@ -6,11 +6,9 @@ using UnityEngine;
 
 namespace D3TEditor
 {
-	public static class PlaymodeEditorKeybinds
+	public static class PlaymodeShortcutProfile
 	{
 		private static string FilePath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "LastProfile.tmp");
-
-		private const string playmodeProfile = "Playmode";
 
 		[InitializeOnLoadMethod]
 		public static void Init()
@@ -20,11 +18,17 @@ namespace D3TEditor
 
 		private static void OnChange(PlayModeStateChange change)
 		{
-			if(!new List<string>(ShortcutManager.instance.GetAvailableProfileIds()).Contains(playmodeProfile)) return;
+			string profileName = EssentialsProjectSettings.Instance.playmodeShortcutProfileName;
+			if(string.IsNullOrWhiteSpace(profileName)) return;
 			if(change == PlayModeStateChange.EnteredPlayMode)
 			{
+				if(!new List<string>(ShortcutManager.instance.GetAvailableProfileIds()).Contains(profileName))
+				{
+					Debug.LogWarning("Could not find shortcuts profile for playmode: " + profileName);
+					return;
+				}
 				StoreEditModeProfile();
-				ShortcutManager.instance.activeProfileId = playmodeProfile;
+				ShortcutManager.instance.activeProfileId = profileName;
 			}
 			else if(change == PlayModeStateChange.EnteredEditMode)
 			{
@@ -53,8 +57,7 @@ namespace D3TEditor
 			}
 			else
 			{
-				Debug.LogError("Failed to load last edit mode shortcut profile, reverting to default profile.");
-				ShortcutManager.instance.activeProfileId = ShortcutManager.defaultProfileId;
+				Debug.LogWarning("Could not find last shortcut profile information.");
 			}
 		}
 	}

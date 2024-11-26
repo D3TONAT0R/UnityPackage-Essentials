@@ -35,6 +35,7 @@ namespace D3TEditor
 		public string[] menuItemsToRemove;
 
 		[Space(20)]
+		public string playmodeShortcutProfileName = "";
 		public bool enableEditorTimeTracking = true;
 
 		protected override void OnCreateNewSettings()
