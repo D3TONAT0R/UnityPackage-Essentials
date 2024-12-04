@@ -6,46 +6,30 @@ using UnityEngine;
 
 namespace D3TEditor
 {
-	[CustomPropertyDrawer(typeof(InlineClass), true)]
+	[CustomPropertyDrawer(typeof(IDrawInlined), true)]
 	public class InlineClassDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var target = PropertyDrawerUtility.GetTargetObjectOfProperty<InlineClass>(property);
-			if(target.InheritInlinedLayout)
-			{
-				position.height = EditorGUIUtility.singleLineHeight;
+			position.height = EditorGUIUtility.singleLineHeight;
 
-				EditorGUI.LabelField(position, label);
-				position.xMin += EditorGUIUtility.labelWidth + 3;
+			EditorGUI.LabelField(position, label);
+			position.xMin += EditorGUIUtility.labelWidth + 3;
 
-				int childCount = GetDirectChildren(property).Count();
-				var rects = position.DivideHorizontal(childCount, 2);
-				int i = 0;
-				while(property.NextVisible(i == 0) && i < childCount)
-				{
-					EditorGUI.PropertyField(rects[i], property, GUIContent.none);
-					//PropertyDrawerUtility.DrawPropertyField(rects[i], prop, GUIContent.none);
-					i++;
-				}
-			}
-			else
+			int childCount = GetDirectChildren(property).Count();
+			var rects = position.DivideHorizontal(childCount, 2);
+			int i = 0;
+			while(property.NextVisible(i == 0) && i < childCount)
 			{
-				EditorGUI.PropertyField(position, property, label, true);
+				EditorGUI.PropertyField(rects[i], property, GUIContent.none);
+				//PropertyDrawerUtility.DrawPropertyField(rects[i], prop, GUIContent.none);
+				i++;
 			}
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			var target = PropertyDrawerUtility.GetTargetObjectOfProperty<InlineClass>(property);
-			if(target.InheritInlinedLayout)
-			{
-				return EditorGUIUtility.singleLineHeight;
-			}
-			else
-			{
-				return EditorGUI.GetPropertyHeight(property, label, true);
-			}
+			return EditorGUIUtility.singleLineHeight;
 		}
 
 		private static IEnumerable<SerializedProperty> GetDirectChildren(SerializedProperty parent)
