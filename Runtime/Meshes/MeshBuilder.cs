@@ -428,16 +428,18 @@ namespace D3T.Meshes
 		/// </summary>
 		public void AddCircle(Matrix4x4 matrix, float radius, int detail = 32)
 		{
-			var nrm = -TransformVector(Vector3.back);
+			PushMatrix();
+			ApplyMatrix(matrix);
+			var nrm = TransformVector(Vector3.down);
 			GetCirclePoints(tempVertexCache, detail, 1f);
-			AddVertex(matrix.MultiplyPoint(Vector3.zero));
+			AddTransformedVertex(Vector3.zero);
 			int b = verts.Count;
 			normals.Add(nrm);
 			uv0.Add(Vector2.one * 0.5f);
 
 			for(int i = 0; i < tempVertexCache.Count; i++)
 			{
-				AddVertex(matrix.MultiplyPoint(tempVertexCache[i].XZY() * radius));
+				AddTransformedVertex(tempVertexCache[i].XZY() * radius);
 				normals.Add(nrm);
 				Vector2 uv = (tempVertexCache[i].XY() + Vector2.one) * 0.5f;
 				uv.x = 1 - uv.x;
@@ -449,6 +451,7 @@ namespace D3T.Meshes
 				MakeTriangle(b - 1, b + i, b + i + 1);
 			}
 			MakeTriangle(b - 1, b + tempVertexCache.Count - 1, b);
+			PopMatrix();
 		}
 
 		/// <summary>
