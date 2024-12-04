@@ -23,7 +23,10 @@ namespace D3T.Meshes
 		public List<Vector3> verts = new List<Vector3>();
 		public List<Color32> vertexColors = new List<Color32>();
 
-		public Color32? currentVertexColor = null;
+		/// <summary>
+		/// If set, applies the given color to all future vertices.
+		/// </summary>
+		public Color32? CurrentVertexColor { get; set; } = null;
 
 		protected List<Matrix4x4> matrixStack = new List<Matrix4x4>();
 		protected Matrix4x4 currentMatrix = Matrix4x4.identity;
@@ -48,6 +51,9 @@ namespace D3T.Meshes
 
 		#region Matrix related methods
 
+		/// <summary>
+		/// Pushes the current matrix state onto the stack.
+		/// </summary>
 		public void PushMatrix()
 		{
 			if(matrixStack.Count >= MAX_MATRIX_STACK_SIZE)
@@ -57,6 +63,9 @@ namespace D3T.Meshes
 			matrixStack.Add(currentMatrix);
 		}
 
+		/// <summary>
+		/// Pops the last matrix state from the stack.
+		/// </summary>
 		public void PopMatrix()
 		{
 			if(matrixStack.Count > 0)
@@ -70,44 +79,70 @@ namespace D3T.Meshes
 			}
 		}
 
+		/// <summary>
+		/// Creates a new matrix scope, which will automatically pop the matrix when disposed.
+		/// </summary>
 		public MatrixScope PushMatrixScope()
 		{
 			return new MatrixScope(this);
 		}
 
-		public void SetMatrix(Matrix4x4 matrix)
+		/// <summary>
+		/// Overrides the current matrix state with the given matrix.
+		/// </summary>
+		public void OverrideMatrix(Matrix4x4 matrix)
 		{
 			currentMatrix = matrix;
 		}
 
+		/// <summary>
+		/// Applies the given matrix to the current matrix state.
+		/// </summary>
 		public void ApplyMatrix(Matrix4x4 matrix)
 		{
 			currentMatrix *= matrix;
 		}
 
+		/// <summary>
+		/// Resets the current matrix state to the identity matrix.
+		/// </summary>
 		public void ResetMatrix(bool resetStack = true)
 		{
 			currentMatrix = Matrix4x4.identity;
 			if(resetStack) matrixStack.Clear();
 		}
 
+		/// <summary>
+		/// Transforms the given point by the current transformation matrix.
+		/// </summary>
 		public virtual void TransformPoint(ref Vector3 point)
 		{
 			point = currentMatrix.MultiplyPoint(point);
 		}
 
-		public virtual void TransformVector(ref Vector3 vector)
-		{
-			vector = currentMatrix.MultiplyVector(vector);
-		}
-
-		public Vector3 TransformPoint(Vector3 point)
+		/// <summary>
+		/// Transforms the given point by the current transformation matrix.
+		/// </summary>
+		public virtual Vector3 TransformPoint(Vector3 point)
 		{
 			TransformPoint(ref point);
 			return point;
 		}
 
-		public Vector3 TransformVector(Vector3 vector)
+		/// <summary>
+		/// Transforms the given vector by the current transformation matrix.
+		/// </summary>
+		public virtual void TransformVector(ref Vector3 vector)
+		{
+			vector = currentMatrix.MultiplyVector(vector);
+		}
+
+		/// <summary>
+		/// Transforms the given vector by the current transformation matrix.
+		/// </summary>
+		/// <param name="vector"></param>
+		/// <returns></returns>
+		public virtual Vector3 TransformVector(Vector3 vector)
 		{
 			TransformVector(ref vector);
 			return vector;
@@ -126,11 +161,11 @@ namespace D3T.Meshes
 		public virtual void AddVertex(Vector3 pos)
 		{
 			verts.Add(pos);
-			if(currentVertexColor.HasValue)
+			if(CurrentVertexColor.HasValue)
 			{
 				while(vertexColors.Count < verts.Count)
 				{
-					vertexColors.Add(currentVertexColor.Value);
+					vertexColors.Add(CurrentVertexColor.Value);
 				}
 			}
 		}
@@ -157,6 +192,9 @@ namespace D3T.Meshes
 			}
 		}
 
+		/// <summary>
+		/// Returns the quaternion that is oriented towards the given axis.
+		/// </summary>
 		public static Quaternion GetAxisRotation(Axis a)
 		{
 			switch(a)
@@ -168,6 +206,9 @@ namespace D3T.Meshes
 			}
 		}
 
+		/// <summary>
+		/// Returns the quaternion that is oriented towards the given axis and direction.
+		/// </summary>
 		public static Quaternion GetAxisRotation(AxisDirection a)
 		{
 			switch(a)

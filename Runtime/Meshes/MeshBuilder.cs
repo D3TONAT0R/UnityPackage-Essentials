@@ -22,13 +22,16 @@ namespace D3T.Meshes
 			All = 0b111111
 		}
 
-		private const int DEFAULT_CIRCLE_DETAIL = 32;
+		public const int DEFAULT_CIRCLE_DETAIL = 32;
 
 		public List<int> tris = new List<int>();
 		public List<Vector3> normals = new List<Vector3>();
 
 		public List<Vector2> uv0 = new List<Vector2>();
 
+		/// <summary>
+		/// If <see langword="true"/>, all future triangles and normals will be reversed.
+		/// </summary>
 		public bool Reversed { get; set; } = false;
 
 
@@ -50,6 +53,19 @@ namespace D3T.Meshes
 			vertexColors = new List<Color32>(vertexCapacity);
 		}
 
+		public override void TransformVector(ref Vector3 vector)
+		{
+			base.TransformVector(ref vector);
+			if(Reversed) vector = -vector;
+		}
+
+		public override Vector3 TransformVector(Vector3 vector)
+		{
+			vector = base.TransformVector(vector);
+			if(Reversed) vector = -vector;
+			return vector;
+		}
+
 		public override void Clear()
 		{
 			verts.Clear();
@@ -57,7 +73,7 @@ namespace D3T.Meshes
 			normals.Clear();
 			uv0.Clear();
 			vertexColors.Clear();
-			currentVertexColor = null;
+			CurrentVertexColor = null;
 			Reversed = false;
 			ResetMatrix();
 		}
@@ -96,12 +112,6 @@ namespace D3T.Meshes
 		public override void BuildMesh(Mesh mesh)
 		{
 			BuildMesh(mesh, true);
-		}
-
-		public override void TransformVector(ref Vector3 vector)
-		{
-			base.TransformVector(ref vector);
-			if(Reversed) vector = -vector;
 		}
 
 		/// <summary>
