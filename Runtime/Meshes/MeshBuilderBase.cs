@@ -18,6 +18,8 @@ namespace D3T.Meshes
 			public void Dispose() => builder.PopMatrix();
 		}
 
+		public const int MAX_MATRIX_STACK_SIZE = 256;
+
 		public List<Vector3> verts = new List<Vector3>();
 		public List<Color32> vertexColors = new List<Color32>();
 
@@ -48,6 +50,10 @@ namespace D3T.Meshes
 
 		public void PushMatrix()
 		{
+			if(matrixStack.Count >= MAX_MATRIX_STACK_SIZE)
+			{
+				throw new System.InvalidOperationException($"Excessive push matrix calls detected (> {MAX_MATRIX_STACK_SIZE}).");
+			}
 			matrixStack.Add(currentMatrix);
 		}
 
@@ -55,8 +61,12 @@ namespace D3T.Meshes
 		{
 			if(matrixStack.Count > 0)
 			{
+				currentMatrix = matrixStack[matrixStack.Count - 1];
 				matrixStack.RemoveAt(matrixStack.Count - 1);
-				currentMatrix = matrixStack.Count > 0 ? matrixStack[matrixStack.Count - 1] : Matrix4x4.identity;
+			}
+			else
+			{
+				throw new System.InvalidOperationException("Attempted to pop matrix while matrix stack is empty.");
 			}
 		}
 
