@@ -1,6 +1,7 @@
 ﻿using D3T;
 using UnityEditor;
 using UnityEditor.EditorTools;
+using UnityEditor.Overlays;
 using UnityEngine;
 #if UNITY_2020_1_OR_NEWER
 using ToolManager = UnityEditor.EditorTools.ToolManager;
@@ -9,6 +10,13 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 
 namespace D3TEditor.Tools
 {
+#if UNITY_2021_2_OR_NEWER
+	[Overlay(typeof(SceneView), "Measuring Tool")]
+	internal class MeasuringToolOverlay : ToolOverlayBase<MeasuringTool>
+	{
+		
+	}
+#endif
 
 	//TODO: needs some rework
 	[EditorTool("Measure")]
@@ -44,7 +52,7 @@ namespace D3TEditor.Tools
 		}
 		private static GUIContent toolIcon;
 
-		protected override void OnWindowGUI()
+		public override void OnWindowGUI()
 		{
 			EditorGUIUtility.labelWidth = 120;
 			p1 = EditorGUILayout.Vector3Field("Point 1", p1);

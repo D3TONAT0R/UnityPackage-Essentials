@@ -117,7 +117,7 @@ namespace D3TEditor.Tools
 #endif
 		}
 
-		protected override void OnWindowGUI()
+		public override void OnWindowGUI()
 		{
 			GUI.enabled = positions.Count > 0;
 			if(GUILayout.Button("Clear Points"))

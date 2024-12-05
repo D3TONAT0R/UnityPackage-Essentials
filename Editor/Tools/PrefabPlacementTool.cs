@@ -4,6 +4,14 @@ using UnityEngine;
 
 namespace D3TEditor.Tools
 {
+#if UNITY_2021_2_OR_NEWER
+	[UnityEditor.Overlays.Overlay(typeof(SceneView), "Prefab Placer")]
+	internal class PrefabPlacementToolOverlay : ToolOverlayBase<PrefabPlacementTool>
+	{
+
+	}
+#endif
+
 	[EditorTool("Prefab Placer")]
 	internal class PrefabPlacementTool : EditorToolBase
 	{
@@ -224,8 +232,9 @@ namespace D3TEditor.Tools
 			}
 		}
 
-		protected override void OnWindowGUI()
+		public override void OnWindowGUI()
 		{
+			EditorGUIUtility.labelWidth = 120;
 			EditorGUI.BeginChangeCheck();
 			prefab = (GameObject)EditorGUILayout.ObjectField(prefab, typeof(GameObject), false);
 			if(EditorGUI.EndChangeCheck())

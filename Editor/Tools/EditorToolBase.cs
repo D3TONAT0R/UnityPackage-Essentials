@@ -11,6 +11,8 @@ namespace D3TEditor.Tools
 {
 	public abstract class EditorToolBase : EditorTool
 	{
+		public static EditorToolBase Active { get; protected set; }
+
 		public abstract bool ShowToolWindow { get; }
 		public virtual string ToolWindowTitle => ObjectNames.NicifyVariableName(GetType().Name);
 		public virtual int ToolWindowWidth => 250;
@@ -20,13 +22,14 @@ namespace D3TEditor.Tools
 
 		protected bool AllowClicks { get; private set; }
 
-		protected virtual void OnEnable()
+		protected void OnEnable()
 		{
 #if !UNITY_2020_2_OR_NEWER
 			ToolManager.activeToolChanged += () =>
 			{
 				if(ToolManager.IsActiveTool(this))
 				{
+					Active = this;
 					OnBecameActive();
 				}
 			};
@@ -35,6 +38,7 @@ namespace D3TEditor.Tools
 				if(ToolManager.IsActiveTool(this))
 				{
 					OnWillDeactivate();
+					Active = null;
 				}
 			};
 			if(ToolManager.IsActiveTool(this))
@@ -47,12 +51,14 @@ namespace D3TEditor.Tools
 #if UNITY_2020_2_OR_NEWER
 		public override void OnActivated()
 		{
+			Active = this;
 			OnBecameActive();
 		}
 
 		public override void OnWillBeDeactivated()
 		{
 			OnWillDeactivate();
+			Active = null;
 		}
 #endif
 
@@ -71,7 +77,10 @@ namespace D3TEditor.Tools
 			DrawSceneGUI(window);
 			Handles.color = Color.white;
 			Handles.matrix = Matrix4x4.identity;
+			//If on 2021.2 or newer, the window must be implemented via overlays
+#if !UNITY_2021_2_OR_NEWER
 			DrawWindowIfEnabled();
+#endif
 			GUI.enabled = true;
 			AfterSceneGUI(window, AllowClicks);
 			if(EscapeKeyDeactivatesTool && KeyUp(KeyCode.Escape))
@@ -86,6 +95,7 @@ namespace D3TEditor.Tools
 			ToolManager.RestorePreviousTool();
 		}
 
+#if !UNITY_2021_2_OR_NEWER
 		private void DrawWindowIfEnabled()
 		{
 			if(ShowToolWindow)
@@ -112,6 +122,7 @@ namespace D3TEditor.Tools
 				lastWindowRect = Rect.zero;
 			}
 		}
+#endif
 
 		private void DrawSceneGUI(EditorWindow window)
 		{
@@ -125,7 +136,7 @@ namespace D3TEditor.Tools
 			GUI.enabled = true;
 		}
 
-		protected abstract void OnWindowGUI();
+		public abstract void OnWindowGUI();
 		protected abstract void OnSceneGUI(EditorWindow window, bool enableInteraction);
 		protected virtual void AfterSceneGUI(EditorWindow window, bool enableInteraction) { }
 
