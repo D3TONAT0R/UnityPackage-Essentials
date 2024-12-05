@@ -46,6 +46,14 @@ namespace D3TEditor.Tools
 		}
 	}
 
+#if UNITY_2021_2_OR_NEWER
+	[UnityEditor.Overlays.Overlay(typeof(SceneView), "Bounds Tool")]
+	internal class BoundsDefinitionToolOverlay : ToolOverlayBase<BoundsDefinitionTool>
+	{
+
+	}
+#endif
+
 	public abstract class BoundsDefinitionTool : EditorToolBase
 	{
 		public const string toolName = "Edit Bounds";
@@ -64,6 +72,8 @@ namespace D3TEditor.Tools
 
 		public override bool ShowToolWindow => true;
 
+		public float offset = 0;
+
 		protected List<Vector3> positions;
 		protected Matrix4x4 boundsMatrix;
 		protected Bounds calculatedBounds;
@@ -75,6 +85,7 @@ namespace D3TEditor.Tools
 		{
 			positions = new List<Vector3>();
 			targetComponent = (Component)target;
+			offset = 0;
 		}
 
 		protected override void OnSceneGUI(EditorWindow window, bool enableInteraction)
@@ -103,18 +114,28 @@ namespace D3TEditor.Tools
 					Event.current.Use();
 				}
 			}
-			RecalculateBounds();
 
-			Handles.matrix = boundsMatrix;
-			Handles.zTest = UnityEngine.Rendering.CompareFunction.Greater;
-			Handles.DrawWireCube(calculatedBounds.center, calculatedBounds.size);
-			Handles.color = Color.yellow;
-			Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
-			Handles.DrawWireCube(calculatedBounds.center, calculatedBounds.size);
+			RecalculateBounds();
+			DrawBox(calculatedBounds.center, calculatedBounds.size, Color.yellow);
+			if(offset != 0)
+			{
+				DrawBox(calculatedBounds.center, calculatedBounds.size - Vector3.one * (offset * 2), Color.yellow.WithAlpha(0.3f));
+			}
 
 #if !UNITY_2020_1_OR_NEWER
 			window.Repaint();
 #endif
+		}
+
+		private void DrawBox(Vector3 center, Vector3 size, Color color)
+		{
+			Handles.matrix = boundsMatrix;
+			Handles.color = color.MultiplyAlpha(0.3f);
+			Handles.zTest = UnityEngine.Rendering.CompareFunction.Greater;
+			Handles.DrawWireCube(center, size);
+			Handles.color = color;
+			Handles.zTest = UnityEngine.Rendering.CompareFunction.LessEqual;
+			Handles.DrawWireCube(center, size);
 		}
 
 		public override void OnWindowGUI()
@@ -124,6 +145,7 @@ namespace D3TEditor.Tools
 			{
 				positions.Clear();
 			}
+			offset = EditorGUILayout.FloatField("Offset", offset);
 			EditorGUILayout.Separator();
 			GUI.enabled = positions.Count > 1;
 			if(GUILayout.Button("Apply", GUILayout.Height(30)) || KeyDown(KeyCode.Return) || KeyDown(KeyCode.KeypadEnter))
@@ -193,6 +215,7 @@ namespace D3TEditor.Tools
 					calculatedBounds.Encapsulate(inverseBoundsMatrix.MultiplyPoint(positions[i]));
 				}
 			}
+			calculatedBounds.Expand(offset * 2);
 		}
 	}
 }
