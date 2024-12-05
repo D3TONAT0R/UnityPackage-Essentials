@@ -25,7 +25,7 @@ namespace D3TEditor.Inspector
 		{
 			Rect r = new Rect(EditorGUIUtility.currentViewWidth / 2f + 40, 4, 30, 20);
 			bool b = ToolManager.activeToolType == typeof(ReflectionProbeBoundsDefinitionTool);
-			bool b2 = GUI.Toggle(r, b, BoundsDefinitionTool.ToolIcon, GUI.skin.button);
+			bool b2 = GUI.Toggle(r, b, BoundsDefinitionTool.Icon, GUI.skin.button);
 			if(b2 != b)
 			{
 				if(b2) ToolManager.SetActiveTool<ReflectionProbeBoundsDefinitionTool>();

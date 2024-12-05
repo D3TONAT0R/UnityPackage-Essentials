@@ -36,21 +36,8 @@ namespace D3TEditor.Tools
 		public override bool ShowToolWindow => true;
 
 		public override int ToolWindowWidth => 300;
-		
-		public override GUIContent toolbarIcon
-		{
-			get
-			{
-				if(toolIcon == null)
-				{
-					var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.github.d3tonat0r.essentials/Editor/Icons/tool_measure.png");
-					if(icon == null) icon = Texture2D.whiteTexture;
-					toolIcon = new GUIContent(icon);
-				}
-				return toolIcon;
-			}
-		}
-		private static GUIContent toolIcon;
+
+		public override string ToolbarIconPath => ESSENTIALS_PACKAGE_ICONS_PATH + "tool_measure.png";
 
 		public override void OnWindowGUI()
 		{
