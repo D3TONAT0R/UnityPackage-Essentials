@@ -14,16 +14,32 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var v = property.FindPropertyRelative("backingValue");
 
 			EditorGUI.BeginProperty(position, label, property);
-			var togglePos = position;
-			togglePos.width = EditorGUIUtility.labelWidth + 16;
-			hv.boolValue = EditorGUI.Toggle(togglePos, label, hv.boolValue);
+
+			DrawToggle(position, label, hv);
+
 			var guiEnabled = GUI.enabled;
 			GUI.enabled &= hv.boolValue;
 			EditorGUIUtility.labelWidth += 16;
+			EditorGUI.showMixedValue = v.hasMultipleDifferentValues;
 			DrawValueField(position, v, " ");
 			EditorGUIUtility.labelWidth -= 16;
 			GUI.enabled = guiEnabled;
+
 			EditorGUI.EndProperty();
+		}
+
+		private static void DrawToggle(Rect position, GUIContent label, SerializedProperty hv)
+		{
+			var togglePos = position;
+			togglePos.width = EditorGUIUtility.labelWidth + 16;
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = hv.hasMultipleDifferentValues;
+			bool b = EditorGUI.Toggle(togglePos, label, hv.boolValue);
+			if(EditorGUI.EndChangeCheck())
+			{
+				hv.boolValue = b;
+			}
+			EditorGUI.showMixedValue = false;
 		}
 
 		protected virtual void DrawValueField(Rect position, SerializedProperty v, string displayName)
@@ -52,13 +68,19 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	{
 		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
 		{
+			EditorGUI.BeginChangeCheck();
+			float value;
 			if(TryGetAttribute<NullableRangeAttribute>(v, out var rangeAttr))
 			{
-				v.floatValue = EditorGUI.Slider(position, displayName, v.floatValue, rangeAttr.min, rangeAttr.max);
+				value = EditorGUI.Slider(position, displayName, v.floatValue, rangeAttr.min, rangeAttr.max);
 			}
 			else
 			{
-				v.floatValue = EditorGUI.FloatField(position, displayName, v.floatValue);
+				value = EditorGUI.FloatField(position, displayName, v.floatValue);
+			}
+			if(EditorGUI.EndChangeCheck())
+			{
+				v.floatValue = value;
 			}
 		}
 	}
@@ -68,13 +90,19 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	{
 		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
 		{
+			EditorGUI.BeginChangeCheck();
+			int value;
 			if(TryGetAttribute<NullableRangeAttribute>(v, out var rangeAttr))
 			{
-				v.intValue = EditorGUI.IntSlider(position, displayName, v.intValue, (int)rangeAttr.min, (int)rangeAttr.max);
+				value = EditorGUI.IntSlider(position, displayName, v.intValue, (int)rangeAttr.min, (int)rangeAttr.max);
 			}
 			else
 			{
-				v.intValue = EditorGUI.IntField(position, displayName, v.intValue);
+				value = EditorGUI.IntField(position, displayName, v.intValue);
+			}
+			if(EditorGUI.EndChangeCheck())
+			{
+				v.intValue = value;
 			}
 		}
 	}
@@ -120,10 +148,14 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				showAlpha = attr.showAlpha;
 				hdr = attr.hdr;
 			}
-			var color = v.colorValue;
-			color = EditorGUI.ColorField(position, new GUIContent(displayName), color, true, showAlpha, hdr);
-			if(!showAlpha) color.a = 1;
-			v.colorValue = color;
+			EditorGUI.BeginChangeCheck();
+			EditorGUI.showMixedValue = v.hasMultipleDifferentValues;
+			var newColor = EditorGUI.ColorField(position, new GUIContent(displayName), v.colorValue, true, showAlpha, hdr);
+			if(!showAlpha) newColor.a = 1;
+			if(EditorGUI.EndChangeCheck())
+			{
+				v.colorValue = newColor;
+			}
 		}
 	}
 }

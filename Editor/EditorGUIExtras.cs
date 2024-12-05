@@ -107,9 +107,16 @@ namespace UnityEssentialsEditor
 					names[i] = ObjectNames.NicifyVariableName(Enum.GetName(enumType, values[i]));
 				}
 			}
-			int input = Convert.ToInt32(value);
+			int input = value != null ? Convert.ToInt32(value) : -1;
 			int output = IntButtonField(position, label, input, values, names);
-			return (Enum)Enum.ToObject(enumType, output);
+			if(output >= 0)
+			{
+				return (Enum)Enum.ToObject(enumType, output);
+			}
+			else
+			{
+				return null;
+			}
 		}
 
 		public static Enum EnumButtons(GUIContent label, Enum value, Type enumType)

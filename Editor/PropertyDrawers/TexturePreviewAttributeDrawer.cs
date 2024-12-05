@@ -27,7 +27,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 
 			var texture = GetTextureFromProperty(property);
-			if(texture)
+			if(texture && !property.hasMultipleDifferentValues)
 			{
 				float imageAspect = (float)texture.width / texture.height;
 				Vector3 v = Vector3.up;
@@ -54,7 +54,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var attr = GetAttribute();
 			var texture = GetTextureFromProperty(property);
 			float h = 0;
-			if(texture)
+			if(texture && !property.hasMultipleDifferentValues)
 			{
 				if(attr.showObjectField)
 				{

@@ -22,7 +22,7 @@ namespace UnityEssentialsEditor
 		private static void OnGUI(string search)
 		{
 			EssentialsProjectSettings.Instance.DrawEditorGUI();
-			GUILayout.Space(20);
+			GUILayout.Space(10);
 			EditorTimeTrackingGUI.DrawGUI("Tracked Editor Times");
 			provider.Repaint();
 		}

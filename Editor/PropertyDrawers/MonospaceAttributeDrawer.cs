@@ -11,18 +11,35 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.String, SerializedPropertyType.Float, SerializedPropertyType.Integer)) return;
 			EditorGUI.BeginProperty(position, label, property);
+			EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
 			if(property.propertyType == SerializedPropertyType.String)
 			{
-				property.stringValue = EditorGUI.TextField(position, label, property.stringValue, EditorGUIExtras.GetMonospaceTextField(property));
+				EditorGUI.BeginChangeCheck();
+				var newValue = EditorGUI.TextField(position, label, property.stringValue, EditorGUIExtras.GetMonospaceTextField(property));
+				if(EditorGUI.EndChangeCheck())
+				{
+					property.stringValue = newValue;
+				}
 			}
 			else if(property.propertyType == SerializedPropertyType.Float)
 			{
-				property.floatValue = EditorGUI.FloatField(position, label, property.floatValue, EditorGUIExtras.GetMonospaceTextField(property));
+				EditorGUI.BeginChangeCheck();
+				var newValue = EditorGUI.FloatField(position, label, property.floatValue, EditorGUIExtras.GetMonospaceTextField(property));
+				if(EditorGUI.EndChangeCheck())
+				{
+					property.floatValue = newValue;
+				}
 			}
 			else if(property.propertyType == SerializedPropertyType.Integer)
 			{
-				property.intValue = EditorGUI.IntField(position, label, property.intValue, EditorGUIExtras.GetMonospaceTextField(property));
+				EditorGUI.BeginChangeCheck();
+				var newValue = EditorGUI.IntField(position, label, property.intValue, EditorGUIExtras.GetMonospaceTextField(property));
+				if(EditorGUI.EndChangeCheck())
+				{
+					property.intValue = newValue;
+				}
 			}
+			EditorGUI.showMixedValue = false;
 			EditorGUI.EndProperty();
 		}
 	}

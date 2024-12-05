@@ -19,22 +19,32 @@ namespace UnityEssentialsEditor
 		private static EssentialsProjectSettings instance;
 
 		[Header("Scripts")]
+		[Tooltip("If checked, the default script menu will be removed in favor of custom script templates.")]
 		public bool removeDefaultScriptMenu = true;
+		[Tooltip("If checked, all newly created scripts are placed in the namespace given below.")]
 		public bool useDefaultNamespace = true;
 		[EnabledIf(nameof(useDefaultNamespace))]
+		[Tooltip("The namespace to use for new scripts. If empty, the unity project name is used.")]
 		public string defaultScriptNamespace = "";
 #if UNITY_2020_2_OR_NEWER
 		[NonReorderable]
 #endif
+		[Tooltip("Additional usings that are added on top of new scripts.")]
 		public string[] additionalDefaultUsings = Array.Empty<string>();
 		[Header("Menu Management", order = 0)]
 		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1), SerializeField]
 #if !UNITY_6000_0_OR_NEWER
 		public bool reorganizeAssetMenu = true;
 #endif
+		[Tooltip("Menu item paths that should be removed (may require an editor restart).")]
 		public string[] menuItemsToRemove;
 
 		[Space(20)]
+		[Tooltip("Optional name for a shortcut profile to apply when entering playmode.")]
+		public string playmodeShortcutProfileName = "";
+
+		[Space(20)]
+		[Tooltip("While activated, keeps track of time spent in the editor while the project is open.")]
 		public bool enableEditorTimeTracking = true;
 
 		protected override void OnCreateNewSettings()

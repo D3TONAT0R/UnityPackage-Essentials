@@ -23,6 +23,7 @@ namespace UnityEssentials
 		{
 			var builder = new MeshBuilder();
 			builder.AddCircle(Vector3.zero, Vector3.up, 1f, 32);
+			//builder.AddCircle(Matrix4x4.identity, 1f, 32);
 			discMesh = builder.CreateMesh();
 
 			builder.Clear();
@@ -63,7 +64,7 @@ namespace UnityEssentials
 		public static void DrawCircle(Vector3 center, Vector3 normal, float radius)
 		{
 			var lastMatrix = Gizmos.matrix;
-			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
+			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal) * Quaternion.Euler(90, 0, 0), Vector3.one * radius);
 			Gizmos.DrawMesh(discMesh);
 			Gizmos.matrix = lastMatrix;
 		}

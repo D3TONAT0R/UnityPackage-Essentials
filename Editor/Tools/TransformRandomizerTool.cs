@@ -5,6 +5,14 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.Tools
 {
+#if UNITY_2021_2_OR_NEWER
+	[UnityEditor.Overlays.Overlay(typeof(SceneView), "Transform Randomizer")]
+	internal class TransformRandomizerToolOverlay : ToolOverlayBase<TransformRandomizerTool>
+	{
+
+	}
+#endif
+
 	[EditorTool("Transform Randomizer")]
 	internal class TransformRandomizerTool : EditorToolBase
 	{
@@ -47,7 +55,7 @@ namespace UnityEssentialsEditor.Tools
 
 		public override bool ShowToolWindow => true;
 		public override string ToolWindowTitle => "Randomize Transform";
-		public override int ToolWindowWidth => 280;
+		public override int ToolWindowWidth => 300;
 		private bool CanApply => Selection.gameObjects.Length > 0 && (settings.enablePosition || settings.enableRotation || settings.enableScale);
 
 		[SerializeField]
@@ -145,8 +153,9 @@ namespace UnityEssentialsEditor.Tools
 			}
 		}
 
-		protected override void OnWindowGUI()
+		public override void OnWindowGUI()
 		{
+			EditorGUIUtility.labelWidth = 120;
 			if(iconStyle == null)
 			{
 				iconStyle = "IconButton";

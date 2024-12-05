@@ -12,6 +12,14 @@ using ToolManager = UnityEditor.EditorTools.EditorTools;
 
 namespace UnityEssentialsEditor.Tools
 {
+#if UNITY_2021_2_OR_NEWER
+	[UnityEditor.Overlays.Overlay(typeof(SceneView), "Edit Vertices")]
+	internal class VertexEditorToolOverlay : ToolOverlayBase<VertexEditorTool>
+	{
+
+	}
+#endif
+
 	[EditorTool("Edit Vertices", typeof(ConvexMeshBuilderComponent))]
 	internal class VertexEditorTool : EditorToolBase
 	{
@@ -224,7 +232,7 @@ namespace UnityEssentialsEditor.Tools
 			}
 		}
 
-		protected override void OnWindowGUI()
+		public override void OnWindowGUI()
 		{
 			if(GUILayout.Button("Add Vertex"))
 			{
