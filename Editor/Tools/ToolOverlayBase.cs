@@ -2,7 +2,7 @@ using UnityEditor.EditorTools;
 using UnityEditor.Overlays;
 using UnityEngine;
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
 #if UNITY_2021_2_OR_NEWER
 	public abstract class ToolOverlayBase<T> : IMGUIOverlay, ITransientOverlay where T : EditorToolBase
