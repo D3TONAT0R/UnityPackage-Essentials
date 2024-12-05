@@ -24,6 +24,8 @@ namespace D3TEditor.PropertyDrawers
 				EditorGUI.MinMaxSlider(position, label, ref minValue, ref maxValue, attr.min, attr.max);
 				if(EditorGUI.EndChangeCheck())
 				{
+					minValue = Mathf.Min(minValue, maxValue);
+					maxValue = Mathf.Max(minValue, maxValue);
 					min.floatValue = minValue;
 					max.floatValue = maxValue;
 				}
@@ -43,12 +45,20 @@ namespace D3TEditor.PropertyDrawers
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = min.hasMultipleDifferentValues;
 			EditorGUI.PropertyField(minRect, min);
-			if(EditorGUI.EndChangeCheck()) min.floatValue = Mathf.Clamp(min.floatValue, attr.min, attr.max);
+			if(EditorGUI.EndChangeCheck())
+			{
+				min.floatValue = Mathf.Min(min.floatValue, max.floatValue);
+				if(attr != null) min.floatValue = Mathf.Clamp(min.floatValue, attr.min, attr.max);
+			}
 
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = max.hasMultipleDifferentValues;
 			EditorGUI.PropertyField(maxRect, max);
-			if(EditorGUI.EndChangeCheck()) max.floatValue = Mathf.Clamp(max.floatValue, attr.min, attr.max);
+			if(EditorGUI.EndChangeCheck())
+			{
+				max.floatValue = Mathf.Max(min.floatValue, max.floatValue);
+				if(attr != null) max.floatValue = Mathf.Clamp(max.floatValue, attr.min, attr.max);
+			}
 
 			EditorGUI.indentLevel = indent;
 			EditorGUI.showMixedValue = false;
