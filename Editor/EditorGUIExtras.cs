@@ -74,7 +74,7 @@ namespace UnityEssentialsEditor
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
-			string root = "Packages/com.github.d3tonat0r.core/Resources/";
+			string root = "Packages/com.github.d3tonat0r.essentials/Editor/EditorAssets/";
 			MonospaceFont = AssetDatabase.LoadAssetAtPath<Font>(root + "Consolas.ttf");
 			MonospaceBoldFont = AssetDatabase.LoadAssetAtPath<Font>(root + "Consolas Bold.ttf");
 		}
@@ -233,7 +233,7 @@ namespace UnityEssentialsEditor
 				GUI.Label(position, label);
 				buttonRect.x += EditorGUIUtility.labelWidth;
 			}
-			return GUI.Toggle(buttonRect, state, BoundsDefinitionTool.ToolIcon, GUI.skin.button);
+			return GUI.Toggle(buttonRect, state, BoundsDefinitionTool.Icon, GUI.skin.button);
 		}
 
 		public static void ToolButton<T>(string label, GUIContent icon) where T : EditorTool

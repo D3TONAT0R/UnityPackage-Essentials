@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.Tools
 {
-	[EditorTool(toolName, typeof(ReflectionProbe))]
+	[EditorTool(TOOL_NAME, typeof(ReflectionProbe))]
 	internal class ReflectionProbeBoundsDefinitionTool : BoundsDefinitionTool
 	{
 		protected override BoundsPropertyFlags BoundsProperties => BoundsPropertyFlags.AxisAlignedFixed;
@@ -25,7 +25,7 @@ namespace UnityEssentialsEditor.Tools
 		}
 	}
 
-	[EditorTool(toolName, typeof(IBoundsComponent))]
+	[EditorTool(TOOL_NAME, typeof(IBoundsComponent))]
 	public class ComponentBoundsDefinitionTool : BoundsDefinitionTool
 	{
 		protected override BoundsPropertyFlags BoundsProperties => _boundsProperties;
@@ -56,19 +56,11 @@ namespace UnityEssentialsEditor.Tools
 
 	public abstract class BoundsDefinitionTool : EditorToolBase
 	{
-		public const string toolName = "Edit Bounds";
+		public const string TOOL_NAME = "Edit Bounds";
 
-		public static GUIContent ToolIcon
-		{
-			get
-			{
-				if(toolIcon == null) toolIcon = EditorGUIUtility.IconContent("d_PhysicsRaycaster Icon");
-				return toolIcon;
-			}
-		}
-		private static GUIContent toolIcon;
+		public static GUIContent Icon => EditorGUIUtility.IconContent("d_PhysicsRaycaster Icon");
 
-		public override GUIContent toolbarIcon => ToolIcon;
+		public override GUIContent toolbarIcon => Icon;
 
 		public override bool ShowToolWindow => true;
 

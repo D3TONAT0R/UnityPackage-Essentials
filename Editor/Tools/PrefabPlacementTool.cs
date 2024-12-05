@@ -41,20 +41,7 @@ namespace UnityEssentialsEditor.Tools
 
 		public override bool ShowToolWindow => true;
 
-		public override GUIContent toolbarIcon
-		{
-			get
-			{
-				if(toolIcon == null)
-				{
-					var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.github.d3tonat0r.essentials/Editor/Icons/tool_placer.png");
-					if(icon == null) icon = Texture2D.whiteTexture;
-					toolIcon = new GUIContent(icon);
-				}
-				return toolIcon;
-			}
-		}
-		private static GUIContent toolIcon;
+		public override string ToolbarIconPath => ESSENTIALS_PACKAGE_ICONS_PATH + "tool_placer.png";
 
 		protected override void OnWillDeactivate()
 		{

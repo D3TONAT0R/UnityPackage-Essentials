@@ -38,20 +38,7 @@ namespace UnityEssentialsEditor.Tools
 			public bool scaleAdditive = true;
 		}
 
-		public override GUIContent toolbarIcon
-		{
-			get
-			{
-				if(toolIcon == null)
-				{
-					var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.github.d3tonat0r.essentials/Editor/Tools/tool_random.png");
-					if(icon == null) icon = Texture2D.whiteTexture;
-					toolIcon = new GUIContent(icon);
-				}
-				return toolIcon;
-			}
-		}
-		private static GUIContent toolIcon;
+		public override string ToolbarIconPath => ESSENTIALS_PACKAGE_ICONS_PATH + "tool_random.png";
 
 		public override bool ShowToolWindow => true;
 		public override string ToolWindowTitle => "Randomize Transform";

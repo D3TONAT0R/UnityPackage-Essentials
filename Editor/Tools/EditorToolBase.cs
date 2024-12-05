@@ -11,6 +11,8 @@ namespace UnityEssentialsEditor.Tools
 {
 	public abstract class EditorToolBase : EditorTool
 	{
+		internal const string ESSENTIALS_PACKAGE_ICONS_PATH = "Packages/com.github.d3tonat0r.essentials/Editor/EditorAssets/Icons/";
+
 		public static EditorToolBase Active { get; protected set; }
 
 		public abstract bool ShowToolWindow { get; }
@@ -21,6 +23,32 @@ namespace UnityEssentialsEditor.Tools
 		private Rect lastWindowRect;
 
 		protected bool AllowClicks { get; private set; }
+
+		public override GUIContent toolbarIcon
+		{
+			get
+			{
+				if(_toolbarIcon == null)
+				{
+					var path = ToolbarIconPath;
+					if(!string.IsNullOrEmpty(path))
+					{
+						var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+						if(icon == null) icon = Texture2D.whiteTexture;
+						_toolbarIcon = new GUIContent(icon);
+					}
+					else
+					{
+						_toolbarIcon = new GUIContent("?");
+					}
+				}
+				return _toolbarIcon;
+			}
+		}
+
+		private GUIContent _toolbarIcon;
+
+		public virtual string ToolbarIconPath => null;
 
 		protected void OnEnable()
 		{
