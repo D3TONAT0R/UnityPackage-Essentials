@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 namespace D3T.Collections
@@ -37,16 +38,6 @@ namespace D3T.Collections
 		/// Clears the dictionary.
 		/// </summary>
 		void Clear();
-
-#if UNITY_EDITOR
-		void Editor_Add(Type valueType);
-
-		void Editor_Remove(int index);
-
-		void Editor_Swap(int from, int to);
-
-		void Editor_ReplaceValue(object key, object newValue);
-#endif
 	}
 
 	/// <summary>
@@ -174,75 +165,5 @@ namespace D3T.Collections
 				dictionary = null;
 			}
 		}
-
-#if UNITY_EDITOR
-		public virtual void Editor_Add(Type valueType)
-		{
-			OnBeforeSerialize();
-			K key = _keys.Count > 0 ? _keys.Last() : (K)Editor_CreateInstance(typeof(K));
-			_keys.Add(Editor_GetUniqueKey(key));
-			_values.Add((V)Editor_CreateInstance(valueType));
-			OnAfterDeserialize();
-		}
-
-		public virtual void Editor_Remove(int index)
-		{
-			OnBeforeSerialize();
-			_keys.RemoveAt(index);
-			_values.RemoveAt(index);
-			OnAfterDeserialize();
-		}
-
-		public virtual void Editor_Swap(int from, int to)
-		{
-			OnBeforeSerialize();
-			(_keys[to], _keys[from]) = (_keys[from], _keys[to]);
-			(_values[to], _values[from]) = (_values[from], _values[to]);
-			OnAfterDeserialize();
-		}
-
-		public virtual void Editor_ReplaceValue(object key, object newValue)
-		{
-			OnBeforeSerialize();
-			int index = _keys.IndexOf((K)key);
-			if(index >= 0)
-			{
-				_values[index] = (V)newValue;
-			}
-			OnAfterDeserialize();
-		}
-
-		private K Editor_GetUniqueKey(K start)
-		{
-			if(start is string s)
-			{
-				return (K)(object)UnityEditor.ObjectNames.GetUniqueName((string[])(object)_keys.ToArray(), s);
-			}
-			else if(start is int i)
-			{
-				var ints = (List<int>)(object)_keys;
-				while(ints.Contains(i)) i++;
-				return (K)(object)i;
-			}
-			else if(start is float f)
-			{
-				var floats = (List<float>)(object)_keys;
-				while(floats.Contains(f)) f++;
-				return (K)(object)f;
-			}
-			else
-			{
-				//Unable to create unique key for this type
-				return start;
-			}
-		}
-
-		private object Editor_CreateInstance(Type type)
-		{
-			if(type == typeof(string)) return "";
-			else if(typeof(UnityEngine.Object).IsAssignableFrom(type)) return null;
-			else return Activator.CreateInstance(type);
-		}
-#endif
 	}
 }

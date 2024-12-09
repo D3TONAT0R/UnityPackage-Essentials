@@ -200,6 +200,9 @@ namespace D3TEditor
 
 		private static object GetElementAtIndex(object collection, int index)
 		{
+			var list = (IList)collection;
+			return list[index];
+			/*
 			var enumerable = collection as System.Collections.IEnumerable;
 			if(enumerable == null) return null;
 			var enumerator = enumerable.GetEnumerator();
@@ -208,6 +211,7 @@ namespace D3TEditor
 				if(!enumerator.MoveNext()) return null;
 			}
 			return enumerator.Current;
+			*/
 		}
 
 		public static SerializedProperty GetParentProperty(SerializedProperty prop)

@@ -1,7 +1,9 @@
 ﻿using D3T;
 using D3T.Collections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -86,7 +88,7 @@ namespace D3TEditor.PropertyDrawers
 					lColor = DrawElement(position, property, dictionary, preferMonospaceKeys, dictionaryType, polymorphic, indentLevel, so, keys, duplicates, i, k, kObj, v);
 				}
 				position.NextProperty();
-				DrawAddButton(position, dictionary, dictionaryType, polymorphic, so);
+				DrawAddButton(position, dictionary, dictionaryType, polymorphic, property);
 				EditorGUI.indentLevel--;
 			}
 			//This needs to be done after the foldout to prevent losing focus on text fields
@@ -109,22 +111,22 @@ namespace D3TEditor.PropertyDrawers
 			EditorGUI.EndProperty();
 		}
 
-		private static void DrawAddButton(Rect position, IUnityDictionary dictionary, Type dictionaryType, bool polymorphic, SerializedObject so)
+		private static void DrawAddButton(Rect position, IUnityDictionary dictionary, Type dictionaryType, bool polymorphic, SerializedProperty prop)
 		{
 			position.SplitHorizontalRight(16, out _, out var addRect);
 			if(polymorphic)
 			{
+				var so = prop.serializedObject;
+				var path = prop.propertyPath;
 				if(GUI.Button(addRect, EditorGUIUtility.IconContent("d_Toolbar Plus More"), "IconButton"))
 				{
 					var menu = new GenericMenu();
 					foreach(var t in polymorphicTypes[dictionaryType])
 					{
 						menu.AddItem(new GUIContent(GetTypeName(t)), false,
-						() =>
-						{
-							AddItem(dictionary, so, t);
-						}
-						);
+						() => {
+							AddItem(dictionary, so.FindProperty(path), t);
+						});
 					}
 					if(menu.GetItemCount() == 0) menu.AddDisabledItem(new GUIContent("None"));
 					menu.ShowAsContext();
@@ -135,6 +137,7 @@ namespace D3TEditor.PropertyDrawers
 					var menu = new GenericMenu();
 					menu.AddItem("Clear Dictionary", true, false, () =>
 					{
+						ClearDictionary(so.FindProperty(path));
 						dictionary.Clear();
 					});
 					menu.ShowAsContext();
@@ -145,7 +148,19 @@ namespace D3TEditor.PropertyDrawers
 				if(GUI.Button(addRect, EditorGUIUtility.IconContent("d_Toolbar Plus"), "IconButton"))
 				{
 					var valueType = dictionary.ValueType;
+					/*
 					EditorApplication.delayCall += () => AddItem(dictionary, so, valueType);
+					so.ApplyModifiedProperties();
+					*/
+					var so = prop.serializedObject;
+					var path = prop.propertyPath;
+					EditorApplication.delayCall += () =>
+					{
+						so.Update();
+						prop = so.FindProperty(path);
+						AddItem(dictionary, prop, valueType);
+						so.ApplyModifiedProperties();
+					};
 				}
 			}
 		}
@@ -218,28 +233,63 @@ namespace D3TEditor.PropertyDrawers
 						menu.AddItem(root + GetTypeName(t), true, currentType == t, () =>
 						{
 							Undo.RecordObject(so.targetObject, "Change Element Type");
-							dictionary.Editor_ReplaceValue(kObj, Activator.CreateInstance(t));
+							ReplaceValue(so.FindProperty(path + "._values"), index, Activator.CreateInstance(t));
 						});
 					}
 				}
-				menu.AddItem("Delete Element", true, false, () => DeleteItem(dictionary, property, i));
+				menu.AddItem("Delete Element", true, false, () => DeleteItem(property, i));
 				menu.ShowAsContext();
 			}
 
 			return lColor;
 		}
 
-		private static void AddItem(IUnityDictionary dictionary, SerializedObject so, Type valueType)
+		private static void AddItem(IUnityDictionary dictionary, SerializedProperty prop, Type valueType)
 		{
-			Undo.RecordObject(so.targetObject, "Add Dictionary Element");
-			dictionary.Editor_Add(valueType);
+			//TODO: support polymorphic types
+			prop.serializedObject.Update();
+			Undo.RecordObject(prop.serializedObject.targetObject, "Add Dictionary Element");
+			var k = prop.FindPropertyRelative("_keys");
+			var v = prop.FindPropertyRelative("_values");
+			k.arraySize++;
+			v.arraySize++;
+			prop.serializedObject.ApplyModifiedProperties();
+			var key = k.GetArrayElementAtIndex(k.arraySize - 1);
+			var keyValue = PropertyDrawerUtility.GetTargetObjectOfProperty(key);
+			var iList = (IList)PropertyDrawerUtility.GetTargetObjectOfProperty(k);
+			var uniqueKey = GetUniqueKey(keyValue, iList);
+			PropertyDrawerUtility.SetValue(key, uniqueKey);
 		}
 
-		private static void DeleteItem(IUnityDictionary dictionary, SerializedProperty prop, int index)
+		private static void DeleteItem(SerializedProperty prop, int index)
 		{
+			prop.serializedObject.Update();
 			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
-			dictionary.Editor_Remove(index);
+			var k = prop.FindPropertyRelative("_keys");
+			var v = prop.FindPropertyRelative("_values");
+			k.DeleteArrayElementAtIndex(index);
+			v.DeleteArrayElementAtIndex(index);
+			prop.serializedObject.ApplyModifiedProperties();
+		}
 
+		private static void ClearDictionary(SerializedProperty prop)
+		{
+			prop.serializedObject.Update();
+			Undo.RecordObject(prop.serializedObject.targetObject, "Clear Dictionary");
+			var k = prop.FindPropertyRelative("_keys");
+			var v = prop.FindPropertyRelative("_values");
+			k.ClearArray();
+			v.ClearArray();
+			prop.serializedObject.ApplyModifiedProperties();
+		}
+
+		private static void ReplaceValue(SerializedProperty prop, int index, object newValue)
+		{
+			prop.serializedObject.Update();
+			Undo.RecordObject(prop.serializedObject.targetObject, "Replace Dictionary Value");
+			var v = prop.FindPropertyRelative("_values");
+			PropertyDrawerUtility.SetValue(v.GetArrayElementAtIndex(index), newValue);
+			prop.serializedObject.ApplyModifiedProperties();
 		}
 
 		private static string GetTypeName(Type t)
@@ -247,6 +297,31 @@ namespace D3TEditor.PropertyDrawers
 			string typeName = t.Name;
 			if(typeName.EndsWith("Value")) typeName = typeName.Substring(0, typeName.Length - "Value".Length);
 			return typeName;
+		}
+
+		private static object GetUniqueKey(object key, IList _keys)
+		{
+			if(key is string s)
+			{
+				return ObjectNames.GetUniqueName(((List<string>)_keys).ToArray(), s);
+			}
+			else if(key is int i)
+			{
+				var ints = (List<int>)_keys;
+				while(ints.Contains(i)) i++;
+				return i;
+			}
+			else if(key is float f)
+			{
+				var floats = (List<float>)_keys;
+				while(floats.Contains(f)) f++;
+				return f;
+			}
+			else
+			{
+				//Unable to create unique key for this type
+				return key;
+			}
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
