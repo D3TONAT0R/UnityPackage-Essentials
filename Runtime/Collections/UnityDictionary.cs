@@ -79,6 +79,7 @@ namespace D3T.Collections
 	/// </summary>
 	/// <typeparam name="K"></typeparam>
 	/// <typeparam name="V"></typeparam>
+	[System.Serializable]
 	public class UnityDictionary<K, V> : IUnityDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K, V>>
 	{
 		protected Dictionary<K, V> dictionary = new Dictionary<K, V>();
