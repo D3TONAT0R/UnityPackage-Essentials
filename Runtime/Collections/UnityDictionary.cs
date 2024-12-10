@@ -41,14 +41,13 @@ namespace D3T.Collections
 	}
 
 	/// <summary>
-	/// Interface for a value type in a Unity.
+	/// Interface for a value type in a UnityDictionary. Can be used for polymorphic support of dictionaries.
 	/// </summary>
 	public interface IUnityDictionaryValue { }
 
 	/// <summary>
-	/// A value inside a UnityDictionary.
+	/// A value inside a UnityDictionary. Can be used for polymorphic support of dictionaries.
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
 	[System.Serializable]
 	public abstract class UnityDictionaryValue<T> : IUnityDictionaryValue
 	{
@@ -68,8 +67,8 @@ namespace D3T.Collections
 	/// <summary>
 	/// A wrapper for .NETs <see cref="Dictionary{TKey, TValue}"/> that supports serialization in Unity.
 	/// </summary>
-	/// <typeparam name="K"></typeparam>
-	/// <typeparam name="V"></typeparam>
+	/// <typeparam name="K">The key type for the dictionary.</typeparam>
+	/// <typeparam name="V">The value type for the dictionary.</typeparam>
 	[System.Serializable]
 	public class UnityDictionary<K, V> : IUnityDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K, V>>
 	{
@@ -140,7 +139,14 @@ namespace D3T.Collections
 			SerializationException = null;
 			try
 			{
-				dictionary = new Dictionary<K, V>();
+				if(dictionary != null)
+				{
+					dictionary.Clear();
+				}
+				else
+				{
+					dictionary = new Dictionary<K, V>();
+				}
 				for(int i = 0; i < _keys.Count; i++)
 				{
 					bool notNull;
