@@ -1,7 +1,9 @@
 ﻿using UnityEssentials;
 using UnityEssentials.Collections;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -86,10 +88,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					lColor = DrawElement(position, property, dictionary, preferMonospaceKeys, dictionaryType, polymorphic, indentLevel, so, keys, duplicates, i, k, kObj, v);
 				}
 				position.NextProperty();
-				DrawAddButton(position, dictionary, dictionaryType, polymorphic, so);
+				position.height = 16;
+				DrawAddButton(position, dictionary, dictionaryType, polymorphic, property);
 				EditorGUI.indentLevel--;
 			}
 			//This needs to be done after the foldout to prevent losing focus on text fields
+			headerPos.SplitHorizontalRight(16, out headerPos, out var contextBtnPos);
+			contextBtnPos.height = 16;
 			var headerLabelPos = headerPos;
 			headerLabelPos.xMin += EditorGUIUtility.labelWidth + 2;
 			if(exception != null)
@@ -106,11 +111,24 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				var valueType = dictionary.ValueType;
 				GUI.Label(headerLabelPos, $"{keyType.Name} / {valueType.Name} ({dictionary.Count} Elements)", EditorStyles.miniLabel);
 			}
+			if(GUI.Button(contextBtnPos, GUIContent.none, EditorStyles.foldoutHeaderIcon))
+			{
+				var menu = new GenericMenu();
+				var so = property.serializedObject;
+				var path = property.propertyPath;
+				menu.AddItem("Clear Dictionary", true, false, () =>
+				{
+					ClearDictionary(so.FindProperty(path));
+				});
+				menu.ShowAsContext();
+			}
 			EditorGUI.EndProperty();
 		}
 
-		private static void DrawAddButton(Rect position, IUnityDictionary dictionary, Type dictionaryType, bool polymorphic, SerializedObject so)
+		private static void DrawAddButton(Rect position, IUnityDictionary dictionary, Type dictionaryType, bool polymorphic, SerializedProperty prop)
 		{
+			var so = prop.serializedObject;
+			var path = prop.propertyPath;
 			position.SplitHorizontalRight(16, out _, out var addRect);
 			if(polymorphic)
 			{
@@ -120,23 +138,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					foreach(var t in polymorphicTypes[dictionaryType])
 					{
 						menu.AddItem(new GUIContent(GetTypeName(t)), false,
-						() =>
-						{
-							AddItem(dictionary, so, t);
-						}
-						);
+						() => {
+							AddItem(dictionary, so.FindProperty(path), t);
+						});
 					}
 					if(menu.GetItemCount() == 0) menu.AddDisabledItem(new GUIContent("None"));
-					menu.ShowAsContext();
-				}
-				addRect.x -= addRect.width;
-				if(GUI.Button(addRect, GUIContent.none, EditorStyles.foldoutHeaderIcon))
-				{
-					var menu = new GenericMenu();
-					menu.AddItem("Clear Dictionary", true, false, () =>
-					{
-						dictionary.Clear();
-					});
 					menu.ShowAsContext();
 				}
 			}
@@ -145,7 +151,10 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				if(GUI.Button(addRect, EditorGUIUtility.IconContent("d_Toolbar Plus"), "IconButton"))
 				{
 					var valueType = dictionary.ValueType;
-					EditorApplication.delayCall += () => AddItem(dictionary, so, valueType);
+					so.Update();
+					prop = so.FindProperty(path);
+					AddItem(dictionary, prop, valueType);
+					so.ApplyModifiedProperties();
 				}
 			}
 		}
@@ -190,6 +199,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			EditorGUI.indentLevel = indentLevel;
 
+			btnRect.height = 16;
 			if(GUI.Button(btnRect, GUIContent.none, EditorStyles.foldoutHeaderIcon))
 			{
 				int index = i;
@@ -197,17 +207,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				string path = property.propertyPath;
 				menu.AddItem("Move Up", index > 0, false, () =>
 				{
-					so.Update();
-					so.FindProperty(path + "._keys").MoveArrayElement(index, index - 1);
-					so.FindProperty(path + "._values").MoveArrayElement(index, index - 1);
-					so.ApplyModifiedProperties();
+					MoveItem(so.FindProperty(path), index, -1);
 				});
 				menu.AddItem("Move Down", index < keys.arraySize - 1, false, () =>
 				{
-					so.Update();
-					so.FindProperty(path + "._keys").MoveArrayElement(index, index + 1);
-					so.FindProperty(path + "._values").MoveArrayElement(index, index + 1);
-					so.ApplyModifiedProperties();
+					MoveItem(so.FindProperty(path), index, 1);
 				});
 				if(polymorphic)
 				{
@@ -217,29 +221,94 @@ namespace UnityEssentialsEditor.PropertyDrawers
 						var currentType = PropertyDrawerUtility.GetTargetObjectOfProperty(v)?.GetType();
 						menu.AddItem(root + GetTypeName(t), true, currentType == t, () =>
 						{
-							Undo.RecordObject(so.targetObject, "Change Element Type");
-							dictionary.Editor_ReplaceValue(kObj, Activator.CreateInstance(t));
+							ReplaceValue(so.FindProperty(path), index, Activator.CreateInstance(t));
 						});
 					}
 				}
-				menu.AddItem("Delete Element", true, false, () => DeleteItem(dictionary, property, i));
+				menu.AddItem("Delete Element", true, false, () => 
+				{
+					DeleteItem(so.FindProperty(path), i);
+				});
 				menu.ShowAsContext();
 			}
 
 			return lColor;
 		}
 
-		private static void AddItem(IUnityDictionary dictionary, SerializedObject so, Type valueType)
+		private static void AddItem(IUnityDictionary dictionary, SerializedProperty prop, Type valueType)
 		{
-			Undo.RecordObject(so.targetObject, "Add Dictionary Element");
-			dictionary.Editor_Add(valueType);
+			Undo.RecordObject(prop.serializedObject.targetObject, "Add Dictionary Element");
+			prop.serializedObject.Update();
+			var k = prop.FindPropertyRelative("_keys");
+			var v = prop.FindPropertyRelative("_values");
+			k.arraySize++;
+			v.arraySize++;
+			prop.serializedObject.ApplyModifiedProperties();
+			var key = k.GetArrayElementAtIndex(k.arraySize - 1);
+			var keyValue = PropertyDrawerUtility.GetTargetObjectOfProperty(key);
+			var iList = (IList)PropertyDrawerUtility.GetTargetObjectOfProperty(k);
+			var uniqueKey = k.arraySize > 1 ? GetUniqueKey(keyValue, iList) : keyValue;
+			PropertyDrawerUtility.SetValue(key, uniqueKey);
+			var value = v.GetArrayElementAtIndex(v.arraySize - 1);
+			var valueValue = CreateValueIfNeeded(valueType);
+			PropertyDrawerUtility.SetValue(value, valueValue);
+			prop.serializedObject.ApplyModifiedProperties();
 		}
 
-		private static void DeleteItem(IUnityDictionary dictionary, SerializedProperty prop, int index)
+		private static object CreateValueIfNeeded(Type type)
 		{
-			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
-			dictionary.Editor_Remove(index);
+			if(type == typeof(string))
+			{
+				return "";
+			}
+			if(typeof(UnityEngine.Object).IsAssignableFrom(type))
+			{
+				return null;
+			}
+			else
+			{
+				return Activator.CreateInstance(type);
+			}
+		}
 
+		private static void DeleteItem(SerializedProperty prop, int index)
+		{
+			prop.serializedObject.Update();
+			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
+			var k = prop.FindPropertyRelative("_keys");
+			var v = prop.FindPropertyRelative("_values");
+			k.DeleteArrayElementAtIndex(index);
+			v.DeleteArrayElementAtIndex(index);
+			prop.serializedObject.ApplyModifiedProperties();
+		}
+
+		private static void ClearDictionary(SerializedProperty prop)
+		{
+			prop.serializedObject.Update();
+			Undo.RecordObject(prop.serializedObject.targetObject, "Clear Dictionary");
+			var k = prop.FindPropertyRelative("_keys");
+			var v = prop.FindPropertyRelative("_values");
+			k.ClearArray();
+			v.ClearArray();
+			prop.serializedObject.ApplyModifiedProperties();
+		}
+
+		private static void ReplaceValue(SerializedProperty prop, int index, object newValue)
+		{
+			prop.serializedObject.Update();
+			Undo.RecordObject(prop.serializedObject.targetObject, "Replace Dictionary Value");
+			var v = prop.FindPropertyRelative("_values");
+			PropertyDrawerUtility.SetValue(v.GetArrayElementAtIndex(index), newValue);
+			prop.serializedObject.ApplyModifiedProperties();
+		}
+
+		private static void MoveItem(SerializedProperty prop, int index, int move)
+		{
+			Undo.RecordObject(prop.serializedObject.targetObject, "Move Dictionary Value");
+			prop.serializedObject.Update();
+			prop.FindPropertyRelative("_keys").MoveArrayElement(index, index + move);
+			prop.FindPropertyRelative("_values").MoveArrayElement(index, index + move);
+			prop.serializedObject.ApplyModifiedProperties();
 		}
 
 		private static string GetTypeName(Type t)
@@ -247,6 +316,32 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			string typeName = t.Name;
 			if(typeName.EndsWith("Value")) typeName = typeName.Substring(0, typeName.Length - "Value".Length);
 			return typeName;
+		}
+
+		private static object GetUniqueKey(object key, IList _keys)
+		{
+			if(_keys.Count == 0) return key;
+			if(key is string s)
+			{
+				return ObjectNames.GetUniqueName(((List<string>)_keys).ToArray(), s);
+			}
+			else if(key is int i)
+			{
+				var ints = (List<int>)_keys;
+				while(ints.Contains(i)) i++;
+				return i;
+			}
+			else if(key is float f)
+			{
+				var floats = (List<float>)_keys;
+				while(floats.Contains(f)) f++;
+				return f;
+			}
+			else
+			{
+				//Unable to create unique key for this type
+				return key;
+			}
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
