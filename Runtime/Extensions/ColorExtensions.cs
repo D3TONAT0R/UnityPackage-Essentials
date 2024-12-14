@@ -5,6 +5,22 @@ namespace D3T
 	public static class ColorExtensions
 	{
 		/// <summary>
+		/// Converts this color into an RGB vector.
+		/// </summary>
+		public static Vector3 ToVector3(this Color c)
+		{
+			return new Vector3(c.r, c.g, c.b);
+		}
+
+		/// <summary>
+		/// Converts this color into an RGBA vector.
+		/// </summary>
+		public static Vector4 ToVector4(this Color c)
+		{
+			return new Vector4(c.r, c.g, c.b, c.a);
+		}
+
+		/// <summary>
 		/// Returns this color with a different alpha value.
 		/// </summary>
 		public static Color WithAlpha(this Color c, float a)
@@ -23,7 +39,7 @@ namespace D3T
 		/// <summary>
 		/// Returns this color with modified saturation levels.
 		/// </summary>
-		public static Color ScaleSaturation(this Color c, float saturation)
+		public static Color MultiplySaturation(this Color c, float saturation)
 		{
 			return Color.LerpUnclamped(Grayscale(c), c, saturation);
 		}
@@ -34,6 +50,15 @@ namespace D3T
 		public static Color Grayscale(this Color c)
 		{
 			float gray = c.grayscale;
+			return new Color(gray, gray, gray, c.a);
+		}
+
+		/// <summary>
+		/// Returns a grayscaled version of this color with custom RGB weights.
+		/// </summary>
+		public static Color Grayscale(this Color c, Vector3 weights)
+		{
+			float gray = Vector3.Dot(c.ToVector3(), weights);
 			return new Color(gray, gray, gray, c.a);
 		}
 
