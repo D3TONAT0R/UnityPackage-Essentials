@@ -26,7 +26,7 @@ namespace D3T
 		/// </summary>
 		public static Coroutine InvokeWithFrameDelay(this MonoBehaviour m, int frames, Action action)
 		{
-			return Coroutines.InvokeWithFrameDelay(m, action);
+			return Coroutines.InvokeWithFrameDelay(m, frames, action);
 		}
 
 		/// <summary>

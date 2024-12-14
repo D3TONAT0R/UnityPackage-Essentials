@@ -185,21 +185,21 @@ namespace D3T
 			return owner.StartCoroutine(ExecuteWithFrameDelay(action, frames));
 		}
 
-		private static IEnumerator ExecuteCoroutine(IEnumerator routine, float delay, bool realtime)
+		private static IEnumerator ExecuteCoroutine(IEnumerator routine, float delay, bool inRealtime)
 		{
 			if(delay > 0)
 			{
-				if(realtime) yield return new WaitForSeconds(delay);
+				if(inRealtime) yield return new WaitForSeconds(delay);
 				else yield return new WaitForSecondsRealtime(delay);
 			}
 			yield return routine;
 		}
 
-		private static IEnumerator ExecuteAction(Action action, float delay, bool realtime)
+		private static IEnumerator ExecuteAction(Action action, float delay, bool inRealtime)
 		{
 			if(delay > 0)
 			{
-				if(realtime) yield return new WaitForSeconds(delay);
+				if(inRealtime) yield return new WaitForSeconds(delay);
 				else yield return new WaitForSecondsRealtime(delay);
 			}
 			action.Invoke();
