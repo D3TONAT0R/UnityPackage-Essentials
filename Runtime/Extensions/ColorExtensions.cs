@@ -5,6 +5,22 @@ namespace UnityEssentials
 	public static class ColorExtensions
 	{
 		/// <summary>
+		/// Converts this color into an RGB vector.
+		/// </summary>
+		public static Vector3 ToVector3(this Color c)
+		{
+			return new Vector3(c.r, c.g, c.b);
+		}
+
+		/// <summary>
+		/// Converts this color into an RGBA vector.
+		/// </summary>
+		public static Vector4 ToVector4(this Color c)
+		{
+			return new Vector4(c.r, c.g, c.b, c.a);
+		}
+
+		/// <summary>
 		/// Returns this color with a different alpha value.
 		/// </summary>
 		public static Color WithAlpha(this Color c, float a)
@@ -23,7 +39,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Returns this color with modified saturation levels.
 		/// </summary>
-		public static Color ScaleSaturation(this Color c, float saturation)
+		public static Color MultiplySaturation(this Color c, float saturation)
 		{
 			return Color.LerpUnclamped(Grayscale(c), c, saturation);
 		}
@@ -34,6 +50,15 @@ namespace UnityEssentials
 		public static Color Grayscale(this Color c)
 		{
 			float gray = c.grayscale;
+			return new Color(gray, gray, gray, c.a);
+		}
+
+		/// <summary>
+		/// Returns a grayscaled version of this color with custom RGB weights.
+		/// </summary>
+		public static Color Grayscale(this Color c, Vector3 weights)
+		{
+			float gray = Vector3.Dot(c.ToVector3(), weights);
 			return new Color(gray, gray, gray, c.a);
 		}
 
@@ -74,6 +99,16 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
+		/// Returns this color with its hue shifted.
+		/// </summary>
+		public static Color WithHueShift(this Color c, float hueShift)
+		{
+			Color.RGBToHSV(c, out var h, out var s, out var v);
+			h = (h + hueShift) % 1;
+			return Color.HSVToRGB(h, s, v);
+		}
+
+		/// <summary>
 		/// Returns this color with a different saturation.
 		/// </summary>
 		public static Color WithSaturation(this Color c, float saturation)
@@ -92,13 +127,68 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Returns this color with its hue shifted.
+		/// Returns this color with its RGB values multiplied by the given factor.
 		/// </summary>
-		public static Color WithHueShift(this Color c, float hueShift)
+		public static Color Multiply(this Color c, float factor, bool clamp = false)
 		{
-			Color.RGBToHSV(c, out var h, out var s, out var v);
-			h = (h + hueShift) % 1;
-			return Color.HSVToRGB(h, s, v);
+			var c2 = c;
+			if(clamp)
+			{
+				c2.r = Mathf.Clamp01(c.r * factor);
+				c2.g = Mathf.Clamp01(c.g * factor);
+				c2.b = Mathf.Clamp01(c.b * factor);
+			}
+			else
+			{
+				c2.r *= factor;
+				c2.g *= factor;
+				c2.b *= factor;
+			}
+			return c2;
+		}
+
+		/// <summary>
+		/// Returns a version of this color with white blending applied.
+		/// </summary>
+		public static Color Whiten(this Color c, float factor)
+		{
+			var a = c.a;
+			return Color.Lerp(c, Color.white, factor).WithAlpha(a);
+		}
+
+		/// <summary>
+		/// Returns a version of this color with black blending applied.
+		/// </summary>
+		public static Color Blacken(this Color c, float factor)
+		{
+			var a = c.a;
+			return Color.Lerp(c, Color.black, factor).WithAlpha(a);
+		}
+
+		/// <summary>
+		/// Returns this color interpolated towards the given other color while keeping the alpha value.
+		/// </summary>
+		public static Color LerpRGB(this Color c, Color other, float factor)
+		{
+			var c2 = c;
+			c2.r = Mathf.Lerp(c.r, other.r, factor);
+			c2.g = Mathf.Lerp(c.g, other.g, factor);
+			c2.b = Mathf.Lerp(c.b, other.b, factor);
+			return c2;
+		}
+
+		/// <summary>
+		/// Returns this color with the given color overlaid on top of it.
+		/// </summary>
+		public static Color Overlay(this Color c, Color other, float factor, bool keepAlpha)
+		{
+			float blend = factor * other.a;
+			var c2 = LerpRGB(c, other, blend);
+			if(!keepAlpha)
+			{
+				c2.a = Mathf.Lerp(c.a, 1, blend);
+			}
+			return c2;
 		}
 
 		/// <summary>
