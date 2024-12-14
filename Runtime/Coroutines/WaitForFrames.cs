@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Suspends the coroutine execution for a specified amount of frames.
