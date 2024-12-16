@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	public abstract class ProjectSettingsAsset : ScriptableObject
 	{

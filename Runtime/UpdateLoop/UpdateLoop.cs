@@ -6,7 +6,7 @@ using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
 using UnityPlayerLoop = UnityEngine.LowLevel.PlayerLoop;
 
-namespace D3T.PlayerLoop
+namespace UnityEssentials.PlayerLoop
 {
 	/// <summary>
 	/// Utility class for adding subsystems to the game loop.

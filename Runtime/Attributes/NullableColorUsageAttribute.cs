@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Configure the usage of a color field.

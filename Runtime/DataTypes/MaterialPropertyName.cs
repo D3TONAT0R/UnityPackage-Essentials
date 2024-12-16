@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Definition of a material property name,

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Ensures that a given shader is always included in builds.

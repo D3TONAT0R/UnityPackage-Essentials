@@ -1,5 +1,6 @@
-﻿using D3T;
-using D3TEditor.Tools;
+using UnityEngine;
+﻿using UnityEssentials;
+using UnityEssentialsEditor.Tools;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -9,9 +10,8 @@ using UnityEditor.EditorTools;
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 
-using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public static class EditorGUIExtras
 	{

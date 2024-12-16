@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEditor;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// The type of help box to display.

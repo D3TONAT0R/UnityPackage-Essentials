@@ -1,8 +1,8 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(CurveUsageAttribute))]
 	public class CurveUsageAttributeDrawer : PropertyDrawer

@@ -1,4 +1,4 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.EditorTools;
@@ -8,7 +8,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 #endif
 using UnityEngine;
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
 	[EditorTool(TOOL_NAME, typeof(ReflectionProbe))]
 	internal class ReflectionProbeBoundsDefinitionTool : BoundsDefinitionTool

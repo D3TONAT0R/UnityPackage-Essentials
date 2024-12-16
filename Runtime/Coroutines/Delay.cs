@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Struct representing a delay for use in <see cref="Coroutines"/>

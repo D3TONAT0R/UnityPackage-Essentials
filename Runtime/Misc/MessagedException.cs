@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Adds a custom message to an existing exception.

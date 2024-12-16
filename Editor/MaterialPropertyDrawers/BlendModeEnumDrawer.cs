@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.MaterialPropertyDrawers
+namespace UnityEssentialsEditor.MaterialPropertyDrawers
 {
 	public class BlendModeEnumDrawer : MaterialPropertyDrawer
 	{

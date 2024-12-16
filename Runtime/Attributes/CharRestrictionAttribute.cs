@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// The type of character restriction to apply to an input field.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Makes an inspector field editable only if a given condition matches a specific value.

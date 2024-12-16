@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace D3T.Meshes
+namespace UnityEssentials.Meshes
 {
 	public static class TopologyConverter
 	{

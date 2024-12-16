@@ -1,5 +1,5 @@
 ﻿
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// An empty struct.

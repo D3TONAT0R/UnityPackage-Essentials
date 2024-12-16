@@ -1,9 +1,9 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(CreateAssetButtonAttribute))]
 	public class CreateAssetButtonAttributeDrawer : PropertyDrawer

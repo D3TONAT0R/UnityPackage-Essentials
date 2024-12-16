@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace D3TEditor.TimeTracking
+namespace UnityEssentialsEditor.TimeTracking
 {
 	[System.Serializable]
 	public class TimeSample

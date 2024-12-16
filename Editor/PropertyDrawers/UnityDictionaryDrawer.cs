@@ -1,5 +1,5 @@
-﻿using D3T;
-using D3T.Collections;
+﻿using UnityEssentials;
+using UnityEssentials.Collections;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(UnityDictionary<,>), true)]
 	public class UnityDictionaryDrawer : PropertyDrawer

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	public static class EnumExtensions
 	{

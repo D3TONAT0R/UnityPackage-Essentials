@@ -5,7 +5,7 @@ using UnityEditor.ProjectWindowCallback;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public static class AssetDatabaseUtility
 	{

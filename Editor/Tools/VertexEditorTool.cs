@@ -1,4 +1,4 @@
-﻿using D3T.Meshes;
+using UnityEssentials.Meshes;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -10,7 +10,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
 #if UNITY_2021_2_OR_NEWER
 	[UnityEditor.Overlays.Overlay(typeof(SceneView), "Edit Vertices")]

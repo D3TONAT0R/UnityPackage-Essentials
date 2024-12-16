@@ -1,11 +1,11 @@
-﻿using D3T;
+using UnityEssentials;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public class ListItem<T> : IEnumerable<ListItem<T>>
 	{

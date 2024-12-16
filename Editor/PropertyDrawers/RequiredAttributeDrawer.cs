@@ -1,11 +1,11 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(RequiredAttribute))]
 	public class RequiredAttributeDrawer : PropertyDrawer

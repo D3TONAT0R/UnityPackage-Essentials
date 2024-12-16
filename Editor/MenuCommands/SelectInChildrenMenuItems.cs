@@ -5,7 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	internal static class SelectInChildrenMenuItems
 	{

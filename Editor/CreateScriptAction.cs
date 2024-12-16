@@ -8,7 +8,7 @@ using UnityEditor;
 using UnityEditor.ProjectWindowCallback;
 using Object = UnityEngine.Object;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	internal class CreateScriptAction : EndNameEditAction
 	{

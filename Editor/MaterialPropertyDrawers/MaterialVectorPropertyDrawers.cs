@@ -1,8 +1,8 @@
-﻿using D3T;
 using UnityEditor;
 using UnityEngine;
+using UnityEssentials;
 
-namespace D3TEditor.MaterialPropertyDrawers
+namespace UnityEssentialsEditor.MaterialPropertyDrawers
 {
 	public class ShowAsVector2Drawer : MaterialPropertyDrawer
 	{

@@ -1,8 +1,8 @@
-﻿using D3T;
+using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	[CustomPropertyDrawer(typeof(SeparatorAttribute))]
 	public class SeparatorDrawer : DecoratorDrawer

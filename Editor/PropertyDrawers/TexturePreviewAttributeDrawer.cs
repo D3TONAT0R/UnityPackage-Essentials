@@ -1,9 +1,8 @@
-﻿using D3T;
-using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
+using UnityEssentials;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(TexturePreviewAttribute))]
 	public class TexturePreviewAttributeDrawer : PropertyDrawer
@@ -31,6 +30,7 @@ namespace D3TEditor.PropertyDrawers
 			if(texture && !property.hasMultipleDifferentValues)
 			{
 				float imageAspect = (float)texture.width / texture.height;
+				Vector3 v = Vector3.up;
 				if(texturePos.GetAspectRatio() > imageAspect)
 				{
 					texturePos.width = texturePos.height * imageAspect;

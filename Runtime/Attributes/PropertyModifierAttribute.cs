@@ -2,7 +2,7 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Base class for all custom proeprty attributes.

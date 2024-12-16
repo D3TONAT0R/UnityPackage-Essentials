@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	internal static class RunBuildButtons
 	{

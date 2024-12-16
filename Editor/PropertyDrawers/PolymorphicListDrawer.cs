@@ -1,5 +1,5 @@
-﻿using D3T;
-using D3T.Collections;
+using UnityEssentials;
+using UnityEssentials.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 
 	//TODO: cleanup required

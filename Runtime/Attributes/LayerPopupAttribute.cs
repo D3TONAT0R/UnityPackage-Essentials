@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Add this attribute to an integer field to create a layer popup (single layer only).

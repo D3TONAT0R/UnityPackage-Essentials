@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace D3TEditor.TimeTracking
+namespace UnityEssentialsEditor.TimeTracking
 {
 	[Flags]
 	public enum TrackedTimeType

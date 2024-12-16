@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace D3T.PlayerLoop
+namespace UnityEssentials.PlayerLoop
 {
 	internal class UpdateLoopScriptInstance : MonoBehaviour
 	{

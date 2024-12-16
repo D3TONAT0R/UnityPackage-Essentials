@@ -1,9 +1,9 @@
-﻿using D3T;
+using UnityEssentials;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	[CustomEditor(typeof(Transform))]
 	[CanEditMultipleObjects]

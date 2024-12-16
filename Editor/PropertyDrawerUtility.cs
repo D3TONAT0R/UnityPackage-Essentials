@@ -1,4 +1,4 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,9 +6,9 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using static D3T.ReflectionUtility;
+using static UnityEssentials.ReflectionUtility;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public static class PropertyDrawerUtility
 	{

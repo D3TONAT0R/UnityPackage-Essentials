@@ -1,10 +1,10 @@
-using D3T;
+using UnityEngine;
+using UnityEssentials;
+using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
-using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	[CustomPropertyDrawer(typeof(IDrawInlined), true)]
 	public class InlineClassDrawer : PropertyDrawer

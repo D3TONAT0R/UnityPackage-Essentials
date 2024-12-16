@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	internal static class CreateCustomAssetMenuItems
 	{

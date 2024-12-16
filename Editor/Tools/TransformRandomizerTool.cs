@@ -1,9 +1,9 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
 #if UNITY_2021_2_OR_NEWER
 	[UnityEditor.Overlays.Overlay(typeof(SceneView), "Transform Randomizer")]

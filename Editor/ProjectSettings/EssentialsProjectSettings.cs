@@ -1,8 +1,8 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using System;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public class EssentialsProjectSettings : ProjectSettingsAsset
 	{

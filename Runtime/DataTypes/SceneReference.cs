@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Represents a reference to a scene asset.
@@ -20,7 +20,6 @@ namespace D3T
 
 		private bool resolvedInEditor = false;
 #endif
-
 		[SerializeField, HideInInspector]
 		private string sceneName;
 		[SerializeField, HideInInspector]

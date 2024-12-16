@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	[Flags]
 	public enum SearchFlags

@@ -1,5 +1,5 @@
-﻿using D3T.Meshes;
-using D3TEditor.Tools;
+using UnityEssentials.Meshes;
+using UnityEssentialsEditor.Tools;
 using UnityEditor;
 using UnityEngine;
 #if UNITY_2020_1_OR_NEWER
@@ -8,7 +8,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
 
-namespace D3TEditor.Inspector
+namespace UnityEssentialsEditor.Inspector
 {
 	[CustomEditor(typeof(ConvexMeshBuilderComponent))]
 	internal class ConvexMeshBuilderEditor : Editor

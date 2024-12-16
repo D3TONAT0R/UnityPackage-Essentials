@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace D3T.Meshes
+namespace UnityEssentials.Meshes
 {
 	/// <summary>
 	/// Component that generates a convex mesh.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace D3T.Collections
+namespace UnityEssentials.Collections
 {
 	/// <summary>
 	/// Specifies how a <see cref="PolymorphicList{T}"/> or <see cref="UnityDictionary{K, V}"/> should support polymorphism.

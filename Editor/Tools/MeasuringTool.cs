@@ -1,4 +1,4 @@
-﻿using D3T;
+﻿using UnityEssentials;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
@@ -7,7 +7,8 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 #else
 #endif
 
-namespace D3TEditor.Tools
+
+namespace UnityEssentialsEditor.Tools
 {
 #if UNITY_2021_2_OR_NEWER
 	[Overlay(typeof(SceneView), "Measuring Tool")]
@@ -21,7 +22,6 @@ namespace D3TEditor.Tools
 	[EditorTool("Measure")]
 	internal class MeasuringTool : EditorToolBase
 	{
-
 		public Vector3 p1;
 		public Vector3 p2;
 		public Vector3 distanceVec;

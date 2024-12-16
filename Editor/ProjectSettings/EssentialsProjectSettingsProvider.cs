@@ -1,8 +1,8 @@
-﻿using D3TEditor.TimeTracking;
+using UnityEssentialsEditor.TimeTracking;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	internal static class EssentialsProjectSettingsProvider
 	{

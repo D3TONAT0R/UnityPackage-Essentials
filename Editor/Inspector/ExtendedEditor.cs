@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using UnityEditor;
 
-namespace D3TEditor.Inspector
+namespace UnityEssentialsEditor.Inspector
 {
 	public abstract class ExtendedEditor : Editor
 	{

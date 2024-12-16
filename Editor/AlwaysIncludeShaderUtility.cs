@@ -1,9 +1,9 @@
-﻿using D3T;
+using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	internal static class AlwaysIncludeShaderUtility
 	{

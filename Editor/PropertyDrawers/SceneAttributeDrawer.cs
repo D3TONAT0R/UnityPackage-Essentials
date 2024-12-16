@@ -1,12 +1,10 @@
-﻿using D3T;
-using System;
+﻿using UnityEssentials;
 using System.IO;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(SceneAttribute))]
 	public class SceneAttributeDrawer : PropertyDrawer

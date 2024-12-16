@@ -1,12 +1,12 @@
-﻿using D3T;
-using D3T.Meshes;
+using UnityEssentials;
+using UnityEssentials.Meshes;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor
+namespace UnityEssentialsEditor
 {
 	public class ExtraGameObjectMenuItems
 	{

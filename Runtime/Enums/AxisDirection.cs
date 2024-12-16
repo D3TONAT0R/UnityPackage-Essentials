@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// An axis with a positive or negative direction.

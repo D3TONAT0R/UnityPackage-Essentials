@@ -1,11 +1,11 @@
-﻿using D3T;
+using UnityEssentials;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace D3TEditor.PropertyDrawers
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(MaterialPropertyName))]
 	public class MaterialPropertyNameDrawer : PropertyDrawer

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace D3T
+namespace UnityEssentials
 {
 	public static class RandomExtensions
 	{

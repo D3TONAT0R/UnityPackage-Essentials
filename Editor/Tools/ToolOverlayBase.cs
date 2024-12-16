@@ -3,7 +3,7 @@ using UnityEditor.EditorTools;
 using UnityEditor.Overlays;
 using UnityEngine;
 
-namespace D3TEditor.Tools
+namespace UnityEssentialsEditor.Tools
 {
 	public abstract class ToolOverlayBase<T> : IMGUIOverlay, ITransientOverlay where T : EditorToolBase
 	{

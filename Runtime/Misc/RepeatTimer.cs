@@ -1,7 +1,7 @@
-using D3T.PlayerLoop;
+using UnityEssentials.PlayerLoop;
 using UnityEngine;
 
-namespace D3T
+namespace UnityEssentials
 {
 	/// <summary>
 	/// Helper class for setting up a repeating timer.
