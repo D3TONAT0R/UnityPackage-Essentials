@@ -1,10 +1,10 @@
+#if UNITY_2021_2_OR_NEWER
 using UnityEditor.EditorTools;
 using UnityEditor.Overlays;
 using UnityEngine;
 
 namespace D3TEditor.Tools
 {
-#if UNITY_2021_2_OR_NEWER
 	public abstract class ToolOverlayBase<T> : IMGUIOverlay, ITransientOverlay where T : EditorToolBase
 	{
 		public virtual bool visible => IsActiveToolValidForOverlay && EditorToolBase.Active != null && EditorToolBase.Active.ShowToolWindow;
@@ -24,5 +24,5 @@ namespace D3TEditor.Tools
 			}
 		}
 	}
-#endif
 }
+#endif

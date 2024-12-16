@@ -1,7 +1,6 @@
 ﻿using D3T;
 using UnityEditor;
 using UnityEditor.EditorTools;
-using UnityEditor.Overlays;
 using UnityEngine;
 #if UNITY_2020_1_OR_NEWER
 using ToolManager = UnityEditor.EditorTools.ToolManager;
