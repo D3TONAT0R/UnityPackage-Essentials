@@ -11,7 +11,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 namespace UnityEssentialsEditor.Tools
 {
 #if UNITY_2021_2_OR_NEWER
-	[Overlay(typeof(SceneView), "Measuring Tool")]
+	[UnityEditor.Overlays.Overlay(typeof(SceneView), "Measuring Tool")]
 	internal class MeasuringToolOverlay : ToolOverlayBase<MeasuringTool>
 	{
 		
