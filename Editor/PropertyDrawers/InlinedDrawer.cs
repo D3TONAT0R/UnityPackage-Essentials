@@ -7,7 +7,7 @@ using System.Linq;
 namespace UnityEssentialsEditor
 {
 	[CustomPropertyDrawer(typeof(IDrawInlined), true)]
-	public class InlineClassDrawer : PropertyDrawer
+	public class InlinedDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{

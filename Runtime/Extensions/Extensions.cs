@@ -151,7 +151,8 @@ namespace UnityEssentials
 		[System.Diagnostics.DebuggerHidden]
 		public static void LogException(this System.Exception e, string message = null, Object context = null)
 		{
-			Debug.LogException(e.AddMessage(message), context);
+			if(message != null) Debug.LogException(e.AddMessage(message), context);
+			else Debug.LogException(e, context);
 		}
 
 		/// <summary>
