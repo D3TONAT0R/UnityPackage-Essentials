@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 namespace UnityEssentials.Collections
@@ -10,7 +8,7 @@ namespace UnityEssentials.Collections
 	/// <summary>
 	/// Interface for a dictionary that can be serialized by unity.
 	/// </summary>
-	public interface IUnityDictionary
+	public interface ISerializedDictionary
 	{
 		/// <summary>
 		/// Returns true if the contents of the dictionary are valid.
@@ -43,26 +41,26 @@ namespace UnityEssentials.Collections
 	/// <summary>
 	/// Interface for a value type in a UnityDictionary. Can be used for polymorphic support of dictionaries.
 	/// </summary>
-	public interface IUnityDictionaryValue { }
+	public interface ISerializedDictionaryValue { }
 
 	/// <summary>
 	/// A value inside a UnityDictionary. Can be used for polymorphic support of dictionaries.
 	/// </summary>
 	[System.Serializable]
-	public abstract class UnityDictionaryValue<T> : IUnityDictionaryValue
+	public abstract class ISerializedDictionaryValue<T> : ISerializedDictionaryValue
 	{
 		public T value;
 
-		public static implicit operator T(UnityDictionaryValue<T> c) => c.value;
+		public static implicit operator T(ISerializedDictionaryValue<T> c) => c.value;
 	}
 
-	[System.Serializable] public class BoolValue : UnityDictionaryValue<bool> { }
-	[System.Serializable] public class IntValue : UnityDictionaryValue<int> { }
-	[System.Serializable] public class FloatValue : UnityDictionaryValue<float> { }
-	[System.Serializable] public class StringValue : UnityDictionaryValue<string> { }
-	[System.Serializable] public class Vector2Value : UnityDictionaryValue<Vector2> { }
-	[System.Serializable] public class Vector3Value : UnityDictionaryValue<Vector3> { }
-	[System.Serializable] public class Vector4Value : UnityDictionaryValue<Vector4> { }
+	[System.Serializable] public class BoolValue : ISerializedDictionaryValue<bool> { }
+	[System.Serializable] public class IntValue : ISerializedDictionaryValue<int> { }
+	[System.Serializable] public class FloatValue : ISerializedDictionaryValue<float> { }
+	[System.Serializable] public class StringValue : ISerializedDictionaryValue<string> { }
+	[System.Serializable] public class Vector2Value : ISerializedDictionaryValue<Vector2> { }
+	[System.Serializable] public class Vector3Value : ISerializedDictionaryValue<Vector3> { }
+	[System.Serializable] public class Vector4Value : ISerializedDictionaryValue<Vector4> { }
 
 	/// <summary>
 	/// A wrapper for .NETs <see cref="Dictionary{TKey, TValue}"/> that supports serialization in Unity.
@@ -70,14 +68,14 @@ namespace UnityEssentials.Collections
 	/// <typeparam name="K">The key type for the dictionary.</typeparam>
 	/// <typeparam name="V">The value type for the dictionary.</typeparam>
 	[System.Serializable]
-	public class UnityDictionary<K, V> : IUnityDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K, V>>
+	public class SerializedDictionary<K, V> : ISerializedDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K, V>>
 	{
 		protected Dictionary<K, V> dictionary = new Dictionary<K, V>();
 
 		[SerializeField]
-		protected List<K> _keys = new List<K>();
+		protected List<K> serializedKeys = new List<K>();
 		[SerializeField, SerializeReference]
-		protected List<V> _values = new List<V>();
+		protected List<V> serializedValues = new List<V>();
 
 		public Type KeyType => typeof(K);
 		public Type ValueType => typeof(V);
@@ -90,17 +88,17 @@ namespace UnityEssentials.Collections
 
 		public virtual bool UseMonospaceKeyLabels => true;
 
-		public UnityDictionary()
+		public SerializedDictionary()
 		{
 
 		}
 
-		public UnityDictionary(IDictionary<K, V> dictionary)
+		public SerializedDictionary(IDictionary<K, V> dictionary)
 		{
 			this.dictionary = new Dictionary<K, V>(dictionary);
 		}
 
-		public UnityDictionary(Dictionary<K, V> dictionary)
+		public SerializedDictionary(Dictionary<K, V> dictionary)
 		{
 			this.dictionary = new Dictionary<K, V>(dictionary);
 		}
@@ -147,20 +145,20 @@ namespace UnityEssentials.Collections
 				{
 					dictionary = new Dictionary<K, V>();
 				}
-				for(int i = 0; i < _keys.Count; i++)
+				for(int i = 0; i < serializedKeys.Count; i++)
 				{
 					bool notNull;
 					if(typeof(UnityEngine.Object).IsAssignableFrom(KeyType))
 					{
-						notNull = (_keys[i] as UnityEngine.Object) != null;
+						notNull = (serializedKeys[i] as UnityEngine.Object) != null;
 					}
 					else
 					{
-						notNull = _keys[i] != null;
+						notNull = serializedKeys[i] != null;
 					}
 					if(notNull)
 					{
-						dictionary.Add(_keys[i], _values[i]);
+						dictionary.Add(serializedKeys[i], serializedValues[i]);
 					}
 				}
 			}

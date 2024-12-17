@@ -11,9 +11,12 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
-	[CustomPropertyDrawer(typeof(UnityDictionary<,>), true)]
-	public class UnityDictionaryDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(SerializedDictionary<,>), true)]
+	public class SerializedDictionaryDrawer : PropertyDrawer
 	{
+		private const string KEYS_FIELD_NAME = "serializedKeys";
+		private const string VALUES_FIELD_NAME = "serializedValues";
+
 		private static Color errorColor = new Color(1, 0.3f, 0.2f);
 
 		private static Dictionary<Type, Type[]> polymorphicTypes = new Dictionary<Type, Type[]>();
@@ -22,8 +25,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
 			var target = PropertyDrawerUtility.GetTargetObjectOfProperty(property);
-			var dictionary = (IUnityDictionary)target;
-			bool preferMonospaceKeys = (bool)target.GetType().GetProperty(nameof(UnityDictionary<Null, Null>.UseMonospaceKeyLabels)).GetValue(target);
+			var dictionary = (ISerializedDictionary)target;
+			bool preferMonospaceKeys = (bool)target.GetType().GetProperty(nameof(SerializedDictionary<Null, Null>.UseMonospaceKeyLabels)).GetValue(target);
 			var dictionaryType = target.GetType();
 			var polymorphicAttr = dictionaryType.GetCustomAttribute<PolymorphicAttribute>();
 			bool polymorphic = polymorphicAttr != null;
@@ -31,7 +34,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				if(!polymorphicTypes.ContainsKey(dictionaryType))
 				{
-					var valueType = ((IUnityDictionary)target).ValueType;
+					var valueType = ((ISerializedDictionary)target).ValueType;
 					if((valueType == typeof(object) || valueType == typeof(UnityEngine.Object)) && polymorphicAttr.specificTypes == null)
 					{
 						Debug.LogError("When creating a polymorphic dictionary for System.Object or UnityEngine.Object you must specify the subtypes allowed in the dictionary.", property.serializedObject.targetObject);
@@ -67,14 +70,14 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				EditorGUI.indentLevel++;
 				int indentLevel = EditorGUI.indentLevel;
 				var so = property.serializedObject;
-				var keys = property.FindPropertyRelative("_keys");
+				var keys = property.FindPropertyRelative(KEYS_FIELD_NAME);
 				var duplicates = PropertyDrawerUtility.GetTargetObjectOfProperty<System.Collections.IList>(keys)
 					.Cast<object>()
 					.GroupBy(x => x)
 					.Where(x => x.Count() > 1)
 					.Select(x => x.Key)
 					.ToList();
-				var values = property.FindPropertyRelative("_values");
+				var values = property.FindPropertyRelative(VALUES_FIELD_NAME);
 
 				if(keys.arraySize < values.arraySize) keys.arraySize = values.arraySize;
 				if(values.arraySize < keys.arraySize) values.arraySize = keys.arraySize;
@@ -125,7 +128,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			EditorGUI.EndProperty();
 		}
 
-		private static void DrawAddButton(Rect position, IUnityDictionary dictionary, Type dictionaryType, bool polymorphic, SerializedProperty prop)
+		private static void DrawAddButton(Rect position, ISerializedDictionary dictionary, Type dictionaryType, bool polymorphic, SerializedProperty prop)
 		{
 			var so = prop.serializedObject;
 			var path = prop.propertyPath;
@@ -159,7 +162,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 		}
 
-		private static Color DrawElement(Rect position, SerializedProperty property, IUnityDictionary dictionary, bool preferMonospaceKeys, Type dictionaryType, bool polymorphic, int indentLevel, SerializedObject so, SerializedProperty keys, List<object> duplicates, int i, SerializedProperty k, object kObj, SerializedProperty v)
+		private static Color DrawElement(Rect position, SerializedProperty property, ISerializedDictionary dictionary, bool preferMonospaceKeys, Type dictionaryType, bool polymorphic, int indentLevel, SerializedObject so, SerializedProperty keys, List<object> duplicates, int i, SerializedProperty k, object kObj, SerializedProperty v)
 		{
 			Color lColor;
 			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var keyRect, out var valueRect, 0);
@@ -235,12 +238,12 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			return lColor;
 		}
 
-		private static void AddItem(IUnityDictionary dictionary, SerializedProperty prop, Type valueType)
+		private static void AddItem(ISerializedDictionary dictionary, SerializedProperty prop, Type valueType)
 		{
 			Undo.RecordObject(prop.serializedObject.targetObject, "Add Dictionary Element");
 			prop.serializedObject.Update();
-			var k = prop.FindPropertyRelative("_keys");
-			var v = prop.FindPropertyRelative("_values");
+			var k = prop.FindPropertyRelative(KEYS_FIELD_NAME);
+			var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
 			k.arraySize++;
 			v.arraySize++;
 			prop.serializedObject.ApplyModifiedProperties();
@@ -275,8 +278,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			prop.serializedObject.Update();
 			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
-			var k = prop.FindPropertyRelative("_keys");
-			var v = prop.FindPropertyRelative("_values");
+			var k = prop.FindPropertyRelative(KEYS_FIELD_NAME);
+			var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
 			k.DeleteArrayElementAtIndex(index);
 			v.DeleteArrayElementAtIndex(index);
 			prop.serializedObject.ApplyModifiedProperties();
@@ -286,8 +289,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			prop.serializedObject.Update();
 			Undo.RecordObject(prop.serializedObject.targetObject, "Clear Dictionary");
-			var k = prop.FindPropertyRelative("_keys");
-			var v = prop.FindPropertyRelative("_values");
+			var k = prop.FindPropertyRelative(KEYS_FIELD_NAME);
+			var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
 			k.ClearArray();
 			v.ClearArray();
 			prop.serializedObject.ApplyModifiedProperties();
@@ -297,7 +300,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			prop.serializedObject.Update();
 			Undo.RecordObject(prop.serializedObject.targetObject, "Replace Dictionary Value");
-			var v = prop.FindPropertyRelative("_values");
+			var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
 			PropertyDrawerUtility.SetValue(v.GetArrayElementAtIndex(index), newValue);
 			prop.serializedObject.ApplyModifiedProperties();
 		}
@@ -306,8 +309,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			Undo.RecordObject(prop.serializedObject.targetObject, "Move Dictionary Value");
 			prop.serializedObject.Update();
-			prop.FindPropertyRelative("_keys").MoveArrayElement(index, index + move);
-			prop.FindPropertyRelative("_values").MoveArrayElement(index, index + move);
+			prop.FindPropertyRelative(KEYS_FIELD_NAME).MoveArrayElement(index, index + move);
+			prop.FindPropertyRelative(VALUES_FIELD_NAME).MoveArrayElement(index, index + move);
 			prop.serializedObject.ApplyModifiedProperties();
 		}
 
@@ -348,7 +351,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			if(property.isExpanded)
 			{
-				int count = property.FindPropertyRelative("_keys").arraySize;
+				int count = property.FindPropertyRelative(KEYS_FIELD_NAME).arraySize;
 				return (count + 2) * EditorGUIUtility.singleLineHeight + (count + 1) * EditorGUIUtility.standardVerticalSpacing;
 			}
 			else
