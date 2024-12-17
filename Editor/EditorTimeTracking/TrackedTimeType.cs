@@ -11,6 +11,7 @@ namespace UnityEssentialsEditor.TimeTracking
 		PlaymodeTime = 1 << 2,
 		InactiveTime = 1 << 3,
 
-		All = ActiveEditorTime | UnfocusedEditorTime | PlaymodeTime | InactiveTime
+		All = ActiveEditorTime | UnfocusedEditorTime | PlaymodeTime | InactiveTime,
+		AllActive = ActiveEditorTime | UnfocusedEditorTime | PlaymodeTime,
 	}
 }
