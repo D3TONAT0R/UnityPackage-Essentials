@@ -10,20 +10,19 @@ namespace UnityEssentials
 	/// </summary>
 	public static class Coroutines
 	{
-
-		private static MonoInstance runnerInstance;
-		private static MonoInstance RunnerInstance
+		private static BlankMonoBehaviour RunnerInstance
 		{
 			get
 			{
 				if(!runnerInstance)
 				{
-					runnerInstance = new GameObject("Coroutine Runner").AddComponent<MonoInstance>();
+					runnerInstance = new GameObject("Coroutine Runner").AddComponent<BlankMonoBehaviour>();
 					runnerInstance.gameObject.hideFlags = HideFlags.HideAndDontSave;
 				}
 				return runnerInstance;
 			}
 		}
+		private static BlankMonoBehaviour runnerInstance;
 
 		#region Coroutine runners
 
