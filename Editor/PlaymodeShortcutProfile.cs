@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
+	/// <summary>
+	/// Manager for automatically switching to a specific shortcut profile when entering playmode.
+	/// </summary>
 	public static class PlaymodeShortcutProfile
 	{
 		private static string FilePath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "LastProfile.tmp");

@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
+	/// <summary>
+	/// Disposable helper class for temporarily setting the GUI indent level.
+	/// </summary>
 	public class CustomIndentLevelScope : IDisposable
 	{
 		private readonly int lastIndentLevel;
@@ -20,6 +23,9 @@ namespace UnityEssentialsEditor
 		}
 	}
 
+	/// <summary>
+	/// Disposable helper class for temporarily resetting the GUI indent level.
+	/// </summary>
 	public class ZeroIndentLevelScope : CustomIndentLevelScope
 	{
 		public ZeroIndentLevelScope() : base(0)
@@ -28,6 +34,9 @@ namespace UnityEssentialsEditor
 		}
 	}
 
+	/// <summary>
+	/// Disposable helper class for temporarily setting the GUI label width.
+	/// </summary>
 	public class LabelWidthScope : IDisposable
 	{
 		private readonly float lastLabelWidth;
@@ -55,6 +64,9 @@ namespace UnityEssentialsEditor
 		}
 	}
 
+	/// <summary>
+	/// Disposable helper class for temporarily changing the GUI's enabled state.
+	/// </summary>
 	public class EnabledScope : IDisposable
 	{
 		private readonly bool lastState;
@@ -71,6 +83,9 @@ namespace UnityEssentialsEditor
 		}
 	}
 
+	/// <summary>
+	/// Disposable helper class for temporarily setting the color of GUI elements.
+	/// </summary>
 	public class ColorScope : IDisposable
 	{
 		private readonly Color lastColor;

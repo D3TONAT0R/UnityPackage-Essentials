@@ -187,7 +187,7 @@ namespace UnityEssentialsEditor.Tools
 				settings.positionMax = Vector3.Max(EditorGUILayout.Vector3Field("Max", settings.positionMax), Vector3.zero);
 				PresetButtons(ref settings.positionMin, ref settings.positionMax, "0", "1", Vector2.zero, new Vector2(-1f, 1f));
 			}
-			settings.translationSpace = (Space)EditorGUIExtras.IntButtonField(new GUIContent("Space"), (int)settings.translationSpace, "World", "Local");
+			settings.translationSpace = (Space)EditorGUIExtras.HorizontalButtonGroup(new GUIContent("Space"), (int)settings.translationSpace, "World", "Local");
 
 			EditorGUILayout.Separator();
 			GUI.enabled = true;
@@ -196,7 +196,7 @@ namespace UnityEssentialsEditor.Tools
 			settings.rotationMin = EditorGUILayout.Vector3Field("Min", settings.rotationMin);
 			settings.rotationMax = EditorGUILayout.Vector3Field("Max", settings.rotationMax);
 			PresetButtons(ref settings.rotationMin, ref settings.rotationMax, "0", "F", Vector2.zero, new Vector2(-180, 180));
-			settings.rotationSpace = (Space)EditorGUIExtras.IntButtonField(new GUIContent("Space"), (int)settings.rotationSpace, "World", "Local");
+			settings.rotationSpace = (Space)EditorGUIExtras.HorizontalButtonGroup(new GUIContent("Space"), (int)settings.rotationSpace, "World", "Local");
 
 			EditorGUILayout.Separator();
 			GUI.enabled = true;

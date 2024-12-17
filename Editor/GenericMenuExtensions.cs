@@ -8,28 +8,43 @@ namespace UnityEssentialsEditor
 {
 	public static class GenericMenuExtensions
 	{
+		/// <summary>
+		/// Adds a menu item to the menu.
+		/// </summary>
 		public static void AddItem(this GenericMenu m, string content, bool enabled, bool on, GenericMenu.MenuFunction func)
 		{
 			if(enabled) m.AddItem(new GUIContent(content), on, func);
 			else m.AddDisabledItem(new GUIContent(content), on);
 		}
 
+		/// <summary>
+		/// Adds a menu item to the menu.
+		/// </summary>
 		public static void AddItem(this GenericMenu m, GUIContent content, bool enabled, bool on, GenericMenu.MenuFunction func)
 		{
 			if(enabled) m.AddItem(content, on, func);
 			else m.AddDisabledItem(content, on);
 		}
 
+		/// <summary>
+		/// Inserts a menu item to the menu at the given index.
+		/// </summary>
 		public static void InsertItem(this GenericMenu m, int index, string content, bool enabled, bool on, GenericMenu.MenuFunction func)
 		{
 			InsertItem(m, index, new GUIContent(content), enabled, on, func);
 		}
 
+		/// <summary>
+		/// Inserts a menu item to the menu at the given index.
+		/// </summary>
 		public static void InsertItem(this GenericMenu m, int index, GUIContent content, bool enabled, bool on, GenericMenu.MenuFunction func)
 		{
 			GetMenuItemList(m).Insert(index, CreateMenuItem(content, false, enabled, on, func));
 		}
 
+		/// <summary>
+		/// Inserts a separator to the menu at the given index.
+		/// </summary>
 		public static void InsertSeparator(this GenericMenu m, int index)
 		{
 			GUIContent path;
@@ -46,6 +61,9 @@ namespace UnityEssentialsEditor
 			GetMenuItemList(m).Insert(index, CreateMenuItem(path, true, false, false, null));
 		}
 
+		/// <summary>
+		/// Removes a menu item from the menu with the given name.
+		/// </summary>
 		public static bool RemoveItem(this GenericMenu m, string menuName)
 		{
 			var index = GetIndexOf(m, menuName);
@@ -53,11 +71,17 @@ namespace UnityEssentialsEditor
 			return index >= 0;
 		}
 
+		/// <summary>
+		/// Removes a menu item from the menu at the given index.
+		/// </summary>
 		public static void RemoveItemAt(this GenericMenu m, int index)
 		{
 			GetMenuItemList(m).RemoveAt(index);
 		}
 
+		/// <summary>
+		/// Returns the index of the menu item with the given name.
+		/// </summary>
 		public static int GetIndexOf(this GenericMenu m, string menuName)
 		{
 			var list = GetMenuItemList(m);
@@ -69,6 +93,9 @@ namespace UnityEssentialsEditor
 			return -1;
 		}
 
+		/// <summary>
+		/// Returns the <see cref="GUIContent"/> for the menu item at the given index.
+		/// </summary>
 		public static GUIContent GetContentAtIndex(this GenericMenu m, int index)
 		{
 			var item = GetMenuItemList(m)[index];
