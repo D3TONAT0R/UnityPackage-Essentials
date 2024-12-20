@@ -13,7 +13,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private static GUIStyle progressBarText = "ProgressBarText";
 
 		private static GUIStyle manualEditButton = "PaneOptions";
-		private static GUIStyle manualEditCloseButton = "WinBtnClose";
+		private static GUIStyle manualEditCloseButton = "ToolbarSearchCancelButton";
 
 		private bool manualEdit = false;
 
@@ -74,7 +74,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			position.SplitHorizontalRelative(0.85f, out position, out var barRect);
 			EditorGUI.BeginChangeCheck();
-			EditorGUI.PropertyField(position, property, label);
+			if(property.propertyType == SerializedPropertyType.Float) property.floatValue = EditorGUI.FloatField(position, label, property.floatValue);
+			else property.intValue = EditorGUI.IntField(position, label, property.intValue);
 			if(EditorGUI.EndChangeCheck())
 			{
 				if(property.propertyType == SerializedPropertyType.Float) property.floatValue = Mathf.Clamp(property.floatValue, attr.min, attr.max);
