@@ -8,17 +8,27 @@ namespace UnityEssentialsEditor
 	[CustomPropertyDrawer(typeof(ExpandAttribute), true)]
 	public class ExpandAttributeDrawer : PropertyDrawer
 	{
+		private const float BOX_PADDING = 4;
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var attribute = PropertyDrawerUtility.GetAttribute<ExpandAttribute>(property, true);
-			if(attribute.drawBox) GUI.Box(position, GUIContent.none);
+			var exAttribute = (ExpandAttribute)attribute;
+			if(exAttribute.drawBox)
+			{
+				var boxPos = position;
+				boxPos.xMin -= BOX_PADDING;
+				boxPos.xMax += BOX_PADDING;
+				GUI.Box(boxPos, GUIContent.none, EditorStyles.helpBox);
+				position.yMin += BOX_PADDING;
+				position.yMax -= BOX_PADDING;
+			}
 			property.isExpanded = true;
 			position.height = EditorGUIUtility.singleLineHeight;
 			EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
+			Random.InitState(0);
 			foreach(var child in GetDirectChildren(property))
 			{
-				//TODO: Get the correct height for the property
-				var height = EditorGUIUtility.singleLineHeight;
+				float height = EditorGUI.GetPropertyHeight(child);
 				position.NextProperty(height);
 				EditorGUI.PropertyField(position, child);
 			}
@@ -26,8 +36,11 @@ namespace UnityEssentialsEditor
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
+			var exAttribute = (ExpandAttribute)attribute;
 			property.isExpanded = true;
-			return EditorGUI.GetPropertyHeight(property, true);
+			float h = EditorGUI.GetPropertyHeight(property, true);
+			if(exAttribute.drawBox) h += BOX_PADDING * 2;
+			return h;
 		}
 
 		private static IEnumerable<SerializedProperty> GetDirectChildren(SerializedProperty parent)
