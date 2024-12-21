@@ -25,9 +25,10 @@ namespace UnityEssentialsEditor
 			property.isExpanded = true;
 			position.height = EditorGUIUtility.singleLineHeight;
 			EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
-			Random.InitState(0);
 			foreach(var child in GetDirectChildren(property))
 			{
+				//Skip properties that are hidden by ShowIfAttribute
+				if(!IsVisible(child)) continue;
 				float height = EditorGUI.GetPropertyHeight(child);
 				position.NextProperty(height);
 				EditorGUI.PropertyField(position, child);
@@ -53,5 +54,13 @@ namespace UnityEssentialsEditor
 			}
 		}
 
+		private static bool IsVisible(SerializedProperty property)
+		{
+			if(PropertyDrawerUtility.TryGetAttribute<ShowIfAttribute>(property, true, out var showIf))
+			{
+				return showIf.ShouldDraw(PropertyDrawerUtility.GetParent(property));
+			}
+			return true;
+		}
 	}
 }

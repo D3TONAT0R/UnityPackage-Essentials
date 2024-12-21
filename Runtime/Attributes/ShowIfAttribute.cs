@@ -23,6 +23,6 @@ namespace UnityEssentials
 			this.matches = matches;
 		}
 
-		public virtual bool ShouldDraw(object obj) => CheckMemberCondition(obj, memberName, matches);
+		public virtual bool ShouldDraw(object parentObject) => CheckMemberCondition(parentObject, memberName, matches);
 	}
 }
