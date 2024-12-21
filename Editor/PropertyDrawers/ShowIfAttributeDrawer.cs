@@ -18,7 +18,19 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			return ShouldDraw(property) ? EditorGUI.GetPropertyHeight(property, true) : 0;
+			if(ShouldDraw(property))
+			{
+				return EditorGUI.GetPropertyHeight(property, label);
+			}
+			else
+			{
+				int extraHeight = 0;
+                if(PropertyDrawerUtility.TryGetAttribute(property, true, out SpaceAttribute space))
+                {
+                    extraHeight += (int)space.height;
+				}
+				return -(EditorGUIUtility.standardVerticalSpacing + extraHeight);
+			}
 		}
 
 		private bool ShouldDraw(SerializedProperty property)
