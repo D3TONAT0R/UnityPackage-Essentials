@@ -3,7 +3,7 @@
 namespace UnityEssentials
 {
 	/// <summary>
-	/// Makes an inspector field editable only if a given condition matches a specific value.
+	/// Makes an inspector field visible only if a given field or property matches a specific value.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public class ShowIfAttribute : PropertyModifierAttribute

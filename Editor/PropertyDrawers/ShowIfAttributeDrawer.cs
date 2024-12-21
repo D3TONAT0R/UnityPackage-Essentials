@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
-	[CustomPropertyDrawer(typeof(ShowIfAttribute))]
+	[CustomPropertyDrawer(typeof(ShowIfAttribute), true)]
 	public class ShowIfAttributeDrawer : ModificationPropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -39,5 +39,4 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			return attr.ShouldDraw(PropertyDrawerUtility.GetParent(property));
 		}
 	}
-
 }
