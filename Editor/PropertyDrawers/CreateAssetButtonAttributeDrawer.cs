@@ -20,6 +20,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				if(GUI.Button(position, "New"))
 				{
 					CreateNewAssetDialog(property.serializedObject, property.propertyPath, type, ext);
+					GUIUtility.ExitGUI();
 				}
 			}
 			else
