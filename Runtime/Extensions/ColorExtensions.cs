@@ -150,7 +150,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Returns a version of this color with white blending applied.
 		/// </summary>
-		public static Color Whiten(this Color c, float factor)
+		public static Color Lighten(this Color c, float factor)
 		{
 			var a = c.a;
 			return Color.Lerp(c, Color.white, factor).WithAlpha(a);
@@ -159,7 +159,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Returns a version of this color with black blending applied.
 		/// </summary>
-		public static Color Blacken(this Color c, float factor)
+		public static Color Darken(this Color c, float factor)
 		{
 			var a = c.a;
 			return Color.Lerp(c, Color.black, factor).WithAlpha(a);

@@ -97,100 +97,100 @@ namespace UnityEssentials
 		/// <summary>
 		/// A 50% darker version of <see cref="red"/>.
 		/// </summary>
-		public static readonly Color darkRed = red.Blacken(0.5f);
+		public static readonly Color darkRed = red.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="orange"/>.
 		/// </summary>
-		public static readonly Color darkOrange = orange.Blacken(0.5f);
+		public static readonly Color darkOrange = orange.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="yellow"/>.
 		/// </summary>
-		public static readonly Color darkYellow = yellow.Blacken(0.5f);
+		public static readonly Color darkYellow = yellow.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="lime"/>.
 		/// </summary>
-		public static readonly Color darkLime = lime.Blacken(0.5f);
+		public static readonly Color darkLime = lime.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="green"/>.
 		/// </summary>
-		public static readonly Color darkGreen = green.Blacken(0.5f);
+		public static readonly Color darkGreen = green.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="emerald"/>.
 		/// </summary>
-		public static readonly Color darkEmerald = emerald.Blacken(0.5f);
+		public static readonly Color darkEmerald = emerald.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="cyan"/>.
 		/// </summary>
-		public static readonly Color darkCyan = cyan.Blacken(0.5f);
+		public static readonly Color darkCyan = cyan.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="azure"/>.
 		/// </summary>
-		public static readonly Color darkAzure = azure.Blacken(0.5f);
+		public static readonly Color darkAzure = azure.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="blue"/>.
 		/// </summary>
-		public static readonly Color darkBlue = blue.Blacken(0.5f);
+		public static readonly Color darkBlue = blue.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="purple"/>.
 		/// </summary>
-		public static readonly Color darkPurple = purple.Blacken(0.5f);
+		public static readonly Color darkPurple = purple.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="magenta"/>.
 		/// </summary>
-		public static readonly Color darkMagenta = magenta.Blacken(0.5f);
+		public static readonly Color darkMagenta = magenta.Darken(0.5f);
 		/// <summary>
 		/// A 50% darker version of <see cref="pink"/>.
 		/// </summary>
-		public static readonly Color darkPink = pink.Blacken(0.5f);
+		public static readonly Color darkPink = pink.Darken(0.5f);
 
 
 		/// <summary>
 		/// A 50% lighter version of <see cref="red"/>.
 		/// </summary>
-		public static readonly Color lightRed = red.Whiten(0.5f);
+		public static readonly Color lightRed = red.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="orange"/>.
 		/// </summary>
-		public static readonly Color lightOrange = orange.Whiten(0.5f);
+		public static readonly Color lightOrange = orange.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="yellow"/>.
 		/// </summary>
-		public static readonly Color lightYellow = yellow.Whiten(0.5f);
+		public static readonly Color lightYellow = yellow.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="lime"/>.
 		/// </summary>
-		public static readonly Color lightLime = lime.Whiten(0.5f);
+		public static readonly Color lightLime = lime.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="green"/>.
 		/// </summary>
-		public static readonly Color lightGreen = green.Whiten(0.5f);
+		public static readonly Color lightGreen = green.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="emerald"/>.
 		/// </summary>
-		public static readonly Color lightEmerald = emerald.Whiten(0.5f);
+		public static readonly Color lightEmerald = emerald.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="cyan"/>.
 		/// </summary>
-		public static readonly Color lightCyan = cyan.Whiten(0.5f);
+		public static readonly Color lightCyan = cyan.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="azure"/>.
 		/// </summary>
-		public static readonly Color lightAzure = azure.Whiten(0.5f);
+		public static readonly Color lightAzure = azure.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="blue"/>.
 		/// </summary>
-		public static readonly Color lightBlue = blue.Whiten(0.5f);
+		public static readonly Color lightBlue = blue.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="purple"/>.
 		/// </summary>
-		public static readonly Color lightPurple = purple.Whiten(0.5f);
+		public static readonly Color lightPurple = purple.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="magenta"/>.
 		/// </summary>
-		public static readonly Color lightMagenta = magenta.Whiten(0.5f);
+		public static readonly Color lightMagenta = magenta.Lighten(0.5f);
 		/// <summary>
 		/// A 50% lighter version of <see cref="pink"/>.
 		/// </summary>
-		public static readonly Color lightPink = pink.Whiten(0.5f);
+		public static readonly Color lightPink = pink.Lighten(0.5f);
 	}
 }
