@@ -13,6 +13,16 @@ namespace UnityEssentialsEditor
 		//TODO: check for invalid usage of ExpandAttribute
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.ObjectReference, SerializedPropertyType.Generic))
+			{
+				return;
+			}
+			if(PropertyDrawerUtility.GetTargetObjectOfProperty(property) is IDrawInlined)
+			{
+				EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Incompatible Attribute Usage)"));
+				return;
+			}
+
 			var expandAttribute = (ExpandAttribute)attribute;
 			if(property.propertyType == SerializedPropertyType.ObjectReference)
 			{
@@ -73,6 +83,12 @@ namespace UnityEssentialsEditor
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
+			bool incompatible = (property.propertyType != SerializedPropertyType.ObjectReference && property.propertyType != SerializedPropertyType.Generic)
+				|| PropertyDrawerUtility.GetTargetObjectOfProperty(property) is IDrawInlined;
+			if(incompatible)
+			{
+				return EditorGUIUtility.singleLineHeight;
+			}
 			var expandAttribute = (ExpandAttribute)attribute;
 			float height;
 			if(property.propertyType != SerializedPropertyType.ObjectReference)
