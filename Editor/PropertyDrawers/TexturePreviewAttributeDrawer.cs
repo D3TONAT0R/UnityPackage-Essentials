@@ -7,12 +7,14 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(TexturePreviewAttribute))]
 	public class TexturePreviewAttributeDrawer : PropertyDrawer
 	{
+		const int BOX_PADDING = 4;
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
 			var fieldPos = position;
 			var texturePos = position;
-			texturePos.xMin += EditorGUIUtility.labelWidth;
+			texturePos.xMin += EditorGUIUtility.labelWidth + 2;
 
 			fieldPos.height = EditorGUIUtility.singleLineHeight;
 			var attr = GetAttribute();
@@ -29,15 +31,22 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var texture = GetTextureFromProperty(property);
 			if(texture && !property.hasMultipleDifferentValues)
 			{
+				GUI.Box(texturePos, new GUIContent("", GetTextureInfo(texture)), EditorStyles.helpBox);
+				texturePos = texturePos.Inset(BOX_PADDING);
 				float imageAspect = (float)texture.width / texture.height;
-				Vector3 v = Vector3.up;
 				if(texturePos.GetAspectRatio() > imageAspect)
 				{
-					texturePos.width = texturePos.height * imageAspect;
+					float newWidth = texturePos.height * imageAspect;
+					float diff = texturePos.width - newWidth;
+					texturePos.width = newWidth;
+					texturePos.x += diff / 2;
 				}
 				else
 				{
-					texturePos.height = texturePos.width / imageAspect;
+					float newHeight = texturePos.width / imageAspect;
+					float diff = texturePos.height - newHeight;
+					texturePos.height = newHeight;
+					texturePos.y += diff / 2;
 				}
 				byte r = (byte)((attr.backgroundRGBA >> 24) & 0xFF);
 				byte g = (byte)((attr.backgroundRGBA >> 16) & 0xFF);
@@ -62,6 +71,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					h += EditorGUIUtility.standardVerticalSpacing;
 				}
 				h += attr.fixedHeight >= 0 ? attr.fixedHeight : Mathf.Min(texture.height, 256);
+				h += 2 * BOX_PADDING;
 			}
 			else
 			{
@@ -78,6 +88,15 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private Texture2D GetTextureFromProperty(SerializedProperty property)
 		{
 			return property.objectReferenceValue as Texture2D;
+		}
+
+		private string GetTextureInfo(Texture2D texture)
+		{
+			if(texture == null)
+			{
+				return null;
+			}
+			return $"\"{texture.name}\"\n{texture.width}x{texture.height}\n{texture.format}\n{texture.filterMode}";
 		}
 	}
 }
