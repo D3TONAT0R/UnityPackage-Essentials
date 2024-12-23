@@ -21,26 +21,37 @@ namespace UnityEssentialsEditor.Inspector
 			{
 				EditorGUILayout.Space(10);
 				EditorGUILayout.LabelField("Exposed Properties", EditorStyles.boldLabel);
-				using(new EditorGUI.DisabledScope(true))
+				int staticMembers = 0;
+				foreach(var prop in properties)
 				{
-					int staticMembers = 0;
-					foreach(var prop in properties)
+					var attribute = prop.GetCustomAttribute<ShowInInspectorAttribute>();
+					bool isStatic = prop.GetGetMethod(true).IsStatic;
+					var rect = EditorGUILayout.GetControlRect();
+					var value = prop.GetValue(isStatic ? null : target);
+					string name = attribute.customLabel ?? ObjectNames.NicifyVariableName(prop.Name);
+					if(isStatic)
 					{
-						bool isStatic = prop.GetGetMethod(true).IsStatic;
-						var value = prop.GetValue(isStatic ? null : target);
-						string name = ObjectNames.NicifyVariableName(prop.Name);
-						if(isStatic)
-						{
-							name += " *";
-							staticMembers++;
-						}
-						DrawProperty(name, prop.PropertyType, value);
+						name += " *";
+						staticMembers++;
 					}
-					if(staticMembers > 0)
+					GUI.enabled = true;
+					rect.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var fieldPos, 4);
+					EditorGUI.LabelField(labelPos, name);
+
+					bool editable = attribute.editableAtRuntime && EditorApplication.isPlaying && prop.SetMethod != null;
+					GUI.enabled = editable;
+					EditorGUI.BeginChangeCheck();
+					value = DrawProperty(fieldPos, prop.PropertyType, value);
+					if(EditorGUI.EndChangeCheck())
 					{
-						EditorGUILayout.Space(5);
-						GUILayout.Label("* = Static Members", EditorStyles.miniLabel);
+						prop.SetValue(isStatic ? null : target, value);
 					}
+					GUI.enabled = true;
+				}
+				if(staticMembers > 0)
+				{
+					EditorGUILayout.Space(2);
+					GUILayout.Label("* : Static Members", EditorStyles.miniLabel);
 				}
 			}
 		}
@@ -60,26 +71,34 @@ namespace UnityEssentialsEditor.Inspector
 			}
 		}
 
-		private void DrawProperty(string label, Type type, object value)
+		private object DrawProperty(Rect pos, Type type, object value)
 		{
-			if(type == typeof(bool)) EditorGUILayout.Toggle(label, (bool)value);
-			else if(IsIntegerType(type)) EditorGUILayout.LongField(label, Convert.ToInt64(value));
-			else if(IsFloatingPointType(type)) EditorGUILayout.DoubleField(label, Convert.ToDouble(value));
-			else if(type == typeof(string)) EditorGUILayout.TextField(label, (string)value);
-			else if(type == typeof(Vector2)) EditorGUILayout.Vector2Field(label, (Vector2)value);
-			else if(type == typeof(Vector3)) EditorGUILayout.Vector3Field(label, (Vector3)value);
-			else if(type == typeof(Vector4)) EditorGUILayout.Vector4Field(label, (Vector4)value);
-			else if(type == typeof(Quaternion)) EditorGUILayout.Vector4Field(label, new Vector4(((Quaternion)value).x, ((Quaternion)value).y, ((Quaternion)value).z, ((Quaternion)value).w));
-			else if(type == typeof(Color)) EditorGUILayout.ColorField(label, (Color)value);
-			else if(type == typeof(Color32)) EditorGUILayout.ColorField(label, (Color32)value);
-			else if(type == typeof(Rect)) EditorGUILayout.RectField(label, (Rect)value);
-			else if(type == typeof(Bounds)) EditorGUILayout.BoundsField(label, (Bounds)value);
-			else if(type == typeof(LayerMask)) EditorGUILayout.LayerField(label, (LayerMask)value);
-			else if(type == typeof(AnimationCurve)) EditorGUILayout.CurveField(label, (AnimationCurve)value);
-			else if(type == typeof(Gradient)) EditorGUILayout.GradientField(label, (Gradient)value);
-			else if(type == typeof(RectInt)) EditorGUILayout.RectIntField(label, (RectInt)value);
-			else if(typeof(UnityEngine.Object).IsAssignableFrom(type)) EditorGUILayout.ObjectField(label, (UnityEngine.Object)value, type, false);
-			else EditorGUILayout.LabelField(name, value?.ToString() ?? "(null)");
+			if(type == typeof(bool)) return EditorGUI.Toggle(pos, (bool)value);
+			else if(IsIntegerType(type)) return EditorGUI.LongField(pos, Convert.ToInt64(value));
+			else if(IsFloatingPointType(type)) return EditorGUI.DoubleField(pos, Convert.ToDouble(value));
+			else if(type == typeof(string)) return EditorGUI.TextField(pos, (string)value);
+			else if(type == typeof(Vector2)) return EditorGUI.Vector2Field(pos, GUIContent.none, (Vector2)value);
+			else if(type == typeof(Vector3)) return EditorGUI.Vector3Field(pos, GUIContent.none, (Vector3)value);
+			else if(type == typeof(Vector4)) return EditorGUI.Vector4Field(pos, GUIContent.none, (Vector4)value);
+			else if(type == typeof(Quaternion)) return EditorGUI.Vector4Field(pos, GUIContent.none, new Vector4(((Quaternion)value).x, ((Quaternion)value).y, ((Quaternion)value).z, ((Quaternion)value).w));
+			else if(type == typeof(Color)) return EditorGUI.ColorField(pos, (Color)value);
+			else if(type == typeof(Color32)) return EditorGUI.ColorField(pos, (Color32)value);
+			else if(type == typeof(Rect)) return EditorGUI.RectField(pos, (Rect)value);
+			else if(type == typeof(Bounds)) return EditorGUI.BoundsField(pos, (Bounds)value);
+			else if(type == typeof(LayerMask)) return EditorGUI.LayerField(pos, (LayerMask)value);
+			else if(type == typeof(AnimationCurve)) return EditorGUI.CurveField(pos, (AnimationCurve)value);
+			else if(type == typeof(Gradient)) return EditorGUI.GradientField(pos, (Gradient)value);
+			else if(type == typeof(RectInt)) return EditorGUI.RectIntField(pos, (RectInt)value);
+			else if(typeof(UnityEngine.Object).IsAssignableFrom(type))
+			{
+				bool allowSceneObjects = typeof(Component).IsAssignableFrom(type) || type == typeof(GameObject);
+				return EditorGUI.ObjectField(pos, (UnityEngine.Object)value, type, allowSceneObjects);
+			}
+			else
+			{
+				EditorGUI.LabelField(pos, value?.ToString() ?? "(null)");
+				return value;
+			}
 		}
 
 		private bool IsIntegerType(Type t)

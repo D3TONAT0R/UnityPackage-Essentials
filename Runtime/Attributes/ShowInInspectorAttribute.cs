@@ -7,6 +7,13 @@ namespace UnityEssentials
 	/// </summary>
 	public class ShowInInspectorAttribute : Attribute
 	{
+		public string customLabel;
+		public bool editableAtRuntime;
 
+		public ShowInInspectorAttribute(string customLabel = null, bool editableAtRuntime = true)
+		{
+			this.customLabel = customLabel;
+			this.editableAtRuntime = editableAtRuntime;
+		}
 	} 
 }
