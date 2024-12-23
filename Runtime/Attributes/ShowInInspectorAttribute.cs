@@ -9,10 +9,12 @@ namespace UnityEssentials
 	{
 		public string customLabel;
 		public bool editableAtRuntime;
+		public string category;
 
-		public ShowInInspectorAttribute(string customLabel = null, bool editableAtRuntime = true)
+		public ShowInInspectorAttribute(string customLabel = null, string category = null, bool editableAtRuntime = true)
 		{
 			this.customLabel = customLabel;
+			this.category = category;
 			this.editableAtRuntime = editableAtRuntime;
 		}
 	} 

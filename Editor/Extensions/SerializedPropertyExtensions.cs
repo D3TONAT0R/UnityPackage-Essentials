@@ -23,6 +23,14 @@ namespace UnityEssentialsEditor
 		}
 
 		/// <summary>
+		/// Gets the parent object containing this SerializedProperty.
+		/// </summary>
+		public static object GetParentObject(this SerializedProperty prop)
+		{
+			return PropertyDrawerUtility.GetParent(prop);
+		}
+
+		/// <summary>
 		/// Gets the attribute declared on this SerializedProperty.
 		/// </summary>
 		public static T GetAttribute<T>(this SerializedProperty prop, bool inherit = true) where T : Attribute

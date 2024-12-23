@@ -8,7 +8,7 @@ using UnityEssentials;
 
 namespace UnityEssentialsEditor.Inspector
 {
-	[CustomEditor(typeof(MonoBehaviour), true)]
+	//CustomEditor(typeof(MonoBehaviour), true)]
 	public class ExtendedMonoBehaviourEditor : Editor
 	{
 		private static Dictionary<Type, PropertyInfo[]> exposedProperties = new Dictionary<Type, PropertyInfo[]>();
