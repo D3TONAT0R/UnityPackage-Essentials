@@ -9,7 +9,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			if(PropertyDrawerUtility.GetAttribute<ReadOnlyAttribute>(property, true).asFields)
+			if(PropertyDrawerUtility.GetAttribute<ReadOnlyAttribute>(property, true).drawAsFields)
 			{
 				var lEnabledState = GUI.enabled;
 				GUI.enabled = false;
@@ -24,7 +24,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			if(PropertyDrawerUtility.GetAttribute<ReadOnlyAttribute>(property, true).asFields)
+			if(PropertyDrawerUtility.GetAttribute<ReadOnlyAttribute>(property, true).drawAsFields)
 			{
 				return base.GetPropertyHeight(property, label);
 			}

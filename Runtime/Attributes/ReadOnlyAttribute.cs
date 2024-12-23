@@ -9,16 +9,16 @@ namespace UnityEssentials
 	[AttributeUsage(AttributeTargets.Field)]
 	public class ReadOnlyAttribute : PropertyAttribute
 	{
-		public bool asFields;
+		public bool drawAsFields;
 
 		public ReadOnlyAttribute() : this(false)
 		{
 
 		}
 
-		public ReadOnlyAttribute(bool asFields)
+		public ReadOnlyAttribute(bool drawAsFields)
 		{
-			this.asFields = asFields;
+			this.drawAsFields = drawAsFields;
 		}
 	}
 }

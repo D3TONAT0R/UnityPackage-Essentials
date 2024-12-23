@@ -635,7 +635,20 @@ namespace UnityEssentialsEditor
 					return true;
 				}
 			}
+			EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Invalid Attribute Usage)"));
+			return false;
+		}
 
+		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label, params Type[] types)
+		{
+			var type = GetTypeOfProperty(property);
+			foreach(var t in types)
+			{
+				if(t.IsAssignableFrom(type))
+				{
+					return true;
+				}
+			}
 			EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Invalid Attribute Usage)"));
 			return false;
 		}

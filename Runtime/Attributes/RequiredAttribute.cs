@@ -15,6 +15,7 @@ namespace UnityEssentials
 		public RequiredAttribute(params Type[] requiredComponents)
 		{
 			components = requiredComponents;
+			order = -100;
 		}
 	}
 }

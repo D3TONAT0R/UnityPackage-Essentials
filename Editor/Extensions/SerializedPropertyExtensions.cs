@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace UnityEssentialsEditor
@@ -19,6 +20,38 @@ namespace UnityEssentialsEditor
 		public static T GetValueObject<T>(this SerializedProperty prop)
 		{
 			return PropertyDrawerUtility.GetTargetObjectOfProperty<T>(prop);
+		}
+
+		/// <summary>
+		/// Gets the attribute declared on this SerializedProperty.
+		/// </summary>
+		public static T GetAttribute<T>(this SerializedProperty prop, bool inherit = true) where T : Attribute
+		{
+			return PropertyDrawerUtility.GetAttribute<T>(prop, inherit);
+		}
+
+		/// <summary>
+		/// Gets the attribute declared on this SerializedProperty.
+		/// </summary>
+		public static bool TryGetAttribute<T>(this SerializedProperty prop, out T attribute) where T : Attribute
+		{
+			return PropertyDrawerUtility.TryGetAttribute<T>(prop, true, out attribute);
+		}
+
+		/// <summary>
+		/// Returns the managed type of this property.
+		/// </summary>
+		public static Type GetManagedType(this SerializedProperty prop)
+		{
+			return PropertyDrawerUtility.GetTypeOfProperty(prop);
+		}
+
+		/// <summary>
+		/// Gets the attribute declared on this SerializedProperty.
+		/// </summary>
+		public static bool TryGetAttribute<T>(this SerializedProperty prop, bool inherit, out T attribute) where T : Attribute
+		{
+			return PropertyDrawerUtility.TryGetAttribute<T>(prop, inherit, out attribute);
 		}
 
 		/// <summary>
