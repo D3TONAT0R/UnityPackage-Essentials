@@ -26,58 +26,70 @@ namespace UnityEssentialsEditor
 			var expandAttribute = (ExpandAttribute)attribute;
 			if(property.propertyType == SerializedPropertyType.ObjectReference)
 			{
-				if(property.isExpanded && expandAttribute.drawBox)
-				{
-					var boxPos = position;
-					boxPos.xMin -= BOX_PADDING - 15;
-					boxPos.xMax += BOX_PADDING;
-					boxPos.yMin += EditorGUIUtility.singleLineHeight + 2;
-					GUI.Box(boxPos, GUIContent.none, EditorStyles.helpBox);
-				}
-				position.height = EditorGUIUtility.singleLineHeight;
-				position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var fieldPos, 4);
-				property.isExpanded = EditorGUI.Foldout(labelPos, property.isExpanded, label);
-				EditorGUI.PropertyField(fieldPos, property, GUIContent.none);
-				var obj = property.objectReferenceValue;
-				if(property.isExpanded && obj != null)
-				{
-					if(expandAttribute.drawBox) position.y += BOX_PADDING;
-					EditorGUI.indentLevel++;
-					var so = new SerializedObject(obj);
-					var prop = so.GetIterator();
-					prop.NextVisible(true);
-					while(prop.NextVisible(false))
-					{
-						if(!IsVisible(prop)) continue;
-						position.NextProperty(EditorGUI.GetPropertyHeight(prop));
-						EditorGUI.PropertyField(position, prop);
-					}
-					so.ApplyModifiedProperties();
-					EditorGUI.indentLevel--;
-				}
+				DrawUnityObjectReference(position, property, label, expandAttribute);
 			}
 			else
 			{
-				if(expandAttribute.drawBox)
+				DrawClassReference(position, property, label, expandAttribute);
+			}
+		}
+
+		private static void DrawClassReference(Rect position, SerializedProperty property, GUIContent label,
+			ExpandAttribute expandAttribute)
+		{
+			if(expandAttribute.drawBox)
+			{
+				var boxPos = position;
+				boxPos.xMin -= BOX_PADDING;
+				boxPos.xMax += BOX_PADDING;
+				GUI.Box(boxPos, GUIContent.none, EditorStyles.helpBox);
+				position.yMin += BOX_PADDING;
+				position.yMax -= BOX_PADDING;
+			}
+			property.isExpanded = true;
+			position.height = EditorGUIUtility.singleLineHeight;
+			EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
+			foreach(var child in GetDirectChildren(property))
+			{
+				//Skip properties that are hidden by ShowIfAttribute
+				if(!IsVisible(child)) continue;
+				float height = EditorGUI.GetPropertyHeight(child);
+				position.NextProperty(height);
+				EditorGUI.PropertyField(position, child);
+			}
+		}
+
+		private static void DrawUnityObjectReference(Rect position, SerializedProperty property, GUIContent label,
+			ExpandAttribute expandAttribute)
+		{
+			var obj = property.objectReferenceValue;
+			if(property.isExpanded && expandAttribute.drawBox && obj != null)
+			{
+				var boxPos = position;
+				boxPos.xMin -= BOX_PADDING - 15;
+				boxPos.xMax += BOX_PADDING;
+				boxPos.yMin += EditorGUIUtility.singleLineHeight + 2;
+				GUI.Box(boxPos, GUIContent.none, EditorStyles.helpBox);
+			}
+			position.height = EditorGUIUtility.singleLineHeight;
+			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var fieldPos, 4);
+			property.isExpanded = EditorGUI.Foldout(labelPos, property.isExpanded, label);
+			EditorGUI.PropertyField(fieldPos, property, GUIContent.none);
+			if(property.isExpanded && obj != null)
+			{
+				if(expandAttribute.drawBox) position.y += BOX_PADDING;
+				EditorGUI.indentLevel++;
+				var so = new SerializedObject(obj);
+				var prop = so.GetIterator();
+				prop.NextVisible(true);
+				while(prop.NextVisible(false))
 				{
-					var boxPos = position;
-					boxPos.xMin -= BOX_PADDING;
-					boxPos.xMax += BOX_PADDING;
-					GUI.Box(boxPos, GUIContent.none, EditorStyles.helpBox);
-					position.yMin += BOX_PADDING;
-					position.yMax -= BOX_PADDING;
+					if(!IsVisible(prop)) continue;
+					position.NextProperty(EditorGUI.GetPropertyHeight(prop));
+					EditorGUI.PropertyField(position, prop);
 				}
-				property.isExpanded = true;
-				position.height = EditorGUIUtility.singleLineHeight;
-				EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
-				foreach(var child in GetDirectChildren(property))
-				{
-					//Skip properties that are hidden by ShowIfAttribute
-					if(!IsVisible(child)) continue;
-					float height = EditorGUI.GetPropertyHeight(child);
-					position.NextProperty(height);
-					EditorGUI.PropertyField(position, child);
-				}
+				so.ApplyModifiedProperties();
+				EditorGUI.indentLevel--;
 			}
 		}
 
