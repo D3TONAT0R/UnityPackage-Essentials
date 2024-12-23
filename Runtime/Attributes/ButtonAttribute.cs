@@ -47,6 +47,7 @@ namespace UnityEssentials
 		/// Note that method overloads are currently unsupported.</param>
 		public ButtonAttribute(params string[] buttons)
 		{
+			order = -10;
 			labels = new string[buttons.Length];
 			methodNames = new string[buttons.Length];
 			arguments = new string[buttons.Length][];

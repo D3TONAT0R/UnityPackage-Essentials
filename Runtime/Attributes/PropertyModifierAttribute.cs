@@ -10,6 +10,10 @@ namespace UnityEssentials
 	[AttributeUsage(AttributeTargets.Field)]
 	public abstract class PropertyModifierAttribute : PropertyAttribute
 	{
+		protected PropertyModifierAttribute()
+		{
+			order = -200;
+		}
 
 		protected static bool CheckMemberCondition(object target, string memberName, object[] matches)
 		{
