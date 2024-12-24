@@ -112,7 +112,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				}
 				else if(type == typeof(float))
 				{
-					if(args[i].ToLower().EndsWith('f')) args[i] = args[i].Substring(0, args[i].Length - 1);
+					if(args[i].ToLower().EndsWith("f")) args[i] = args[i].Substring(0, args[i].Length - 1);
 					if(float.TryParse(args[i], out float result))
 					{
 						parameters[i] = result;
@@ -125,7 +125,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				}
 				else if(type == typeof(double))
 				{
-					if(args[i].ToLower().EndsWith('d')) args[i] = args[i].Substring(0, args[i].Length - 1);
+					if(args[i].ToLower().EndsWith("d")) args[i] = args[i].Substring(0, args[i].Length - 1);
 					if(double.TryParse(args[i], out double result))
 					{
 						parameters[i] = result;
