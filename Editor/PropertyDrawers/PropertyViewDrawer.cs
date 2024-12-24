@@ -31,18 +31,23 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			GatherPropertiesToShow(property);
 			position.height = EditorGUIUtility.singleLineHeight;
-			EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
+			var viewAttribute = property.GetAttribute<PropertyViewAttribute>();
+			if(viewAttribute == null || viewAttribute.showTitle)
+			{
+				EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
+				position.NextProperty();
+			}
 			var parent = property.GetParentObject();
 			foreach (var prop in propertiesToShow)
 			{
-				position.NextProperty();
 				DrawExposedPropertyField(position, prop, parent);
+				position.NextProperty();
 			}
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			int lines = 1;
+			int lines = (property.TryGetAttribute<PropertyViewAttribute>(out var a) && !a.showTitle) ? 0 : 1;
 			GatherPropertiesToShow(property);
 			foreach(var prop in propertiesToShow)
 			{
@@ -61,7 +66,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				name += " *";
 			}
 			GUI.enabled = true;
-			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var fieldPos, 4);
+			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var fieldPos, 2);
 			EditorGUI.LabelField(labelPos, name);
 
 			bool editable = prop.attribute.editableAtRuntime && EditorApplication.isPlaying && prop.property.SetMethod != null;
@@ -77,12 +82,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static void GatherPropertiesToShow(SerializedProperty property)
 		{
-			var name = property.name;
 			var parent = property.GetParentObject();
 			propertiesToShow.Clear();
+			var attribute = property.GetAttribute<PropertyViewAttribute>();
+			var category = attribute?.category;
 			foreach(var prop in GetExposedProperties(parent))
 			{
-				if(string.IsNullOrEmpty(prop.attribute.category) || prop.attribute.category == name)
+				if(prop.attribute.category == category)
 				{
 					propertiesToShow.Add(prop);
 				}
