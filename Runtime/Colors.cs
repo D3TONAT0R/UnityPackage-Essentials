@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace UnityEssentials
 {
@@ -194,6 +195,67 @@ namespace UnityEssentials
 		/// A 50% lighter version of <see cref="pink"/>.
 		/// </summary>
 		public static readonly Color lightPink = pink.Lighten(0.5f);
+		#endregion
+
+		#region Color conversions
+		/// <summary>
+		/// Converts the given color to a 32-bit integer.
+		/// </summary>
+		public static int ToInt(Color32 color, bool includeAlpha = true)
+		{
+			if(includeAlpha)
+			{
+				return (color.r << 24) | (color.g << 16) | (color.b << 8) | color.a;
+			}
+			else
+			{
+				return (color.r << 16) | (color.g << 8) | color.b;
+			}
+		}
+
+		/// <summary>
+		/// Converts the given color to hex code.
+		/// </summary>
+		public static string ToHex(Color32 color, bool includeAlpha = true)
+		{
+			int i = ToInt(color, includeAlpha);
+			return Convert.ToString(i, 16).ToUpper().PadLeft(includeAlpha ? 8 : 6, '0');
+		}
+
+		/// <summary>
+		/// Creates a color from the given 32-bit integer.
+		/// </summary>
+		public static Color32 FromInt(int value, bool includeAlpha = true)
+		{
+			if(includeAlpha)
+			{
+				byte r = (byte)((value >> 24) & 0xFF);
+				byte g = (byte)((value >> 16) & 0xFF);
+				byte b = (byte)((value >> 8) & 0xFF);
+				byte a = (byte)(value & 0xFF);
+				return new Color32(r, g, b, a);
+			}
+			else
+			{
+				byte r = (byte)((value >> 16) & 0xFF);
+				byte g = (byte)((value >> 8) & 0xFF);
+				byte b = (byte)(value & 0xFF);
+				return new Color32(r, g, b, 255);
+			}
+		}
+
+		/// <summary>
+		/// Creates a color from the given hex code.
+		/// </summary>
+		public static Color32 FromHex(string hex)
+		{
+			bool includeAlpha;
+			if(hex.Length == 8) includeAlpha = true;
+			else if(hex.Length == 6) includeAlpha = false;
+			else throw new ArgumentException("Color hex code must be either 6 or 8 characters long.");
+			int i = Convert.ToInt32(hex, 16);
+			return FromInt(i, includeAlpha);
+		}
 		#endregion
 
 		#region Color Temperature
