@@ -11,15 +11,9 @@ namespace UnityEssentials
 		private readonly string memberName;
 		private readonly object[] matches;
 
-		public ShowIfAttribute(string member, object matches)
+		public ShowIfAttribute(string memberName, params object[] matches)
 		{
-			memberName = member;
-			this.matches = new object[] { matches };
-		}
-
-		public ShowIfAttribute(string member, params object[] matches)
-		{
-			memberName = member;
+			this.memberName = memberName;
 			this.matches = matches;
 		}
 

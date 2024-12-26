@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
-	[CustomPropertyDrawer(typeof(EnabledIfAttribute))]
+	[CustomPropertyDrawer(typeof(EnabledIfAttribute), true)]
 	public class EnabledIfAttributeDrawer : ModificationPropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

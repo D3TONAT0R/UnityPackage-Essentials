@@ -3,7 +3,7 @@
 namespace UnityEssentials
 {
 	/// <summary>
-	/// Makes an inspector field editable only if a given condition matches a specific value.
+	/// Makes an inspector field editable only if a given field or property matches a specific value.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public class EnabledIfAttribute : PropertyModifierAttribute
@@ -11,15 +11,9 @@ namespace UnityEssentials
 		private readonly string memberName;
 		private readonly object[] matches;
 
-		public EnabledIfAttribute(string member, object matches)
+		public EnabledIfAttribute(string memberName, params object[] matches)
 		{
-			memberName = member;
-			this.matches = new object[] { matches };
-		}
-
-		public EnabledIfAttribute(string member, params object[] matches)
-		{
-			memberName = member;
+			this.memberName = memberName;
 			this.matches = matches;
 		}
 

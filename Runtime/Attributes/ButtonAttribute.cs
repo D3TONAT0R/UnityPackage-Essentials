@@ -9,6 +9,7 @@ namespace UnityEssentials
 	/// <summary>
 	/// Draws a clickable button above or below a field in the inspector.
 	/// </summary>
+	//TODO: Incompatible with ShowIf / HideIf / EnabledIf / DisabledIf
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class ButtonAttribute : PropertyAttribute
 	{
