@@ -14,90 +14,122 @@ namespace UnityEssentials
 		private abstract class GizmoInstance
 		{
 			public readonly float duration;
-			public float timeLeft;
-			public Color color;
+			public readonly Color color;
+			private readonly float spawnTime;
+			private float lastDrawTime;
+
+			public float Life => SingleFrame ? 1f : 1f - (Time.unscaledTime - spawnTime) / duration;
+			private bool SingleFrame => duration <= 0;
+
+			public bool Expired
+			{
+				get
+				{
+					if(SingleFrame) return Time.unscaledTime > spawnTime && (lastDrawTime != 0 && lastDrawTime < Time.unscaledTime);
+					else return Time.unscaledTime - spawnTime > duration;
+				}
+			}
 
 			protected GizmoInstance(Color color, float duration)
 			{
+				spawnTime = Time.unscaledTime;
 				this.duration = duration;
-				timeLeft = duration;
 				this.color = color;
 			}
 
-			public abstract void Draw();
+			public void Draw()
+			{
+				lastDrawTime = Time.unscaledTime;
+				DrawGizmos();
+			}
+
+			protected abstract void DrawGizmos();
 		}
 
 		private class RaycastGizmoInstance : GizmoInstance
 		{
-			private Ray ray;
-			private float radius;
-			private IEnumerable<RaycastHit> hits;
-			private float distance;
+			protected readonly Ray ray;
+			protected readonly float hitSize;
+			protected readonly float distance;
+			protected IEnumerable<RaycastHit> hits;
 
-			public RaycastGizmoInstance(Ray ray, float radius, IEnumerable<RaycastHit> hits, float distance, Color color, float duration) : base(color, duration)
+			public RaycastGizmoInstance(Ray ray, float hitSize, IEnumerable<RaycastHit> hits, float distance, Color color, float duration) : base(color, duration)
 			{
 				this.ray = ray;
-				this.radius = Mathf.Max(0, radius);
+				this.hitSize = Mathf.Max(0, hitSize);
 				this.hits = hits;
 				this.distance = distance;
 			}
 
-			public override void Draw()
+			protected override void DrawGizmos()
 			{
-				if(radius > 0)
-				{
-					Gizmos.DrawWireSphere(ray.origin, radius);
-					if(hits == null || hits.Count() == 0) Gizmos.DrawWireSphere(ray.origin + ray.direction * distance, radius);
-				}
 				Gizmos.DrawLine(ray.origin, ray.origin + ray.direction * distance);
 				if(hits != null)
 				{
 					foreach(var hit in hits)
 					{
-						if(hit.collider)
-						{
-							if(radius > 0)
-							{
-								Gizmos.DrawWireSphere(hit.point + hit.normal * radius, radius);
-							}
-							else
-							{
-								Gizmos.DrawWireCube(hit.point, Vector3.one * 0.05f);
-							}
-							Gizmos.color = Gizmos.color.MultiplyAlpha(0.5f);
-							Gizmos.DrawLine(hit.point, hit.point + hit.normal * 0.25f);
-						}
+						if (!hit.collider) continue;
+						Gizmos.matrix = Matrix4x4.TRS(hit.point, Quaternion.LookRotation(hit.normal), Vector3.one);
+						Gizmos.DrawWireCube(Vector3.zero, Vector3.one * hitSize);
+						Gizmos.DrawLine(Vector3.zero, Vector3.forward * hitSize * 2f);
 					}
 				}
-				else
+			}
+		}
+
+		private class SphereCastGizmoInstance : RaycastGizmoInstance
+		{
+			public SphereCastGizmoInstance(Ray ray, float hitSize, IEnumerable<RaycastHit> hits, float distance, Color color, float duration)
+				: base(ray, hitSize, hits, distance, color, duration)
+			{
+				
+			}
+
+			protected override void DrawGizmos()
+			{
+				var matrix = Matrix4x4.TRS(ray.origin, Quaternion.LookRotation(ray.direction), Vector3.one);
+				var inverseMatrix = matrix.inverse;
+				Gizmos.matrix = matrix;
+				ExtraGizmos.DrawWireCircle(Vector3.zero, Vector3.forward, hitSize, 16);
+				ExtraGizmos.DrawWireCircle(Vector3.forward * distance, Vector3.forward, hitSize, 16);
+				ExtraGizmos.DrawLineFrom(Vector3.up * hitSize, Vector3.forward, distance);
+				ExtraGizmos.DrawLineFrom(Vector3.right * hitSize, Vector3.forward, distance);
+				ExtraGizmos.DrawLineFrom(Vector3.down * hitSize, Vector3.forward, distance);
+				ExtraGizmos.DrawLineFrom(Vector3.left * hitSize, Vector3.forward, distance);
+				foreach(var hit in hits)
 				{
-					if(radius > 0) Gizmos.DrawWireSphere(ray.origin, radius);
+					if(!hit.collider) continue;
+					var localPos = inverseMatrix.MultiplyPoint(hit.point);
+					var localNormal = inverseMatrix.MultiplyVector(hit.normal);
+					Gizmos.DrawWireSphere(localPos + localNormal * hitSize, hitSize);
+					ExtraGizmos.DrawPoint(localPos, hitSize / 2, false);
 				}
 			}
 		}
 
 		private class PointGizmoInstance : GizmoInstance
 		{
-			private Vector3 position;
-			private float size;
+			private readonly Vector3 position;
+			private readonly float size;
+			private readonly bool constantSize;
 
-			public PointGizmoInstance(Vector3 position, float size, Color color, float duration) : base(color, duration)
+			public PointGizmoInstance(Vector3 position, float size, Color color, float duration, bool constantSize) : base(color, duration)
 			{
 				this.position = position;
 				this.size = size;
+				this.constantSize = constantSize;
 			}
 
-			public override void Draw()
+			protected override void DrawGizmos()
 			{
-				ExtraGizmos.DrawCrosshair(position, size);
+				ExtraGizmos.DrawPoint(position, size, false, constantSize);
 			}
 		}
 
-
 		private class LineGizmoInstance : GizmoInstance
 		{
-			private Vector3 start;
-			private Vector3 end;
+			private readonly Vector3 start;
+			private readonly Vector3 end;
 
 			public LineGizmoInstance(Vector3 start, Vector3 end, Color color, float duration) : base(color, duration)
 			{
@@ -105,9 +137,24 @@ namespace UnityEssentials
 				this.end = end;
 			}
 
-			public override void Draw()
+			protected override void DrawGizmos()
 			{
 				Gizmos.DrawLine(start, end);
+			}
+		}
+
+		private class CustomGizmoInstance : GizmoInstance
+		{
+			private readonly Action drawer;
+
+			public CustomGizmoInstance(Action drawer, Color color, float duration) : base(color, duration)
+			{
+				this.drawer = drawer;
+			}
+
+			protected override void DrawGizmos()
+			{
+				drawer?.Invoke();
 			}
 		}
 
@@ -123,53 +170,51 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Temporarily draws a raycast trajectory and its hit point as gizmos.
+		/// Temporarily draws a Raycast trajectory and its hit point as gizmos.
 		/// </summary>
-		public static void DebugRaycast(Ray ray, RaycastHit? hit = null, float maxDistance = 1000, Color? color = null, float duration = 1f)
+		public static void DrawRaycast(Ray ray, RaycastHit? hit = null, float maxDistance = 1000, float hitSize = 0.05f, Color? color = null, float duration = 1f)
 		{
 			var distance = GetMaxDistance(hit.HasValue ? new RaycastHit[] { hit.Value } : null, 1, maxDistance);
-			AddGizmo(new RaycastGizmoInstance(ray, 0, hit.HasValue ? new RaycastHit[] { hit.Value } : null, distance, color ?? Color.white, duration));
+			AddGizmo(new RaycastGizmoInstance(ray, hitSize, hit.HasValue ? new RaycastHit[] { hit.Value } : Array.Empty<RaycastHit>(), distance, color ?? Color.white, duration));
 		}
 
 		/// <summary>
-		/// Temporarily draws a raycast trajectory and all hit points as gizmos.
+		/// Temporarily draws a Raycast trajectory and all hit points as gizmos.
 		/// </summary>
-		public static void DebugRaycastAll(Ray ray, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null, float duration = 1f)
+		public static void DrawRaycastAll(Ray ray, RaycastHit[] hits, int hitCount, float maxDistance = 1000, float hitSize = 0.05f, Color? color = null, float duration = 1f)
 		{
-			var distance = GetMaxDistance(hits, hitCount, maxDistance);
-			AddGizmo(new RaycastGizmoInstance(ray, 0, hits, distance, color ?? Color.white, duration));
+			AddGizmo(new RaycastGizmoInstance(ray, hitSize, hits, maxDistance, color ?? Color.white, duration));
 		}
 
 		/// <summary>
-		/// Temporarily draws a spherecast trajectory and its hit point as gizmos.
+		/// Temporarily draws a SphereCast trajectory and its hit point as gizmos.
 		/// </summary>
-		public static void DebugSphereCast(Ray ray, float radius, RaycastHit? hit = null, float maxDistance = 1000, Color? color = null, float duration = 1f)
+		public static void DrawSphereCast(Ray ray, float radius, RaycastHit? hit = null, float maxDistance = 1000, Color? color = null, float duration = 1f)
 		{
 			var distance = GetMaxDistance(hit.HasValue ? new RaycastHit[] { hit.Value } : null, 1, maxDistance);
-			AddGizmo(new RaycastGizmoInstance(ray, radius, hit.HasValue ? new RaycastHit[] { hit.Value } : null, distance, color ?? Color.white, duration));
+			AddGizmo(new SphereCastGizmoInstance(ray, radius, hit.HasValue ? new RaycastHit[] { hit.Value } : Array.Empty<RaycastHit>(), distance, color ?? Color.white, duration));
 		}
 
 		/// <summary>
-		/// Temporarily draws a spherecast trajectory and all its hit points as gizmos.
+		/// Temporarily draws a SphereCast trajectory and all its hit points as gizmos.
 		/// </summary>
-		public static void DebugSphereCastAll(Ray ray, float radius, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null, float duration = 1f)
+		public static void DrawSphereCastAll(Ray ray, float radius, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null, float duration = 1f)
 		{
-			var distance = GetMaxDistance(hits, hitCount, maxDistance);
-			AddGizmo(new RaycastGizmoInstance(ray, radius, hits, distance, color ?? Color.white, duration));
+			AddGizmo(new SphereCastGizmoInstance(ray, radius, hits, maxDistance, color ?? Color.white, duration));
 		}
 
 		/// <summary>
 		/// Temporarily draws a point gizmo at the given location.
 		/// </summary>
-		public static void DebugPoint(Vector3 point, float size, Color? color = null, float duration = 1f)
+		public static void DrawPoint(Vector3 point, float size, Color? color = null, float duration = 1f, bool constantSize = false)
 		{
-			AddGizmo(new PointGizmoInstance(point, size, color ?? Color.white, duration));
+			AddGizmo(new PointGizmoInstance(point, size, color ?? Color.white, duration, constantSize));
 		}
 
 		/// <summary>
 		/// Temporarily draws a line gizmo between the given points.
 		/// </summary>
-		public static void DebugLine(Vector3 start, Vector3 end, Color? color = null, float duration = 1f)
+		public static void DrawLine(Vector3 start, Vector3 end, Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new LineGizmoInstance(start, end, color ?? Color.white, duration));
 		}
@@ -177,9 +222,17 @@ namespace UnityEssentials
 		/// <summary>
 		/// Temporarily draws a line gizmo from the given start towards the given direction.
 		/// </summary>
-		public static void DebugRay(Vector3 start, Vector3 direction, float length, Color? color = null, float duration = 1f)
+		public static void DrawRay(Vector3 start, Vector3 direction, float length, Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new LineGizmoInstance(start, start + direction.normalized * length, color ?? Color.white, duration));
+		}
+
+		/// <summary>
+		/// Temporarily draws a custom gizmo with the given drawer action.
+		/// </summary>
+		public static void DrawCustomGizmo(Action drawer, Color? color = null, float duration = 1f)
+		{
+			AddGizmo(new CustomGizmoInstance(drawer, color ?? Color.white, duration));
 		}
 
 		/// <summary>
@@ -228,22 +281,13 @@ namespace UnityEssentials
 		{
 			foreach(var i in instances)
 			{
-				bool decrTime = true;
-#if UNITY_EDITOR
-				if(!UnityEditor.EditorApplication.isPlaying || UnityEditor.EditorApplication.isPaused)
-				{
-					decrTime = false;
-				}
-#endif
-				if(decrTime)
-				{
-					i.timeLeft -= Time.unscaledDeltaTime;
-				}
-				float alpha = i.duration > 0 ? i.timeLeft / i.duration : 1f;
-				Gizmos.color = i.color.MultiplyAlpha(alpha);
+				if(i.Expired) continue;
+				Gizmos.color = i.color.MultiplyAlpha(i.Life);
 				i.Draw();
+				Gizmos.color = Color.white;
+				Gizmos.matrix = Matrix4x4.identity;
 			}
-			instances.RemoveAll((i) => i.timeLeft <= 0);
+			instances.RemoveAll((i) => i.Expired);
 		}
 
 		private static float GetMaxDistance(RaycastHit[] hits, int hitCount, float maxDistance)

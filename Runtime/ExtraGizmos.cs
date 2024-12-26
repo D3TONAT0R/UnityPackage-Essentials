@@ -273,24 +273,15 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Draws a 3D crosshair gizmo.
-		/// </summary>
-		public static void DrawCrosshair(Vector3 point, float radius)
-		{
-			Gizmos.DrawLine(point + Vector3.left * radius, point + Vector3.right * radius);
-			Gizmos.DrawLine(point + Vector3.down * radius, point + Vector3.up * radius);
-			Gizmos.DrawLine(point + Vector3.back * radius, point + Vector3.forward * radius);
-		}
-
-		/// <summary>
 		/// Draws a point gizmo.
 		/// </summary>
-		public static void DrawLocus(Vector3 point, float radius)
+		public static void DrawPoint(Vector3 point, float radius, bool centerSphere = true, bool constantSize = false)
 		{
+			if(constantSize) MakeConstantSize(point, ref radius);
 			Gizmos.DrawLine(point + Vector3.left * radius, point + Vector3.right * radius);
 			Gizmos.DrawLine(point + Vector3.down * radius, point + Vector3.up * radius);
 			Gizmos.DrawLine(point + Vector3.back * radius, point + Vector3.forward * radius);
-			Gizmos.DrawWireSphere(point, radius * 0.5f);
+			if(centerSphere) Gizmos.DrawWireSphere(point, radius * 0.5f);
 		}
 
 		/// <summary>
@@ -608,6 +599,14 @@ namespace UnityEssentials
 			}
 		}
 		#endregion
+
+		public static void MakeConstantSize(Vector3 pos, ref float size)
+		{
+#if UNITY_EDITOR
+			var worldPos = Gizmos.matrix.MultiplyPoint(pos);
+			size *= UnityEditor.HandleUtility.GetHandleSize(worldPos);
+#endif
+		}
 
 		private static Quaternion GetAxisRotation(Axis a)
 		{
