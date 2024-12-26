@@ -162,11 +162,25 @@ namespace UnityEssentials.Collections
 							}
 						}
 					}
+					else
+					{
+						throw new ArgumentException($"Key cannot be null (index {i})");
+					}
 				}
 			}
 			catch(Exception e)
 			{
-				//e.LogException();
+#if UNITY_EDITOR
+				UnityEditor.EditorApplication.delayCall += () =>
+				{
+					if(UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+					{
+						e.LogException("Exception thrown while deserializing dictionary");
+					}
+				};
+#else
+				e.LogException("Exception thrown while deserializing dictionary");
+#endif
 				SerializationException = e;
 				dictionary = null;
 			}
