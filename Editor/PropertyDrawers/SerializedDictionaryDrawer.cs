@@ -21,8 +21,19 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static Dictionary<Type, Type[]> polymorphicTypes = new Dictionary<Type, Type[]>();
 
+		private static GUIStyle indexStyle;
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if(indexStyle == null)
+			{
+				indexStyle = new GUIStyle(EditorStyles.miniLabel)
+				{
+					alignment = TextAnchor.MiddleRight,
+					fontSize = 9
+				};
+				indexStyle.normal.textColor = indexStyle.normal.textColor.MultiplyAlpha(0.4f);
+			}
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
 			var target = PropertyDrawerUtility.GetTargetObjectOfProperty(property);
 			var dictionary = (ISerializedDictionary)target;
@@ -38,7 +49,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					if((valueType == typeof(object) || valueType == typeof(UnityEngine.Object)) && polymorphicAttr.specificTypes == null)
 					{
 						Debug.LogError("When creating a polymorphic dictionary for System.Object or UnityEngine.Object you must specify the subtypes allowed in the dictionary.", property.serializedObject.targetObject);
-						polymorphicTypes.Add(dictionaryType, new Type[0]);
+						polymorphicTypes.Add(dictionaryType, Array.Empty<Type>());
 						return;
 					}
 					else
@@ -88,7 +99,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					var kObj = PropertyDrawerUtility.GetTargetObjectOfProperty(k);
 					var v = values.GetArrayElementAtIndex(i);
 					position.NextProperty();
-					lColor = DrawElement(position, property, dictionary, preferMonospaceKeys, dictionaryType, polymorphic, indentLevel, so, keys, duplicates, i, k, kObj, v);
+					DrawElement(position, property, preferMonospaceKeys, dictionaryType, polymorphic, indentLevel, so, keys, duplicates, i, k, v);
 				}
 				position.NextProperty();
 				position.height = 16;
@@ -142,7 +153,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					{
 						menu.AddItem(new GUIContent(GetTypeName(t)), false,
 						() => {
-							AddItem(dictionary, so.FindProperty(path), t);
+							AddItem(so.FindProperty(path), t);
 						});
 					}
 					if(menu.GetItemCount() == 0) menu.AddDisabledItem(new GUIContent("None"));
@@ -156,24 +167,30 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					var valueType = dictionary.ValueType;
 					so.Update();
 					prop = so.FindProperty(path);
-					AddItem(dictionary, prop, valueType);
+					AddItem(prop, valueType);
 					so.ApplyModifiedProperties();
 				}
 			}
 		}
 
-		private static Color DrawElement(Rect position, SerializedProperty property, ISerializedDictionary dictionary, bool preferMonospaceKeys, Type dictionaryType, bool polymorphic, int indentLevel, SerializedObject so, SerializedProperty keys, List<object> duplicates, int i, SerializedProperty k, object kObj, SerializedProperty v)
+		private static void DrawElement(Rect position, SerializedProperty property, bool preferMonospaceKeys, Type dictionaryType, bool polymorphic, int indentLevel, SerializedObject so, SerializedProperty keys, List<object> duplicates, int i, SerializedProperty k, SerializedProperty v)
 		{
-			Color lColor;
 			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var keyRect, out var valueRect, 0);
+			//Add 4 pixels of space to allow for dragging of values
 			valueRect.xMin += 4;
 			valueRect.SplitHorizontalRight(16, out valueRect, out var btnRect, 0);
 			valueRect.width -= 4;
 
-			lColor = GUI.color;
+			var lColor = GUI.color;
 			if(duplicates.Contains(k)) GUI.color = errorColor;
+
+			var indexRect = keyRect;
+			indexRect = EditorGUI.IndentedRect(indexRect);
+			indexRect.xMin -= 27;
+			indexRect.width = 25;
+			GUI.Label(indexRect, i.ToString(), indexStyle);
+
 			PropertyDrawerUtility.DrawPropertyDirect(keyRect, GUIContent.none, k, preferMonospaceKeys);
-			//EditorGUI.PropertyField(keyRect, k, GUIContent.none);
 			GUI.color = lColor;
 
 			EditorGUI.indentLevel = 0;
@@ -234,11 +251,9 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				});
 				menu.ShowAsContext();
 			}
-
-			return lColor;
 		}
 
-		private static void AddItem(ISerializedDictionary dictionary, SerializedProperty prop, Type valueType)
+		private static void AddItem(SerializedProperty prop, Type valueType)
 		{
 			Undo.RecordObject(prop.serializedObject.targetObject, "Add Dictionary Element");
 			prop.serializedObject.Update();
