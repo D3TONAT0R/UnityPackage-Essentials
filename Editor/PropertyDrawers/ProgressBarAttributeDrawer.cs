@@ -13,7 +13,12 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private static GUIStyle progressBarText = "ProgressBarText";
 
 		private static GUIStyle manualEditButton = "PaneOptions";
+
+#if UNITY_2022_1_OR_NEWER
 		private static GUIStyle manualEditCloseButton = "ToolbarSearchCancelButton";
+#else
+		private static GUIStyle manualEditCloseButton = "ToolbarSeachCancelButton";
+#endif
 
 		private bool manualEdit = false;
 

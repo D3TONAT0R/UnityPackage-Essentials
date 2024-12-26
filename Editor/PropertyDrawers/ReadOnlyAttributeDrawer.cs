@@ -9,11 +9,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			if(PropertyDrawerUtility.GetAttribute<ReadOnlyAttribute>(property, true).drawAsFields)
+			if(property.GetAttribute<ReadOnlyAttribute>().drawAsFields)
 			{
 				var lEnabledState = GUI.enabled;
 				GUI.enabled = false;
-				EditorGUI.PropertyField(position, property);
+				PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, typeof(ReadOnlyAttribute));
 				GUI.enabled = lEnabledState;
 			}
 			else
