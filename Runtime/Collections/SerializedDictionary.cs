@@ -81,7 +81,7 @@ namespace UnityEssentials.Collections
 		public Type ValueType => typeof(V);
 		public virtual Dictionary<K, V>.KeyCollection Keys => dictionary.Keys;
 		public virtual Dictionary<K, V>.ValueCollection Values => dictionary.Values;
-		public virtual int Count => dictionary.Count;
+		public virtual int Count => dictionary?.Count ?? -1;
 
 		public System.Exception SerializationException { get; private set; }
 		public bool Valid => SerializationException == null;
@@ -122,29 +122,16 @@ namespace UnityEssentials.Collections
 
 		public void OnBeforeSerialize()
 		{
-			/*
-			if(dictionary != null)
-			{
-				_keys = dictionary.Keys.ToList();
-				_values = dictionary.Values.ToList();
-			}
-			*/
+			
 		}
 
-		//TODO: has problems when keys are of type UnityEngine.Object
 		public void OnAfterDeserialize()
 		{
 			SerializationException = null;
 			try
 			{
-				if(dictionary != null)
-				{
-					dictionary.Clear();
-				}
-				else
-				{
-					dictionary = new Dictionary<K, V>();
-				}
+				if(dictionary == null) dictionary = new Dictionary<K, V>();
+				dictionary.Clear();
 				for(int i = 0; i < serializedKeys.Count; i++)
 				{
 					bool notNull;
@@ -158,7 +145,22 @@ namespace UnityEssentials.Collections
 					}
 					if(notNull)
 					{
-						dictionary.Add(serializedKeys[i], serializedValues[i]);
+						if(!dictionary.ContainsKey(serializedKeys[i]))
+						{
+							dictionary.Add(serializedKeys[i], serializedValues[i]);
+						}
+						else
+						{
+							if(typeof(UnityEngine.Object).IsAssignableFrom(typeof(K)))
+							{
+								//Avoid using ToString to prevent an exception
+								throw new ArgumentException($"Key has already been added to the dictionary (index {i})");
+							}
+							else
+							{
+								throw new ArgumentException($"Key '{serializedKeys[i]}' has already been added to the dictionary (index {i})");
+							}
+						}
 					}
 				}
 			}

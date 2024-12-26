@@ -105,7 +105,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				//Show error message
 				EditorGUI.HelpBox(headerLabelPos, exception.Message, MessageType.None);
 				//Tooltip
-				EditorGUI.LabelField(headerLabelPos, new GUIContent("", exception.Message));
+				EditorGUI.LabelField(headerLabelPos, new GUIContent("", exception.GetType().Name + "\n" + exception.Message));
 			}
 			else
 			{
