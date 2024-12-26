@@ -280,9 +280,16 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			Undo.RecordObject(prop.serializedObject.targetObject, "Delete Dictionary Element");
 			var k = prop.FindPropertyRelative(KEYS_FIELD_NAME);
 			var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
-			k.DeleteArrayElementAtIndex(index);
-			v.DeleteArrayElementAtIndex(index);
+			DeleteArrayElement(k, index);
+			DeleteArrayElement(v, index);
 			prop.serializedObject.ApplyModifiedProperties();
+		}
+
+		private static void DeleteArrayElement(SerializedProperty array, int index)
+		{
+			var elem = array.GetArrayElementAtIndex(index);
+			if(elem.propertyType == SerializedPropertyType.ObjectReference) elem.objectReferenceValue = null;
+			array.DeleteArrayElementAtIndex(index);
 		}
 
 		private static void ClearDictionary(SerializedProperty prop)
