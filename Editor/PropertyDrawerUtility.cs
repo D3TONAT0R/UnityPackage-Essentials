@@ -424,10 +424,9 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-
-		public static void DrawPropertyWithAttributeExcept(Rect rect, SerializedProperty property, GUIContent label, Type exceptType)
+		public static void DrawPropertyWithAttributeExcept(Rect rect, SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder)
 		{
-			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType);
+			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder);
 			if(drawer != null)
 			{
 				drawer.OnGUI(rect, property, label);
@@ -438,9 +437,9 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		public static float GetPropertyHeightWithAttributeExcept(SerializedProperty property, GUIContent label, Type exceptType)
+		public static float GetPropertyHeightWithAttributeExcept(SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder)
 		{
-			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType) ?? GetPropertyDrawerFromType(GetTypeOfProperty(property));
+			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder) ?? GetPropertyDrawerFromType(GetTypeOfProperty(property));
 			if(drawer != null)
 			{
 				return drawer.GetPropertyHeight(property, label);
@@ -451,13 +450,16 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		private static PropertyDrawer GetDecoratedPropertyDrawerExcept(SerializedProperty property, Type exceptType)
+		private static PropertyDrawer GetDecoratedPropertyDrawerExcept(SerializedProperty property, Type exceptType, int minimumOrder)
 		{
 			var attrs = GetPropertyAttributes(property, out var fieldInfo).Where(attr =>
 			{
 				var t = attr.GetType();
-				return !typeof(DecoratorAttribute).IsAssignableFrom(t) && t != exceptType && t != typeof(TooltipAttribute);
-			}).ToArray();
+				return !typeof(DecoratorAttribute).IsAssignableFrom(t)
+				&& attr.order >= minimumOrder
+				&& t != exceptType
+				&& t != typeof(TooltipAttribute);
+			}).OrderBy(a => a.order).ToArray();
 			if(attrs.Length > 0)
 			{
 				if(attrs.Length > 1)

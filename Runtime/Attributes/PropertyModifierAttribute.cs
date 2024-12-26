@@ -12,7 +12,7 @@ namespace UnityEssentials
 	{
 		protected PropertyModifierAttribute()
 		{
-			order = -200;
+			order = -1000;
 		}
 
 		protected static bool CheckMemberCondition(object target, string memberName, object[] matches)

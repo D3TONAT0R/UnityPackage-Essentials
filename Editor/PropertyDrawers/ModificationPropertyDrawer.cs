@@ -1,5 +1,7 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
+using UnityEssentials;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
@@ -9,20 +11,19 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		protected void DrawProperty(Rect position, SerializedProperty property, GUIContent label)
 		{
-			//EditorGUI.LabelField(position, GUIContent.none);
-			PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, attribute.GetType());
+			try
+			{
+				PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, attribute.GetType(), attribute.order);
+			}
+			catch(Exception e)
+			{
+				e.LogException();
+			}
 		}
 
 		protected float GetBaseHeight(SerializedProperty property, GUIContent label)
 		{
-			return PropertyDrawerUtility.GetPropertyHeightWithAttributeExcept(property, label, attribute.GetType());
+			return PropertyDrawerUtility.GetPropertyHeightWithAttributeExcept(property, label, attribute.GetType(), attribute.order);
 		}
-
-		/*
-		public sealed override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			return base.GetPropertyHeight(property, label);
-		}
-		*/
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +9,6 @@ namespace UnityEssentials
 	/// <summary>
 	/// Draws a clickable button above or below a field in the inspector.
 	/// </summary>
-	//TODO: Crashes the editor when combined with ShowIf or HideIf
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class ButtonAttribute : PropertyAttribute
 	{
@@ -44,10 +42,11 @@ namespace UnityEssentials
 		/// or <c>"TargetMethodName(arguments):Button Label"</c>.
 		/// If no button label is specified (with a ':'), the method name is used instead. 
 		/// Parameter arguments can be separated with commas and must not have spaces in between.
-		/// Note that method overloads are currently unsupported.</param>
+		/// Note that method overloads and combining this attribute with <see cref="ShowIfAttribute"/>
+		/// or <see cref="HideIfAttribute"/> are currently unsupported.</param>
 		public ButtonAttribute(params string[] buttons)
 		{
-			order = -10;
+			order = -1100;
 			labels = new string[buttons.Length];
 			methodNames = new string[buttons.Length];
 			arguments = new string[buttons.Length][];

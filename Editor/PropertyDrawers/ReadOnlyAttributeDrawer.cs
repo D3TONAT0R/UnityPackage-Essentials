@@ -13,7 +13,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				var lEnabledState = GUI.enabled;
 				GUI.enabled = false;
-				PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, typeof(ReadOnlyAttribute));
+				PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, typeof(ReadOnlyAttribute), attribute.order);
 				GUI.enabled = lEnabledState;
 			}
 			else
