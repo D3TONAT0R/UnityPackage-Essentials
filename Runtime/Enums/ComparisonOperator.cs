@@ -7,10 +7,10 @@ namespace UnityEssentials
 	/// </summary>
 	public enum ComparisonOperator
 	{
-		[InspectorName("<")] Less,
-		[InspectorName("<=")] LessOrEqual,
-		[InspectorName("==")] Equal,
-		[InspectorName(">=")] MoreOrEqual,
-		[InspectorName(">")] More,
+		[InspectorName("<")] Less = 0,
+		[InspectorName("<=")] LessOrEqual = 1,
+		[InspectorName("==")] Equal = 2,
+		[InspectorName(">=")] MoreOrEqual = 3,
+		[InspectorName(">")] More = 4,
 	}
 }

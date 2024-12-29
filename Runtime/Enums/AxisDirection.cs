@@ -8,16 +8,16 @@ namespace UnityEssentials
 	public enum AxisDirection
 	{
 		[InspectorName("X-")]
-		XNeg,
+		XNeg = 0,
 		[InspectorName("X+")]
-		XPos,
+		XPos = 1,
 		[InspectorName("Y-")]
-		YNeg,
+		YNeg = 2,
 		[InspectorName("Y+")]
-		YPos,
+		YPos = 3,
 		[InspectorName("Z-")]
-		ZNeg,
+		ZNeg = 4,
 		[InspectorName("Z+")]
-		ZPos
+		ZPos = 5
 	}
 }

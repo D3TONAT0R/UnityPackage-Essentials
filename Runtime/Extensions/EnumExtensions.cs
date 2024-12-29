@@ -44,9 +44,9 @@ namespace UnityEssentials
 		{
 			switch(op)
 			{
-				case BooleanOperator.AND: return l && r;
-				case BooleanOperator.OR: return l || r;
-				case BooleanOperator.XOR: return l != r;
+				case BooleanOperator.And: return l && r;
+				case BooleanOperator.Or: return l || r;
+				case BooleanOperator.Xor: return l != r;
 				default: throw new System.InvalidOperationException();
 			}
 		}

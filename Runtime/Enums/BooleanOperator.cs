@@ -8,11 +8,10 @@ namespace UnityEssentials
 	public enum BooleanOperator
 	{
 		[InspectorName("AND (Match All)")]
-		AND,
+		And = 0,
 		[InspectorName("OR (Match Any)")]
-		OR,
+		Or = 1,
 		[InspectorName("XOR (Match Only One)")]
-		XOR
+		Xor = 2
 	}
-
 }
