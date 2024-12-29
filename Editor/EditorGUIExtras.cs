@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEditor.EditorTools;
+using System.Collections.Generic;
 #if !UNITY_2020_2_OR_NEWER
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
@@ -86,6 +87,9 @@ namespace UnityEssentialsEditor
 		}
 		private static GUIStyle _monospaceLabel;
 
+		private static Dictionary<Type, Array> enumValuesCache = new Dictionary<Type, Array>();
+		private static Dictionary<Type, string[]> enumDisplayNamesCache = new Dictionary<Type, string[]>();
+
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
@@ -107,29 +111,36 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static Enum EnumButtons(Rect position, GUIContent label, Enum value, Type enumType)
 		{
-			//TODO: could use some caching
-			var valuesArray = Enum.GetValues(enumType);
+			if(!enumValuesCache.TryGetValue(enumType, out var valuesArray))
+			{
+				valuesArray = Enum.GetValues(enumType);
+				enumValuesCache.Add(enumType, valuesArray);
+			}
 			int[] values = new int[valuesArray.Length];
 			for(int i = 0; i < valuesArray.Length; i++)
 			{
 				values[i] = Convert.ToInt32(valuesArray.GetValue(i));
 			}
-			string[] names = Enum.GetNames(enumType);
-			for(int i = 0; i < values.Length; i++)
+			if(!enumDisplayNamesCache.TryGetValue(enumType, out var displayNames))
 			{
-				var member = enumType.GetMember(names[i]).FirstOrDefault(m => m.DeclaringType == enumType);
-				var attr = member.GetCustomAttribute<InspectorNameAttribute>();
-				if(attr != null)
+				displayNames = new string[values.Length];
+				for(int i = 0; i < values.Length; i++)
 				{
-					names[i] = attr.displayName;
+					var member = enumType.GetMember(Enum.GetName(enumType, values[i])).FirstOrDefault(m => m.DeclaringType == enumType);
+					var attr = member.GetCustomAttribute<InspectorNameAttribute>();
+					if(attr != null)
+					{
+						displayNames[i] = attr.displayName;
+					}
+					else
+					{
+						displayNames[i] = ObjectNames.NicifyVariableName(Enum.GetName(enumType, values[i]));
+					}
 				}
-				else
-				{
-					names[i] = ObjectNames.NicifyVariableName(Enum.GetName(enumType, values[i]));
-				}
+				enumDisplayNamesCache.Add(enumType, displayNames);
 			}
 			int input = value != null ? Convert.ToInt32(value) : -1;
-			int output = HorizontalButtonGroup(position, label, input, values, names);
+			int output = HorizontalButtonGroup(position, label, input, values, displayNames);
 			if(output >= 0)
 			{
 				return (Enum)Enum.ToObject(enumType, output);
