@@ -197,15 +197,8 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Draws a horizontal button group.
 		/// </summary>
-		//TODO: tooltip gets incorrect positioning (shows up next to the buttons)
 		private static int HorizontalButtonGroup(Rect position, GUIContent label, int value, int[] values, string[] names)
 		{
-			if(label != null)
-			{
-				EditorGUI.LabelField(position, label);
-				position.xMin += EditorGUIUtility.labelWidth;
-				label.tooltip = null;
-			}
 			if(names == null)
 			{
 				names = new string[values.Length];
@@ -218,12 +211,17 @@ namespace UnityEssentialsEditor
 			{
 				throw new ArgumentException("Value and Name array lengths do not match.");
 			}
-			var rects = position.DivideHorizontal(values.Length);
+			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var valuePos);
+			if(label != null)
+			{
+				EditorGUI.LabelField(labelPos, label);
+			}
+			var buttonPositions = valuePos.DivideHorizontal(values.Length);
 			for(int i = 0; i < values.Length; i++)
 			{
 				GUIStyle style = i == 0 ? EditorStyles.miniButtonLeft : i == values.Length - 1 ? EditorStyles.miniButtonRight : EditorStyles.miniButtonMid;
 				bool b = values[i] == value;
-				var b2 = GUI.Toggle(rects[i], b, names[i], style);
+				var b2 = GUI.Toggle(buttonPositions[i], b, names[i], style);
 				if(b2 && !b)
 				{
 					value = values[i];
