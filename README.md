@@ -14,7 +14,7 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 - **New scene view tools**
 	- Prefab placement tool
 	- Distance measurement tool
-	- Randmize transform tool
+	- Randomize transform tool
 	- Convex mesh builder
 	- Reflection probe bounds tool
 - **Extension methods** - Extensions for many common types, including editor GUI related ones
