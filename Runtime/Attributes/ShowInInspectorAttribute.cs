@@ -3,7 +3,7 @@ using System;
 namespace UnityEssentials
 {
 	/// <summary>
-	/// Add this attribute to a property or non-serialized field to make it visible in the inspector.
+	/// Add this attribute to a property or non-serialized field to make it visible in the inspector in <see cref="PropertyView"/> fields.
 	/// </summary>
 	public class ShowInInspectorAttribute : Attribute
 	{
