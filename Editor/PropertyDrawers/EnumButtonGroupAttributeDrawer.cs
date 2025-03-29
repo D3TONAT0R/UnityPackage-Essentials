@@ -6,7 +6,7 @@ using UnityEngine;
 namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(EnumButtonGroupAttribute))]
-	public class EnumButtonsAttributeDrawer : PropertyDrawer
+	public class EnumButtonGroupAttributeDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -21,8 +21,9 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
+				Debug.Log("has different values: "+property.displayName);
 				Enum output = EditorGUIExtras.EnumButtons(position, label, null, enumType);
-				if(output != null)
+				if(output != default)
 				{
 					property.intValue = (int)Convert.ChangeType(output, typeof(int));
 				}

@@ -1,5 +1,5 @@
 using UnityEngine;
-﻿using UnityEssentials;
+using UnityEssentials;
 using UnityEssentialsEditor.Tools;
 using System;
 using System.Linq;
@@ -90,6 +90,8 @@ namespace UnityEssentialsEditor
 		private static Dictionary<Type, Array> enumValuesCache = new Dictionary<Type, Array>();
 		private static Dictionary<Type, string[]> enumDisplayNamesCache = new Dictionary<Type, string[]>();
 
+		private static int[] enumValues = new int[16];
+
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
@@ -111,22 +113,28 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static Enum EnumButtons(Rect position, GUIContent label, Enum value, Type enumType)
 		{
+			bool isFlags = enumType?.IsDefined(typeof(FlagsAttribute), false) ?? false;
 			if(!enumValuesCache.TryGetValue(enumType, out var valuesArray))
 			{
 				valuesArray = Enum.GetValues(enumType);
 				enumValuesCache.Add(enumType, valuesArray);
 			}
-			int[] values = new int[valuesArray.Length];
+			int valueCount = valuesArray.Length;
+			if(valueCount > 16)
+			{
+				Debug.LogWarning($"Excessive number of values for EnumButtonAttribute ({valueCount}), limit is 16.");
+				return value;
+			}
 			for(int i = 0; i < valuesArray.Length; i++)
 			{
-				values[i] = Convert.ToInt32(valuesArray.GetValue(i));
+				enumValues[i] = Convert.ToInt32(valuesArray.GetValue(i));
 			}
 			if(!enumDisplayNamesCache.TryGetValue(enumType, out var displayNames))
 			{
-				displayNames = new string[values.Length];
-				for(int i = 0; i < values.Length; i++)
+				displayNames = new string[valueCount];
+				for(int i = 0; i < valueCount; i++)
 				{
-					var member = enumType.GetMember(Enum.GetName(enumType, values[i])).FirstOrDefault(m => m.DeclaringType == enumType);
+					var member = enumType.GetMember(Enum.GetName(enumType, enumValues[i])).FirstOrDefault(m => m.DeclaringType == enumType);
 					var attr = member.GetCustomAttribute<InspectorNameAttribute>();
 					if(attr != null)
 					{
@@ -134,20 +142,21 @@ namespace UnityEssentialsEditor
 					}
 					else
 					{
-						displayNames[i] = ObjectNames.NicifyVariableName(Enum.GetName(enumType, values[i]));
+						displayNames[i] = ObjectNames.NicifyVariableName(Enum.GetName(enumType, enumValues[i]));
 					}
 				}
 				enumDisplayNamesCache.Add(enumType, displayNames);
 			}
-			int input = value != null ? Convert.ToInt32(value) : -1;
-			int output = HorizontalButtonGroup(position, label, input, values, displayNames);
-			if(output >= 0)
+			int input = value != null ? Convert.ToInt32(value) : (isFlags ? 0 : -1);
+			EditorGUI.BeginChangeCheck();
+			int output = HorizontalButtonGroup(position, label, input, valueCount, enumValues, displayNames, isFlags);
+			if(EditorGUI.EndChangeCheck())
 			{
 				return (Enum)Enum.ToObject(enumType, output);
 			}
 			else
 			{
-				return null;
+				return value;
 			}
 		}
 
@@ -182,7 +191,7 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static int HorizontalButtonGroup(Rect position, GUIContent label, int selection, params string[] options)
 		{
-			return HorizontalButtonGroup(position, label, selection, Enumerable.Range(0, options.Length).ToArray(), options);
+			return HorizontalButtonGroup(position, label, selection, options.Length, Enumerable.Range(0, options.Length).ToArray(), options, false);
 		}
 
 		/// <summary>
@@ -197,34 +206,53 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Draws a horizontal button group.
 		/// </summary>
-		private static int HorizontalButtonGroup(Rect position, GUIContent label, int value, int[] values, string[] names)
+		private static int HorizontalButtonGroup(Rect position, GUIContent label, int value, int count, int[] values, string[] names, bool flags)
 		{
 			if(names == null)
 			{
-				names = new string[values.Length];
-				for(int i = 0; i < values.Length; i++)
+				names = new string[count];
+				for(int i = 0; i < count; i++)
 				{
 					names[i] = values[i].ToString();
 				}
 			}
-			if(values.Length != names.Length)
+			if(count != names.Length)
 			{
-				throw new ArgumentException("Value and Name array lengths do not match.");
+				throw new ArgumentException("Names array length does not match button count.");
 			}
 			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var valuePos);
 			if(label != null)
 			{
 				EditorGUI.LabelField(labelPos, label);
 			}
-			var buttonPositions = valuePos.DivideHorizontal(values.Length);
-			for(int i = 0; i < values.Length; i++)
+			var buttonPositions = valuePos.DivideHorizontal(count);
+			for(int i = 0; i < count; i++)
 			{
-				GUIStyle style = i == 0 ? EditorStyles.miniButtonLeft : i == values.Length - 1 ? EditorStyles.miniButtonRight : EditorStyles.miniButtonMid;
-				bool b = values[i] == value;
-				var b2 = GUI.Toggle(buttonPositions[i], b, names[i], style);
-				if(b2 && !b)
+				GUIStyle style = i == 0 ? EditorStyles.miniButtonLeft : i == count - 1 ? EditorStyles.miniButtonRight : EditorStyles.miniButtonMid;
+				if(!flags)
 				{
-					value = values[i];
+					bool b = values[i] == value;
+					var b2 = GUI.Toggle(buttonPositions[i], b, names[i], style);
+					if(b2 && !b)
+					{
+						value = values[i];
+					}
+				}
+				else
+				{
+					bool b = (value & values[i]) == values[i];
+					var b2 = GUI.Toggle(buttonPositions[i], b, names[i], style);
+					if(b2 != b)
+					{
+						if(b2)
+						{
+							value |= values[i];
+						}
+						else
+						{
+							value &= ~values[i];
+						}
+					}
 				}
 			}
 			return value;
