@@ -11,7 +11,7 @@ namespace UnityEssentials.PlayerLoop
 			if(instance) return;
 			var go = new GameObject("UpdateLoopScriptInstance")
 			{
-				hideFlags = HideFlags.HideInInspector | HideFlags.DontSave
+				hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy | HideFlags.DontSave
 			};
 			if(Application.isPlaying)
 			{
