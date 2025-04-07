@@ -3,7 +3,7 @@
 namespace UnityEssentialsEditor.TimeTracking
 {
 	[System.Serializable]
-	public class TimeSample
+	public class SessionTimers
 	{
 		public float activeEditTime = 0;
 		public float unfocussedEditTime = 0;
@@ -43,11 +43,11 @@ namespace UnityEssentialsEditor.TimeTracking
 			return t;
 		}
 
-		public static TimeSample Combine(TimeSample a, TimeSample b)
+		public static SessionTimers Combine(SessionTimers a, SessionTimers b)
 		{
 			if(b == null)
 			{
-				return new TimeSample()
+				return new SessionTimers()
 				{
 					activeEditTime = a.activeEditTime,
 					unfocussedEditTime = a.unfocussedEditTime,
@@ -57,7 +57,7 @@ namespace UnityEssentialsEditor.TimeTracking
 			}
 			else
 			{
-				return new TimeSample
+				return new SessionTimers()
 				{
 					activeEditTime = a.activeEditTime + b.activeEditTime,
 					unfocussedEditTime = a.unfocussedEditTime + b.unfocussedEditTime,

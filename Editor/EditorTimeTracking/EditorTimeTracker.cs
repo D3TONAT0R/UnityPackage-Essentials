@@ -1,7 +1,6 @@
 using UnityEssentials;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -74,28 +73,9 @@ namespace UnityEssentialsEditor.TimeTracking
 			else return $"_{Environment.UserName}";
 		}
 
-		private static void LoadTimeFiles()
-		{
-			if(Directory.Exists(FileRootDirectory))
-			{
-				foreach(var f in Directory.EnumerateFiles(FileRootDirectory, "*.json"))
-				{
-					try
-					{
-						string name = Path.GetFileNameWithoutExtension(f);
-						users.Add(name, TrackedUserTimes.Create(name));
-					}
-					catch(Exception e)
-					{
-						e.LogException("Failed to load editor time data for user " + f);
-					}
-				}
-			}
-		}
-
 		private static void Save(bool force)
 		{
-			if(EditorApplication.timeSinceStartup - lastSaveTime < MIN_SAVE_INTERVAL && !force)
+			if((EditorApplication.timeSinceStartup - lastSaveTime) < MIN_SAVE_INTERVAL && !force)
 			{
 				//We already saved not too long ago, don't save again
 				return;
@@ -104,8 +84,8 @@ namespace UnityEssentialsEditor.TimeTracking
 			{
 				if(user.IsDirty)
 				{
-					//Only save anonymous times if it exceeds 180 seconds in total
-					if(string.IsNullOrEmpty(user.userId) && user.TotalCurrentSessionTime < 180) continue;
+					//Only save anonymous user times if they exceed 180 seconds in total
+					if(user.IsAnon && user.TotalCurrentSessionTime < 180) continue;
 					user.SaveToFile();
 				}
 			}

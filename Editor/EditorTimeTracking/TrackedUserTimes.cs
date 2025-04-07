@@ -9,12 +9,14 @@ namespace UnityEssentialsEditor.TimeTracking
 	public class TrackedUserTimes
 	{
 		public readonly string userId;
-		public TimeSample storedSample;
-		public TimeSample currentSessionSample;
+		public SessionTimers storedSample;
+		public SessionTimers currentSessionSample;
 
 		public bool FailedToLoad { get; private set; }
 
 		public bool IsDirty => currentSessionSample.CombinedTime > 0;
+
+		public bool IsAnon => string.IsNullOrEmpty(userId) || userId.ToLower() == "anonymous";
 
 		public float TotalCurrentSessionTime => currentSessionSample.GetTotal(TrackedTimeType.All);
 
@@ -35,7 +37,7 @@ namespace UnityEssentialsEditor.TimeTracking
 		public void Initialize()
 		{
 			LoadExistingTimes();
-			currentSessionSample = new TimeSample();
+			currentSessionSample = new SessionTimers();
 		}
 
 		public void Increase(float delta)
@@ -55,7 +57,7 @@ namespace UnityEssentialsEditor.TimeTracking
 				try
 				{
 					var json = File.ReadAllText(FileLocation);
-					storedSample = JsonUtility.FromJson<TimeSample>(json);
+					storedSample = JsonUtility.FromJson<SessionTimers>(json);
 					FailedToLoad = false;
 				}
 				catch(Exception e)
@@ -68,7 +70,7 @@ namespace UnityEssentialsEditor.TimeTracking
 			{
 				try
 				{
-					storedSample = new TimeSample();
+					storedSample = new SessionTimers();
 					var json = JsonUtility.ToJson(storedSample);
 					File.WriteAllText(FileLocation, json);
 				}
@@ -94,13 +96,13 @@ namespace UnityEssentialsEditor.TimeTracking
 				}
 				if(FailedToLoad) return;
 
-				var totals = TimeSample.Combine(currentSessionSample, storedSample);
+				var totals = SessionTimers.Combine(currentSessionSample, storedSample);
 				var json = JsonUtility.ToJson(totals, true);
 				File.WriteAllText(FileLocation, json);
 
 				//Restart timers
 				storedSample = totals;
-				currentSessionSample = new TimeSample();
+				currentSessionSample = new SessionTimers();
 			}
 			catch(Exception e)
 			{
