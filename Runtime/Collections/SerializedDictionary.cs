@@ -79,8 +79,8 @@ namespace UnityEssentials.Collections
 
 		public Type KeyType => typeof(K);
 		public Type ValueType => typeof(V);
-		public virtual Dictionary<K, V>.KeyCollection Keys => dictionary.Keys;
-		public virtual Dictionary<K, V>.ValueCollection Values => dictionary.Values;
+		public virtual Dictionary<K, V>.KeyCollection Keys => dictionary?.Keys;
+		public virtual Dictionary<K, V>.ValueCollection Values => dictionary?.Values;
 		public virtual int Count => dictionary?.Count ?? -1;
 
 		public System.Exception SerializationException { get; private set; }
@@ -122,7 +122,17 @@ namespace UnityEssentials.Collections
 
 		public void OnBeforeSerialize()
 		{
-			
+			if(dictionary != null)
+			{
+				serializedKeys.Clear();
+				serializedValues.Clear();
+				foreach(var kv in dictionary)
+				{
+					serializedKeys.Add(kv.Key);
+					serializedValues.Add(kv.Value);
+				}
+			}
+
 		}
 
 		public void OnAfterDeserialize()
