@@ -6,12 +6,12 @@ namespace UnityEssentials.PlayerLoop
 	{
 		internal static UpdateLoopScriptInstance instance;
 
-		internal static void Init()
+		internal static void InitIfRequired()
 		{
 			if(instance) return;
 			var go = new GameObject("UpdateLoopScriptInstance")
 			{
-				hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy | HideFlags.DontSave
+				hideFlags = HideFlags.HideInInspector | HideFlags.DontSave
 			};
 			if(Application.isPlaying)
 			{

@@ -205,7 +205,11 @@ namespace UnityEssentials.PlayerLoop
 		/// </summary>
 		public static event Action OnGUI
 		{
-			add => onGUI.Add(value);
+			add
+			{
+				onGUI.Add(value);
+				UpdateLoopScriptInstance.InitIfRequired();
+			}
 			remove => onGUI.Remove(value);
 		}
 
@@ -214,7 +218,11 @@ namespace UnityEssentials.PlayerLoop
 		/// </summary>
 		public static event Action OnDrawGizmosRuntime
 		{
-			add => onDrawGizmosRuntime.Add(value);
+			add
+			{
+				onDrawGizmosRuntime.Add(value);
+				UpdateLoopScriptInstance.InitIfRequired();
+			}
 			remove => onDrawGizmosRuntime.Remove(value);
 		}
 
@@ -318,7 +326,6 @@ namespace UnityEssentials.PlayerLoop
 
 			UnityPlayerLoop.SetPlayerLoop(loop);
 
-			UpdateLoopScriptInstance.Init();
 			SubscribeMethodsWithAttributes();
 
 			//LogCurrentPlayerLoop(false);
@@ -357,6 +364,10 @@ namespace UnityEssentials.PlayerLoop
 			SubscribeAttributeToEvent<FixedUpdateOnceAttribute>(fixedUpdateOnce);
 			SubscribeAttributeToEvent<OnGUIAttribute>(onGUI);
 			SubscribeAttributeToEvent<OnDrawGizmosRuntimeAttribute>(onDrawGizmosRuntime);
+			if(onDrawGizmosRuntime.subscribers.Count > 0)
+			{
+				UpdateLoopScriptInstance.InitIfRequired();
+			}
 		}
 
 		private static void SubscribeAttributeToEvent<A>(InvocationList eventHandler) where A : Attribute

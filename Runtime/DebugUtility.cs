@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEssentials.PlayerLoop;
 
 namespace UnityEssentials
 {
@@ -162,11 +163,19 @@ namespace UnityEssentials
 
 		private static StringBuilder stringBuilder = new StringBuilder();
 
+		private static bool gizmosSubscribed = false;
+
 		private static void AddGizmo(GizmoInstance instance)
 		{
 #if UNITY_EDITOR
 			instances.Add(instance);
 #endif
+			UpdateLoopScriptInstance.InitIfRequired();
+			if(!gizmosSubscribed)
+			{
+				UpdateLoop.OnDrawGizmosRuntime += OnDrawGizmos;
+				gizmosSubscribed = true;
+			}
 		}
 
 		/// <summary>
@@ -276,7 +285,6 @@ namespace UnityEssentials
 			Debug.Log(stringBuilder.ToString());
 		}
 
-		[OnDrawGizmosRuntime]
 		private static void OnDrawGizmos()
 		{
 			foreach(var i in instances)
