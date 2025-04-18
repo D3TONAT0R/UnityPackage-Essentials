@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
-	[CustomPropertyDrawer(typeof(FloatRange))]
-	public class FloatRangeDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(FloatRange)), CustomPropertyDrawer(typeof(IntRange))]
+	public class RangedStructDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -14,10 +14,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			position.height = EditorGUIUtility.singleLineHeight;
 			var min = property.FindPropertyRelative(nameof(FloatRange.min));
 			var max = property.FindPropertyRelative(nameof(FloatRange.max));
+			bool integer = min.propertyType == SerializedPropertyType.Integer;
 			var rangeAttribute = GetRangeAttribute(property);
 			if(rangeAttribute != null)
 			{
-				DrawSlider(position, label, min, max, rangeAttribute);
+				DrawSlider(position, label, min, max, rangeAttribute, integer);
 				position.NextProperty();
 			}
 			bool hasLabel = !string.IsNullOrEmpty(label.text);
@@ -31,15 +32,15 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			EditorGUI.indentLevel = 0;
 			EditorGUIUtility.labelWidth = 30;
 
-			DrawField(min, max, minRect, rangeAttribute, false);
-			DrawField(max, min, maxRect, rangeAttribute, true);
+			DrawField(min, max, minRect, rangeAttribute, integer, false);
+			DrawField(max, min, maxRect, rangeAttribute, integer, true);
 
 			EditorGUI.indentLevel = indent;
 			EditorGUI.showMixedValue = false;
 			EditorGUI.EndProperty();
 		}
 
-		private static void DrawField(SerializedProperty prop, SerializedProperty other, Rect minRect, MinMaxRangeAttribute rangeAttribute, bool max)
+		private static void DrawField(SerializedProperty prop, SerializedProperty other, Rect minRect, MinMaxRangeAttribute rangeAttribute, bool integer, bool max)
 		{
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = prop.hasMultipleDifferentValues;
@@ -48,28 +49,45 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				if(rangeAttribute != null)
 				{
-					float value = prop.floatValue;
-					value = Mathf.Clamp(value, rangeAttribute.min, rangeAttribute.max);
-					value = max ? Mathf.Max(value, other.floatValue) : Mathf.Min(value, other.floatValue);
-					prop.floatValue = value;
+					if(integer)
+					{
+						int value = prop.intValue;
+						value = Mathf.Clamp(value, (int)rangeAttribute.min, (int)rangeAttribute.max);
+						value = max ? Mathf.Max(value, other.intValue) : Mathf.Min(value, other.intValue);
+						prop.intValue = value;
+					}
+					else
+					{
+						float value = prop.floatValue;
+						value = Mathf.Clamp(value, rangeAttribute.min, rangeAttribute.max);
+						value = max ? Mathf.Max(value, other.floatValue) : Mathf.Min(value, other.floatValue);
+						prop.floatValue = value;
+					}
 				}
 			}
 		}
 
-		private static void DrawSlider(Rect position, GUIContent label, SerializedProperty min, SerializedProperty max,
-			MinMaxRangeAttribute attr)
+		private static void DrawSlider(Rect position, GUIContent label, SerializedProperty min, SerializedProperty max, MinMaxRangeAttribute attr, bool integer)
 		{
-			var minValue = min.floatValue;
-			var maxValue = max.floatValue;
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.showMixedValue = min.hasMultipleDifferentValues || max.hasMultipleDifferentValues;
+			var minValue = integer ? min.intValue : min.floatValue;
+			var maxValue = integer ? max.intValue : max.floatValue;
 			EditorGUI.MinMaxSlider(position, label, ref minValue, ref maxValue, attr.min, attr.max);
 			if(EditorGUI.EndChangeCheck())
 			{
 				minValue = Mathf.Min(minValue, maxValue);
 				maxValue = Mathf.Max(minValue, maxValue);
-				min.floatValue = minValue;
-				max.floatValue = maxValue;
+				if(integer)
+				{
+					min.intValue = (int)minValue;
+					max.intValue = (int)maxValue;
+				}
+				else
+				{
+					min.floatValue = minValue;
+					max.floatValue = maxValue;
+				}
 			}
 		}
 

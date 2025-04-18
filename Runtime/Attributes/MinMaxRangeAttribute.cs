@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnityEssentials
 {
 	/// <summary>
-	/// Constrains a <see cref="FloatRange"/> field to the given range.
+	/// Constrains a <see cref="FloatRange"/> or <see cref="IntRange"/> field to the given range.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public class MinMaxRangeAttribute : PropertyAttribute
