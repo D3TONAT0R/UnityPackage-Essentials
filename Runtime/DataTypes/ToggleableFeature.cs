@@ -22,16 +22,23 @@ namespace UnityEssentials {
 				if(value != enabled)
 				{
 					enabled = value;
-					if(Application.isPlaying)
+					try
 					{
-						if(enabled)
+						if(Application.isPlaying)
 						{
-							OnEnable();
+							if(enabled)
+							{
+								OnEnable();
+							}
+							else
+							{
+								OnDisable();
+							}
 						}
-						else
-						{
-							OnDisable();
-						}
+					}
+					catch(System.Exception e)
+					{
+						e.LogException();
 					}
 				}
 			}
