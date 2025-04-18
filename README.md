@@ -70,6 +70,10 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 
 Open the Package Manager window, click on "Add Package from Git URL ...", then enter the following:
 ```
+https://github.com/d3tonat0r/unitypackage-essentials.git#1.0.0-preview-2
+```
+OR to target the latest commit:
+```
 https://github.com/d3tonat0r/unitypackage-essentials.git
 ```
 
