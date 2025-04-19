@@ -121,14 +121,15 @@ namespace UnityEssentialsEditor
 		public static void SearchSimilarComponentsBaseType(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
-			SceneModeUtility.SearchForType(comp.GetType().BaseType);
+			var baseType = comp?.GetType().BaseType;
+			if(baseType != null) SceneModeUtility.SearchForType(baseType);
 		}
 
 		[MenuItem("CONTEXT/Component/Search Similar (Base Type)", validate = true)]
 		public static bool ValidateSearchSimilarComponentsBaseType(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
-			var baseType = comp.GetType().BaseType;
+			var baseType = comp?.GetType().BaseType;
 			return baseType != null && baseType != typeof(Component) && baseType != typeof(Behaviour);
 		}
 
