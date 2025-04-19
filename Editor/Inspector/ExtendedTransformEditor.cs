@@ -260,13 +260,14 @@ namespace UnityEssentialsEditor
 			Action mainButton, Action posButton, Action rotButton, Action scaleButton,
 			Func<bool> mainEnabledFunc = null, Func<bool> posEnabledFunc = null, Func<bool> rotEnabledFunc = null, Func<bool> scaleEnabledFunc = null)
 		{
-			GUI.enabled = mainEnabledFunc?.Invoke() ?? true;
+			bool enabled = GUI.enabled;
+			GUI.enabled = enabled && (mainEnabledFunc?.Invoke() ?? true);
 			if(mainButton != null && GUILayout.Button(mainContent, EditorStyles.miniButtonLeft, GUILayout.Width(mainWidth))) mainButton.Invoke();
-			GUI.enabled = posEnabledFunc?.Invoke() ?? true;
+			GUI.enabled = enabled && (posEnabledFunc?.Invoke() ?? true);
 			if(posButton != null && GUILayout.Button(positionIcon, EditorStyles.miniButtonMid, GUILayout.Width(25))) posButton.Invoke();
-			GUI.enabled = rotEnabledFunc?.Invoke() ?? true;
+			GUI.enabled = enabled && (rotEnabledFunc?.Invoke() ?? true);
 			if(rotButton != null && GUILayout.Button(rotationIcon, EditorStyles.miniButtonMid, GUILayout.Width(25))) rotButton.Invoke();
-			GUI.enabled = scaleEnabledFunc?.Invoke() ?? true;
+			GUI.enabled = enabled && (scaleEnabledFunc?.Invoke() ?? true);
 			if(scaleButton != null && GUILayout.Button(scaleIcon, EditorStyles.miniButtonRight, GUILayout.Width(25))) scaleButton.Invoke();
 		}
 
