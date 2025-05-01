@@ -609,6 +609,28 @@ namespace UnityEssentialsEditor
 			}
 		}
 
+		public static float DrawChildProperties(Rect position, SerializedProperty parent)
+		{
+			float yOffset = 0;
+			foreach(SerializedProperty child in parent)
+			{
+				position.height = EditorGUI.GetPropertyHeight(child);
+				EditorGUI.PropertyField(position, child, new GUIContent(child.displayName));
+				float off = position.height + EditorGUIUtility.standardVerticalSpacing;
+				position.y += off;
+				yOffset += off;
+			}
+			return yOffset;
+		}
+
+		public static void DrawChildProperties(SerializedProperty parent)
+		{
+			foreach(SerializedProperty child in parent)
+			{
+				EditorGUILayout.PropertyField(child, new GUIContent(child.displayName));
+			}
+		}
+
 		private static Gradient GetGradientValue(SerializedProperty prop)
 		{
 #if UNITY_2022_1_OR_NEWER
