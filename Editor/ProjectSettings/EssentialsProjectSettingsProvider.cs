@@ -1,4 +1,3 @@
-using UnityEssentialsEditor.TimeTracking;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,7 +22,6 @@ namespace UnityEssentialsEditor
 		{
 			EssentialsProjectSettings.Instance.DrawEditorGUI();
 			GUILayout.Space(10);
-			EditorTimeTrackingGUI.DrawGUI("Tracked Editor Times");
 			provider.Repaint();
 		}
 
