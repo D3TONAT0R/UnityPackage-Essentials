@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using UnityEditor;
 using UnityEngine;
 
 namespace UnityEssentials
@@ -47,6 +46,7 @@ namespace UnityEssentials
 		/// or <see cref="HideIfAttribute"/> are currently unsupported.</param>
 		public ButtonAttribute(params string[] buttons)
 		{
+#if UNITY_EDITOR
 			order = -1100;
 			labels = new string[buttons.Length];
 			methodNames = new string[buttons.Length];
@@ -83,9 +83,10 @@ namespace UnityEssentials
 				}
 				else
 				{
-					labels[i] = ObjectNames.NicifyVariableName(split[0]);
+					labels[i] = UnityEditor.ObjectNames.NicifyVariableName(split[0]);
 				}
 			}
+#endif
 		}
 	}
 
