@@ -18,7 +18,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Returns a copy of this texture which is read/write enabled.
 		/// </summary>
-		public static Texture2D GetReadableCopy(this Texture2D tex)
+		public static Texture2D GetReadableCopy(this Texture2D tex, string name = null)
 		{
 			if(tex.isReadable)
 			{
@@ -27,6 +27,7 @@ namespace UnityEssentials
 			}
 			Texture2D copy = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount, false)
 			{
+				name = name != null ? name : $"{tex.name} (Readable)",
 				wrapMode = tex.wrapMode,
 				filterMode = tex.filterMode
 			};

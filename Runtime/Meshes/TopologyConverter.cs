@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace UnityEssentials.Meshes
 {
@@ -11,7 +12,9 @@ namespace UnityEssentials.Meshes
 		/// </summary>
 		public static Mesh ConvertToLineMesh(Mesh triangleMesh, bool avoidDuplicates = true)
 		{
-			Mesh lineMesh = Object.Instantiate(triangleMesh);
+			Mesh lineMesh;
+			if(!triangleMesh.isReadable) lineMesh = triangleMesh.GetReadableCopy();
+			else lineMesh = Object.Instantiate(triangleMesh);
 
 			List<int> srcIndices = new List<int>();
 			List<int> indices = new List<int>();
