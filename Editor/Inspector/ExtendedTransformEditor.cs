@@ -12,6 +12,8 @@ namespace UnityEssentialsEditor
 	public class ExtendedTransformEditor : Editor
 	{
 
+		private const int TOOLBAR_BUTTON_WIDTH = 25;
+
 		private Editor _defaultEditor;
 		private Transform _transform;
 		private static bool expandExtraProperties = false;
@@ -103,6 +105,7 @@ namespace UnityEssentialsEditor
 
 		private void DrawToolbars()
 		{
+			//TODO: Check multi-object support
 			if(Foldout("Tools", ref expandExtraTools, "TransformToolbarExpanded"))
 			{
 				DrawPrimaryToolbar();
@@ -112,8 +115,8 @@ namespace UnityEssentialsEditor
 
 		private void DrawPrimaryToolbar()
 		{
-			EditorGUILayout.BeginHorizontal();
-			TriButtonRow(new GUIContent("Reset"), 50,
+			EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+			TriButtonRow(new GUIContent("Reset"), TOOLBAR_BUTTON_WIDTH * 2,
 				() =>
 				{
 					Undo.RecordObject(_transform, "Reset Transform");
@@ -138,12 +141,23 @@ namespace UnityEssentialsEditor
 				}
 			);
 
-			GUILayout.FlexibleSpace();
-			GUILayout.FlexibleSpace();
+			GUI.enabled = _transform.childCount > 0;
+			var rect = GUILayoutUtility.GetRect(TOOLBAR_BUTTON_WIDTH * 2, 0, GUILayout.ExpandHeight(true));
+			if(EditorGUI.DropdownButton(rect, new GUIContent("Apply"), FocusType.Passive, EditorStyles.toolbarDropDown))
+			{
+				var menu = new GenericMenu();
+				menu.AddItem(new GUIContent("Position"), false, () => ExtraContextMenuItems.ApplyPosition(new MenuCommand(_transform)));
+				menu.AddItem(new GUIContent("Rotation"), false, () => ExtraContextMenuItems.ApplyRotation(new MenuCommand(_transform)));
+				menu.AddItem(new GUIContent("Scale"), false, () => ExtraContextMenuItems.ApplyScale(new MenuCommand(_transform)));
+				menu.AddItem(new GUIContent("Full Transform"), false, () => ExtraContextMenuItems.ApplyFullTransform(new MenuCommand(_transform)));
+				menu.DropDown(rect);
+			}
+			GUI.enabled = true;
+
 			GUILayout.FlexibleSpace();
 
 			//Copy transform data
-			TriButtonRow(new GUIContent("C"), 25,
+			TriButtonRow(new GUIContent("Copy"), TOOLBAR_BUTTON_WIDTH * 2,
 				() =>
 				{
 					//Copy all transform data
@@ -174,10 +188,37 @@ namespace UnityEssentialsEditor
 				}
 			);
 
+			EditorGUILayout.EndHorizontal();
+		}
+
+		private void DrawSecondaryToolbar()
+		{
+			GUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+			TriButtonRow(new GUIContent("Align"), TOOLBAR_BUTTON_WIDTH * 2,
+				() =>
+				{
+					Undo.RecordObject(_transform, "Align Transform to View");
+					_transform.position = SceneView.lastActiveSceneView.camera.transform.position;
+					_transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
+				},
+				() =>
+				{
+					Undo.RecordObject(_transform, "Align Position to View");
+					_transform.position = SceneView.lastActiveSceneView.camera.transform.position;
+				},
+				() =>
+				{
+					Undo.RecordObject(_transform, "Align Rotation to View");
+					_transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
+				},
+				null
+			);
+
 			GUILayout.FlexibleSpace();
 
 			//Paste transform data
-			TriButtonRow(new GUIContent("P"), 25,
+			TriButtonRow(new GUIContent("Paste"), TOOLBAR_BUTTON_WIDTH * 2,
 				() =>
 				{
 					Undo.RecordObject(_transform, "Paste Transform Values");
@@ -215,7 +256,7 @@ namespace UnityEssentialsEditor
 				() => copiedScale.HasValue
 			);
 
-			EditorGUILayout.EndHorizontal();
+			GUILayout.EndHorizontal();
 		}
 
 		private bool Foldout(string label, ref bool state, string editorPref)
@@ -229,32 +270,6 @@ namespace UnityEssentialsEditor
 			return state;
 		}
 
-		private void DrawSecondaryToolbar()
-		{
-			GUILayout.BeginHorizontal();
-
-			TriButtonRow(new GUIContent("View Align"), 80,
-				() =>
-				{
-					Undo.RecordObject(_transform, "Align Transform to View");
-					_transform.position = SceneView.lastActiveSceneView.camera.transform.position;
-					_transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
-				},
-				() =>
-				{
-					Undo.RecordObject(_transform, "Align Position to View");
-					_transform.position = SceneView.lastActiveSceneView.camera.transform.position;
-				},
-				() =>
-				{
-					Undo.RecordObject(_transform, "Align Rotation to View");
-					_transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
-				},
-				null
-			);
-
-			GUILayout.EndHorizontal();
-		}
 
 		private void TriButtonRow(GUIContent mainContent, int mainWidth,
 			Action mainButton, Action posButton, Action rotButton, Action scaleButton,
@@ -262,13 +277,13 @@ namespace UnityEssentialsEditor
 		{
 			bool enabled = GUI.enabled;
 			GUI.enabled = enabled && (mainEnabledFunc?.Invoke() ?? true);
-			if(mainButton != null && GUILayout.Button(mainContent, EditorStyles.miniButtonLeft, GUILayout.Width(mainWidth))) mainButton.Invoke();
+			if(mainButton != null && GUILayout.Button(mainContent, EditorStyles.toolbarButton, GUILayout.Width(mainWidth))) mainButton.Invoke();
 			GUI.enabled = enabled && (posEnabledFunc?.Invoke() ?? true);
-			if(posButton != null && GUILayout.Button(positionIcon, EditorStyles.miniButtonMid, GUILayout.Width(25))) posButton.Invoke();
+			if(posButton != null && GUILayout.Button(positionIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) posButton.Invoke();
 			GUI.enabled = enabled && (rotEnabledFunc?.Invoke() ?? true);
-			if(rotButton != null && GUILayout.Button(rotationIcon, EditorStyles.miniButtonMid, GUILayout.Width(25))) rotButton.Invoke();
+			if(rotButton != null && GUILayout.Button(rotationIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) rotButton.Invoke();
 			GUI.enabled = enabled && (scaleEnabledFunc?.Invoke() ?? true);
-			if(scaleButton != null && GUILayout.Button(scaleIcon, EditorStyles.miniButtonRight, GUILayout.Width(25))) scaleButton.Invoke();
+			if(scaleButton != null && GUILayout.Button(scaleIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) scaleButton.Invoke();
 		}
 
 		private int RecursiveChildCount(Transform transform)

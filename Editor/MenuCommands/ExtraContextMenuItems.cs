@@ -64,6 +64,17 @@ namespace UnityEssentialsEditor
 			}
 		}
 
+		[MenuItem("CONTEXT/Transform/Apply Full Transform")]
+		public static void ApplyFullTransform(MenuCommand cmd)
+		{
+			Undo.SetCurrentGroupName("Apply Full Transform");
+			int group = Undo.GetCurrentGroup();
+			ApplyPosition(cmd);
+			ApplyRotation(cmd);
+			ApplyScale(cmd);
+			Undo.CollapseUndoOperations(group);
+		}
+
 		[MenuItem("CONTEXT/Transform/Apply Position", validate = true)]
 		[MenuItem("CONTEXT/Transform/Apply Rotation", validate = true)]
 		[MenuItem("CONTEXT/Transform/Apply Scale", validate = true)]
