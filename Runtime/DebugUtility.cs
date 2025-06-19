@@ -252,12 +252,19 @@ namespace UnityEssentials
 			if(elementFunc == null) elementFunc = (t) => t.ToString();
 			stringBuilder.Clear();
 			if(!string.IsNullOrEmpty(message)) stringBuilder.Append(message + " ");
-			stringBuilder.AppendLine($"{array.GetType().GetElementType()}[{array.Count()}]");
-			int i = 0;
-			foreach(var elem in array)
+			if(array != null)
 			{
-				stringBuilder.AppendLine($"{i}: {(elem != null ? elementFunc(elem) : "(null)")}");
-				i++;
+				stringBuilder.AppendLine($"{array.GetType().GetElementType()}[{array.Count()}]");
+				int i = 0;
+				foreach(var elem in array)
+				{
+					stringBuilder.AppendLine($"{i}: {(elem != null ? elementFunc(elem) : "(null)")}");
+					i++;
+				}
+			}
+			else
+			{
+				stringBuilder.AppendLine("(null)");
 			}
 			Debug.Log(stringBuilder.ToString());
 		}
@@ -268,19 +275,26 @@ namespace UnityEssentials
 		public static void LogTransform(string message, Transform t, bool oneLine = false, bool position = true, bool rotation = true, bool scale = true)
 		{
 			stringBuilder.Clear();
-			if(message == null) stringBuilder.Append(t.name);
+			if(message == null && t) stringBuilder.Append(t.name);
 			stringBuilder.AppendLine(message);
-			if(!oneLine)
+			if(t)
 			{
-				if(position) stringBuilder.AppendLine("  Position: " + t.position);
-				if(rotation) stringBuilder.AppendLine("  Rotation: " + t.eulerAngles);
-				if(scale) stringBuilder.AppendLine("  Scale (Local): " + t.localScale);
+				if(!oneLine)
+				{
+					if(position) stringBuilder.AppendLine("  Position: " + t.position);
+					if(rotation) stringBuilder.AppendLine("  Rotation: " + t.eulerAngles);
+					if(scale) stringBuilder.AppendLine("  Scale (Local): " + t.localScale);
+				}
+				else
+				{
+					if(position) stringBuilder.Append(" Pos: " + t.position);
+					if(rotation) stringBuilder.Append(" Rot: " + t.eulerAngles);
+					if(scale) stringBuilder.Append(" Scale (Local): " + t.localScale);
+				}
 			}
 			else
 			{
-				if(position) stringBuilder.Append(" Pos: " + t.position);
-				if(rotation) stringBuilder.Append(" Rot: " + t.eulerAngles);
-				if(scale) stringBuilder.Append(" Scale (Local): " + t.localScale);
+				stringBuilder.Append(" (null)");
 			}
 			Debug.Log(stringBuilder.ToString());
 		}
