@@ -46,7 +46,7 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds an outlined cube.
 		/// </summary>
-		public void AddCube(Vector3 center, Vector3 size, Color32? color = null)
+		public void AddCube(Vector3 center, Vector3 size)
 		{
 			var extents = size * 0.5f;
 			int startIndex = verts.Count;
@@ -79,17 +79,17 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds an outlined cube between the given points.
 		/// </summary>
-		public void AddCubeFromTo(Vector3 a, Vector3 b, Color32? color = null)
+		public void AddCubeFromTo(Vector3 a, Vector3 b)
 		{
 			var center = (a + b) / 2f;
 			var size = (b - a).Abs();
-			AddCube(center, size, color);
+			AddCube(center, size);
 		}
 
 		/// <summary>
 		/// Adds a rectangular line.
 		/// </summary>
-		public void AddRectangle(Vector3 center, Quaternion rotation, Vector2 size, Color32? color = null)
+		public void AddRectangle(Vector3 center, Quaternion rotation, Vector2 size)
 		{
 			var extents = size / 2f;
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
@@ -124,7 +124,7 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds a cylinder.
 		/// </summary>
-		public void AddCylinder(Vector3 center, Quaternion rotation, float radius1, float radius2, float height, int detail = 32, Color32? color = null)
+		public void AddCylinder(Vector3 center, Quaternion rotation, float radius1, float radius2, float height, int detail = 32)
 		{
 			GetCirclePoints(tempVertexCache, detail, 1f);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
@@ -147,15 +147,15 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds a cylinder.
 		/// </summary>
-		public void AddCylinder(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32, Color32? color = null)
+		public void AddCylinder(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32)
 		{
-			AddCylinder(center, rotation, radius, radius, height, detail, color);
+			AddCylinder(center, rotation, radius, radius, height, detail);
 		}
 
 		/// <summary>
 		/// Adds a cone.
 		/// </summary>
-		public void AddCone(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32, Color32? color = null)
+		public void AddCone(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32)
 		{
 			GetCirclePoints(tempVertexCache, detail, radius);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
@@ -176,7 +176,7 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds a sphere.
 		/// </summary>
-		public void AddSphere(Vector3 pos, float radius, int latDetail = 32, int lonDetail = 32, Color32? color = null)
+		public void AddSphere(Vector3 pos, float radius, int latDetail = 32, int lonDetail = 32)
 		{
 			int offset = verts.Count;
 			lonDetail /= 2;
@@ -212,6 +212,7 @@ namespace UnityEssentials.Meshes
 		/// </summary>
 		public override void BuildMesh(Mesh mesh)
 		{
+			mesh.Clear();
 			mesh.SetVertices(verts);
 			if(vertexColors != null && vertexColors.Count > 0) mesh.SetColors(vertexColors);
 			mesh.SetIndices(indices, MeshTopology.Lines, 0);
