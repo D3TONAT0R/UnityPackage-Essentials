@@ -1,10 +1,13 @@
+#if UNITY_2021_2_OR_NEWER
 using UnityEngine;
 using UnityEngine.Rendering;
+#endif
 
 namespace UnityEssentials
 {
 	public static class MeshExtensions
 	{
+#if UNITY_2021_2_OR_NEWER
 		/// <summary>
 		/// Returns a copy of this mesh which is read/write enabled.
 		/// </summary>
@@ -15,10 +18,10 @@ namespace UnityEssentials
 				Debug.LogWarning($"Mesh '{mesh.name}' is already readable.");
 				return mesh;
 			}
-			var copy = new Mesh { name = $"{mesh.name} (Readable)" };
+			var copy = new Mesh { name = name ?? $"{mesh.name} (Readable)" };
 			copy.indexFormat = mesh.indexFormat;
 			// Handle vertices
-			GraphicsBuffer verticesBuffer = mesh.GetVertexBuffer(0);
+			GraphicsBuffer verticesBuffer = mesh.GetNativeVertexBufferPtr.GetVertexBuffer(0);
 			int totalSize = verticesBuffer.stride * verticesBuffer.count;
 			byte[] data = new byte[totalSize];
 			verticesBuffer.GetData(data);
@@ -49,5 +52,6 @@ namespace UnityEssentials
 			copy.bounds = mesh.bounds;
 			return copy;
 		}
+#endif
 	}
 }

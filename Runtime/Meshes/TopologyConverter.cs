@@ -13,7 +13,14 @@ namespace UnityEssentials.Meshes
 		public static Mesh ConvertToLineMesh(Mesh triangleMesh, bool avoidDuplicates = true)
 		{
 			Mesh lineMesh;
-			if(!triangleMesh.isReadable) lineMesh = triangleMesh.GetReadableCopy();
+			if(!triangleMesh.isReadable)
+			{
+#if UNITY_2021_2_OR_NEWER
+				lineMesh = triangleMesh.GetReadableCopy();
+#else
+				throw new System.InvalidOperationException("Mesh must be readable: " + triangleMesh);
+#endif
+			}
 			else lineMesh = Object.Instantiate(triangleMesh);
 
 			List<int> srcIndices = new List<int>();
