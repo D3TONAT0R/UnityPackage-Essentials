@@ -15,7 +15,12 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				return;
 			}
 			EditorGUI.BeginProperty(position, label, property);
-			property.objectReferenceValue = EditorGUI.ObjectField(position, label, property.objectReferenceValue, typeof(GameObject), false);
+			EditorGUI.BeginChangeCheck();
+			var newObject = EditorGUI.ObjectField(position, label, property.objectReferenceValue, typeof(GameObject), false);
+			if(EditorGUI.EndChangeCheck())
+			{
+				property.objectReferenceValue = newObject;
+			}
 			EditorGUI.EndProperty();
 		}
 

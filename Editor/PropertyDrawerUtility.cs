@@ -580,32 +580,137 @@ namespace UnityEssentialsEditor
 			var textFieldStyle = monospaceTextFields ? EditorGUIExtras.GetMonospaceTextField(prop) : GUI.skin.textField;
 			switch(prop.propertyType)
 			{
-				case SerializedPropertyType.Integer: prop.intValue = EditorGUI.IntField(position, label, prop.intValue, textFieldStyle); break;
-				case SerializedPropertyType.Boolean: prop.boolValue = EditorGUI.Toggle(position, label, prop.boolValue, textFieldStyle); break;
-				case SerializedPropertyType.Float: prop.floatValue = EditorGUI.FloatField(position, label, prop.floatValue, textFieldStyle); break;
-				case SerializedPropertyType.String: prop.stringValue = EditorGUI.TextField(position, label, prop.stringValue, textFieldStyle); break;
-				case SerializedPropertyType.Color: prop.colorValue = EditorGUI.ColorField(position, label, prop.colorValue); break;
-				case SerializedPropertyType.ObjectReference: prop.objectReferenceValue = EditorGUI.ObjectField(position, label, prop.objectReferenceValue, GetTypeOfProperty(prop), true); break;
-				case SerializedPropertyType.LayerMask: prop.intValue = EditorGUI.LayerField(position, label, prop.intValue); break;
-				case SerializedPropertyType.Enum: prop.intValue = Convert.ToInt32(EditorGUI.EnumPopup(position, label, (Enum)GetTargetObjectOfProperty(prop))); break;
-				case SerializedPropertyType.Vector2: prop.vector2Value = EditorGUI.Vector2Field(position, label, prop.vector2Value); break;
-				case SerializedPropertyType.Vector3: prop.vector3Value = EditorGUI.Vector3Field(position, label, prop.vector3Value); break;
-				case SerializedPropertyType.Vector4: prop.vector4Value = EditorGUI.Vector4Field(position, label, prop.vector4Value); break;
-				case SerializedPropertyType.Rect: prop.rectValue = EditorGUI.RectField(position, label, prop.rectValue); break;
-				case SerializedPropertyType.ArraySize: prop.arraySize = EditorGUI.IntField(position, label, prop.intValue, textFieldStyle); break;
-				case SerializedPropertyType.Character: prop.stringValue = EditorGUI.TextField(position, label, prop.stringValue, textFieldStyle); break;
-				case SerializedPropertyType.AnimationCurve: prop.animationCurveValue = EditorGUI.CurveField(position, label, prop.animationCurveValue); break;
-				case SerializedPropertyType.Bounds: prop.boundsValue = EditorGUI.BoundsField(position, label, prop.boundsValue); break;
-				case SerializedPropertyType.Gradient: SetGradientValue(prop, EditorGUI.GradientField(position, label, GetGradientValue(prop))); break;
-				case SerializedPropertyType.Quaternion: prop.quaternionValue = EditorGUI.Vector4Field(position, label, prop.quaternionValue.ToVector4()).ToQuaternion(); break;
-				case SerializedPropertyType.ExposedReference: throw new NotImplementedException();
-				case SerializedPropertyType.FixedBufferSize: throw new InvalidOperationException();
-				case SerializedPropertyType.Vector2Int: prop.vector2IntValue = EditorGUI.Vector2IntField(position, label, prop.vector2IntValue); break;
-				case SerializedPropertyType.Vector3Int: prop.vector3IntValue = EditorGUI.Vector3IntField(position, label, prop.vector3IntValue); break;
-				case SerializedPropertyType.RectInt: prop.rectIntValue = EditorGUI.RectIntField(position, prop.rectIntValue); break;
-				case SerializedPropertyType.BoundsInt: prop.boundsIntValue = EditorGUI.BoundsIntField(position, label, prop.boundsIntValue); break;
-				case SerializedPropertyType.ManagedReference: throw new NotImplementedException();
+				case SerializedPropertyType.Integer:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.IntField(position, label, prop.intValue, textFieldStyle),
+						i => prop.intValue = i);
+					break;
+				case SerializedPropertyType.Boolean:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.Toggle(position, label, prop.boolValue, textFieldStyle),
+						b => prop.boolValue = b);
+					break;
+				case SerializedPropertyType.Float:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.FloatField(position, label, prop.floatValue, textFieldStyle),
+						f => prop.floatValue = f);
+					break;
+				case SerializedPropertyType.String:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.TextField(position, label, prop.stringValue, textFieldStyle),
+						s => prop.stringValue = s);
+					break;
+				case SerializedPropertyType.Color:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.ColorField(position, label, prop.colorValue),
+						c => prop.colorValue = c);
+					break;
+				case SerializedPropertyType.ObjectReference:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.ObjectField(position, label, prop.objectReferenceValue, GetTypeOfProperty(prop), true),
+						o => prop.objectReferenceValue = o);
+					break;
+				case SerializedPropertyType.LayerMask:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.LayerField(position, label, prop.intValue),
+						l => prop.intValue = l);
+					break;
+				case SerializedPropertyType.Enum:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.EnumPopup(position, label, (Enum)GetTargetObjectOfProperty(prop)),
+						e => prop.intValue = Convert.ToInt32(e));
+					break;
+				case SerializedPropertyType.Vector2:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.Vector2Field(position, label, prop.vector2Value),
+						v => prop.vector2Value = v);
+					break;
+				case SerializedPropertyType.Vector3:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.Vector3Field(position, label, prop.vector3Value),
+						v => prop.vector3Value = v);
+					break;
+				case SerializedPropertyType.Vector4:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.Vector4Field(position, label, prop.vector4Value),
+						v => prop.vector4Value = v);
+					break;
+				case SerializedPropertyType.Rect:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.RectField(position, label, prop.rectValue),
+						r => prop.rectValue = r);
+					break;
+				case SerializedPropertyType.ArraySize:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.IntField(position, label, prop.arraySize, textFieldStyle),
+						s => prop.arraySize = s);
+					break;
+				case SerializedPropertyType.Character:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.TextField(position, label, prop.stringValue, textFieldStyle),
+						s => prop.stringValue = s);
+					break;
+				case SerializedPropertyType.AnimationCurve:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.CurveField(position, label, prop.animationCurveValue),
+						c => prop.animationCurveValue = c);
+					break;
+				case SerializedPropertyType.Bounds:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.BoundsField(position, label, prop.boundsValue),
+						b => prop.boundsValue = b);
+					break;
+				case SerializedPropertyType.Gradient:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.GradientField(position, label, GetGradientValue(prop)),
+						g => SetGradientValue(prop, g));
+					break;
+				case SerializedPropertyType.Quaternion:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.Vector4Field(position, label, prop.quaternionValue.ToVector4()),
+						v => prop.quaternionValue = v.ToQuaternion());
+					break;
+				case SerializedPropertyType.ExposedReference:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.ObjectField(position, label, prop.exposedReferenceValue, GetTypeOfProperty(prop), true),
+						o => prop.exposedReferenceValue = o);
+					break;
+				case SerializedPropertyType.FixedBufferSize:
+					throw new InvalidOperationException("Read only.");
+				case SerializedPropertyType.Vector2Int:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.Vector2IntField(position, label, prop.vector2IntValue),
+						v => prop.vector2IntValue = v);
+					break;
+				case SerializedPropertyType.Vector3Int:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.Vector3IntField(position, label, prop.vector3IntValue),
+						v => prop.vector3IntValue = v);
+					break;
+				case SerializedPropertyType.RectInt:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.RectIntField(position, label, prop.rectIntValue),
+						r => prop.rectIntValue = r);
+					break;
+				case SerializedPropertyType.BoundsInt:
+					HandleDirectPropertyDraw(
+						() => EditorGUI.BoundsIntField(position, label, prop.boundsIntValue),
+						b => prop.boundsIntValue = b);
+					break;
+				case SerializedPropertyType.ManagedReference:
+					throw new NotImplementedException();
+					break;
 				default: throw new NotImplementedException();
+			}
+		}
+
+		private static void HandleDirectPropertyDraw<T>(Func<T> drawer, Action<T> applier)
+		{
+			EditorGUI.BeginChangeCheck();
+			T newValue = drawer();
+			if(EditorGUI.EndChangeCheck())
+			{
+				applier(newValue);
 			}
 		}
 
