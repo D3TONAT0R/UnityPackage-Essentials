@@ -21,7 +21,7 @@ namespace UnityEssentials
 			var copy = new Mesh { name = name ?? $"{mesh.name} (Readable)" };
 			copy.indexFormat = mesh.indexFormat;
 			// Handle vertices
-			GraphicsBuffer verticesBuffer = mesh.GetNativeVertexBufferPtr.GetVertexBuffer(0);
+			GraphicsBuffer verticesBuffer = mesh.GetVertexBuffer(0);
 			int totalSize = verticesBuffer.stride * verticesBuffer.count;
 			byte[] data = new byte[totalSize];
 			verticesBuffer.GetData(data);
