@@ -30,6 +30,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			EditorGUI.BeginProperty(position, label, property);
+
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.Float, SerializedPropertyType.Integer)) return;
 			var attr = PropertyDrawerUtility.GetAttribute<ProgressBarAttribute>(property, true);
 
@@ -41,6 +43,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			btnPosition.height = 16;
 			btnPosition.y++;
 			manualEdit = GUI.Toggle(btnPosition, manualEdit, GUIContent.none, manualEdit ? manualEditCloseButton : manualEditButton);
+
+			EditorGUI.EndProperty();
 		}
 
 		private void DrawBarGUI(Rect position, SerializedProperty property, GUIContent label, ProgressBarAttribute attr)
