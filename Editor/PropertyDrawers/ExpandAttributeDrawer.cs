@@ -55,7 +55,7 @@ namespace UnityEssentialsEditor
 				if(!IsVisible(child)) continue;
 				float height = EditorGUI.GetPropertyHeight(child);
 				position.NextProperty(height);
-				EditorGUI.PropertyField(position, child);
+				EditorGUI.PropertyField(position, child, true);
 			}
 		}
 
@@ -73,7 +73,9 @@ namespace UnityEssentialsEditor
 			}
 			position.height = EditorGUIUtility.singleLineHeight;
 			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var fieldPos, 4);
+			EditorGUI.BeginProperty(position, label, property);
 			property.isExpanded = EditorGUI.Foldout(labelPos, property.isExpanded, label);
+			EditorGUI.EndProperty();
 			EditorGUI.PropertyField(fieldPos, property, GUIContent.none);
 			if(property.isExpanded && obj != null)
 			{
@@ -81,12 +83,16 @@ namespace UnityEssentialsEditor
 				EditorGUI.indentLevel++;
 				var so = new SerializedObject(obj);
 				var prop = so.GetIterator();
-				prop.NextVisible(true);
+				if(!prop.NextVisible(true))
+				{
+					EditorGUI.indentLevel--;
+					return;
+				}
 				while(prop.NextVisible(false))
 				{
 					if(!IsVisible(prop)) continue;
 					position.NextProperty(EditorGUI.GetPropertyHeight(prop));
-					EditorGUI.PropertyField(position, prop);
+					EditorGUI.PropertyField(position, prop, true);
 				}
 				so.ApplyModifiedProperties();
 				EditorGUI.indentLevel--;
@@ -121,7 +127,7 @@ namespace UnityEssentialsEditor
 					height = EditorGUIUtility.singleLineHeight;
 					var so = new SerializedObject(obj);
 					var prop = so.GetIterator();
-					prop.NextVisible(true);
+					if(!prop.NextVisible(true)) return height;
 					while(prop.NextVisible(false))
 					{
 						if(!IsVisible(prop)) continue;
