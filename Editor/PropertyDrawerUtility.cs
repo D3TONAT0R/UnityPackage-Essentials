@@ -548,7 +548,7 @@ namespace UnityEssentialsEditor
 				case SerializedPropertyType.Color: prop.colorValue = (Color)value; break;
 				case SerializedPropertyType.ObjectReference: prop.objectReferenceValue = (UnityEngine.Object)value; break;
 				case SerializedPropertyType.LayerMask: prop.intValue = (int)value; break;
-				case SerializedPropertyType.Enum: prop.intValue = (int)value; break;
+				case SerializedPropertyType.Enum: prop.intValue = Convert.ToInt32(value); break;
 				case SerializedPropertyType.Vector2: prop.vector2Value = (Vector2)value; break;
 				case SerializedPropertyType.Vector3: prop.vector3Value = (Vector3)value; break;
 				case SerializedPropertyType.Vector4: prop.vector4Value = (Vector4)value; break;
@@ -617,7 +617,7 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.Enum:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.EnumPopup(position, label, (Enum)GetTargetObjectOfProperty(prop)),
+						() => EditorGUI.EnumPopup(position, label, (Enum)Enum.ToObject(prop.GetManagedType(), prop.intValue)),
 						e => prop.intValue = Convert.ToInt32(e));
 					break;
 				case SerializedPropertyType.Vector2:

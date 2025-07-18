@@ -21,7 +21,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
-				Debug.Log("has different values: "+property.displayName);
 				Enum output = EditorGUIExtras.EnumButtons(position, label, null, enumType);
 				if(output != default)
 				{

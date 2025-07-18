@@ -264,8 +264,10 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			prop.serializedObject.ApplyModifiedProperties();
 			var key = k.GetArrayElementAtIndex(k.arraySize - 1);
 			var keyValue = PropertyDrawerUtility.GetTargetObjectOfProperty(key);
+			var isEnum = PropertyDrawerUtility.GetTypeOfProperty(key).IsEnum;
 			var iList = (IList)PropertyDrawerUtility.GetTargetObjectOfProperty(k);
-			var uniqueKey = k.arraySize > 1 ? GetUniqueKey(keyValue, iList) : keyValue;
+			//Skip unique key generation for enums since they are near impossible to generate unique keys for
+			var uniqueKey = (k.arraySize > 1 && !isEnum) ? GetUniqueKey(keyValue, iList) : keyValue;
 			PropertyDrawerUtility.SetValue(key, uniqueKey);
 			var value = v.GetArrayElementAtIndex(v.arraySize - 1);
 			var valueValue = CreateValueIfNeeded(valueType);
@@ -346,6 +348,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private static object GetUniqueKey(object key, IList _keys)
 		{
 			if(_keys.Count == 0) return key;
+			Debug.Log(key.GetType());
 			if(key is string s)
 			{
 				return ObjectNames.GetUniqueName(((List<string>)_keys).ToArray(), s);
