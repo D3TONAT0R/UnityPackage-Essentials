@@ -70,7 +70,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.ObjectReference)) return;
-			if(errorString.Length > 0)
+			if(!string.IsNullOrEmpty(errorString))
 			{
 				var hr = position;
 				hr.xMin += EditorGUIUtility.labelWidth;
@@ -84,6 +84,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			float h = EditorGUIUtility.singleLineHeight;
+			if(property.hasMultipleDifferentValues)
+			{
+				errorString = "";
+				return h;
+			}
 			if(property.propertyType != SerializedPropertyType.ObjectReference) return h;
 			CheckTarget(property);
 			if(errorString.Length > 0)
