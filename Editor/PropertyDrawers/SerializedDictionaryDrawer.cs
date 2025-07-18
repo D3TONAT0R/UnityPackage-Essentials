@@ -25,6 +25,14 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if(property.hasMultipleDifferentValues)
+			{
+				//If the property has multiple different values, we cannot draw it properly
+				EditorGUI.BeginProperty(position, label, property);
+				EditorGUI.LabelField(position, label, new GUIContent("—"));
+				EditorGUI.EndProperty();
+				return;
+			}
 			if(indexStyle == null)
 			{
 				indexStyle = new GUIStyle(EditorStyles.miniLabel)
@@ -374,7 +382,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			if(property.isExpanded)
+			if(property.isExpanded && !property.hasMultipleDifferentValues)
 			{
 				int count = property.FindPropertyRelative(KEYS_FIELD_NAME).arraySize;
 				return (count + 2) * EditorGUIUtility.singleLineHeight + (count + 1) * EditorGUIUtility.standardVerticalSpacing;
