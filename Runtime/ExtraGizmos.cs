@@ -1,9 +1,25 @@
-﻿using UnityEssentials.Meshes;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEssentials.Meshes;
 
 namespace UnityEssentials
 {
+	public struct GizmoColorScope : System.IDisposable
+	{
+		private Color color;
+
+		public GizmoColorScope(Color c)
+		{
+			color = Gizmos.color;
+			Gizmos.color = c;
+		}
+
+		public void Dispose()
+		{
+			Gizmos.color = color;
+		}
+	}
+
 	/// <summary>
 	/// Provides additional gizmo drawing methods on top of Unity's own Gizmos.
 	/// </summary>
@@ -42,10 +58,77 @@ namespace UnityEssentials
 			coneMesh = builder.CreateMesh();
 		}
 
+		#region Enhanced built-in shapes
+
+		/// <summary>
+		/// Draws a wireframe sphere gizmo with an optional boundary circle.
+		/// </summary>
+		public static void DrawWireSphere(Vector3 center, float radius, int segments = 32, bool boundary = true, bool drawPickShape = false)
+		{
+			DrawWireCircle(center, Vector3.up, radius, segments);
+			DrawWireCircle(center, Vector3.right, radius, segments);
+			DrawWireCircle(center, Vector3.forward, radius, segments);
+			if(boundary)
+			{
+				if(Camera.current.orthographic)
+				{
+					Vector3 normal = -Gizmos.matrix.inverse.MultiplyVector(Camera.current.transform.forward);
+					float sqrMagnitude = normal.sqrMagnitude;
+					float num0 = radius * radius;
+					DrawWireCircle(center - num0 * normal / sqrMagnitude, normal, radius, segments);
+				}
+				else
+				{
+					Vector3 normal = -Gizmos.matrix.inverse.MultiplyPoint3x4(Camera.current.transform.position - center);
+					float sqrMagnitude = normal.sqrMagnitude;
+					float num0 = radius * radius;
+					float num1 = num0 * num0 / sqrMagnitude;
+					float num2 = Mathf.Sqrt(num0 - num1);
+					DrawWireCircle(center - num0 * normal / sqrMagnitude, normal, num2, segments);
+				}
+			}
+			if(drawPickShape)
+			{
+				using(new GizmoColorScope(Color.clear))
+				{
+					Gizmos.DrawSphere(center, radius);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Draws a wireframe cube gizmo.
+		/// </summary>
+		public static void DrawWireCube(Vector3 center, Vector3 size, bool drawPickShape = false)
+		{
+			Gizmos.DrawWireCube(center, size);
+			if(drawPickShape)
+			{
+				using(new GizmoColorScope(Color.clear))
+				{
+					Gizmos.DrawCube(center, size);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Draws a wireframe cube gizmo between the two given points.
+		/// </summary>
+		public static void DrawWireCubeFromTo(Vector3 a, Vector3 b, bool drawPickShape = false)
+		{
+			var center = (a + b) * 0.5f;
+			var size = (b - a).Abs();
+			DrawWireCube(center, size, drawPickShape);
+		}
+
+		#endregion
+
+		#region New shapes
+
 		/// <summary>
 		/// Draws a wireframe circle gizmo.
 		/// </summary>
-		public static void DrawWireCircle(Vector3 center, Vector3 normal, float radius, int segments = 64)
+		public static void DrawWireCircle(Vector3 center, Vector3 normal, float radius, int segments = 64, bool drawPickShape = false)
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
@@ -56,6 +139,14 @@ namespace UnityEssentials
 			}
 			Gizmos.DrawLine(circlePointCache[segments - 1], circlePointCache[0]);
 			Gizmos.matrix = lastMatrix;
+			if(drawPickShape)
+			{
+				using(new GizmoColorScope(Color.clear))
+				{
+					DrawCircle(center, normal, radius);
+					DrawCircle(center, -normal, radius);
+				}
+			}
 		}
 
 		/// <summary>
@@ -76,17 +167,17 @@ namespace UnityEssentials
 		{
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(forward, up), Vector3.one);
-			Vector3[] points = new Vector3[segments + 1];
+			circlePointCache.Clear();
 			for(int i = 0; i <= segments; i++)
 			{
 				float a = Mathf.Lerp(fromDegrees, toDegrees, i / (float)segments) * Mathf.Deg2Rad;
-				points[i] = new Vector3(Mathf.Sin(a), 0, Mathf.Cos(a)) * radius;
+				circlePointCache.Add(new Vector3(Mathf.Sin(a), 0, Mathf.Cos(a)) * radius);
 			}
-			DrawPath(points);
+			DrawPath(circlePointCache);
 			if(edges)
 			{
-				Gizmos.DrawLine(Vector3.zero, points[0]);
-				Gizmos.DrawLine(Vector3.zero, points[points.Length - 1]);
+				Gizmos.DrawLine(Vector3.zero, circlePointCache[0]);
+				Gizmos.DrawLine(Vector3.zero, circlePointCache[circlePointCache.Count - 1]);
 			}
 			Gizmos.matrix = lMatrix;
 		}
@@ -94,28 +185,34 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a wireframe cylinder gizmo.
 		/// </summary>
-		public static void DrawWireCylinder(Vector3 center, Quaternion rotation, float radius, float height)
+		public static void DrawWireCylinder(Vector3 center, Quaternion rotation, float radius, float height, int segments = 64, bool drawPickShape = false)
 		{
 			var lastMatrix = Gizmos.matrix;
-			rotation *= Quaternion.Euler(90, 0, 0);
-			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation * Quaternion.Euler(90, 0, 0), Vector3.one);
 			float h2 = height * 0.5f;
-			DrawWireCircle(Vector3.back * h2, Vector3.back, radius);
-			DrawWireCircle(Vector3.forward * h2, Vector3.forward, radius);
+			DrawWireCircle(Vector3.back * h2, Vector3.back, radius, segments);
+			DrawWireCircle(Vector3.forward * h2, Vector3.forward, radius, segments);
 			DrawLineFrom(new Vector3(-radius, 0, -h2), Vector3.forward, height);
 			DrawLineFrom(new Vector3(radius, 0, -h2), Vector3.forward, height);
 			DrawLineFrom(new Vector3(0, -radius, -h2), Vector3.forward, height);
 			DrawLineFrom(new Vector3(0, radius, -h2), Vector3.forward, height);
 			Gizmos.matrix = lastMatrix;
+			if(drawPickShape)
+			{
+				using(new GizmoColorScope(Color.clear))
+				{
+					DrawCylinder(center, rotation, radius, height);
+				}
+			}
 		}
 
 		/// <summary>
 		/// Draws a wireframe cylinder gizmo.
 		/// </summary>
-		public static void DrawWireCylinder(Vector3 center, Axis axis, float radius, float height)
+		public static void DrawWireCylinder(Vector3 center, Axis axis, float radius, float height, int segments = 64, bool drawPickShape = false)
 		{
 			var rotation = GetAxisRotation(axis);
-			DrawWireCylinder(center, rotation, radius, height);
+			DrawWireCylinder(center, rotation, radius, height, segments, drawPickShape);
 		}
 
 		/// <summary>
@@ -141,36 +238,42 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a wireframe capsule gizmo.
 		/// </summary>
-		public static void DrawWireCapsule(Vector3 center, Quaternion rotation, float radius, float height)
+		public static void DrawWireCapsule(Vector3 center, Quaternion rotation, float radius, float height, int segments = 64, bool drawPickShape = false)
 		{
-			height = Mathf.Max(height - radius * 2, 0);
+			var h = Mathf.Max(height - radius * 2, 0);
 			var lastMatrix = Gizmos.matrix;
-			rotation *= Quaternion.Euler(90, 0, 0);
-			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
-			float h2 = height * 0.5f;
-			DrawWireCircle(Vector3.back * h2, Vector3.back, radius);
-			DrawArc(Vector3.back * h2, Vector3.up, Vector3.back, radius, -90, 90);
-			DrawArc(Vector3.back * h2, Vector3.right, Vector3.back, radius, -90, 90);
-			DrawWireCircle(Vector3.forward * h2, Vector3.forward, radius);
-			DrawArc(Vector3.forward * h2, Vector3.up, Vector3.forward, radius, -90, 90);
-			DrawArc(Vector3.forward * h2, Vector3.right, Vector3.forward, radius, -90, 90);
-			if(height > 0)
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation * Quaternion.Euler(90, 0, 0), Vector3.one);
+			float h2 = h * 0.5f;
+			DrawWireCircle(Vector3.back * h2, Vector3.back, radius, segments);
+			DrawArc(Vector3.back * h2, Vector3.up, Vector3.back, radius, -90, 90, false, segments / 2);
+			DrawArc(Vector3.back * h2, Vector3.right, Vector3.back, radius, -90, 90, false, segments / 2);
+			DrawWireCircle(Vector3.forward * h2, Vector3.forward, radius, segments);
+			DrawArc(Vector3.forward * h2, Vector3.up, Vector3.forward, radius, -90, 90, false, segments / 2);
+			DrawArc(Vector3.forward * h2, Vector3.right, Vector3.forward, radius, -90, 90, false, segments / 2);
+			if(h > 0)
 			{
-				DrawLineFrom(new Vector3(-radius, 0, -h2), Vector3.forward, height);
-				DrawLineFrom(new Vector3(radius, 0, -h2), Vector3.forward, height);
-				DrawLineFrom(new Vector3(0, -radius, -h2), Vector3.forward, height);
-				DrawLineFrom(new Vector3(0, radius, -h2), Vector3.forward, height);
+				DrawLineFrom(new Vector3(-radius, 0, -h2), Vector3.forward, h);
+				DrawLineFrom(new Vector3(radius, 0, -h2), Vector3.forward, h);
+				DrawLineFrom(new Vector3(0, -radius, -h2), Vector3.forward, h);
+				DrawLineFrom(new Vector3(0, radius, -h2), Vector3.forward, h);
 			}
 			Gizmos.matrix = lastMatrix;
+			if(drawPickShape)
+			{
+				using(new GizmoColorScope(Color.clear))
+				{
+					DrawCapsule(center, rotation, radius, height);
+				}
+			}
 		}
 
 		/// <summary>
 		/// Draws a wireframe capsule gizmo.
 		/// </summary>
-		public static void DrawWireCapsule(Vector3 center, Axis axis, float radius, float height)
+		public static void DrawWireCapsule(Vector3 center, Axis axis, float radius, float height, int segments = 64, bool drawPickShape = false)
 		{
 			var rotation = GetAxisRotation(axis);
-			DrawWireCapsule(center, rotation, radius, height);
+			DrawWireCapsule(center, rotation, radius, height, segments, drawPickShape);
 		}
 
 		/// <summary>
@@ -223,7 +326,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a wireframe cone gizmo.
 		/// </summary>
-		public static void DrawWireCone(Vector3 center, Quaternion rotation, float radius, float height, int circleSegments = 64)
+		public static void DrawWireCone(Vector3 center, Quaternion rotation, float radius, float height, int circleSegments = 64, bool drawPickShape = false)
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
@@ -234,15 +337,22 @@ namespace UnityEssentials
 			Gizmos.DrawLine(Vector3.forward * radius, top);
 			Gizmos.DrawLine(Vector3.back * radius, top);
 			Gizmos.matrix = lastMatrix;
+			if(drawPickShape)
+			{
+				using(new GizmoColorScope(Color.clear))
+				{
+					DrawCone(center, rotation, radius, height);
+				}
+			}
 		}
 
 		/// <summary>
 		/// Draws a wireframe cone gizmo.
 		/// </summary>
-		public static void DrawWireCone(Vector3 center, AxisDirection direction, float radius, float height, int circleSegments = 64)
+		public static void DrawWireCone(Vector3 center, AxisDirection direction, float radius, float height, int circleSegments = 64, bool drawPickShape = false)
 		{
 			var rotation = GetAxisRotation(direction);
-			DrawWireCone(center, rotation, radius, height, circleSegments);
+			DrawWireCone(center, rotation, radius, height, circleSegments, drawPickShape);
 		}
 
 		/// <summary>
@@ -275,13 +385,16 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a point gizmo.
 		/// </summary>
-		public static void DrawPoint(Vector3 point, float radius, bool centerSphere = true, bool constantSize = false)
+		public static void DrawPoint(Vector3 point, float radius, bool centerSphere = true, bool constantSize = false, bool drawPickShape = false)
 		{
 			if(constantSize) MakeConstantSize(point, ref radius);
 			Gizmos.DrawLine(point + Vector3.left * radius, point + Vector3.right * radius);
 			Gizmos.DrawLine(point + Vector3.down * radius, point + Vector3.up * radius);
 			Gizmos.DrawLine(point + Vector3.back * radius, point + Vector3.forward * radius);
-			if(centerSphere) Gizmos.DrawWireSphere(point, radius * 0.5f);
+			if(centerSphere)
+			{
+				DrawWireSphere(point, radius * 0.5f, 16, true, drawPickShape);
+			}
 		}
 
 		/// <summary>
@@ -294,7 +407,7 @@ namespace UnityEssentials
 			Gizmos.DrawLine(Vector3.zero, Vector3.forward * length);
 			float headLength = fixedHeadLength ?? length * 0.25f;
 			float headStart = length - headLength;
-			DrawWireCone(Vector3.forward * headStart, AxisDirection.ZPos, headLength * 0.25f, headLength, 16);
+			DrawWireCone(Vector3.forward * headStart, AxisDirection.ZPos, headLength * 0.25f, headLength, 4);
 			Gizmos.matrix = lastMatrix;
 		}
 
@@ -386,9 +499,20 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a path between the given points.
 		/// </summary>
-		public static void DrawPath(Vector3[] points)
+		public static void DrawPath(params Vector3[] points)
 		{
 			for(int i = 0; i < points.Length - 1; i++)
+			{
+				Gizmos.DrawLine(points[i], points[i + 1]);
+			}
+		}
+
+		/// <summary>
+		/// Draws a path between the given points.
+		/// </summary>
+		public static void DrawPath(List<Vector3> points)
+		{
+			for(int i = 0; i < points.Count - 1; i++)
 			{
 				Gizmos.DrawLine(points[i], points[i + 1]);
 			}
@@ -521,6 +645,8 @@ namespace UnityEssentials
 			return style.padding.Add(rect);
 		}
 #endif
+
+		#endregion
 
 		#region Terrain Projected Shapes
 
