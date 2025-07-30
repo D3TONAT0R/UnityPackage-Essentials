@@ -71,41 +71,47 @@ namespace UnityEssentialsEditor
 		{
 			if(Foldout("Extra Properties", ref expandExtraProperties, "TransformExtraPropertiesExpanded"))
 			{
-				EditorGUI.BeginChangeCheck();
-				var worldPos = EditorGUILayout.Vector3Field("Position (world)", _transform.position);
-				if(EditorGUI.EndChangeCheck())
+				if(targets.Length == 1)
 				{
-					Undo.RecordObject(_transform, "Move (world)");
-					_transform.position = worldPos;
-				}
-				EditorGUI.BeginChangeCheck();
-				var worldEuler = EditorGUILayout.Vector3Field("Rotation (world)", _transform.eulerAngles);
-				if(EditorGUI.EndChangeCheck())
-				{
-					Undo.RecordObject(_transform, "Rotate (world)");
-					_transform.eulerAngles = worldEuler;
-				}
-				GUI.backgroundColor = Color.white.WithAlpha(0.5f);
-				EditorGUILayout.Vector3Field("Scale (lossy)", _transform.lossyScale);
-				EditorGUILayout.Space();
-				EditorGUI.BeginChangeCheck();
-				EditorGUILayout.Vector3Field("Up Direction", _transform.up);
-				EditorGUILayout.Vector3Field("Forward Direction", _transform.forward);
-				GUI.backgroundColor = Color.white;
-				EditorGUILayout.Space();
-				EditorGUILayout.LabelField("Child Count (recursive)", $"{_transform.childCount} ({RecursiveChildCount(_transform)})");
-				EditorGUILayout.LabelField("Parent Depth", RecursiveParentCount(_transform).ToString());
-				GUILayout.BeginHorizontal();
-				GUILayout.Label("Hierarchy Path", GUILayout.Width(EditorGUIUtility.labelWidth - 3));
+					EditorGUI.BeginChangeCheck();
+					var worldPos = EditorGUILayout.Vector3Field("Position (world)", _transform.position);
+					if(EditorGUI.EndChangeCheck())
+					{
+						Undo.RecordObject(_transform, "Move (world)");
+						_transform.position = worldPos;
+					}
+					EditorGUI.BeginChangeCheck();
+					var worldEuler = EditorGUILayout.Vector3Field("Rotation (world)", _transform.eulerAngles);
+					if(EditorGUI.EndChangeCheck())
+					{
+						Undo.RecordObject(_transform, "Rotate (world)");
+						_transform.eulerAngles = worldEuler;
+					}
+					GUI.backgroundColor = Color.white.WithAlpha(0.5f);
+					EditorGUILayout.Vector3Field("Scale (lossy)", _transform.lossyScale);
+					EditorGUILayout.Space();
+					EditorGUI.BeginChangeCheck();
+					EditorGUILayout.Vector3Field("Up Direction", _transform.up);
+					EditorGUILayout.Vector3Field("Forward Direction", _transform.forward);
+					GUI.backgroundColor = Color.white;
+					EditorGUILayout.Space();
+					EditorGUILayout.LabelField("Child Count (recursive)", $"{_transform.childCount} ({RecursiveChildCount(_transform)})");
+					EditorGUILayout.LabelField("Parent Depth", RecursiveParentCount(_transform).ToString());
+					GUILayout.BeginHorizontal();
+					GUILayout.Label("Hierarchy Path", GUILayout.Width(EditorGUIUtility.labelWidth - 3));
 
-				GUILayout.Label(_transform.GetHierarchyPathString(), pathLabelStyle, GUILayout.Width(EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth - 30));
-				GUILayout.EndHorizontal();
+					GUILayout.Label(_transform.GetHierarchyPathString(), pathLabelStyle, GUILayout.Width(EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth - 30));
+					GUILayout.EndHorizontal();
+				}
+				else
+				{
+					GUILayout.Label("Multi-object editing is not supported.", EditorStyles.centeredGreyMiniLabel);
+				}
 			}
 		}
 
 		private void DrawToolbars()
 		{
-			//TODO: Check multi-object support
 			if(Foldout("Tools", ref expandExtraTools, "TransformToolbarExpanded"))
 			{
 				DrawPrimaryToolbar();
@@ -117,27 +123,27 @@ namespace UnityEssentialsEditor
 		{
 			EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 			TriButtonRow(new GUIContent("Reset"), TOOLBAR_BUTTON_WIDTH * 2,
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Reset Transform");
-					_transform.localPosition = Vector3.zero;
-					_transform.localRotation = Quaternion.identity;
-					_transform.localScale = Vector3.one;
+					Undo.RecordObject(t, "Reset Transform");
+					t.localPosition = Vector3.zero;
+					t.localRotation = Quaternion.identity;
+					t.localScale = Vector3.one;
 				},
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Reset Position");
-					_transform.localPosition = Vector3.zero;
+					Undo.RecordObject(t, "Reset Position");
+					t.localPosition = Vector3.zero;
 				},
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Reset Rotation");
-					_transform.localRotation = Quaternion.identity;
+					Undo.RecordObject(t, "Reset Rotation");
+					t.localRotation = Quaternion.identity;
 				},
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Reset Scale");
-					_transform.localScale = Vector3.one;
+					Undo.RecordObject(t, "Reset Scale");
+					t.localScale = Vector3.one;
 				}
 			);
 
@@ -157,29 +163,30 @@ namespace UnityEssentialsEditor
 			GUILayout.FlexibleSpace();
 
 			//Copy transform data
+			GUI.enabled = targets.Length == 1;
 			TriButtonRow(new GUIContent("Copy"), TOOLBAR_BUTTON_WIDTH * 2,
-				() =>
+				t =>
 				{
 					//Copy all transform data
 					copiedPosition = _transform.position;
 					copiedRotation = _transform.rotation;
 					copiedScale = _transform.localScale;
 				},
-				() =>
+				t =>
 				{
 					//Copy position
 					copiedPosition = _transform.position;
 					copiedRotation = null;
 					copiedScale = null;
 				},
-				() =>
+				t =>
 				{
 					//Copy rotation
 					copiedPosition = null;
 					copiedRotation = _transform.rotation;
 					copiedScale = null;
 				},
-				() =>
+				t =>
 				{
 					//Copy scale
 					copiedPosition = null;
@@ -187,6 +194,7 @@ namespace UnityEssentialsEditor
 					copiedScale = _transform.localScale;
 				}
 			);
+			GUI.enabled = true;
 
 			EditorGUILayout.EndHorizontal();
 		}
@@ -196,21 +204,21 @@ namespace UnityEssentialsEditor
 			GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
 			TriButtonRow(new GUIContent("Align"), TOOLBAR_BUTTON_WIDTH * 2,
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Align Transform to View");
-					_transform.position = SceneView.lastActiveSceneView.camera.transform.position;
-					_transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
+					Undo.RecordObject(t, "Align Transform to View");
+					t.position = SceneView.lastActiveSceneView.camera.transform.position;
+					t.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
 				},
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Align Position to View");
-					_transform.position = SceneView.lastActiveSceneView.camera.transform.position;
+					Undo.RecordObject(t, "Align Position to View");
+					t.position = SceneView.lastActiveSceneView.camera.transform.position;
 				},
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Align Rotation to View");
-					_transform.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
+					Undo.RecordObject(t, "Align Rotation to View");
+					t.rotation = SceneView.lastActiveSceneView.camera.transform.rotation;
 				},
 				null
 			);
@@ -219,35 +227,35 @@ namespace UnityEssentialsEditor
 
 			//Paste transform data
 			TriButtonRow(new GUIContent("Paste"), TOOLBAR_BUTTON_WIDTH * 2,
-				() =>
+				t =>
 				{
-					Undo.RecordObject(_transform, "Paste Transform Values");
-					if(copiedPosition.HasValue) _transform.position = copiedPosition.Value;
-					if(copiedRotation.HasValue) _transform.rotation = copiedRotation.Value;
-					if(copiedScale.HasValue) _transform.localScale = copiedScale.Value;
+					Undo.RecordObject(t, "Paste Transform Values");
+					if(copiedPosition.HasValue) t.position = copiedPosition.Value;
+					if(copiedRotation.HasValue) t.rotation = copiedRotation.Value;
+					if(copiedScale.HasValue) t.localScale = copiedScale.Value;
 				},
-				() =>
+				t =>
 				{
 					if(copiedPosition.HasValue)
 					{
-						Undo.RecordObject(_transform, "Paste Position");
-						_transform.position = copiedPosition.Value;
+						Undo.RecordObject(t, "Paste Position");
+						t.position = copiedPosition.Value;
 					}
 				},
-				() =>
+				t =>
 				{
 					if(copiedRotation.HasValue)
 					{
-						Undo.RecordObject(_transform, "Paste Rotation");
-						_transform.rotation = copiedRotation.Value;
+						Undo.RecordObject(t, "Paste Rotation");
+						t.rotation = copiedRotation.Value;
 					}
 				},
-				() =>
+				t =>
 				{
 					if(copiedScale.HasValue)
 					{
-						Undo.RecordObject(_transform, "Paste Scale");
-						_transform.localScale = copiedScale.Value;
+						Undo.RecordObject(t, "Paste Scale");
+						t.localScale = copiedScale.Value;
 					}
 				},
 				() => copiedPosition.HasValue && copiedRotation.HasValue && copiedScale.HasValue,
@@ -272,18 +280,18 @@ namespace UnityEssentialsEditor
 
 
 		private void TriButtonRow(GUIContent mainContent, int mainWidth,
-			Action mainButton, Action posButton, Action rotButton, Action scaleButton,
+			Action<Transform> mainButton, Action<Transform> posButton, Action<Transform> rotButton, Action<Transform> scaleButton,
 			Func<bool> mainEnabledFunc = null, Func<bool> posEnabledFunc = null, Func<bool> rotEnabledFunc = null, Func<bool> scaleEnabledFunc = null)
 		{
 			bool enabled = GUI.enabled;
 			GUI.enabled = enabled && (mainEnabledFunc?.Invoke() ?? true);
-			if(mainButton != null && GUILayout.Button(mainContent, EditorStyles.toolbarButton, GUILayout.Width(mainWidth))) mainButton.Invoke();
+			if(mainButton != null && GUILayout.Button(mainContent, EditorStyles.toolbarButton, GUILayout.Width(mainWidth))) ForEachTransform(mainButton);
 			GUI.enabled = enabled && (posEnabledFunc?.Invoke() ?? true);
-			if(posButton != null && GUILayout.Button(positionIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) posButton.Invoke();
+			if(posButton != null && GUILayout.Button(positionIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) ForEachTransform(posButton);
 			GUI.enabled = enabled && (rotEnabledFunc?.Invoke() ?? true);
-			if(rotButton != null && GUILayout.Button(rotationIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) rotButton.Invoke();
+			if(rotButton != null && GUILayout.Button(rotationIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) ForEachTransform(rotButton);
 			GUI.enabled = enabled && (scaleEnabledFunc?.Invoke() ?? true);
-			if(scaleButton != null && GUILayout.Button(scaleIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) scaleButton.Invoke();
+			if(scaleButton != null && GUILayout.Button(scaleIcon, EditorStyles.toolbarButton, GUILayout.Width(TOOLBAR_BUTTON_WIDTH))) ForEachTransform(scaleButton);
 		}
 
 		private int RecursiveChildCount(Transform transform)
@@ -304,6 +312,17 @@ namespace UnityEssentialsEditor
 				count += RecursiveParentCount(transform.parent) + 1;
 			}
 			return count;
+		}
+
+		private void ForEachTransform(Action<Transform> action)
+		{
+			foreach(var t in targets)
+			{
+				if(t is Transform transform)
+				{
+					action.Invoke(transform);
+				}
+			}
 		}
 	}
 }
