@@ -97,6 +97,20 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
+		/// Draws a combined wireframe and solid sphere gizmo.
+		/// </summary>
+		public static void DrawCombinedSphere(Vector3 center, float radius, float fillAlpha, int segments = 32, bool boundary = true, bool drawPickShape = false)
+		{
+			DrawWireSphere(center, radius, segments, boundary);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				Gizmos.DrawSphere(center, radius);
+			}
+		}
+
+
+
+		/// <summary>
 		/// Draws a wireframe cube gizmo.
 		/// </summary>
 		public static void DrawWireCube(Vector3 center, Vector3 size, bool drawPickShape = false)
@@ -119,6 +133,28 @@ namespace UnityEssentials
 			var center = (a + b) * 0.5f;
 			var size = (b - a).Abs();
 			DrawWireCube(center, size, drawPickShape);
+		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid cube gizmo.
+		/// </summary>
+		public static void DrawCombinedCube(Vector3 center, Vector3 size, float fillAlpha)
+		{
+			DrawWireCube(center, size);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				Gizmos.DrawCube(center, size);
+			}
+		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid cube gizmo between the two given points.
+		/// </summary>
+		public static void DrawCombinedCubeFromTo(Vector3 a, Vector3 b, float fillAlpha)
+		{
+			var center = (a + b) * 0.5f;
+			var size = (b - a).Abs();
+			DrawCombinedCube(center, size, fillAlpha);
 		}
 
 		#endregion
@@ -152,13 +188,32 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a solid circle gizmo.
 		/// </summary>
-		public static void DrawCircle(Vector3 center, Vector3 normal, float radius)
+		public static void DrawCircle(Vector3 center, Vector3 normal, float radius, bool doubleSided = true)
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal) * Quaternion.Euler(90, 0, 0), Vector3.one * radius);
 			Gizmos.DrawMesh(discMesh);
+			if(doubleSided)
+			{
+				Gizmos.matrix *= Matrix4x4.Scale(new Vector3(1, 1, -1));
+				Gizmos.DrawMesh(discMesh);
+			}
 			Gizmos.matrix = lastMatrix;
 		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid circle gizmo.
+		/// </summary>
+		public static void DrawCombinedCircle(Vector3 center, Vector3 normal, float radius, float fillAlpha, int segments = 64, bool doubleSided = true)
+		{
+			DrawWireCircle(center, normal, radius, segments);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				DrawCircle(center, normal, radius, doubleSided);
+			}
+		}
+
+
 
 		/// <summary>
 		/// Draws an arc between the given angles.
@@ -181,6 +236,8 @@ namespace UnityEssentials
 			}
 			Gizmos.matrix = lMatrix;
 		}
+
+
 
 		/// <summary>
 		/// Draws a wireframe cylinder gizmo.
@@ -234,6 +291,29 @@ namespace UnityEssentials
 			var rotation = GetAxisRotation(axis);
 			DrawCylinder(center, rotation, radius, height);
 		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid cylinder gizmo.
+		/// </summary>
+		public static void DrawCombinedCylinder(Vector3 center, Quaternion rotation, float radius, float height, float fillAlpha, int segments = 64, bool drawPickShape = false)
+		{
+			DrawWireCylinder(center, rotation, radius, height, segments, drawPickShape);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				DrawCylinder(center, rotation, radius, height);
+			}
+		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid cylinder gizmo.
+		/// </summary>
+		public static void DrawCombinedCylinder(Vector3 center, Axis axis, float radius, float height, float fillAlpha, int segments = 64, bool drawPickShape = false)
+		{
+			var rotation = GetAxisRotation(axis);
+			DrawCombinedCylinder(center, rotation, radius, height, fillAlpha, segments, drawPickShape);
+		}
+
+
 
 		/// <summary>
 		/// Draws a wireframe capsule gizmo.
@@ -304,24 +384,27 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Draws a solid cone gizmo.
+		/// Draws a combined wireframe and solid capsule gizmo.
 		/// </summary>
-		public static void DrawCone(Vector3 center, Quaternion rotation, float radius, float height)
+		public static void DrawCombinedCapsule(Vector3 center, Quaternion rotation, float radius, float height, float fillAlpha, int segments = 64)
 		{
-			var lastMatrix = Gizmos.matrix;
-			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
-			Gizmos.DrawMesh(coneMesh);
-			Gizmos.matrix = lastMatrix;
+			DrawWireCapsule(center, rotation, radius, height, segments);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				DrawCapsule(center, rotation, radius, height);
+			}
 		}
 
 		/// <summary>
-		/// Draws a solid cone gizmo.
+		/// Draws a combined wireframe and solid capsule gizmo.
 		/// </summary>
-		public static void DrawCone(Vector3 center, AxisDirection direction, float radius, float height)
+		public static void DrawCombinedCapsule(Vector3 center, Axis axis, float radius, float height, float fillAlpha, int segments = 64)
 		{
-			var rotation = GetAxisRotation(direction);
-			DrawCone(center, rotation, radius, height);
+			var rotation = GetAxisRotation(axis);
+			DrawCombinedCapsule(center, rotation, radius, height, fillAlpha, segments);
 		}
+
+
 
 		/// <summary>
 		/// Draws a wireframe cone gizmo.
@@ -356,6 +439,49 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
+		/// Draws a solid cone gizmo.
+		/// </summary>
+		public static void DrawCone(Vector3 center, Quaternion rotation, float radius, float height)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
+			Gizmos.DrawMesh(coneMesh);
+			Gizmos.matrix = lastMatrix;
+		}
+
+		/// <summary>
+		/// Draws a solid cone gizmo.
+		/// </summary>
+		public static void DrawCone(Vector3 center, AxisDirection direction, float radius, float height)
+		{
+			var rotation = GetAxisRotation(direction);
+			DrawCone(center, rotation, radius, height);
+		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid cone gizmo.
+		/// </summary>
+		public static void DrawCombinedCone(Vector3 center, Quaternion rotation, float radius, float height, float fillAlpha, int circleSegments = 64, bool drawPickShape = false)
+		{
+			DrawWireCone(center, rotation, radius, height, circleSegments, drawPickShape);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				DrawCone(center, rotation, radius, height);
+			}
+		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid cone gizmo.
+		/// </summary>
+		public static void DrawCombinedCone(Vector3 center, AxisDirection direction, float radius, float height, float fillAlpha, int circleSegments = 64, bool drawPickShape = false)
+		{
+			var rotation = GetAxisRotation(direction);
+			DrawCombinedCone(center, rotation, radius, height, fillAlpha, circleSegments, drawPickShape);
+		}
+
+
+
+		/// <summary>
 		/// Draws a line starting at the given point towards the given direction.
 		/// </summary>
 		public static void DrawLineFrom(Vector3 point, Vector3 direction, float length)
@@ -363,6 +489,8 @@ namespace UnityEssentials
 			direction = direction.normalized;
 			Gizmos.DrawLine(point, point + direction * length);
 		}
+
+
 
 		/// <summary>
 		/// Draws a red, green and blue line representing three axes.
@@ -397,6 +525,8 @@ namespace UnityEssentials
 			}
 		}
 
+
+
 		/// <summary>
 		/// Draws an arrow gizmo.
 		/// </summary>
@@ -426,6 +556,8 @@ namespace UnityEssentials
 		{
 			DrawArrow(origin, Quaternion.LookRotation(direction.GetDirectionVector()), length, fixedHeadLength);
 		}
+
+
 
 		/// <summary>
 		/// Draws a rectangle gizmo.
@@ -475,7 +607,6 @@ namespace UnityEssentials
 			Gizmos.matrix = lMatrix;
 		}
 
-
 		/// <summary>
 		/// Draws a rouded cube gizmo.
 		/// </summary>
@@ -495,6 +626,8 @@ namespace UnityEssentials
 			DrawRadiusRectangle(center + new Vector3(0, 0, -size.z * 0.5f + inset), Vector3.forward, size.XY(), radius, grow);
 			DrawRadiusRectangle(center + new Vector3(0, 0, size.z * 0.5f - inset), Vector3.forward, size.XY(), radius, grow);
 		}
+		
+
 
 		/// <summary>
 		/// Draws a path between the given points.
@@ -518,6 +651,8 @@ namespace UnityEssentials
 			}
 		}
 
+
+
 		/// <summary>
 		/// Draws a GUI text at the given point in the scene.
 		/// </summary>
@@ -537,7 +672,6 @@ namespace UnityEssentials
 			GUI.color = lastColor;
 #endif
 		}
-
 
 		/// <summary>
 		/// Draws a GUI text box at the given point in the scene.
