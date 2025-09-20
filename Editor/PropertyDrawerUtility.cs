@@ -178,7 +178,7 @@ namespace UnityEssentialsEditor
 				parentType = obj.GetType();
 			}
 			var fieldInfo = (FieldInfo)FindMemberInType(parentType, path, true);
-			return fieldInfo.FieldType;
+			return fieldInfo?.FieldType;
 		}
 
 		private static PropertyInfo GetIndexer(Type type)
@@ -587,7 +587,7 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.Boolean:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.Toggle(position, label, prop.boolValue, textFieldStyle),
+						() => EditorGUI.Toggle(position, label, prop.boolValue),
 						b => prop.boolValue = b);
 					break;
 				case SerializedPropertyType.Float:
