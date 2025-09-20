@@ -11,10 +11,17 @@ namespace UnityEssentialsEditor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			var indent = EditorGUI.indentLevel;
+			EditorGUI.indentLevel = 0;
+			position.xMin += 15 * indent;
+
 			position.height = EditorGUIUtility.singleLineHeight;
 
-			EditorGUI.LabelField(position, label);
-			position.xMin += EditorGUIUtility.labelWidth + 3;
+			if(label != null && !string.IsNullOrEmpty(label.text))
+			{
+				EditorGUI.LabelField(position, label);
+				position.xMin += EditorGUIUtility.labelWidth + 3;
+			}
 
 			int childCount = GetDirectChildren(property).Count();
 			var rects = position.DivideHorizontal(childCount, 2);
@@ -25,6 +32,8 @@ namespace UnityEssentialsEditor
 				//PropertyDrawerUtility.DrawPropertyField(rects[i], prop, GUIContent.none);
 				i++;
 			}
+
+			EditorGUI.indentLevel = indent;
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

@@ -566,6 +566,9 @@ namespace UnityEssentialsEditor
 				case SerializedPropertyType.RectInt: prop.rectIntValue = (RectInt)value; break;
 				case SerializedPropertyType.BoundsInt: prop.boundsIntValue = (BoundsInt)value; break;
 				case SerializedPropertyType.ManagedReference: prop.managedReferenceValue = value; break;
+#if UNITY_2022_1_OR_NEWER
+				case SerializedPropertyType.Generic: prop.boxedValue = value; break;
+#endif
 				default: throw new NotImplementedException();
 			}
 		}
@@ -699,7 +702,11 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.ManagedReference:
 					throw new NotImplementedException();
+#if UNITY_2022_1_OR_NEWER
+				case SerializedPropertyType.Generic:
+					EditorGUI.PropertyField(position, prop, label, true);
 					break;
+#endif
 				default: throw new NotImplementedException();
 			}
 		}

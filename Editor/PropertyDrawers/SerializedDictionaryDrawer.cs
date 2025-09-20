@@ -198,7 +198,19 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			indexRect.width = 25;
 			GUI.Label(indexRect, i.ToString(), indexStyle);
 
-			PropertyDrawerUtility.DrawPropertyDirect(keyRect, GUIContent.none, k, preferMonospaceKeys);
+#if UNITY_2022_1_OR_NEWER
+			if(k.propertyType == SerializedPropertyType.ManagedReference || k.propertyType == SerializedPropertyType.Generic)
+#else
+			if(k.propertyType == SerializedPropertyType.ManagedReference)
+#endif
+			{
+				EditorGUI.PropertyField(keyRect, k, GUIContent.none, false);
+			}
+			else
+			{
+				PropertyDrawerUtility.DrawPropertyDirect(keyRect, GUIContent.none, k, preferMonospaceKeys);
+			}
+
 			GUI.color = lColor;
 
 			EditorGUI.indentLevel = 0;
@@ -356,7 +368,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private static object GetUniqueKey(object key, IList _keys)
 		{
 			if(_keys.Count == 0) return key;
-			Debug.Log(key.GetType());
 			if(key is string s)
 			{
 				return ObjectNames.GetUniqueName(((List<string>)_keys).ToArray(), s);
