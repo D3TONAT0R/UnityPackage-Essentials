@@ -9,17 +9,25 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Gets the value object that this SerializedProperty points to.
 		/// </summary>
-		public static object GetValueObject(this SerializedProperty prop)
+		public static object GetValue(this SerializedProperty prop)
 		{
-			return PropertyDrawerUtility.GetTargetObjectOfProperty(prop);
+			return PropertyDrawerUtility.GetPropertyValue(prop);
+		}
+
+		/// <summary>
+		/// Sets the value object that this SerializedProperty points to.
+		/// </summary>
+		public static void SetValue(this SerializedProperty prop, object value)
+		{
+			PropertyDrawerUtility.SetPropertyValue(prop, value);
 		}
 
 		/// <summary>
 		/// Gets the value object that this SerializedProperty points to.
 		/// </summary>
-		public static T GetValueObject<T>(this SerializedProperty prop)
+		public static T GetValue<T>(this SerializedProperty prop)
 		{
-			return PropertyDrawerUtility.GetTargetObjectOfProperty<T>(prop);
+			return PropertyDrawerUtility.GetPropertyValue<T>(prop);
 		}
 
 		/// <summary>
@@ -27,7 +35,7 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static object GetParentObject(this SerializedProperty prop)
 		{
-			return PropertyDrawerUtility.GetParent(prop);
+			return PropertyDrawerUtility.GetParentObject(prop);
 		}
 
 		/// <summary>
@@ -47,11 +55,11 @@ namespace UnityEssentialsEditor
 		}
 
 		/// <summary>
-		/// Returns the managed type of this property.
+		/// Returns the type of the value represented by this property.
 		/// </summary>
-		public static Type GetManagedType(this SerializedProperty prop)
+		public static Type GetValueType(this SerializedProperty prop)
 		{
-			return PropertyDrawerUtility.GetTypeOfProperty(prop);
+			return PropertyDrawerUtility.GetPropertyType(prop);
 		}
 
 		/// <summary>

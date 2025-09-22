@@ -12,7 +12,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			EditorGUI.BeginProperty(position, label, property);
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.Enum)) return;
-			var enumType = PropertyDrawerUtility.GetTypeOfProperty(property);
+			var enumType = PropertyDrawerUtility.GetPropertyType(property);
 			if(!property.hasMultipleDifferentValues)
 			{
 				Enum input = (Enum)Enum.ToObject(enumType, property.intValue);

@@ -55,7 +55,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			object target;
 			var parentProp = PropertyDrawerUtility.GetParentProperty(property);
-			if(parentProp != null) target = PropertyDrawerUtility.GetTargetObjectOfProperty(parentProp);
+			if(parentProp != null) target = parentProp.GetValue();
 			else target = property.serializedObject.targetObject;
 
 			var method = target.GetType().GetMethod(methodName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);

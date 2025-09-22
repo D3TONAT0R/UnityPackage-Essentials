@@ -337,7 +337,7 @@ namespace UnityEssentialsEditor
 			targetPropertyPath = targetProperty.propertyPath;
 			try
 			{
-				lastPropertyValue = PropertyDrawerUtility.GetTargetObjectOfProperty(targetProperty);
+				lastPropertyValue = targetProperty.GetValue();
 			}
 			catch(Exception e)
 			{

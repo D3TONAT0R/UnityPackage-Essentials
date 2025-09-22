@@ -87,7 +87,7 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Gets the object the property represents.
 		/// </summary>
-		public static object GetTargetObjectOfProperty(SerializedProperty prop)
+		public static object GetPropertyValue(SerializedProperty prop)
 		{
 			if(prop == null) return null;
 
@@ -127,7 +127,7 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Gets the type of the given property.
 		/// </summary>
-		public static Type GetTypeOfProperty(SerializedProperty property)
+		public static Type GetPropertyType(SerializedProperty property)
 		{
 			var path = property.propertyPath;
 			System.Type parentType = property.serializedObject.targetObject.GetType();
@@ -193,9 +193,9 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Gets the object the property represents.
 		/// </summary>
-		public static T GetTargetObjectOfProperty<T>(SerializedProperty prop)
+		public static T GetPropertyValue<T>(SerializedProperty prop)
 		{
-			return (T)GetTargetObjectOfProperty(prop);
+			return (T)GetPropertyValue(prop);
 		}
 
 		private static object GetElementAtIndex(object collection, int index)
@@ -214,6 +214,9 @@ namespace UnityEssentialsEditor
 			*/
 		}
 
+		/// <summary>
+		/// Gets the parent property of the given property.
+		/// </summary>
 		public static SerializedProperty GetParentProperty(SerializedProperty prop)
 		{
 			var path = prop.propertyPath.Replace(".Array.data[", "[");
@@ -223,7 +226,10 @@ namespace UnityEssentialsEditor
 			return prop.serializedObject.FindProperty(path);
 		}
 
-		public static object GetParent(SerializedProperty prop)
+		/// <summary>
+		/// Gets the parent object containing this SerializedProperty.
+		/// </summary>
+		public static object GetParentObject(SerializedProperty prop)
 		{
 			var path = prop.propertyPath.Replace(".Array.data[", "[");
 			object obj = prop.serializedObject.targetObject;
@@ -234,17 +240,20 @@ namespace UnityEssentialsEditor
 				{
 					var elementName = element.Substring(0, element.IndexOf("["));
 					var index = Convert.ToInt32(element.Substring(element.IndexOf("[")).Replace("[", "").Replace("]", ""));
-					obj = GetValue(obj, elementName, index);
+					obj = GetMemberValue(obj, elementName, index);
 				}
 				else
 				{
-					obj = GetValue(obj, element);
+					obj = GetMemberValue(obj, element);
 				}
 			}
 			return obj;
 		}
 
-		public static object GetValue(object source, string name)
+		/// <summary>
+		/// Gets the value of a field or property with the given name.
+		/// </summary>
+		public static object GetMemberValue(object source, string name)
 		{
 			if(source == null)
 				return null;
@@ -260,21 +269,86 @@ namespace UnityEssentialsEditor
 			return f.GetValue(source);
 		}
 
-		public static object GetValue(object source, string name, int index)
+		/// <summary>
+		/// Gets the value of an array element from a field or property with the given name.
+		/// </summary>
+		public static object GetMemberValue(object source, string name, int index)
 		{
-			var enumerable = GetValue(source, name) as IEnumerable;
+			var enumerable = GetMemberValue(source, name) as IEnumerable;
 			var enm = enumerable.GetEnumerator();
 			while(index-- >= 0)
 				enm.MoveNext();
 			return enm.Current;
 		}
 
+		/// <summary>
+		/// Sets the value of the given property.
+		/// </summary>
+		public static void SetPropertyValue(SerializedProperty prop, object value)
+		{
+			switch(prop.propertyType)
+			{
+				case SerializedPropertyType.Integer: prop.intValue = (int)value; break;
+				case SerializedPropertyType.Boolean: prop.boolValue = (bool)value; break;
+				case SerializedPropertyType.Float: prop.floatValue = (float)value; break;
+				case SerializedPropertyType.String: prop.stringValue = (string)value; break;
+				case SerializedPropertyType.Color: prop.colorValue = (Color)value; break;
+				case SerializedPropertyType.ObjectReference: prop.objectReferenceValue = (UnityEngine.Object)value; break;
+				case SerializedPropertyType.LayerMask: prop.intValue = (int)value; break;
+				case SerializedPropertyType.Enum: prop.intValue = Convert.ToInt32(value); break;
+				case SerializedPropertyType.Vector2: prop.vector2Value = (Vector2)value; break;
+				case SerializedPropertyType.Vector3: prop.vector3Value = (Vector3)value; break;
+				case SerializedPropertyType.Vector4: prop.vector4Value = (Vector4)value; break;
+				case SerializedPropertyType.Rect: prop.rectValue = (Rect)value; break;
+				case SerializedPropertyType.ArraySize: prop.arraySize = (int)value; break;
+				case SerializedPropertyType.Character: prop.stringValue = (string)value; break;
+				case SerializedPropertyType.AnimationCurve: prop.animationCurveValue = (AnimationCurve)value; break;
+				case SerializedPropertyType.Bounds: prop.boundsValue = (Bounds)value; break;
+				case SerializedPropertyType.Gradient: SetGradientValue(prop, (Gradient)value); break;
+				case SerializedPropertyType.Quaternion: prop.quaternionValue = (Quaternion)value; break;
+				case SerializedPropertyType.ExposedReference: prop.exposedReferenceValue = (UnityEngine.Object)value; break;
+				case SerializedPropertyType.FixedBufferSize: throw new InvalidOperationException("Read only.");
+				case SerializedPropertyType.Vector2Int: prop.vector2IntValue = (Vector2Int)value; break;
+				case SerializedPropertyType.Vector3Int: prop.vector3IntValue = (Vector3Int)value; break;
+				case SerializedPropertyType.RectInt: prop.rectIntValue = (RectInt)value; break;
+				case SerializedPropertyType.BoundsInt: prop.boundsIntValue = (BoundsInt)value; break;
+				case SerializedPropertyType.ManagedReference: prop.managedReferenceValue = value; break;
+#if UNITY_2022_1_OR_NEWER
+				case SerializedPropertyType.Generic: prop.boxedValue = value; break;
+#endif
+				default: throw new NotImplementedException();
+			}
+		}
+
+		/// <summary>
+		/// Returns the given attribute declared on this SerializedProperty.
+		/// </summary>
 		public static T GetAttribute<T>(SerializedProperty prop, bool inherit) where T : Attribute
 		{
 			var m = GetMemberInfoOfProperty(prop, out var obj);
 			return m?.GetCustomAttribute<T>(inherit);
 		}
 
+		/// <summary>
+		/// Attempts to get the given attribute declared on this SerializedProperty.
+		/// </summary>
+		public static bool TryGetAttribute<T>(SerializedProperty prop, bool inherit, out T attribute) where T : Attribute
+		{
+			try
+			{
+				attribute = GetAttribute<T>(prop, inherit);
+				return attribute != null;
+			}
+			catch
+			{
+				attribute = null;
+				return false;
+			}
+		}
+
+		/// <summary>
+		/// Enumerates all PropertyAttributes declared on this SerializedProperty.
+		/// </summary>
 		public static IEnumerable<PropertyAttribute> GetPropertyAttributes(SerializedProperty prop, out FieldInfo fieldInfo)
 		{
 			var m = GetMemberInfoOfProperty(prop, out var obj);
@@ -282,6 +356,9 @@ namespace UnityEssentialsEditor
 			return m?.GetCustomAttributes<PropertyAttribute>();
 		}
 
+		/// <summary>
+		/// Returns the MemberInfo representing this serialized property, and the object containing it.
+		/// </summary>
 		public static MemberInfo GetMemberInfoOfProperty(SerializedProperty prop, out object obj)
 		{
 			if(prop == null)
@@ -324,7 +401,7 @@ namespace UnityEssentialsEditor
 				member = FindMemberInType(obj.GetType(), names[0]);
 				if(member != null)
 				{
-					obj = GetMemberValue(member, obj);
+					obj = ReflectionUtility.GetMemberValue(member, obj);
 				}
 				else
 				{
@@ -333,20 +410,6 @@ namespace UnityEssentialsEditor
 				names.RemoveAt(0);
 			}
 			return member;
-		}
-
-		public static bool TryGetAttribute<T>(SerializedProperty prop, bool inherit, out T attribute) where T : Attribute
-		{
-			try
-			{
-				attribute = GetAttribute<T>(prop, inherit);
-				return attribute != null;
-			}
-			catch
-			{
-				attribute = null;
-				return false;
-			}
 		}
 
 		private static bool IsAssignableToGenericType(Type givenType, Type genericType)
@@ -401,6 +464,9 @@ namespace UnityEssentialsEditor
 			return null;
 		}
 
+		/// <summary>
+		/// Gets the PropertyDrawer associated with the given type, if any.
+		/// </summary>
 		public static PropertyDrawer GetPropertyDrawerFromType(Type objectOrAttributeType)
 		{
 			Type drawerType = GetPropertyDrawerType(objectOrAttributeType);
@@ -424,6 +490,9 @@ namespace UnityEssentialsEditor
 			}
 		}
 
+		/// <summary>
+		/// Draws the property using any PropertyAttribute excluding the given attribute type, if any.
+		/// </summary>
 		public static void DrawPropertyWithAttributeExcept(Rect rect, SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder)
 		{
 			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder);
@@ -437,9 +506,12 @@ namespace UnityEssentialsEditor
 			}
 		}
 
+		/// <summary>
+		/// Gets the property height using any PropertyAttribute excluding the given attribute type, if any.
+		/// </summary>
 		public static float GetPropertyHeightWithAttributeExcept(SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder)
 		{
-			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder) ?? GetPropertyDrawerFromType(GetTypeOfProperty(property));
+			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder) ?? GetPropertyDrawerFromType(GetPropertyType(property));
 			if(drawer != null)
 			{
 				return drawer.GetPropertyHeight(property, label);
@@ -478,6 +550,9 @@ namespace UnityEssentialsEditor
 			return null;
 		}
 
+		/// <summary>
+		/// Draws the property field using any PropertyDrawer associated with the property type or its attributes.
+		/// </summary>
 		public static void DrawPropertyField(Rect rect, SerializedProperty property, GUIContent label, Type fieldType)
 		{
 			var elementType = GetElementType(fieldType, out _);
@@ -487,7 +562,7 @@ namespace UnityEssentialsEditor
 			}
 			else
 			{
-				var drawer = GetPropertyDrawerFromType(GetTypeOfProperty(property));
+				var drawer = GetPropertyDrawerFromType(GetPropertyType(property));
 				if(drawer != null)
 				{
 					drawer.OnGUI(rect, property, label);
@@ -499,11 +574,17 @@ namespace UnityEssentialsEditor
 			}
 		}
 
+		/// <summary>
+		/// Draws the property field using any PropertyDrawer associated with the property type or its attributes.
+		/// </summary>
 		public static void DrawPropertyField(Rect rect, SerializedProperty property, GUIContent label)
 		{
-			DrawPropertyField(rect, property, label, GetTypeOfProperty(property));
+			DrawPropertyField(rect, property, label, GetPropertyType(property));
 		}
 
+		/// <summary>
+		/// Copies the value from one property to another. Both properties must be of the same type.
+		/// </summary>
 		public static void CopyPropertyValue(SerializedProperty from, SerializedProperty to)
 		{
 			switch(from.propertyType)
@@ -532,52 +613,22 @@ namespace UnityEssentialsEditor
 				case SerializedPropertyType.Vector3Int: to.vector3IntValue = from.vector3IntValue; break;
 				case SerializedPropertyType.RectInt: to.rectIntValue = from.rectIntValue; break;
 				case SerializedPropertyType.BoundsInt: to.boundsIntValue = from.boundsIntValue; break;
-				case SerializedPropertyType.ManagedReference: to.managedReferenceValue = GetTargetObjectOfProperty(from); break;
+				case SerializedPropertyType.ManagedReference: to.managedReferenceValue = GetPropertyValue(from); break;
 				default: throw new NotImplementedException();
 			}
 		}
 
-		public static void SetValue(SerializedProperty prop, object value)
-		{
-			switch(prop.propertyType)
-			{
-				case SerializedPropertyType.Integer: prop.intValue = (int)value; break;
-				case SerializedPropertyType.Boolean: prop.boolValue = (bool)value; break;
-				case SerializedPropertyType.Float: prop.floatValue = (float)value; break;
-				case SerializedPropertyType.String: prop.stringValue = (string)value; break;
-				case SerializedPropertyType.Color: prop.colorValue = (Color)value; break;
-				case SerializedPropertyType.ObjectReference: prop.objectReferenceValue = (UnityEngine.Object)value; break;
-				case SerializedPropertyType.LayerMask: prop.intValue = (int)value; break;
-				case SerializedPropertyType.Enum: prop.intValue = Convert.ToInt32(value); break;
-				case SerializedPropertyType.Vector2: prop.vector2Value = (Vector2)value; break;
-				case SerializedPropertyType.Vector3: prop.vector3Value = (Vector3)value; break;
-				case SerializedPropertyType.Vector4: prop.vector4Value = (Vector4)value; break;
-				case SerializedPropertyType.Rect: prop.rectValue = (Rect)value; break;
-				case SerializedPropertyType.ArraySize: prop.arraySize = (int)value; break;
-				case SerializedPropertyType.Character: prop.stringValue = (string)value; break;
-				case SerializedPropertyType.AnimationCurve: prop.animationCurveValue = (AnimationCurve)value; break;
-				case SerializedPropertyType.Bounds: prop.boundsValue = (Bounds)value; break;
-				case SerializedPropertyType.Gradient: SetGradientValue(prop, (Gradient)value); break;
-				case SerializedPropertyType.Quaternion: prop.quaternionValue = (Quaternion)value; break;
-				case SerializedPropertyType.ExposedReference: prop.exposedReferenceValue = (UnityEngine.Object)value; break;
-				case SerializedPropertyType.FixedBufferSize: throw new InvalidOperationException("Read only.");
-				case SerializedPropertyType.Vector2Int: prop.vector2IntValue = (Vector2Int)value; break;
-				case SerializedPropertyType.Vector3Int: prop.vector3IntValue = (Vector3Int)value; break;
-				case SerializedPropertyType.RectInt: prop.rectIntValue = (RectInt)value; break;
-				case SerializedPropertyType.BoundsInt: prop.boundsIntValue = (BoundsInt)value; break;
-				case SerializedPropertyType.ManagedReference: prop.managedReferenceValue = value; break;
-#if UNITY_2022_1_OR_NEWER
-				case SerializedPropertyType.Generic: prop.boxedValue = value; break;
-#endif
-				default: throw new NotImplementedException();
-			}
-		}
-
+		/// <summary>
+		/// Draws the property directly without using any decorators or custom property drawers.
+		/// </summary>
 		public static void DrawPropertyDirect(Rect position, SerializedProperty prop)
 		{
 			DrawPropertyDirect(position, GUIContent.none, prop);
 		}
 
+		/// <summary>
+		/// Draws the property directly without using any decorators or custom property drawers.
+		/// </summary>
 		public static void DrawPropertyDirect(Rect position, GUIContent label, SerializedProperty prop, bool monospaceTextFields = false)
 		{
 			var textFieldStyle = monospaceTextFields ? EditorGUIExtras.GetMonospaceTextField(prop) : GUI.skin.textField;
@@ -610,7 +661,7 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.ObjectReference:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.ObjectField(position, label, prop.objectReferenceValue, GetTypeOfProperty(prop), true),
+						() => EditorGUI.ObjectField(position, label, prop.objectReferenceValue, GetPropertyType(prop), true),
 						o => prop.objectReferenceValue = o);
 					break;
 				case SerializedPropertyType.LayerMask:
@@ -620,7 +671,7 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.Enum:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.EnumPopup(position, label, (Enum)Enum.ToObject(prop.GetManagedType(), prop.intValue)),
+						() => EditorGUI.EnumPopup(position, label, (Enum)Enum.ToObject(SerializedPropertyExtensions.GetValueType(prop), prop.intValue)),
 						e => prop.intValue = Convert.ToInt32(e));
 					break;
 				case SerializedPropertyType.Vector2:
@@ -675,7 +726,7 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.ExposedReference:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.ObjectField(position, label, prop.exposedReferenceValue, GetTypeOfProperty(prop), true),
+						() => EditorGUI.ObjectField(position, label, prop.exposedReferenceValue, GetPropertyType(prop), true),
 						o => prop.exposedReferenceValue = o);
 					break;
 				case SerializedPropertyType.FixedBufferSize:
@@ -721,6 +772,9 @@ namespace UnityEssentialsEditor
 			}
 		}
 
+		/// <summary>
+		/// Draws all child properties of the given property.
+		/// </summary>
 		public static float DrawChildProperties(Rect position, SerializedProperty parent)
 		{
 			float yOffset = 0;
@@ -735,6 +789,9 @@ namespace UnityEssentialsEditor
 			return yOffset;
 		}
 
+		/// <summary>
+		/// Draws all child properties of the given property.
+		/// </summary>
 		public static void DrawChildProperties(SerializedProperty parent)
 		{
 			foreach(SerializedProperty child in parent)
@@ -761,6 +818,9 @@ namespace UnityEssentialsEditor
 #endif
 		}
 
+		/// <summary>
+		/// Performs a type check on the property and displays an error label if the type is not valid for the given property.
+		/// </summary>
 		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label, params SerializedPropertyType[] types)
 		{
 			var type = property.propertyType;
@@ -775,9 +835,12 @@ namespace UnityEssentialsEditor
 			return false;
 		}
 
+		/// <summary>
+		/// Performs a type check on the property and displays an error label if the type is not valid for the given property.
+		/// </summary>
 		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label, params Type[] types)
 		{
-			var type = GetTypeOfProperty(property);
+			var type = GetPropertyType(property);
 			foreach(var t in types)
 			{
 				if(t.IsAssignableFrom(type))
@@ -789,6 +852,9 @@ namespace UnityEssentialsEditor
 			return false;
 		}
 
+		/// <summary>
+		/// Gets the element type if the given type is an array or a list. Otherwise returns the type itself.
+		/// </summary>
 		public static Type GetElementType(Type type, out bool isArrayOrList)
 		{
 			if(type.IsArray)

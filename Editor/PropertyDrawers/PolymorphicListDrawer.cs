@@ -23,7 +23,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var listProp = property.FindPropertyRelative(nameof(PolymorphicList<object>.list));
 			CheckForDuplicates(listProp);
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
-			var target = PropertyDrawerUtility.GetTargetObjectOfProperty(property);
+			var target = property.GetValue();
 			var baseType = target.GetType();
 			var polymorphicAttr = baseType.GetCustomAttribute<PolymorphicAttribute>();
 			bool polymorphic = polymorphicAttr != null;
@@ -60,7 +60,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				{
 					var item = listProp.GetArrayElementAtIndex(i);
 					position.NextProperty(EditorGUI.GetPropertyHeight(item));
-					var type = PropertyDrawerUtility.GetTargetObjectOfProperty(item)?.GetType();
+					var type = item.GetValue()?.GetType();
 					string typeName = ObjectNames.NicifyVariableName(type?.Name ?? "(Null)");
 					//GUI.Box(position, GUIContent.none);
 					EditorGUI.PropertyField(position, item, new GUIContent($"Element {i} ({typeName})"), true);
@@ -128,7 +128,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			for(int i = 0; i < list.arraySize; i++)
 			{
 				var elem = list.GetArrayElementAtIndex(i);
-				var obj = PropertyDrawerUtility.GetTargetObjectOfProperty(elem);
+				var obj = elem.GetValue();
 				if(!listObjects.Contains(obj))
 				{
 					listObjects.Add(obj);

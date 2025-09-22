@@ -24,7 +24,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				var obj = prop.objectReferenceValue;
 				if(obj != null)
 				{
-					var targetType = PropertyDrawerUtility.GetTypeOfProperty(prop);
+					var targetType = PropertyDrawerUtility.GetPropertyType(prop);
 					if(targetType == typeof(GameObject) || typeof(Component).IsAssignableFrom(targetType))
 					{
 						GameObject go = obj as GameObject;

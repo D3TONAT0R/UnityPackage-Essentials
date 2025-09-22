@@ -36,7 +36,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private bool ShouldDraw(SerializedProperty property)
 		{
 			var attr = PropertyDrawerUtility.GetAttribute<ShowIfAttribute>(property, true);
-			return attr.ShouldDraw(PropertyDrawerUtility.GetParent(property));
+			return attr.ShouldDraw(PropertyDrawerUtility.GetParentObject(property));
 		}
 	}
 }

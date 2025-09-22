@@ -17,7 +17,7 @@ namespace UnityEssentialsEditor
 			{
 				return;
 			}
-			if(PropertyDrawerUtility.GetTargetObjectOfProperty(property) is IDrawInlined)
+			if(property.GetValue() is IDrawInlined)
 			{
 				EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Incompatible Attribute Usage)"));
 				return;
@@ -102,7 +102,7 @@ namespace UnityEssentialsEditor
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			bool incompatible = (property.propertyType != SerializedPropertyType.ObjectReference && property.propertyType != SerializedPropertyType.Generic)
-				|| PropertyDrawerUtility.GetTargetObjectOfProperty(property) is IDrawInlined;
+				|| property.GetValue() is IDrawInlined;
 			if(incompatible)
 			{
 				return EditorGUIUtility.singleLineHeight;
@@ -154,7 +154,7 @@ namespace UnityEssentialsEditor
 		{
 			if(PropertyDrawerUtility.TryGetAttribute<ShowIfAttribute>(property, true, out var showIf))
 			{
-				return showIf.ShouldDraw(PropertyDrawerUtility.GetParent(property));
+				return showIf.ShouldDraw(PropertyDrawerUtility.GetParentObject(property));
 			}
 			return true;
 		}

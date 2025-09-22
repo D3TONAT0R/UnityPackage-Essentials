@@ -11,7 +11,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
-			var obj = PropertyDrawerUtility.GetTargetObjectOfProperty<ToggleableFeature>(property);
+			var obj = PropertyDrawerUtility.GetPropertyValue<ToggleableFeature>(property);
 			DrawBgBox(position);
 			position.height = EditorGUIUtility.singleLineHeight;
 			bool enabled = DrawCheckbox(position, property);

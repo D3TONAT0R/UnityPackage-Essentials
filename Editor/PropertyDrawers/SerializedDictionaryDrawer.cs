@@ -43,7 +43,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				indexStyle.normal.textColor = indexStyle.normal.textColor.MultiplyAlpha(0.4f);
 			}
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
-			var target = PropertyDrawerUtility.GetTargetObjectOfProperty(property);
+			var target = property.GetValue();
 			var dictionary = (ISerializedDictionary)target;
 			bool preferMonospaceKeys = (bool)target.GetType().GetProperty(nameof(SerializedDictionary<Null, Null>.UseMonospaceKeyLabels)).GetValue(target);
 			var dictionaryType = target.GetType();
@@ -90,7 +90,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				int indentLevel = EditorGUI.indentLevel;
 				var so = property.serializedObject;
 				var keys = property.FindPropertyRelative(KEYS_FIELD_NAME);
-				var duplicates = PropertyDrawerUtility.GetTargetObjectOfProperty<System.Collections.IList>(keys)
+				var duplicates = PropertyDrawerUtility.GetPropertyValue<System.Collections.IList>(keys)
 					.Cast<object>()
 					.GroupBy(x => x)
 					.Where(x => x.Count() > 1)
@@ -104,7 +104,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				for(int i = 0; i < length; i++)
 				{
 					var k = keys.GetArrayElementAtIndex(i);
-					var kObj = PropertyDrawerUtility.GetTargetObjectOfProperty(k);
 					var v = values.GetArrayElementAtIndex(i);
 					position.NextProperty();
 					DrawElement(position, property, preferMonospaceKeys, dictionaryType, polymorphic, indentLevel, so, keys, duplicates, i, k, v);
@@ -217,7 +216,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			//TODO: currently only supports the first visible property
 			v.isExpanded = true;
 			if(v.hasVisibleChildren && v.propertyType == SerializedPropertyType.ManagedReference) v.NextVisible(true);
-			if(v.propertyType == SerializedPropertyType.ManagedReference && PropertyDrawerUtility.GetTargetObjectOfProperty(v) == null)
+			if(v.propertyType == SerializedPropertyType.ManagedReference && v.GetValue() == null)
 			{
 				GUI.Label(valueRect, "(null)");
 			}
@@ -258,7 +257,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 					string root = "Change Element Type/";
 					foreach(var t in polymorphicTypes[dictionaryType])
 					{
-						var currentType = PropertyDrawerUtility.GetTargetObjectOfProperty(v)?.GetType();
+						var currentType = v.GetValue()?.GetType();
 						menu.AddItem(root + GetTypeName(t), true, currentType == t, () =>
 						{
 							ReplaceValue(so.FindProperty(path), index, Activator.CreateInstance(t));
@@ -283,15 +282,15 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			v.arraySize++;
 			prop.serializedObject.ApplyModifiedProperties();
 			var key = k.GetArrayElementAtIndex(k.arraySize - 1);
-			var keyValue = PropertyDrawerUtility.GetTargetObjectOfProperty(key);
-			var isEnum = PropertyDrawerUtility.GetTypeOfProperty(key).IsEnum;
-			var iList = (IList)PropertyDrawerUtility.GetTargetObjectOfProperty(k);
+			var keyValue = key.GetValue();
+			var isEnum = PropertyDrawerUtility.GetPropertyType(key).IsEnum;
+			var iList = (IList)k.GetValue();
 			//Skip unique key generation for enums since they are near impossible to generate unique keys for
 			var uniqueKey = (k.arraySize > 1 && !isEnum) ? GetUniqueKey(keyValue, iList) : keyValue;
-			PropertyDrawerUtility.SetValue(key, uniqueKey);
+			PropertyDrawerUtility.SetPropertyValue(key, uniqueKey);
 			var value = v.GetArrayElementAtIndex(v.arraySize - 1);
 			var valueValue = CreateValueIfNeeded(valueType);
-			PropertyDrawerUtility.SetValue(value, valueValue);
+			PropertyDrawerUtility.SetPropertyValue(value, valueValue);
 			prop.serializedObject.ApplyModifiedProperties();
 		}
 
@@ -345,7 +344,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			prop.serializedObject.Update();
 			Undo.RecordObject(prop.serializedObject.targetObject, "Replace Dictionary Value");
 			var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
-			PropertyDrawerUtility.SetValue(v.GetArrayElementAtIndex(index), newValue);
+			PropertyDrawerUtility.SetPropertyValue(v.GetArrayElementAtIndex(index), newValue);
 			prop.serializedObject.ApplyModifiedProperties();
 		}
 

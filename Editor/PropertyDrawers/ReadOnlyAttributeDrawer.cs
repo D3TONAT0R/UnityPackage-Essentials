@@ -18,7 +18,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
-				EditorGUI.LabelField(position, label, new GUIContent(PropertyDrawerUtility.GetTargetObjectOfProperty(property)?.ToString() ?? "(null)"));
+				EditorGUI.LabelField(position, label, new GUIContent(property.GetValue()?.ToString() ?? "(null)"));
 			}
 		}
 

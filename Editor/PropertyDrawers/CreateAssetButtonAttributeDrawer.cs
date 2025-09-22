@@ -10,7 +10,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var type = PropertyDrawerUtility.GetTypeOfProperty(property);
+			var type = PropertyDrawerUtility.GetPropertyType(property);
 			if(IsTypeSupported(type, out string ext))
 			{
 				position.width -= 45;
