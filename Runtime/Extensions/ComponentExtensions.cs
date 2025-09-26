@@ -50,7 +50,7 @@ namespace UnityEssentials
 		public static T GetRequiredComponent<T>(this GameObject g)
 		{
 			T comp = g.GetComponent<T>();
-			if(comp == null) throw new System.NullReferenceException($"Could not find required component {typeof(T).Name} on GameObject '{c.name}'.");
+			if(comp == null) throw new System.NullReferenceException($"Could not find required component {typeof(T).Name} on GameObject '{g.name}'.");
 			return comp;
 		}
 	}
