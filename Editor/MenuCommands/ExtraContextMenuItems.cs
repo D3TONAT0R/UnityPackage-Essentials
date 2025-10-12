@@ -7,6 +7,9 @@ namespace UnityEssentialsEditor
 {
 	internal static class ExtraContextMenuItems
 	{
+		private static SerializedObject replaceScriptTarget;
+		private static MonoScript replaceScriptWith;
+
 		[MenuItem("CONTEXT/Transform/Apply Position")]
 		public static void ApplyPosition(MenuCommand cmd)
 		{
@@ -110,6 +113,7 @@ namespace UnityEssentialsEditor
 		[MenuItem("CONTEXT/MeshRenderer/Instantiate Materials")]
 		public static void InstantiateMaterials(MenuCommand cmd)
 		{
+			Undo.RecordObject(cmd.context, "Instantiate Materials");
 			var renderer = (MeshRenderer)cmd.context;
 			var materials = renderer.sharedMaterials;
 			for(int i = 0; i < materials.Length; i++)
@@ -150,6 +154,75 @@ namespace UnityEssentialsEditor
 			var script = (MonoBehaviour)cmd.context;
 			Selection.activeObject = MonoScript.FromMonoBehaviour(script);
 			EditorGUIUtility.PingObject(Selection.activeObject);
+		}
+
+		[MenuItem("CONTEXT/MonoBehaviour/Replace Script", priority = 111)]
+		public static void ReplaceScript(MenuCommand cmd)
+		{
+			replaceScriptWith = MonoScript.FromMonoBehaviour((MonoBehaviour)cmd.context);
+			EditorGUIUtility.ShowObjectPicker<MonoScript>(replaceScriptWith, false, "", -100);
+			replaceScriptTarget = new SerializedObject(cmd.context);
+			EditorApplication.update += UpdateObjectPicker;
+		}
+
+		[MenuItem("CONTEXT/MonoBehaviour/Select Script", validate = true)]
+		[MenuItem("CONTEXT/MonoBehaviour/Replace Script", validate = true)]
+		public static bool ValidateScriptSelection(MenuCommand cmd)
+		{
+			var script = cmd.context as MonoBehaviour;
+			return script != null;
+		}
+
+		private static void UpdateObjectPicker()
+		{
+			var gameObject = ((Component)replaceScriptTarget?.targetObject).gameObject;
+			if(replaceScriptTarget == null || !Selection.Contains(gameObject))
+			{
+				// Close the picker if the target is lost
+				replaceScriptTarget = null;
+				replaceScriptWith = null;
+				EditorApplication.update -= UpdateObjectPicker;
+				return;
+			}
+			var pickerControlID = EditorGUIUtility.GetObjectPickerControlID();
+			if(pickerControlID == -100)
+			{
+				// Update the selected object
+				var newScript = EditorGUIUtility.GetObjectPickerObject() as MonoScript;
+				if(newScript != null && newScript != replaceScriptWith)
+				{
+					ApplyScript();
+				}
+				replaceScriptWith = newScript;
+			}
+			else if(pickerControlID == 0 && Selection.Contains(gameObject))
+			{
+				// Picker was closed
+				if(replaceScriptWith == null)
+				{
+					replaceScriptTarget = null;
+					replaceScriptWith = null;
+					EditorApplication.update -= UpdateObjectPicker;
+					return;
+				}
+
+				//Apply the new script
+				ApplyScript();
+
+				//Cleanup
+				replaceScriptTarget = null;
+				replaceScriptWith = null;
+				EditorApplication.update -= UpdateObjectPicker;
+			}
+		}
+
+		private static void ApplyScript()
+		{
+			Undo.RegisterCompleteObjectUndo(replaceScriptTarget.targetObject, "Replace Script");
+			SerializedProperty scriptProperty = replaceScriptTarget.FindProperty("m_Script");
+			replaceScriptTarget.Update();
+			scriptProperty.objectReferenceValue = replaceScriptWith;
+			replaceScriptTarget.ApplyModifiedProperties();
 		}
 	}
 }
