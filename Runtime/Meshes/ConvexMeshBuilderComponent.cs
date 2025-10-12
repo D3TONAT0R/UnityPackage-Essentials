@@ -21,7 +21,7 @@ namespace UnityEssentials.Meshes
 		private const float cubeExtents = 0.5f;
 
 		public TargetComponents applyTo = TargetComponents.MeshCollider;
-		public List<Vector3> vertices;
+		public List<Vector3> vertices = new List<Vector3>();
 		public bool flatNormals = true;
 
 		public Mesh GeneratedMesh { get; private set; }

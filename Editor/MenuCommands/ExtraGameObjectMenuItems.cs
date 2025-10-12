@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace UnityEssentialsEditor
 {
@@ -48,18 +49,27 @@ namespace UnityEssentialsEditor
 		}
 
 
-		[MenuItem("GameObject/3D Object/Convex Mesh", false, 6)]
+		[MenuItem("GameObject/3D Object/Convex Mesh", false, 7)]
 		public static void CreateConvexMesh(MenuCommand menuCommand)
 		{
 			var root = CreateRootObject(menuCommand, "ConvexMesh");
 			var builder = ObjectFactory.AddComponent<ConvexMeshBuilderComponent>(root);
 			ObjectFactory.AddComponent<MeshFilter>(root);
 			var mr = ObjectFactory.AddComponent<MeshRenderer>(root);
-			mr.sharedMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
+			mr.sharedMaterial = GetDefaultMaterial();
 			var mc = ObjectFactory.AddComponent<MeshCollider>(root);
 			mc.convex = true;
 			builder.applyTo = ConvexMeshBuilderComponent.TargetComponents.Both;
 			builder.Validate();
+		}
+
+		private static Material GetDefaultMaterial()
+		{
+			if(GraphicsSettings.currentRenderPipeline != null)
+			{
+				return GraphicsSettings.currentRenderPipeline.defaultMaterial;
+			}
+			return AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
 		}
 
 		public static GameObject CreateRootObject(MenuCommand menuCommand, string name, float distanceFromSceneView = 10)
