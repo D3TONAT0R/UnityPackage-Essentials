@@ -12,6 +12,7 @@ namespace UnityEssentials
 		private const float Q1 = 0.25f;
 		private const float Q3 = 0.75f;
 
+		#region Pure Colors
 		/// <summary>
 		/// Pure white at 100% brightness.
 		/// </summary>
@@ -94,6 +95,7 @@ namespace UnityEssentials
 		/// 100% R, 50% B. Hue: 330°
 		/// </summary>
 		public static readonly Color pink = new Color(1, 0, H);
+		#endregion
 
 		#region Darker Colors
 		/// <summary>

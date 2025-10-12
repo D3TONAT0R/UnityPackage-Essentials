@@ -202,5 +202,21 @@ namespace UnityEssentials
 			if(includeAlpha) c.a = Mathf.Round(c.a * steps) / steps;
 			return c;
 		}
+
+		/// <summary>
+		/// Converts this color to a 32-bit integer.
+		/// </summary>
+		public static int ToInt(this Color c, bool includeAlpha = true)
+		{
+			return Colors.ToInt(c, includeAlpha);
+		}
+
+		/// <summary>
+		/// Converts this color to a hexadecimal string.
+		/// </summary>
+		public static string ToHex(this Color c, bool includeAlpha = true)
+		{
+			return Colors.ToHex(c, includeAlpha);
+		}
 	}
 }
