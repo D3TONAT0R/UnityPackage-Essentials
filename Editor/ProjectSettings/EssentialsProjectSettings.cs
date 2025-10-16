@@ -1,6 +1,8 @@
-﻿using UnityEssentials;
-using System;
+﻿using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEssentials;
 
 namespace UnityEssentialsEditor
 {
@@ -31,7 +33,7 @@ namespace UnityEssentialsEditor
 		[Tooltip("If checked, all newly created scripts are placed in the namespace given below.")]
 		public bool useDefaultNamespace = true;
 		[EnabledIf(nameof(useDefaultNamespace))]
-		[Tooltip("The namespace to use for new scripts. If empty, the unity project name is used.")]
+		[Tooltip("The namespace to use for new scripts. If empty, the unity project name is used. This setting is synchronized with EditorSettings.projectGenerationRootNamespace.")]
 		public string defaultScriptNamespace = "";
 #if UNITY_2020_2_OR_NEWER
 		[NonReorderable]
@@ -55,6 +57,35 @@ namespace UnityEssentialsEditor
 		public InspectorMode extraProperties = InspectorMode.Foldout;
 		[Tooltip("Specifies how the extra toolbar is displayed in the Transform inspector.")]
 		public InspectorMode toolbar = InspectorMode.Foldout;
+
+		public string GetScriptRootNamespace()
+		{
+			if(useDefaultNamespace)
+			{
+				string namespaceString;
+				if(!string.IsNullOrWhiteSpace(defaultScriptNamespace))
+				{
+					namespaceString = defaultScriptNamespace;
+				}
+				else
+				{
+					namespaceString = Directory.GetParent(Application.dataPath).Name;
+				}
+
+				namespaceString = Regex.Replace(namespaceString, @"[^a-zA-Z0-9]+", "_");
+
+				if(!char.IsLetter(namespaceString[0]))
+				{
+					namespaceString = "_" + namespaceString;
+				}
+
+				return namespaceString;
+			}
+			else
+			{
+				return null;
+			}
+		}
 
 		protected override void OnCreateNewSettings()
 		{

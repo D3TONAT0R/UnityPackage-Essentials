@@ -20,7 +20,13 @@ namespace UnityEssentialsEditor
 
 		private static void OnGUI(string search)
 		{
+			EditorGUI.BeginChangeCheck();
 			EssentialsProjectSettings.Instance.DrawEditorGUI();
+			if(EditorGUI.EndChangeCheck())
+			{
+				//Sync namespace setting with editor settings
+				EditorSettings.projectGenerationRootNamespace = EssentialsProjectSettings.Instance.GetScriptRootNamespace() ?? "";
+			}
 			GUILayout.Space(10);
 			provider.Repaint();
 		}

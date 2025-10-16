@@ -21,31 +21,6 @@ namespace UnityEssentialsEditor
 
 		private const string PACKAGE_TEMPLATE_SCRIPT_ROOT = "Packages/com.github.d3tonat0r.essentials/Editor/TemplateAssets/ScriptTemplates/";
 
-		public static string DefaultNamespace
-		{
-			get
-			{
-				string namespaceString;
-				if(!string.IsNullOrWhiteSpace(EssentialsProjectSettings.Instance.defaultScriptNamespace))
-				{
-					namespaceString = EssentialsProjectSettings.Instance.defaultScriptNamespace;
-				}
-				else
-				{
-					namespaceString = Directory.GetParent(Application.dataPath).Name;
-				}
-
-				namespaceString = Regex.Replace(namespaceString, @"[^a-zA-Z0-9]+", "_");
-
-				if(!char.IsLetter(namespaceString[0]))
-				{
-					namespaceString = "_" + namespaceString;
-				}
-
-				return namespaceString;
-			}
-		}
-
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{

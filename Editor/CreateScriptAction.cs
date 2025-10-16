@@ -64,7 +64,7 @@ namespace UnityEssentialsEditor
 
 			if(EssentialsProjectSettings.Instance.useDefaultNamespace)
 			{
-				text = text.Replace("#NAMESPACE#", "namespace " + CreateScriptMenuUtility.DefaultNamespace);
+				text = text.Replace("#NAMESPACE#", "namespace " + EssentialsProjectSettings.Instance.GetScriptRootNamespace());
 				text = text.Replace("#{#", "{");
 				text = text.Replace("#}#", "}");
 			}
