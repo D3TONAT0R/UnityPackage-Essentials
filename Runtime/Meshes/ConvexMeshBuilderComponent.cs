@@ -7,7 +7,7 @@ namespace UnityEssentials.Meshes
 	/// <summary>
 	/// Component that generates a convex mesh.
 	/// </summary>
-	[DisallowMultipleComponent]
+	[DisallowMultipleComponent, AddComponentMenu("Mesh/Convex Mesh Builder")]
 	public class ConvexMeshBuilderComponent : MonoBehaviour
 	{
 		public enum TargetComponents
