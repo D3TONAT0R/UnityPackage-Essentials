@@ -6,6 +6,13 @@ namespace UnityEssentialsEditor
 {
 	public class EssentialsProjectSettings : ProjectSettingsAsset
 	{
+		public enum InspectorMode
+		{
+			Disabled,
+			Foldout,
+			AlwaysVisible
+		}
+
 		public override string ProjectAssetName => "EssentialsProjectSettings";
 
 		public static EssentialsProjectSettings Instance
@@ -43,13 +50,15 @@ namespace UnityEssentialsEditor
 		[Tooltip("Optional name for a shortcut profile to apply when entering playmode.")]
 		public string playmodeShortcutProfileName = "";
 
-		[Space(20)]
-		[Tooltip("While activated, keeps track of time spent in the editor while the project is open.")]
-		public bool enableEditorTimeTracking = true;
+		[Header("Transform Inspector")]
+		[Tooltip("Specifies how extra properties are displayed in the Transform inspector.")]
+		public InspectorMode extraProperties = InspectorMode.Foldout;
+		[Tooltip("Specifies how the extra toolbar is displayed in the Transform inspector.")]
+		public InspectorMode toolbar = InspectorMode.Foldout;
 
 		protected override void OnCreateNewSettings()
 		{
-			Debug.Log("Unity Essentials: Creating new project settings asset.");
+			Debug.Log("Essentials: Creating new project settings asset.");
 		}
 
 		protected override void OnInitialize()

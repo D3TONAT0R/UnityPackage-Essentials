@@ -234,6 +234,7 @@ namespace UnityEssentialsEditor.Tools
 
 		public override void OnWindowGUI()
 		{
+			GUILayout.BeginHorizontal();
 			if(GUILayout.Button("Add Vertex"))
 			{
 				component.AddVertex();
@@ -258,11 +259,13 @@ namespace UnityEssentialsEditor.Tools
 				}
 				component.Validate();
 			}
+			GUILayout.EndHorizontal();
+
 			GUILayout.Space(5);
 			GUI.enabled = selection.Count > 0;
 			if(GUILayout.Button("Delete Selected"))
 			{
-				foreach(var s in selection) component.vertices.RemoveAt(s);
+				foreach(var s in selection.OrderByDescending(i => i)) component.vertices.RemoveAt(s);
 				ClearSelection();
 				component.Validate();
 			}
@@ -290,7 +293,7 @@ namespace UnityEssentialsEditor.Tools
 			{
 				snapDistance = EditorGUILayout.FloatField(snapDistance, GUILayout.ExpandWidth(true));
 				snapDistance = Mathf.Max(snapDistance, 0.001f);
-				alwaysSnap = GUILayout.Toggle(alwaysSnap, "Force");
+				alwaysSnap = GUILayout.Toggle(alwaysSnap, "Toggle");
 			}
 			GUI.enabled = selection.Count > 0;
 			if(GUILayout.Button("Snap Selected"))

@@ -63,13 +63,22 @@ namespace UnityEssentialsEditor
 				scaleIcon = EditorGUIUtility.FindTexture("d_ScaleTool");
 			}
 			_defaultEditor.OnInspectorGUI();
-			DrawExtraProperties();
-			DrawToolbars();
+			var extraPropsSetting = EssentialsProjectSettings.Instance.extraProperties;
+			if(extraPropsSetting != EssentialsProjectSettings.InspectorMode.Disabled)
+			{
+				DrawExtraProperties(extraPropsSetting == EssentialsProjectSettings.InspectorMode.Foldout);
+			}
+			var toolbarSetting = EssentialsProjectSettings.Instance.toolbar;
+			if(toolbarSetting != EssentialsProjectSettings.InspectorMode.Disabled)
+			{
+				DrawToolbars(toolbarSetting == EssentialsProjectSettings.InspectorMode.Foldout);
+			}
 		}
 
-		private void DrawExtraProperties()
+		private void DrawExtraProperties(bool foldout)
 		{
-			if(Foldout("Extra Properties", ref expandExtraProperties, "TransformExtraPropertiesExpanded"))
+			GUILayout.Space(5);
+			if(!foldout || Foldout("Extra Properties", ref expandExtraProperties, "TransformExtraPropertiesExpanded"))
 			{
 				if(targets.Length == 1)
 				{
@@ -110,9 +119,10 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		private void DrawToolbars()
+		private void DrawToolbars(bool foldout)
 		{
-			if(Foldout("Tools", ref expandExtraTools, "TransformToolbarExpanded"))
+			GUILayout.Space(5);
+			if(!foldout || Foldout("Tools", ref expandExtraTools, "TransformToolbarExpanded"))
 			{
 				DrawPrimaryToolbar();
 				DrawSecondaryToolbar();

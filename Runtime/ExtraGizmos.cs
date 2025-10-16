@@ -32,6 +32,7 @@ namespace UnityEssentials
 		internal static Mesh coneMesh;
 
 		internal static GUIStyle labelStyle;
+		internal static GUIStyle boxStyle;
 
 		private static List<Vector3> circlePointCache = new List<Vector3>();
 
@@ -656,12 +657,13 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a GUI text at the given point in the scene.
 		/// </summary>
-		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, bool shadow = false)
+		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, bool shadow = false)
 		{
 #if UNITY_EDITOR
 			if(labelStyle == null)
 			{
 				labelStyle = new GUIStyle(GUI.skin.label);
+				labelStyle.richText = true;
 				labelStyle.richText = true;
 			}
 			labelStyle.alignment = anchor;
@@ -669,8 +671,9 @@ namespace UnityEssentials
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color.WithAlpha(1);
+			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>".WithAlpha(1);
 			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>";
-			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offset, offsetUnits ?? Vector2.zero, shadow);
+			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offset, offsetUnits ?? Vector2.zero, shadow, fontSize);
 			GUI.color = lastColor;
 #endif
 		}
@@ -678,14 +681,21 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a GUI text box at the given point in the scene.
 		/// </summary>
-		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null)
+		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null)
 		{
 			//TODO: rich text support in text box
+			//TODO: rich text support in text box
 #if UNITY_EDITOR
-			var boxStyle = style ?? GUI.skin.box;
+			if(boxStyle == null)
+			{
+				boxStyle = new GUIStyle(GUI.skin.box);
+				boxStyle.richText = true;
+			}
+
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color.WithAlpha(1);
+			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>".WithAlpha(1);
 			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>";
 			Box(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), boxStyle, anchor, offset, offsetUnits ?? Vector2.zero);
 			GUI.color = lastColor;
@@ -693,7 +703,7 @@ namespace UnityEssentials
 		}
 
 #if UNITY_EDITOR
-		private static void Label(Vector3 position, GUIContent content, GUIStyle style, float offset, Vector2 offsetUnits, bool shadow)
+		private static void Label(Vector3 position, GUIContent content, GUIStyle style, float offset, Vector2 offsetUnits, bool shadow, float fontSize)
 		{
 			Vector3 vector = UnityEditor.HandleUtility.WorldToGUIPointWithDepth(position);
 			if(!(vector.z < 0f))
@@ -703,8 +713,9 @@ namespace UnityEssentials
 				if(shadow)
 				{
 					var position2 = rect;
-					position2.x++;
-					position2.y++;
+					float shadowOffset = fontSize > 0 ? fontSize * 0.08f : 1f;
+					position2.x += shadowOffset;
+					position2.y += shadowOffset;
 					var lastGUIColor = GUI.color;
 					GUI.color = Color.black.WithAlpha(GUI.color.a * 0.8f);
 					GUI.Label(position2, content, style);
