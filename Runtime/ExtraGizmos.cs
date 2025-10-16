@@ -657,7 +657,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a GUI text at the given point in the scene.
 		/// </summary>
-		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, bool shadow = false)
+		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, bool shadow = false)
 		{
 #if UNITY_EDITOR
 			if(labelStyle == null)
@@ -671,7 +671,6 @@ namespace UnityEssentials
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color.WithAlpha(1);
-			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>".WithAlpha(1);
 			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>";
 			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offset, offsetUnits ?? Vector2.zero, shadow, fontSize);
 			GUI.color = lastColor;
@@ -681,7 +680,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a GUI text box at the given point in the scene.
 		/// </summary>
-		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null)
+		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null)
 		{
 			//TODO: rich text support in text box
 			//TODO: rich text support in text box
@@ -695,7 +694,6 @@ namespace UnityEssentials
 			var lastColor = GUI.color;
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color.WithAlpha(1);
-			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>".WithAlpha(1);
 			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>";
 			Box(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), boxStyle, anchor, offset, offsetUnits ?? Vector2.zero);
 			GUI.color = lastColor;
