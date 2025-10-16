@@ -6,7 +6,8 @@ namespace UnityEssentials
 	/// <summary>
 	/// An empty MonoBehaviour script.
 	/// </summary>
-	public class BlankMonoBehaviour : MonoBehaviour
+	[AddComponentMenu("/")]
+	public class DummyMonoBehaviour : MonoBehaviour
 	{
 
 	}
