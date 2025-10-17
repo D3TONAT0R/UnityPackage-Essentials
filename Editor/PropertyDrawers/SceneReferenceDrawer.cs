@@ -21,7 +21,33 @@ namespace UnityEssentialsEditor
 				position.height = EditorGUIUtility.singleLineHeight;
 			}
 			position.SplitHorizontalRight(60, out position, out var indexRect, 2);
-			EditorGUI.PropertyField(position, property.FindPropertyRelative("sceneAsset"), label);
+			EditorGUI.BeginChangeCheck();
+			try
+			{
+				EditorGUI.PropertyField(position, property.FindPropertyRelative("sceneAsset"), label);
+			}
+			catch(ExitGUIException e)
+			{
+				//Ignore exit gui exceptions
+			}
+			if(EditorGUI.EndChangeCheck())
+			{
+				var scene = property.FindPropertyRelative("sceneAsset").objectReferenceValue as SceneAsset;
+				var nameProp = property.FindPropertyRelative("sceneName");
+				var indexProp = property.FindPropertyRelative("buildIndex");
+				if(scene)
+				{
+					nameProp.stringValue = scene.name;
+					var index = SceneUtility.GetBuildIndexByScenePath(AssetDatabase.GetAssetPath(scene));
+					indexProp.intValue = index;
+				}
+				else
+				{
+					nameProp.stringValue = "";
+					indexProp.intValue = -1;
+				}
+				property.serializedObject.ApplyModifiedProperties();
+			}
 			GUI.Box(indexRect, "Index: " + ((buildIndex.HasValue && buildIndex >= 0) ? buildIndex.Value.ToString() : "N/A"), EditorStyles.helpBox);
 		}
 

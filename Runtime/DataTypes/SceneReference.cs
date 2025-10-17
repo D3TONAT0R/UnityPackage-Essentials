@@ -1,5 +1,5 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UnityEssentials
 {
@@ -21,12 +21,17 @@ namespace UnityEssentials
 		private bool resolvedInEditor = false;
 #endif
 		[SerializeField, HideInInspector]
-		private string sceneName;
+		private string sceneName = "";
 		[SerializeField, HideInInspector]
-		private int buildIndex;
+		private int buildIndex = -1;
 
 		/// <summary>
-		/// <see langword="true"/> if the scene reference points to a scene present in the build settings.
+		/// Returns true if a scene is referenced.
+		/// </summary>
+		public bool Exists => !string.IsNullOrWhiteSpace(SceneName);
+
+		/// <summary>
+		/// Returns true if a valid scene is referenced that is present in the build settings.
 		/// </summary>
 		public bool ExistsInBuild => BuildIndex >= 0;
 
@@ -38,7 +43,7 @@ namespace UnityEssentials
 			get
 			{
 #if UNITY_EDITOR
-				ResolveIfRequired();
+				EditorResolveIfRequired();
 #endif
 				return !string.IsNullOrEmpty(sceneName) ? sceneName : null;
 			}
@@ -52,17 +57,56 @@ namespace UnityEssentials
 			get
 			{
 #if UNITY_EDITOR
-				ResolveIfRequired();
+				EditorResolveIfRequired();
 #endif
 				return buildIndex;
 			}
+		}
+
+		public void Load(LoadSceneMode mode = LoadSceneMode.Single)
+		{
+			if(!BeforeLoadCheck()) return;
+			SceneManager.LoadScene(BuildIndex, mode);
+		}
+
+		public void Load(LoadSceneParameters parameters)
+		{
+			if(!BeforeLoadCheck()) return;
+			SceneManager.LoadScene(BuildIndex, parameters);
+		}
+
+		public AsyncOperation LoadAsync(LoadSceneMode mode = LoadSceneMode.Single)
+		{
+			if(!BeforeLoadCheck()) return null;
+			return SceneManager.LoadSceneAsync(BuildIndex, mode);
+		}
+
+		public AsyncOperation LoadAsync(LoadSceneParameters parameters)
+		{
+			if(!BeforeLoadCheck()) return null;
+			return SceneManager.LoadSceneAsync(BuildIndex, parameters);
+		}
+
+		private bool BeforeLoadCheck()
+		{
+			if(!Exists)
+			{
+				Debug.LogError("Could not load scene because no scene is referenced.");
+				return false;
+			}
+			if(!ExistsInBuild)
+			{
+				Debug.LogError($"Could not load scene because the scene '{SceneName}' is not in build settings.");
+				return false;
+			}
+			return true;
 		}
 
 #if UNITY_EDITOR
 
 		public void OnBeforeSerialize()
 		{
-			ResolveIfRequired();
+			EditorResolveIfRequired();
 		}
 
 		public void OnAfterDeserialize()
@@ -70,17 +114,16 @@ namespace UnityEssentials
 			
 		}
 
-		private void ResolveIfRequired()
+		private void EditorResolve()
 		{
-			if(resolvedInEditor) return;
 			if(sceneAsset)
 			{
 				sceneName = sceneAsset.name;
 				buildIndex = -1;
-				var guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(sceneAsset));
-				for(int i = 0; i < EditorBuildSettings.scenes.Length; i++)
+				var guid = UnityEditor.AssetDatabase.AssetPathToGUID(UnityEditor.AssetDatabase.GetAssetPath(sceneAsset));
+				for(int i = 0; i < UnityEditor.EditorBuildSettings.scenes.Length; i++)
 				{
-					if(guid == EditorBuildSettings.scenes[i].guid.ToString())
+					if(guid == UnityEditor.EditorBuildSettings.scenes[i].guid.ToString())
 					{
 						buildIndex = i;
 					}
@@ -88,11 +131,54 @@ namespace UnityEssentials
 			}
 			else
 			{
-				sceneName = null;
+				sceneName = "";
 				buildIndex = -1;
 			}
 			resolvedInEditor = true;
 		}
+
+		private void EditorResolveIfRequired()
+		{
+			if(Application.isPlaying && resolvedInEditor) return;
+			if(sceneAsset ? sceneAsset.name == sceneName : sceneName == "") return;
+			EditorResolve();
+		}
 #endif
+
+		public static bool operator ==(SceneReference a, SceneReference b)
+		{
+			if(ReferenceEquals(a, b)) return true;
+			if(a is null || b is null) return false;
+			return a.SceneName == b.SceneName && a.BuildIndex == b.BuildIndex;
+		}
+
+		public static bool operator !=(SceneReference a, SceneReference b)
+		{
+			return !(a == b);
+		}
+
+		public static implicit operator bool(SceneReference sceneReference)
+		{
+			return sceneReference != null && sceneReference.Exists;
+		}
+
+		public override int GetHashCode()
+		{
+			if(buildIndex >= 0)
+			{
+				int sceneHash = sceneName?.GetHashCode() ?? 0;
+				return (sceneHash * 397) ^ buildIndex;
+			}
+			return 0;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if(obj is SceneReference other)
+			{
+				return this == other;
+			}
+			return false;
+		}
 	}
 }
