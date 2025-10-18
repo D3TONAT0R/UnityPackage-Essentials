@@ -14,7 +14,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			if(IsTypeSupported(type, out string ext))
 			{
 				position.width -= 45;
-				EditorGUI.PropertyField(position, property);
+				property.objectReferenceValue = EditorGUI.ObjectField(position, label, property.objectReferenceValue, type, false);
 				position.x += position.width + 5;
 				position.width = 40;
 				if(GUI.Button(position, "New"))
