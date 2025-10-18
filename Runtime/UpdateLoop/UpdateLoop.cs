@@ -33,8 +33,8 @@ namespace UnityEssentials.PlayerLoop
 		{
 			public class InvocationTarget
 			{
-				public Action action;
-				public Behaviour targetComponent;
+				public readonly Action action;
+				public readonly Behaviour targetComponent;
 
 				public readonly bool isComponentTarget;
 
@@ -55,7 +55,7 @@ namespace UnityEssentials.PlayerLoop
 			}
 
 			public readonly string name;
-			public List<InvocationTarget> subscribers = new List<InvocationTarget>(256);
+			public readonly List<InvocationTarget> subscribers = new List<InvocationTarget>(256);
 
 			public InvocationList(string name)
 			{
