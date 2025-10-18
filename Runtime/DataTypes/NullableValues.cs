@@ -52,7 +52,8 @@ namespace UnityEssentials
 	/// <summary>
 	/// A nullable value type that can be serialized.
 	/// </summary>
-	public abstract class NullableValue<T> : NullableValue where T : struct
+	[Serializable]
+	public class NullableValue<T> : NullableValue where T : struct
 	{
 		[FormerlySerializedAs("value")]
 		public T backingValue;
