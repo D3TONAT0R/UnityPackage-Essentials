@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace UnityEssentials
@@ -7,23 +8,22 @@ namespace UnityEssentials
 	/// Represents a reference to a scene asset.
 	/// </summary>
 	[System.Serializable]
-#if UNITY_EDITOR
-	public class SceneReference : ISerializationCallbackReceiver
-#else
 	public class SceneReference
+#if UNITY_EDITOR
+		: ISerializationCallbackReceiver
 #endif
 	{
 
 #if UNITY_EDITOR
 		[SerializeField]
 		private UnityEditor.SceneAsset sceneAsset;
-
 		private bool resolvedInEditor = false;
 #endif
+
 		[SerializeField, HideInInspector]
-		private string sceneName = "";
+		private string sceneName;
 		[SerializeField, HideInInspector]
-		private int buildIndex = -1;
+		private int buildIndex;
 
 		/// <summary>
 		/// Returns true if a scene is referenced.
@@ -63,43 +63,119 @@ namespace UnityEssentials
 			}
 		}
 
+		/// <summary>
+		/// Creates a new scene reference from the given scene name.
+		/// </summary>
+		public SceneReference(string sceneName)
+		{
+			this.sceneName = sceneName;
+			buildIndex = -1;
+			for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+			{
+				var name = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(i));
+				if(name == sceneName)
+				{
+					buildIndex = i;
+					break;
+				}
+			}
+#if UNITY_EDITOR
+			if(UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
+#endif
+		}
+
+		/// <summary>
+		/// Creates a new scene reference from the given build index.
+		/// </summary>
+		public SceneReference(int buildIndex)
+		{
+			if(buildIndex >= SceneManager.sceneCountInBuildSettings)
+			{
+				throw new System.ArgumentOutOfRangeException(nameof(buildIndex), $"Build index out of range: {buildIndex}. Scene count: {SceneManager.sceneCountInBuildSettings}");
+			}
+			this.buildIndex = buildIndex;
+			sceneName = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(buildIndex));
+#if UNITY_EDITOR
+			if(UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
+#endif
+		}
+
+		/// <summary>
+		/// Creates a new scene reference from the given scene.
+		/// </summary>
+		public SceneReference(Scene scene)
+		{
+			if(scene.IsValid())
+			{
+				sceneName = scene.name;
+				buildIndex = scene.buildIndex;
+			}
+			else
+			{
+				sceneName = "";
+				buildIndex = -1;
+			}
+#if UNITY_EDITOR
+			if(UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
+#endif
+		}
+
+		/// <summary>
+		/// Loads the referenced scene.
+		/// </summary>
 		public void Load(LoadSceneMode mode = LoadSceneMode.Single)
 		{
-			if(!BeforeLoadCheck()) return;
+			BeforeLoadCheck();
 			SceneManager.LoadScene(BuildIndex, mode);
 		}
 
+		/// <summary>
+		/// Loads the referenced scene.
+		/// </summary>
 		public void Load(LoadSceneParameters parameters)
 		{
-			if(!BeforeLoadCheck()) return;
+			BeforeLoadCheck();
 			SceneManager.LoadScene(BuildIndex, parameters);
 		}
 
+		/// <summary>
+		/// Loads the referenced scene asynchronously.
+		/// </summary>
 		public AsyncOperation LoadAsync(LoadSceneMode mode = LoadSceneMode.Single)
 		{
-			if(!BeforeLoadCheck()) return null;
+			BeforeLoadCheck();
 			return SceneManager.LoadSceneAsync(BuildIndex, mode);
 		}
 
+		/// <summary>
+		/// Loads the referenced scene asynchronously.
+		/// </summary>
 		public AsyncOperation LoadAsync(LoadSceneParameters parameters)
 		{
-			if(!BeforeLoadCheck()) return null;
+			BeforeLoadCheck();
 			return SceneManager.LoadSceneAsync(BuildIndex, parameters);
 		}
 
-		private bool BeforeLoadCheck()
+		/// <summary>
+		/// Unloads the referenced scene asynchronously.
+		/// </summary>
+		public AsyncOperation UnloadAsync()
 		{
+			BeforeLoadCheck(true);
+			return SceneManager.UnloadSceneAsync(BuildIndex);
+		}
+
+		private void BeforeLoadCheck(bool unload = false)
+		{
+			string action = unload ? "unload" : "load";
 			if(!Exists)
 			{
-				Debug.LogError("Could not load scene because no scene is referenced.");
-				return false;
+				throw new System.InvalidOperationException($"Can not {action} scene because no scene is referenced.");
 			}
 			if(!ExistsInBuild)
 			{
-				Debug.LogError($"Could not load scene because the scene '{SceneName}' is not in build settings.");
-				return false;
+				throw new System.InvalidOperationException($"Can not {action} scene because the scene '{SceneName}' is not in build settings.");
 			}
-			return true;
 		}
 
 #if UNITY_EDITOR
