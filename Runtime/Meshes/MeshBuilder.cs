@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace UnityEssentials.Meshes
@@ -34,6 +35,10 @@ namespace UnityEssentials.Meshes
 		/// </summary>
 		public bool Reversed { get; set; } = false;
 
+		/// <summary>
+		/// If <see langword="true"/>, quads will be generated with flipped triangle order.
+		/// </summary>
+		public bool FlipQuadTriangles { get; set; } = false;
 
 		public MeshBuilder()
 		{
@@ -170,8 +175,60 @@ namespace UnityEssentials.Meshes
 			uv0.Add(uv_lr);
 
 			var i = verts.Count;
-			MakeTriangle(i - 4, i - 3, i - 2);
-			MakeTriangle(i - 3, i - 1, i - 2);
+			MakeQuad(i - 4, i - 2, i - 3, i - 1);
+		}
+
+		/// <summary>
+		/// Adds a subdivided plane to the mesh.
+		/// </summary>
+		public void AddPlane(Vector3 ll, Vector3 lr, Vector3 ul, Vector3 ur, Vector3 normal, int subdivisionsH, int subdivisionsV)
+		{
+			AddPlane(ll, lr, ul, ur, normal, Vector2.zero, Vector2.right, Vector2.up, Vector2.one, subdivisionsH, subdivisionsV);
+		}
+
+		/// <summary>
+		/// Adds a subdivided plane to the mesh.
+		/// </summary>
+		public void AddPlane(Vector3 ll, Vector3 lr, Vector3 ul, Vector3 ur, Vector3 normal, Vector2 uv_ll, Vector2 uv_lr, Vector2 uv_ul, Vector2 uv_ur, int subdivisionsH, int subdivisionsV)
+		{
+			subdivisionsH = Mathf.Clamp(subdivisionsH, 1, 256);
+			subdivisionsV = Mathf.Clamp(subdivisionsV, 1, 256);
+
+			TransformPoint(ref ll);
+			TransformPoint(ref lr);
+			TransformPoint(ref ul);
+			TransformPoint(ref ur);
+			TransformVector(ref normal);
+
+			var i = verts.Count;
+			for(int v = 0; v <= subdivisionsV; v++)
+			{
+				Vector3 va = Vector3.Lerp(ll, ul, v / (float)subdivisionsV);
+				Vector3 vb = Vector3.Lerp(lr, ur, v / (float)subdivisionsV);
+				Vector2 uv_va = Vector2.Lerp(uv_ll, uv_ul, v / (float)subdivisionsV);
+				Vector2 uv_vb = Vector2.Lerp(uv_lr, uv_ur, v / (float)subdivisionsV);
+				for(int h = 0; h <= subdivisionsH; h++)
+				{
+					Vector3 pos = Vector3.Lerp(va, vb, h / (float)subdivisionsH);
+					Vector2 uv = Vector2.Lerp(uv_va, uv_vb, h / (float)subdivisionsH);
+					AddVertex(pos);
+					normals.Add(normal);
+					uv0.Add(uv);
+				}
+			}
+
+			//Make quads
+			for(int v = 0; v < subdivisionsV; v++)
+			{
+				for(int h = 0; h < subdivisionsH; h++)
+				{
+					int ill = i + v * (subdivisionsH + 1) + h;
+					int ilr = ill + 1;
+					int iul = ill + (subdivisionsH + 1);
+					int iur = iul + 1;
+					MakeQuad(ill, ilr, iul, iur);
+				}
+			}
 		}
 
 		/// <summary>
@@ -288,12 +345,15 @@ namespace UnityEssentials.Meshes
 				{
 					int r = (l + 1);
 
-					if(i < lonDetail - 1)
+					if(i < lonDetail && i > 0)
+					{
+						MakeQuad(lower + l, lower + r, upper + l, upper + r);
+					}
+					else if(i < lonDetail)
 					{
 						MakeTriangle(lower + l, upper + l, upper + r);
 					}
-
-					if(i > 0)
+					else if(i > 0)
 					{
 						MakeTriangle(lower + l, upper + r, lower + r);
 					}
@@ -302,7 +362,7 @@ namespace UnityEssentials.Meshes
 		}
 
 		/// <summary>
-		/// Adds a hemisphere to the mesh.
+		/// Adds an upwards-facing hemisphere to the mesh.
 		/// </summary>
 		public void AddHemisphere(Vector3 pos, float radius, float height, int latDetail = DEFAULT_CIRCLE_DETAIL, int lonDetail = DEFAULT_CIRCLE_DETAIL)
 		{
@@ -334,13 +394,15 @@ namespace UnityEssentials.Meshes
 				for(int l = 0; l < latDetail; l++)
 				{
 					int r = (l + 1);
-
-					if(i < lonDetail - 1)
+					if(i < lonDetail && i > 0)
+					{
+						MakeQuad(lower + l, lower + r, upper + l, upper + r);
+					}
+					else if(i < lonDetail)
 					{
 						MakeTriangle(lower + l, upper + l, upper + r);
 					}
-
-					if(i >= 0)
+					else if(i > 0)
 					{
 						MakeTriangle(lower + l, upper + r, lower + r);
 					}
@@ -351,7 +413,7 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds a vertical capsule to the mesh.
 		/// </summary>
-		public void AddCapsule(Vector3 pos, float radius, float height, int latDetail = 32, int lonDetail = 32)
+		public void AddCapsule(Vector3 pos, float radius, float height, int latDetail = DEFAULT_CIRCLE_DETAIL, int lonDetail = DEFAULT_CIRCLE_DETAIL)
 		{
 
 			void AddVertRing(float vAngle, float voffset, bool upper)
@@ -407,13 +469,15 @@ namespace UnityEssentials.Meshes
 				for(int l = 0; l < latDetail; l++)
 				{
 					int r = (l + 1);
-
-					if(i < lonDetail)
+					if(i < lonDetail && i > 0)
+					{
+						MakeQuad(lower + l, lower + r, upper + l, upper + r);
+					}
+					else if(i < lonDetail)
 					{
 						MakeTriangle(lower + l, upper + l, upper + r);
 					}
-
-					if(i > 0)
+					else if(i > 0)
 					{
 						MakeTriangle(lower + l, upper + r, lower + r);
 					}
@@ -424,7 +488,7 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds a capsule to the mesh, aligned to the given axis.
 		/// </summary>
-		public void AddCapsule(Vector3 pos, Axis axis, float radius, float height, int latDetail = 32, int lonDetail = 32)
+		public void AddCapsule(Vector3 pos, Axis axis, float radius, float height, int latDetail = DEFAULT_CIRCLE_DETAIL, int lonDetail = DEFAULT_CIRCLE_DETAIL)
 		{
 			using(PushMatrixScope())
 			{
@@ -436,7 +500,7 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds a flat circle to the mesh, transformed by the given matrix.
 		/// </summary>
-		public void AddCircle(Matrix4x4 matrix, float radius, int detail = 32)
+		public void AddCircle(Matrix4x4 matrix, float radius, int detail = DEFAULT_CIRCLE_DETAIL, int subdivisions = 1)
 		{
 			PushMatrix();
 			ApplyMatrix(matrix);
@@ -447,32 +511,67 @@ namespace UnityEssentials.Meshes
 			normals.Add(nrm);
 			uv0.Add(Vector2.one * 0.5f);
 
+			//Inner fan
 			for(int i = 0; i < tempVertexCache.Count; i++)
 			{
-				AddTransformedVertex(tempVertexCache[i].XZY() * radius);
+				AddTransformedVertex(tempVertexCache[i].XZY() * radius / subdivisions);
 				normals.Add(nrm);
-				Vector2 uv = (tempVertexCache[i].XY() + Vector2.one) * 0.5f;
+				Vector2 uv = (tempVertexCache[i].XY() / subdivisions + Vector2.one) * 0.5f;
 				uv.x = 1 - uv.x;
 				uv0.Add(uv);
 			}
-
-			for (int i = 0; i < tempVertexCache.Count - 1; i++)
+			//Make inner tris
+			for(int i = 0; i < tempVertexCache.Count - 1; i++)
 			{
 				MakeTriangle(b - 1, b + i, b + i + 1);
 			}
 			MakeTriangle(b - 1, b + tempVertexCache.Count - 1, b);
+
+
+			//Outer rings
+			for(int ring = 1; ring < subdivisions; ring++)
+			{
+				int ringStart = verts.Count;
+				float ringRadius = radius * (ring + 1) / subdivisions;
+				//Add ring verts
+				for(int i = 0; i < tempVertexCache.Count; i++)
+				{
+					AddTransformedVertex(tempVertexCache[i].XZY() * ringRadius);
+					normals.Add(nrm);
+					Vector2 uv = (tempVertexCache[i].XY() * (ring + 1) / (subdivisions) + Vector2.one) * 0.5f;
+					uv.x = 1 - uv.x;
+					uv0.Add(uv);
+				}
+				//Make ring tris
+				int ill, ilr, iul, iur;
+				for(int i = 0; i < tempVertexCache.Count - 1; i++)
+				{
+					ill = ringStart + i - tempVertexCache.Count;
+					ilr = ill + 1;
+					iul = ringStart + i;
+					iur = iul + 1;
+					MakeQuad(ill, ilr, iul, iur);
+				}
+				int i1 = tempVertexCache.Count - 1;
+				ill = ringStart + i1 - tempVertexCache.Count;
+				ilr = ill - i1;
+				iul = ringStart + i1;
+				iur = iul - i1;
+				MakeQuad(ill, ilr, iul, iur);
+			}
+
 			PopMatrix();
 		}
 
 		/// <summary>
-		/// Adds a flat disc to the mesh.
+		/// Adds a flat circle to the mesh.
 		/// </summary>
-		public void AddCircle(Vector3 pos, Vector3 upNormal, float radius, int detail = 32)
+		public void AddCircle(Vector3 pos, Vector3 upNormal, float radius, int detail = DEFAULT_CIRCLE_DETAIL, int subdivisions = 1)
 		{
 			upNormal = Vector3.Normalize(upNormal);
 			Quaternion rotation = Quaternion.LookRotation(upNormal) * Quaternion.Euler(90, 180, 0);
 			if(upNormal != Vector3.up && upNormal != Vector3.down) rotation *= Quaternion.Euler(0, 180, 0);
-			AddCircle(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail);
+			AddCircle(Matrix4x4.TRS(pos, rotation, Vector3.one), radius, detail, subdivisions);
 		}
 
 		/// <summary>
@@ -538,8 +637,7 @@ namespace UnityEssentials.Meshes
 				normals.Add(TransformVector(normal));
 				uv0.Add(new Vector2(i / (float)tempVertexCache.Count, 0));
 				uv0.Add(new Vector2(i / (float)tempVertexCache.Count, 1));
-				MakeTriangle(bM, bM + 1, bM + 2);
-				MakeTriangle(bM + 3, bM + 2, bM + 1);
+				MakeQuad(bM + 2, bM + 3, bM, bM + 1);
 			}
 
 			AddVertex(TransformPoint(pos + (tempVertexCache[0] * radius1).XZY().WithY(-h2)));
@@ -562,7 +660,7 @@ namespace UnityEssentials.Meshes
 		/// <summary>
 		/// Adds a cylinder to the mesh, aligned to the given axis.
 		/// </summary>
-		public void AddCylinder(Vector3 pos, Axis axis, float radius, float height, int detail = 32, bool caps = true)
+		public void AddCylinder(Vector3 pos, Axis axis, float radius, float height, int detail = DEFAULT_CIRCLE_DETAIL, bool caps = true)
 		{
 			using(PushMatrixScope())
 			{
@@ -684,6 +782,20 @@ namespace UnityEssentials.Meshes
 				tris.Add(i0);
 				tris.Add(i1);
 				tris.Add(i2);
+			}
+		}
+
+		private void MakeQuad(int ll, int lr, int ul, int ur)
+		{
+			if(FlipQuadTriangles)
+			{
+				MakeTriangle(ul, lr, ll);
+				MakeTriangle(ur, lr, ul);
+			}
+			else
+			{
+				MakeTriangle(ul, ur, ll);
+				MakeTriangle(ur, lr, ll);
 			}
 		}
 
