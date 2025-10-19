@@ -84,15 +84,16 @@ namespace UnityEssentialsEditor
 			return AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
 		}
 
-		public static GameObject CreateRootObject(MenuCommand menuCommand, string name, float distanceFromSceneView = 10)
+		public static GameObject CreateRootObject(MenuCommand menuCommand, string name)
 		{
 			// Create a custom game object
 			GameObject go = new GameObject(name);
 			// Ensure it gets reparented if this was a context click (otherwise does nothing)
 			GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
-			if(SceneView.lastActiveSceneView != null && distanceFromSceneView > 0)
+			// Move game object to scene view center if no parent was set
+			if(!menuCommand.context && SceneView.lastActiveSceneView != null)
 			{
-				go.transform.position = SceneView.lastActiveSceneView.camera.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, distanceFromSceneView));
+				go.transform.position = SceneView.lastActiveSceneView.pivot;
 			}
 			// Register the creation in the undo system
 			Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
