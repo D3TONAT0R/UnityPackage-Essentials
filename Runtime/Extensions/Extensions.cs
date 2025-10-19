@@ -154,25 +154,5 @@ namespace UnityEssentials
 			if(message != null) Debug.LogException(e.AddMessage(message), context);
 			else Debug.LogException(e, context);
 		}
-
-		/// <summary>
-		/// (EDITOR ONLY) Invokes the given action with a slight delay. Useful for avoiding "SendMessage" related warnings during an OnValidate event.
-		/// </summary>
-		public static void EditorDelayCall(this MonoBehaviour m, System.Action onValidateAction)
-		{
-#if UNITY_EDITOR
-			bool wasPlaying = Application.isPlaying;
-			UnityEditor.EditorApplication.delayCall += _OnValidate;
-
-			void _OnValidate()
-			{
-				UnityEditor.EditorApplication.delayCall -= _OnValidate;
-				if(Application.isPlaying == wasPlaying && m != null)
-				{
-					onValidateAction();
-				}
-			}
-#endif
-		}
 	}
 }
