@@ -8,30 +8,12 @@ namespace UnityEssentials.Meshes
 	/// Component that generates a convex mesh.
 	/// </summary>
 	[DisallowMultipleComponent, AddComponentMenu("Mesh/Convex Mesh Builder")]
-	public class ConvexMeshBuilderComponent : MonoBehaviour
+	public class ConvexMeshBuilderComponent : MeshBuilderComponent
 	{
-		public enum TargetComponents
-		{
-			None,
-			MeshCollider,
-			MeshFilter,
-			Both
-		}
+		private const float CUBE_EXTENTS = 0.5f;
 
-		private const float cubeExtents = 0.5f;
-
-		public TargetComponents applyTo = TargetComponents.MeshCollider;
 		public List<Vector3> vertices = new List<Vector3>();
 		public bool flatNormals = true;
-
-		public Mesh GeneratedMesh { get; private set; }
-
-		// Start is called before the first frame update
-		private void Awake()
-		{
-			RebuildMesh();
-			AssignToComponents();
-		}
 
 		public void AddVertex(Vector3? pos = null)
 		{
@@ -47,54 +29,33 @@ namespace UnityEssentials.Meshes
 		{
 			vertices.Clear();
 
-			AddVertex(new Vector3(-cubeExtents, -cubeExtents, -cubeExtents));
-			AddVertex(new Vector3(-cubeExtents, -cubeExtents, cubeExtents));
-			AddVertex(new Vector3(cubeExtents, -cubeExtents, -cubeExtents));
-			AddVertex(new Vector3(cubeExtents, -cubeExtents, cubeExtents));
+			AddVertex(new Vector3(-CUBE_EXTENTS, -CUBE_EXTENTS, -CUBE_EXTENTS));
+			AddVertex(new Vector3(-CUBE_EXTENTS, -CUBE_EXTENTS, CUBE_EXTENTS));
+			AddVertex(new Vector3(CUBE_EXTENTS, -CUBE_EXTENTS, -CUBE_EXTENTS));
+			AddVertex(new Vector3(CUBE_EXTENTS, -CUBE_EXTENTS, CUBE_EXTENTS));
 
-			AddVertex(new Vector3(-cubeExtents, cubeExtents, -cubeExtents));
-			AddVertex(new Vector3(-cubeExtents, cubeExtents, cubeExtents));
-			AddVertex(new Vector3(cubeExtents, cubeExtents, -cubeExtents));
-			AddVertex(new Vector3(cubeExtents, cubeExtents, cubeExtents));
+			AddVertex(new Vector3(-CUBE_EXTENTS, CUBE_EXTENTS, -CUBE_EXTENTS));
+			AddVertex(new Vector3(-CUBE_EXTENTS, CUBE_EXTENTS, CUBE_EXTENTS));
+			AddVertex(new Vector3(CUBE_EXTENTS, CUBE_EXTENTS, -CUBE_EXTENTS));
+			AddVertex(new Vector3(CUBE_EXTENTS, CUBE_EXTENTS, CUBE_EXTENTS));
 
 			OnValidate();
 		}
 
-		public Mesh RebuildMesh()
+		protected override void Generate(ref Mesh mesh)
 		{
 			if(vertices == null)
 			{
 				vertices = new List<Vector3>();
 				InitCube();
 			}
-			GeneratedMesh = ConvexMeshGenerator.CreateConvexMesh(vertices, flatNormals);
-			return GeneratedMesh;
+			mesh = ConvexMeshGenerator.CreateConvexMesh(vertices, flatNormals);
 		}
 
-		public void AssignToComponents()
-		{
-			if((applyTo == TargetComponents.MeshCollider || applyTo == TargetComponents.Both) && TryGetComponent<MeshCollider>(out var meshCollider))
-			{
-				meshCollider.sharedMesh = GeneratedMesh;
-			}
-			if((applyTo == TargetComponents.MeshFilter || applyTo == TargetComponents.Both) && TryGetComponent<MeshFilter>(out var meshFilter))
-			{
-				meshFilter.sharedMesh = GeneratedMesh;
-			}
-		}
-
-		public void Validate()
-		{
-			if(this == null) return;
-			RebuildMesh();
-			AssignToComponents();
-		}
-
-		private void Reset()
+		protected override void Reset()
 		{
 			Mesh mesh = TryGetComponent<MeshCollider>(out var collider) ? collider.sharedMesh : null;
 			if(mesh == null) mesh = TryGetComponent<MeshFilter>(out var filter) ? filter.sharedMesh : null;
-
 			if(mesh != null && mesh.vertexCount < 256)
 			{
 				vertices = mesh.vertices.ToList();
@@ -103,11 +64,6 @@ namespace UnityEssentials.Meshes
 			{
 				InitCube();
 			}
-		}
-
-		private void OnValidate()
-		{
-			this.EditorDelayCall(Validate);
 		}
 	}
 }

@@ -48,7 +48,6 @@ namespace UnityEssentialsEditor
 			return Selection.gameObjects.Length > 0;
 		}
 
-
 		[MenuItem("GameObject/3D Object/Convex Mesh", false, 7)]
 		public static void CreateConvexMesh(MenuCommand menuCommand)
 		{
@@ -59,7 +58,20 @@ namespace UnityEssentialsEditor
 			mr.sharedMaterial = GetDefaultMaterial();
 			var mc = ObjectFactory.AddComponent<MeshCollider>(root);
 			mc.convex = true;
-			builder.applyTo = ConvexMeshBuilderComponent.TargetComponents.Both;
+			builder.applyTo = MeshBuilderComponent.TargetComponents.Both;
+			builder.Validate();
+		}
+
+		[MenuItem("GameObject/3D Object/Primitive Mesh Builder", false, 7)]
+		public static void CreateProceduralPrimitive(MenuCommand menuCommand)
+		{
+			var root = CreateRootObject(menuCommand, "Primitive");
+			var builder = ObjectFactory.AddComponent<PrimitiveMeshBuilderComponent>(root);
+			ObjectFactory.AddComponent<MeshFilter>(root);
+			var mr = ObjectFactory.AddComponent<MeshRenderer>(root);
+			mr.sharedMaterial = GetDefaultMaterial();
+			ObjectFactory.AddComponent<MeshCollider>(root);
+			builder.applyTo = MeshBuilderComponent.TargetComponents.Both;
 			builder.Validate();
 		}
 
