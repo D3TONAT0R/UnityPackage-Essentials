@@ -25,6 +25,7 @@ namespace UnityEssentials
 	/// </summary>
 	public class ExtraGizmos
 	{
+		internal static Mesh planeMesh;
 		internal static Mesh discMesh;
 		internal static Mesh cylinderMesh;
 		internal static Mesh capsuleCenterMesh;
@@ -39,8 +40,11 @@ namespace UnityEssentials
 		static ExtraGizmos()
 		{
 			var builder = new MeshBuilder();
+			builder.AddQuad(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, -0.5f), new Vector3(-0.5f, 0, 0.5f), new Vector3(0.5f, 0, 0.5f), Vector3.up);
+			planeMesh = builder.CreateMesh();
+
+			builder.Clear();
 			builder.AddCircle(Vector3.zero, Vector3.up, 1f, 32);
-			//builder.AddCircle(Matrix4x4.identity, 1f, 32);
 			discMesh = builder.CreateMesh();
 
 			builder.Clear();
@@ -562,58 +566,123 @@ namespace UnityEssentials
 			DrawArrow(origin, Quaternion.LookRotation(direction.GetDirectionVector()), length, fixedHeadLength);
 		}
 
-
+		/// <summary>
+		/// Draws a rectangle gizmo.
+		/// </summary>
+		public static void DrawRectangle(Vector3 center, Quaternion rotation, Vector2 size, bool doubleSided = true)
+		{
+			var lMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, size.XVY(1));
+			Gizmos.DrawMesh(planeMesh);
+			if(doubleSided)
+			{
+				Gizmos.matrix *= Matrix4x4.Scale(new Vector3(1, 1, -1));
+				Gizmos.DrawMesh(planeMesh);
+			}
+			Gizmos.matrix = lMatrix;
+		}
 
 		/// <summary>
 		/// Draws a rectangle gizmo.
 		/// </summary>
 		public static void DrawRectangle(Vector3 center, Vector3 up, Vector2 size)
 		{
+			DrawRectangle(center, Quaternion.LookRotation(up) * Quaternion.Euler(90, 0, 0), size);
+		}
+
+		/// <summary>
+		/// Draws a wireframe rectangle gizmo.
+		/// </summary>
+		public static void DrawWireRectangle(Vector3 center, Vector3 up, Vector2 size, bool drawPickShape = false)
+		{
+			DrawWireRectangle(center, Quaternion.LookRotation(up) * Quaternion.Euler(90, 0, 0), size, drawPickShape);
+		}
+
+		/// <summary>
+		/// Draws a wireframe rectangle gizmo.
+		/// </summary>
+		public static void DrawWireRectangle(Vector3 center, Quaternion rotation, Vector2 size, bool drawPickShape = false)
+		{
 			var lMatrix = Gizmos.matrix;
-			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(up), Vector3.one);
-			size *= 0.5f;
-			var p0 = new Vector3(-size.x, -size.y, 0);
-			var p1 = new Vector3(size.x, -size.y, 0);
-			var p2 = new Vector3(-size.x, size.y, 0);
-			var p3 = new Vector3(size.x, size.y, 0);
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
+			var ext = size * 0.5f;
+			var p0 = new Vector3(-ext.x, 0, -ext.y);
+			var p1 = new Vector3(ext.x, 0, -ext.y);
+			var p2 = new Vector3(-ext.x, 0, ext.y);
+			var p3 = new Vector3(ext.x, 0, ext.y);
 			Gizmos.DrawLine(p0, p1);
 			Gizmos.DrawLine(p1, p3);
 			Gizmos.DrawLine(p0, p2);
 			Gizmos.DrawLine(p2, p3);
 			Gizmos.matrix = lMatrix;
+			if(drawPickShape)
+			{
+				using(new GizmoColorScope(Color.clear))
+				{
+					DrawRectangle(center, rotation, size);
+				}
+			}
 		}
 
 		/// <summary>
-		/// Draws a rounded rectangle gizmo.
+		/// Draws a combined wireframe and solid rectangle gizmo.
 		/// </summary>
-		public static void DrawRadiusRectangle(Vector3 center, Vector3 up, Vector2 size, float radius, bool grow = false)
+		public static void DrawCombinedRectangle(Vector3 center, Quaternion rotation, Vector2 size, float fillAlpha, bool doubleSided = true)
+		{
+			DrawWireRectangle(center, rotation, size);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				DrawRectangle(center, rotation, size, doubleSided);
+			}
+		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid rectangle gizmo.
+		/// </summary>
+		public static void DrawCombinedRectangle(Vector3 center, Vector3 up, Vector2 size, float fillAlpha, bool doubleSided = true)
+		{
+			DrawCombinedRectangle(center, Quaternion.LookRotation(up) * Quaternion.Euler(90, 0, 0), size, fillAlpha, doubleSided);
+		}
+
+		/// <summary>
+		/// Draws a rounded wire rectangle gizmo.
+		/// </summary>
+		public static void DrawWireRadiusRectangle(Vector3 center, Quaternion rotation, Vector2 size, float radius, bool grow = false)
 		{
 			if(radius <= 0)
 			{
-				DrawRectangle(center, up, size);
+				DrawRectangle(center, rotation, size);
 				return;
 			}
 			var lMatrix = Gizmos.matrix;
-			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(up), Vector3.one);
+			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
 			if(!grow) size -= 2 * radius * Vector2.one;
-			size *= 0.5f;
-			var p0 = new Vector3(-size.x, -size.y, 0);
-			var p1 = new Vector3(size.x, -size.y, 0);
-			var p2 = new Vector3(-size.x, size.y, 0);
-			var p3 = new Vector3(size.x, size.y, 0);
-			Gizmos.DrawLine(p0 + Vector3.down * radius, p1 + Vector3.down * radius);
+			var ext = size * 0.5f;
+			var p0 = new Vector3(-ext.x, 0, -ext.y);
+			var p1 = new Vector3(ext.x, 0, -ext.y);
+			var p2 = new Vector3(-ext.x, 0, ext.y);
+			var p3 = new Vector3(ext.x, 0, ext.y);
+			Gizmos.DrawLine(p0 + Vector3.back * radius, p1 + Vector3.back * radius);
 			Gizmos.DrawLine(p1 + Vector3.right * radius, p3 + Vector3.right * radius);
 			Gizmos.DrawLine(p0 + Vector3.left * radius, p2 + Vector3.left * radius);
-			Gizmos.DrawLine(p2 + Vector3.up * radius, p3 + Vector3.up * radius);
-			DrawArc(p0, Vector3.up, Vector3.up, radius, 180, 270, false, 8);
-			DrawArc(p1, Vector3.up, Vector3.up, radius, 90, 180, false, 8);
-			DrawArc(p2, Vector3.up, Vector3.up, radius, -90, 0, false, 8);
-			DrawArc(p3, Vector3.up, Vector3.up, radius, 0, 90, false, 8);
+			Gizmos.DrawLine(p2 + Vector3.forward * radius, p3 + Vector3.forward * radius);
+			DrawArc(p0, Vector3.forward, Vector3.forward, radius, 180, 270, false, 8);
+			DrawArc(p1, Vector3.forward, Vector3.forward, radius, 90, 180, false, 8);
+			DrawArc(p2, Vector3.forward, Vector3.forward, radius, -90, 0, false, 8);
+			DrawArc(p3, Vector3.forward, Vector3.forward, radius, 0, 90, false, 8);
 			Gizmos.matrix = lMatrix;
 		}
 
 		/// <summary>
-		/// Draws a rouded cube gizmo.
+		/// Draws a rounded wire rectangle gizmo.
+		/// </summary>
+		public static void DrawWireRadiusRectangle(Vector3 center, Vector3 up, Vector2 size, float radius, bool grow = false)
+		{
+			DrawWireRadiusRectangle(center, Quaternion.LookRotation(up) * Quaternion.Euler(90, 0, 0), size, radius, grow);
+		}
+
+		/// <summary>
+		/// Draws a rounded cube gizmo.
 		/// </summary>
 		public static void DrawWireRadiusCube(Vector3 center, Vector3 size, float radius, bool grow = false)
 		{
@@ -624,12 +693,12 @@ namespace UnityEssentials
 			}
 			size = size.Abs();
 			float inset = grow ? 0 : radius;
-			DrawRadiusRectangle(center + new Vector3(-size.x * 0.5f + inset, 0, 0), Vector3.right, size.ZY(), radius, grow);
-			DrawRadiusRectangle(center + new Vector3(size.x * 0.5f - inset, 0, 0), Vector3.right, size.ZY(), radius, grow);
-			DrawRadiusRectangle(center + new Vector3(0, -size.y * 0.5f + inset, 0), Vector3.up, size.XZ(), radius, grow);
-			DrawRadiusRectangle(center + new Vector3(0, size.y * 0.5f - inset, 0), Vector3.up, size.XZ(), radius, grow);
-			DrawRadiusRectangle(center + new Vector3(0, 0, -size.z * 0.5f + inset), Vector3.forward, size.XY(), radius, grow);
-			DrawRadiusRectangle(center + new Vector3(0, 0, size.z * 0.5f - inset), Vector3.forward, size.XY(), radius, grow);
+			DrawWireRadiusRectangle(center + new Vector3(-size.x * 0.5f + inset, 0, 0), Vector3.right, size.ZY(), radius, grow);
+			DrawWireRadiusRectangle(center + new Vector3(size.x * 0.5f - inset, 0, 0), Vector3.right, size.ZY(), radius, grow);
+			DrawWireRadiusRectangle(center + new Vector3(0, -size.y * 0.5f + inset, 0), Vector3.up, size.XZ(), radius, grow);
+			DrawWireRadiusRectangle(center + new Vector3(0, size.y * 0.5f - inset, 0), Vector3.up, size.XZ(), radius, grow);
+			DrawWireRadiusRectangle(center + new Vector3(0, 0, -size.z * 0.5f + inset), Vector3.forward, size.XY(), radius, grow);
+			DrawWireRadiusRectangle(center + new Vector3(0, 0, size.z * 0.5f - inset), Vector3.forward, size.XY(), radius, grow);
 		}
 		
 
