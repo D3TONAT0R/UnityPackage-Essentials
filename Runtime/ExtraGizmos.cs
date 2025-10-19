@@ -34,7 +34,7 @@ namespace UnityEssentials
 		internal static GUIStyle labelStyle;
 		internal static GUIStyle boxStyle;
 
-		private static List<Vector3> circlePointCache = new List<Vector3>();
+		private static readonly List<Vector3> circlePointCache = new List<Vector3>(128);
 
 		static ExtraGizmos()
 		{
