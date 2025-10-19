@@ -51,7 +51,7 @@ namespace UnityEssentials
 			builder.AddCylinder(Vector3.zero, 1, 1, 16, false);
 			capsuleCenterMesh = builder.CreateMesh();
 			builder.Clear();
-			builder.AddHemisphere(Vector3.zero, 1, 0.5f, 16, 16);
+			builder.AddHemisphere(Vector3.zero, 1, 1, 16, 8);
 			capsuleCapMesh = builder.CreateMesh();
 
 			builder.Clear();
@@ -167,6 +167,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawWireCircle(Vector3 center, Vector3 normal, float radius, int segments = 64, bool drawPickShape = false)
 		{
+			segments = Mathf.Clamp(segments, 3, 256);
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
 			MeshBuilderBase.GetCirclePoints(circlePointCache, segments, 1);
@@ -221,6 +222,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawArc(Vector3 center, Vector3 up, Vector3 forward, float radius, float fromDegrees, float toDegrees, bool edges = false, int segments = 32)
 		{
+			segments = Mathf.Clamp(segments, 3, 256);
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(forward, up), Vector3.one);
 			circlePointCache.Clear();
@@ -245,6 +247,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawWireCylinder(Vector3 center, Quaternion rotation, float radius, float height, int segments = 64, bool drawPickShape = false)
 		{
+			segments = Mathf.Clamp(segments, 3, 256);
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation * Quaternion.Euler(90, 0, 0), Vector3.one);
 			float h2 = height * 0.5f;
@@ -321,6 +324,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawWireCapsule(Vector3 center, Quaternion rotation, float radius, float height, int segments = 64, bool drawPickShape = false)
 		{
+			segments = Mathf.Clamp(segments, 3, 256);
 			var h = Mathf.Max(height - radius * 2, 0);
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation * Quaternion.Euler(90, 0, 0), Vector3.one);
@@ -682,8 +686,6 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null)
 		{
-			//TODO: rich text support in text box
-			//TODO: rich text support in text box
 #if UNITY_EDITOR
 			if(boxStyle == null)
 			{

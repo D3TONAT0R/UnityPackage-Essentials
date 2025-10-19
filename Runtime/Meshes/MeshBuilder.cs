@@ -367,8 +367,7 @@ namespace UnityEssentials.Meshes
 		{
 			const float HALF_PI = Mathf.PI / 2;
 			int offset = verts.Count;
-			lonDetail /= 4;
-			float heightRatio = height * 2f / radius;
+			float heightRatio = height / radius;
 			for(int v = 0; v <= lonDetail; v++)
 			{
 				var vAngle = HALF_PI + (v / (float)lonDetail * HALF_PI);
@@ -393,17 +392,13 @@ namespace UnityEssentials.Meshes
 				for(int l = 0; l < latDetail; l++)
 				{
 					int r = (l + 1);
-					if(i < lonDetail && i > 0)
+					if(i < lonDetail && i >= 0)
 					{
 						MakeQuad(lower + l, lower + r, upper + l, upper + r);
 					}
 					else if(i < lonDetail)
 					{
 						MakeTriangle(lower + l, upper + l, upper + r);
-					}
-					else if(i > 0)
-					{
-						MakeTriangle(lower + l, upper + r, lower + r);
 					}
 				}
 			}

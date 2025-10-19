@@ -66,7 +66,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Returns an array containing all tree instances within the given radius from a given center point.
 		/// </summary>
-		public static TreeInstance[] GetTreesWithinRadis(this Terrain terrain, Vector3 center, float radius, bool ignoreHeight)
+		public static TreeInstance[] GetTreesWithinRadius(this Terrain terrain, Vector3 center, float radius, bool ignoreHeight)
 		{
 			var offset = terrain.GetPosition();
 			var size = terrain.terrainData.size;
