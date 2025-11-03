@@ -967,6 +967,80 @@ namespace UnityEssentials
 		}
 		#endregion
 
+		#region Colliders
+
+		/// <summary>
+		/// Draws a combined gizmo representing the given BoxCollider.
+		/// </summary>
+		/// <param name="boxCollider"></param>
+		/// <param name="fillAlpha"></param>
+		public static void DrawBoxCollider(BoxCollider boxCollider, float fillAlpha)
+		{
+			if(!boxCollider) return;
+			var lMatrix = Gizmos.matrix;
+			Gizmos.matrix = Matrix4x4.TRS(boxCollider.transform.TransformPoint(boxCollider.center), boxCollider.transform.rotation, boxCollider.transform.lossyScale);
+			var size = boxCollider.size;
+			DrawCombinedCube(Vector3.zero, size, fillAlpha);
+			Gizmos.matrix = lMatrix;
+		}
+
+		/// <summary>
+		/// Draws a combined gizmo representing the given SphereCollider.
+		/// </summary>
+		public static void DrawSphereCollider(SphereCollider sphereCollider, float fillAlpha)
+		{
+			if(!sphereCollider) return;
+			var lMatrix = Gizmos.matrix;
+			float maxScale = Mathf.Max(sphereCollider.transform.lossyScale.x, Mathf.Max(sphereCollider.transform.lossyScale.y, sphereCollider.transform.lossyScale.z));
+			Gizmos.matrix = Matrix4x4.TRS(sphereCollider.transform.TransformPoint(sphereCollider.center), sphereCollider.transform.rotation, Vector3.one * maxScale);
+			var radius = sphereCollider.radius;
+			DrawCombinedSphere(Vector3.zero, radius, fillAlpha);
+			Gizmos.matrix = lMatrix;
+		}
+
+		/// <summary>
+		/// Draws a combined gizmo representing the given CapsuleCollider.
+		/// </summary>
+		public static void DrawCapsuleCollider(CapsuleCollider capsuleCollider, float fillAlpha)
+		{
+			if(!capsuleCollider) return;
+			var lMatrix = Gizmos.matrix;
+			//TODO: account for non-uniform scale
+			Gizmos.matrix = Matrix4x4.TRS(capsuleCollider.transform.position, capsuleCollider.transform.rotation, capsuleCollider.transform.lossyScale);
+			var radius = capsuleCollider.radius;
+			var height = capsuleCollider.height;
+			Axis axis;
+			switch(capsuleCollider.direction)
+			{
+				case 0: axis = Axis.X; break;
+				case 1: axis = Axis.Y; break;
+				case 2: axis = Axis.Z; break;
+				default: axis = Axis.Y; break;
+			}
+			DrawCombinedCapsule(Vector3.zero, axis, radius, height, fillAlpha);
+			Gizmos.matrix = lMatrix;
+		}
+
+		/// <summary>
+		/// Draws a combined gizmo representing the given MeshCollider.
+		/// </summary>
+		public static void DrawMeshCollider(MeshCollider meshCollider, float fillAlpha)
+		{
+			if(meshCollider && meshCollider.sharedMesh)
+			{
+				var lMatrix = Gizmos.matrix;
+				Gizmos.matrix = Matrix4x4.TRS(meshCollider.transform.position, meshCollider.transform.rotation, meshCollider.transform.lossyScale);
+				Gizmos.DrawWireMesh(meshCollider.sharedMesh);
+				using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+				{
+					Gizmos.DrawMesh(meshCollider.sharedMesh);
+				}
+				Gizmos.matrix = lMatrix;
+			}
+		}
+
+		#endregion
+
 		public static void MakeConstantSize(Vector3 pos, ref float size)
 		{
 #if UNITY_EDITOR
