@@ -504,18 +504,29 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a red, green and blue line representing three axes.
 		/// </summary>
-		public static void DrawAxes(Vector3 position, Quaternion rotation, float size)
+		public static void DrawAxes(Vector3 position, Quaternion rotation, float size, bool colors = true)
 		{
 			var lColor = Gizmos.color;
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(position, rotation, Vector3.one);
-			Gizmos.color = Color.red;
+			if(colors) Gizmos.color = lColor * Color.red;
 			DrawArrow(Vector3.zero, Vector3.right, size);
-			Gizmos.color = Color.green;
+			if(colors) Gizmos.color = lColor * Color.green;
 			DrawArrow(Vector3.zero, Vector3.up, size);
-			Gizmos.color = Color.blue;
+			if(colors) Gizmos.color = lColor * Color.blue;
 			DrawArrow(Vector3.zero, Vector3.forward, size);
 			Gizmos.color = lColor;
+			Gizmos.matrix = lMatrix;
+		}
+
+		/// <summary>
+		/// Draws the given transform's axes as gizmos.
+		/// </summary>
+		public static void DrawAxes(Transform transform, float size, bool colors = true)
+		{
+			var lMatrix = Gizmos.matrix;
+			Gizmos.matrix = transform.GetTRSMatrix(false);
+			DrawAxes(Vector3.zero, Quaternion.identity, size, colors);
 			Gizmos.matrix = lMatrix;
 		}
 
@@ -564,6 +575,18 @@ namespace UnityEssentials
 		public static void DrawArrow(Vector3 origin, AxisDirection direction, float length, float? fixedHeadLength = null)
 		{
 			DrawArrow(origin, Quaternion.LookRotation(direction.GetDirectionVector()), length, fixedHeadLength);
+		}
+
+		/// <summary>
+		/// Draws an arrow gizmo between the given points.
+		/// </summary>
+		public static void DrawArrowBetween(Vector3 a, Vector3 b, float? fixedHeadLength = null)
+		{
+			if(a == b) return;
+			b -= a;
+			var dir = b.normalized;
+			var length = b.magnitude;
+			DrawArrow(a, dir, length, fixedHeadLength);
 		}
 
 		/// <summary>
