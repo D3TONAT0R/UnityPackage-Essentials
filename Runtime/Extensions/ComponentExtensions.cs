@@ -7,21 +7,6 @@ namespace UnityEssentials
 		/// <summary>
 		/// Gets the component of the given type attached to this GameObject. If it doesn't exist, a new one is created.
 		/// </summary>
-		public static T GetOrAddComponent<T>(this Component c) where T : Component
-		{
-			if(c.TryGetComponent<T>(out var comp))
-			{
-				return comp;
-			}
-			else
-			{
-				return c.gameObject.AddComponent<T>();
-			}
-		}
-
-		/// <summary>
-		/// Gets the component of the given type attached to this GameObject. If it doesn't exist, a new one is created.
-		/// </summary>
 		public static T GetOrAddComponent<T>(this GameObject g) where T : Component
 		{
 			if(g.TryGetComponent<T>(out var comp))
@@ -33,15 +18,13 @@ namespace UnityEssentials
 				return g.gameObject.AddComponent<T>();
 			}
 		}
-
+		
 		/// <summary>
-		/// Gets the component of the given type attached to this GameObject. If it doesn't exist, an exception is thrown.
+		/// Gets the component of the given type attached to this GameObject. If it doesn't exist, a new one is created.
 		/// </summary>
-		public static T GetRequiredComponent<T>(this Component c)
+		public static T GetOrAddComponent<T>(this Component c) where T : Component
 		{
-			T comp = c.GetComponent<T>();
-			if(comp == null) throw new System.NullReferenceException($"Could not find required component {typeof(T).Name} on GameObject '{c.name}'.");
-			return comp;
+			return GetOrAddComponent<T>(c.gameObject);
 		}
 
 		/// <summary>
@@ -52,6 +35,48 @@ namespace UnityEssentials
 			T comp = g.GetComponent<T>();
 			if(comp == null) throw new System.NullReferenceException($"Could not find required component {typeof(T).Name} on GameObject '{g.name}'.");
 			return comp;
+		}
+		
+		/// <summary>
+		/// Gets the component of the given type attached to this GameObject. If it doesn't exist, an exception is thrown.
+		/// </summary>
+		public static T GetRequiredComponent<T>(this Component c)
+		{
+			return GetRequiredComponent<T>(c.gameObject);
+		}
+
+		/// <summary>
+		/// Attempts to get the component of type T on this GameObject or its children.
+		/// </summary>
+		public static bool TryGetComponentInChildren<T>(this GameObject g, out T component) where T : Component
+		{
+			component = g.GetComponentInChildren<T>();
+			return component != null;
+		}
+
+		/// <summary>
+		/// Attempts to get the component of type T on this GameObject or its children.
+		/// </summary>
+		public static bool TryGetComponentInChildren<T>(this Component c, out T component) where T : Component
+		{
+			return TryGetComponentInChildren<T>(c.gameObject, out component);
+		}
+		
+		/// <summary>
+		/// Attempts to get the component of type T on this GameObject or its parents.
+		/// </summary>
+		public static bool TryGetComponentInParent<T>(this GameObject g, out T component) where T : Component
+		{
+			component = g.GetComponentInParent<T>();
+			return component != null;
+		}
+
+		/// <summary>
+		/// Attempts to get the component of type T on this GameObject or its parents.
+		/// </summary>
+		public static bool TryGetComponentInParent<T>(this Component c, out T component) where T : Component
+		{
+			return TryGetComponentInParent<T>(c.gameObject, out component);
 		}
 
 		/// <summary>
