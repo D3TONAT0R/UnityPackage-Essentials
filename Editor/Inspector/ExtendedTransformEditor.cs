@@ -44,10 +44,15 @@ namespace UnityEssentialsEditor
 			var disableMethod = _defaultEditor.GetType().GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 			try
 			{
+				Debug.unityLogger.logEnabled = false;
 				if(disableMethod != null) disableMethod.Invoke(_defaultEditor, null);
 				DestroyImmediate(_defaultEditor);
 			}
 			catch { }
+			finally
+			{
+				Debug.unityLogger.logEnabled = true;
+			}
 		}
 
 		public override void OnInspectorGUI()
