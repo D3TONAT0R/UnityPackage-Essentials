@@ -148,6 +148,97 @@ namespace UnityEssentialsEditor
 			return baseType != null && baseType != typeof(Component) && baseType != typeof(Behaviour);
 		}
 
+		[MenuItem("CONTEXT/Component/Cut Component", priority = 501)]
+		public static void CutComponent(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			UnityEditorInternal.ComponentUtility.CopyComponent(comp);
+			Undo.DestroyObjectImmediate(comp);
+		}
+
+		[MenuItem("CONTEXT/Component/Separate Component/As New Child Object", priority = 510)]
+		public static void SeparateComponentToChild(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			var go = new GameObject(comp.GetType().Name);
+			Undo.RegisterCreatedObjectUndo(go, "Separate Component");
+			go.transform.SetParent(comp.gameObject.transform, false);
+			go.transform.localPosition = Vector3.zero;
+			go.transform.localRotation = Quaternion.identity;
+			go.transform.localScale = Vector3.one;
+			SeparateComponentTo(comp, go);
+		}
+
+
+		[MenuItem("CONTEXT/Component/Separate Component/To First Child")]
+		public static void SeparateComponentToFirstChild(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			if(comp.transform.childCount == 0) return;
+			var target = comp.transform.GetChild(0).gameObject;
+			SeparateComponentTo(comp, target);
+		}
+
+		[MenuItem("CONTEXT/Component/Separate Component/To Last Child")]
+		public static void SeparateComponentToLastChild(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			if(comp.transform.childCount == 0) return;
+			var target = comp.transform.GetChild(comp.transform.childCount - 1).gameObject;
+			SeparateComponentTo(comp, target);
+		}
+
+		[MenuItem("CONTEXT/Component/Separate Component/To Parent")]
+		public static void SeparateComponentToParent(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			if(comp.transform.parent == null) return;
+			var target = comp.transform.parent.gameObject;
+			SeparateComponentTo(comp, target);
+		}
+
+		[MenuItem("CONTEXT/Component/Separate Component/As New Child Object", validate = true)]
+		[MenuItem("CONTEXT/Component/Cut Component", validate = true)]
+		public static bool ValidateComponentCommands(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			return comp is not Transform;
+		}
+
+		[MenuItem("CONTEXT/Component/Separate Component/To First Child", validate = true)]
+		[MenuItem("CONTEXT/Component/Separate Component/To Last Child", validate = true)]
+		public static bool ValidateSeparateComponentToExistingChild(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			if(comp is Transform) return false;
+			return comp.transform.childCount > 0;
+		}
+
+
+		[MenuItem("CONTEXT/Component/Separate Component/To Parent", validate = true)]
+		public static bool ValidateSeparateComponentToParent(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			return comp.transform.parent != null;
+		}
+
+		private static void SeparateComponentTo(Component comp, GameObject target)
+		{
+			if(comp is MeshRenderer && comp.TryGetComponent(out MeshFilter mf))
+			{
+				TransferComponent(mf, target);
+			}
+			TransferComponent(comp, target);
+			EditorGUIUtility.PingObject(target);
+		}
+
+		private static void TransferComponent(Component source, GameObject target)
+		{
+			var destinationComp = Undo.AddComponent(target, source.GetType());
+			EditorUtility.CopySerialized(source, destinationComp);
+			Undo.DestroyObjectImmediate(source);
+		}
+
 		[MenuItem("CONTEXT/MonoBehaviour/Select Script", priority = 110)]
 		public static void SelectScript(MenuCommand cmd)
 		{

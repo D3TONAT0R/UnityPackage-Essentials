@@ -259,7 +259,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Temporarily draws a point gizmo at the given location.
 		/// </summary>
-		public static void DrawPoint(Vector3 point, float size, bool centerSphere = false, Color? color = null, bool constantSize = false, float duration = 1f)
+		public static void DrawPoint(Vector3 point, float size, bool centerSphere = false, bool constantSize = false, Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new PointGizmoInstance(point, size, centerSphere, constantSize, color ?? Color.white, duration));
 		}
