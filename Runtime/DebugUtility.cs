@@ -69,7 +69,7 @@ namespace UnityEssentials
 				{
 					foreach(var hit in hits)
 					{
-						if (!hit.collider) continue;
+						if(!hit.collider) continue;
 						Gizmos.matrix = Matrix4x4.TRS(hit.point, Quaternion.LookRotation(hit.normal), Vector3.one);
 						Gizmos.DrawWireCube(Vector3.zero, Vector3.one * hitSize);
 						Gizmos.DrawLine(Vector3.zero, Vector3.forward * hitSize * 2f);
@@ -83,7 +83,7 @@ namespace UnityEssentials
 			public SphereCastGizmoInstance(Ray ray, float hitSize, IEnumerable<RaycastHit> hits, float distance, Color color, float duration)
 				: base(ray, hitSize, hits, distance, color, duration)
 			{
-				
+
 			}
 
 			protected override void DrawGizmos()
@@ -113,17 +113,19 @@ namespace UnityEssentials
 			private readonly Vector3 position;
 			private readonly float size;
 			private readonly bool constantSize;
+			private readonly bool centerSphere;
 
-			public PointGizmoInstance(Vector3 position, float size, Color color, float duration, bool constantSize) : base(color, duration)
+			public PointGizmoInstance(Vector3 position, float size, bool centerSphere, bool constantSize, Color color, float duration) : base(color, duration)
 			{
 				this.position = position;
 				this.size = size;
 				this.constantSize = constantSize;
+				this.centerSphere = centerSphere;
 			}
 
 			protected override void DrawGizmos()
 			{
-				ExtraGizmos.DrawPoint(position, size, false, constantSize);
+				ExtraGizmos.DrawPoint(position, size, centerSphere, constantSize);
 			}
 		}
 
@@ -159,6 +161,43 @@ namespace UnityEssentials
 			}
 		}
 
+		private class ShapeGizmoInstance : GizmoInstance
+		{
+			public const byte TYPE_CUBE = 0;
+			public const byte TYPE_SPHERE = 1;
+			public const byte TYPE_CAPSULE = 2;
+
+			private byte type;
+			private Vector3 position;
+			private Quaternion rotation;
+			private Vector3 size;
+
+			public ShapeGizmoInstance(byte type, Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration) : base(color, duration)
+			{
+				this.type = type;
+				this.position = position;
+				this.rotation = rotation;
+				this.size = size;
+			}
+
+			protected override void DrawGizmos()
+			{
+				Gizmos.matrix = Matrix4x4.TRS(position, rotation, Vector3.one);
+				switch(type)
+				{
+					case TYPE_CUBE:
+						ExtraGizmos.DrawWireCube(Vector3.zero, size);
+						break;
+					case TYPE_SPHERE:
+						ExtraGizmos.DrawWireSphere(Vector3.zero, size.x, 16, false);
+						break;
+					case TYPE_CAPSULE:
+						ExtraGizmos.DrawWireCapsule(Vector3.zero, Axis.Y, size.x, size.y, 16);
+						break;
+				}
+			}
+		}
+
 		private static List<GizmoInstance> instances = new List<GizmoInstance>();
 
 		private static StringBuilder stringBuilder = new StringBuilder();
@@ -168,6 +207,11 @@ namespace UnityEssentials
 		private static void AddGizmo(GizmoInstance instance)
 		{
 #if UNITY_EDITOR
+			if(!Application.isPlaying)
+			{
+				Debug.LogWarning("Debug Gizmos are only supported during play mode.");
+				return;
+			}
 			instances.Add(instance);
 #endif
 			UpdateLoopScriptInstance.InitIfRequired();
@@ -215,9 +259,9 @@ namespace UnityEssentials
 		/// <summary>
 		/// Temporarily draws a point gizmo at the given location.
 		/// </summary>
-		public static void DrawPoint(Vector3 point, float size, Color? color = null, float duration = 1f, bool constantSize = false)
+		public static void DrawPoint(Vector3 point, float size, bool centerSphere = false, Color? color = null, bool constantSize = false, float duration = 1f)
 		{
-			AddGizmo(new PointGizmoInstance(point, size, color ?? Color.white, duration, constantSize));
+			AddGizmo(new PointGizmoInstance(point, size, centerSphere, constantSize, color ?? Color.white, duration));
 		}
 
 		/// <summary>
@@ -234,6 +278,30 @@ namespace UnityEssentials
 		public static void DrawRay(Vector3 start, Vector3 direction, float length, Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new LineGizmoInstance(start, start + direction.normalized * length, color ?? Color.white, duration));
+		}
+
+		/// <summary>
+		/// Temporarily draws a cube gizmo at the given position and rotation with the given size.
+		/// </summary>
+		public static void DrawCube(Vector3 position, Quaternion rotation, Vector3 size, Color? color = null, float duration = 1f)
+		{
+			AddGizmo(new ShapeGizmoInstance(ShapeGizmoInstance.TYPE_CUBE, position, rotation, size, color ?? Color.white, duration));
+		}
+
+		/// <summary>
+		/// Temporarily draws a sphere gizmo at the given position and rotation with the given radius.
+		/// </summary>
+		public static void DrawSphere(Vector3 position, Quaternion rotation, float radius, Color? color = null, float duration = 1f)
+		{
+			AddGizmo(new ShapeGizmoInstance(ShapeGizmoInstance.TYPE_SPHERE, position, rotation, Vector3.one * radius, color ?? Color.white, duration));
+		}
+
+		/// <summary>
+		/// Temporarily draws a capsule gizmo at the given position and rotation with the given radius and height.
+		/// </summary>
+		public static void DrawCapsule(Vector3 position, Quaternion rotation, float radius, float height, Color? color = null, float duration = 1f)
+		{
+			AddGizmo(new ShapeGizmoInstance(ShapeGizmoInstance.TYPE_CAPSULE, position, rotation, new Vector3(radius, height, 0), color ?? Color.white, duration));
 		}
 
 		/// <summary>
