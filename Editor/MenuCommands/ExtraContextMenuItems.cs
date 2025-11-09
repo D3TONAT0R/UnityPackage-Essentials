@@ -367,11 +367,11 @@ namespace UnityEssentialsEditor
 					if(req.m_Type0 == source.GetType())
 					{
 						// Component depends on the source component, transfer it first
+						var dependencyComp = Undo.AddComponent(target, other.GetType());
+						if(dependencyComp == null) dependencyComp = target.GetComponent(other.GetType()); // Assume the component already exists
+						EditorUtility.CopySerialized(other, dependencyComp);
+						Undo.DestroyObjectImmediate(other);
 					}
-					var dependencyComp = Undo.AddComponent(target, other.GetType());
-					if(dependencyComp == null) dependencyComp = target.GetComponent(other.GetType()); // Assume the component already exists
-					EditorUtility.CopySerialized(other, dependencyComp);
-					Undo.DestroyObjectImmediate(other);
 				}
 			}
 			var destinationComp = Undo.AddComponent(target, source.GetType());
