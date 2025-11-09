@@ -234,7 +234,24 @@ namespace UnityEssentialsEditor
 
 		private static void TransferComponent(Component source, GameObject target)
 		{
+			foreach(var other in source.GetComponents<Component>())
+			{
+				// Search for dependencies and transfer them first
+				if(other == source) continue; // Skip self
+				var requirements = other.GetType().GetCustomAttributes<RequireComponent>(true);
+				foreach(var req in requirements)
+				{
+					if(req.m_Type0 == source.GetType())
+					{
+						// Component depends on the source component, transfer it first
+					}
+					var dependencyComp = Undo.AddComponent(target, other.GetType());
+					EditorUtility.CopySerialized(other, dependencyComp);
+					Undo.DestroyObjectImmediate(other);
+				}
+			}
 			var destinationComp = Undo.AddComponent(target, source.GetType());
+			if(destinationComp == null) destinationComp = target.GetComponent(source.GetType());
 			EditorUtility.CopySerialized(source, destinationComp);
 			Undo.DestroyObjectImmediate(source);
 		}
