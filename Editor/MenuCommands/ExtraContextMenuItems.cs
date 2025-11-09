@@ -7,6 +7,86 @@ namespace UnityEssentialsEditor
 {
 	internal static class ExtraContextMenuItems
 	{
+		private class ChildSelectionWindow : EditorWindow
+		{
+			class TransformRef
+			{
+				public Transform transform;
+				public TransformRef[] children;
+
+				public TransformRef(Transform transform)
+				{
+					this.transform = transform;
+					children = new TransformRef[transform.childCount];
+					for(int i = 0; i < transform.childCount; i++)
+					{
+						children[i] = new TransformRef(transform.GetChild(i));
+					}
+				}
+
+				public bool Draw(out Transform clicked)
+				{
+					if(GUILayout.Button(transform.name, EditorStyles.foldout))
+					{
+						clicked = transform;
+						return true;
+					}
+					GUILayout.BeginHorizontal();
+					GUILayout.Space(20);
+					if (DrawChildren(out clicked)) return true;
+					GUILayout.EndHorizontal();
+					clicked = null;
+					return false;
+				}
+
+				public bool DrawChildren(out Transform clicked)
+				{
+					GUILayout.BeginVertical();
+					foreach(var child in children)
+					{
+						if(this == child) continue;
+						if(child.Draw(out clicked))
+						{
+							return true;
+						}
+					}
+					GUILayout.EndVertical();
+					clicked = null;
+					return false;
+				}
+			}
+
+			private Transform parent;
+			private Component target;
+			private TransformRef rootRef;
+			private Vector2 scrollPos;
+
+			public static void Show(Transform parent, Component target)
+			{
+				var window = GetWindow<ChildSelectionWindow>(true, "Select Child", true);
+				window.parent = parent;
+				window.target = target;
+				window.ShowPopup();
+				window.rootRef = new TransformRef(parent);
+			}
+
+			private void OnLostFocus()
+			{
+				Close();
+			}
+
+			private void OnGUI()
+			{
+				scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.ExpandWidth(true));
+				if(rootRef.DrawChildren(out Transform clicked))
+				{
+					SeparateComponentTo(target, clicked.gameObject);
+					Close();
+				}
+				GUILayout.EndScrollView();
+			}
+		}
+
 		private static SerializedObject replaceScriptTarget;
 		private static MonoScript replaceScriptWith;
 
@@ -157,7 +237,7 @@ namespace UnityEssentialsEditor
 		}
 
 		[MenuItem("CONTEXT/Component/Separate Component/As New Child Object", priority = 510)]
-		public static void SeparateComponentToChild(MenuCommand cmd)
+		public static void SeparateComponentToNewChild(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
 			var go = new GameObject(comp.GetType().Name);
@@ -186,6 +266,13 @@ namespace UnityEssentialsEditor
 			if(comp.transform.childCount == 0) return;
 			var target = comp.transform.GetChild(comp.transform.childCount - 1).gameObject;
 			SeparateComponentTo(comp, target);
+		}
+
+		[MenuItem("CONTEXT/Component/Separate Component/To Specific Child ...")]
+		public static void SeparateComponentToChild(MenuCommand cmd)
+		{
+			var comp = (Component)cmd.context;
+			ChildSelectionWindow.Show(comp.transform, comp);
 		}
 
 		[MenuItem("CONTEXT/Component/Separate Component/To Parent")]
