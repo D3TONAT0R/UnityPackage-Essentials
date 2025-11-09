@@ -656,7 +656,21 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.Color:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.ColorField(position, label, prop.colorValue),
+						() =>
+						{
+							bool showAlpha = true;
+							bool hdr = false;
+							if(prop.TryGetAttribute(out ColorUsageAttribute colorUsage))
+							{
+								showAlpha = colorUsage.showAlpha;
+								hdr = colorUsage.hdr;
+							}
+							if(!prop.hasMultipleDifferentValues)
+							{
+								if(!showAlpha) prop.colorValue = prop.colorValue.WithAlpha(1);
+							}
+							return EditorGUI.ColorField(position, label, prop.colorValue, true, showAlpha, hdr);
+						},
 						c => prop.colorValue = c);
 					break;
 				case SerializedPropertyType.ObjectReference:
@@ -716,7 +730,16 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.Gradient:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.GradientField(position, label, GetGradientValue(prop)),
+						() => {
+							bool hdr = false;
+							ColorSpace colorSpace = ColorSpace.Gamma;
+							if(prop.TryGetAttribute(out GradientUsageAttribute gradientUsage))
+							{
+								hdr = gradientUsage.hdr;
+								colorSpace = gradientUsage.colorSpace;
+							}
+							return EditorGUI.GradientField(position, label, GetGradientValue(prop), hdr, colorSpace);
+						},
 						g => SetGradientValue(prop, g));
 					break;
 				case SerializedPropertyType.Quaternion:
