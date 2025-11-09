@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEssentials;
@@ -42,9 +41,26 @@ namespace UnityEssentialsEditor
 			}
 			bool monospace = property.TryGetAttribute<MonospaceAttribute>(out _);
 			EditorGUI.BeginProperty(position, label, property);
-			PropertyDrawerUtility.DrawPropertyDirect(position, label, property, monospace);
+			DrawProperty(position, property, label, monospace);
 			EditorGUI.EndProperty();
 			EditorGUIUtility.labelWidth = lw;
+		}
+
+		private void DrawProperty(Rect position, SerializedProperty property, GUIContent label, bool monospace)
+		{
+			EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
+			if(property.propertyType == SerializedPropertyType.Float && property.TryGetAttribute(out RangeAttribute range))
+			{
+				EditorGUI.Slider(position, property, range.min, range.max);
+				return;
+			}
+			else if(property.propertyType == SerializedPropertyType.Integer && property.TryGetAttribute(out range))
+			{
+				EditorGUI.IntSlider(position, property, (int)range.min, (int)range.max);
+				return;
+			}
+			PropertyDrawerUtility.DrawPropertyDirect(position, label, property, monospace);
+			EditorGUI.showMixedValue = false;
 		}
 
 		private void GetAffix<T>(SerializedProperty property, out GUIContent content, out float width) where T : AffixAttribute
