@@ -7,17 +7,15 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
-	[ScriptedImporter(0, "checker")]
-	internal class CheckerTextureImporter : ScriptedTextureGenerator
+	internal class CheckerTextureFormat : ProceduralTexureFormat
 	{
-		[Space(20)]
 		public int pixelsPerSquare = 64;
 		public int border = 0;
 		public Color color1 = Color.black;
 		public Color color2 = Color.white;
 		public Color borderColor = Color.gray;
 
-		protected override Color GetPixelColor(int x, int y, Vector2 uv)
+		public override Color GetPixelColor(int x, int y, Vector2 uv)
 		{
 			Color color;
 			int xMod = x % pixelsPerSquare;
@@ -33,5 +31,11 @@ namespace UnityEssentialsEditor
 			}
 			return color;
 		}
+	}
+
+	[ScriptedImporter(0, "checker")]
+	internal class CheckerTextureImporter : ProceduralTextureImporter<CheckerTextureFormat>
+	{
+
 	}
 }

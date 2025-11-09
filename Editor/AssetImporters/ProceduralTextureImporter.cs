@@ -11,30 +11,40 @@ using AssetImportContext = UnityEditor.Experimental.AssetImporters.AssetImportCo
 
 namespace UnityEssentialsEditor
 {
-	public abstract class ScriptedTextureGenerator : ScriptedImporter
+	internal interface IProceduralTextureGenerator
 	{
-		public Vector2Int resolution = new Vector2Int(128, 128);
+		ProceduralTexureFormat LoadFormat();
+
+		void Bake();
+	}
+
+	public abstract class ProceduralTextureImporter<T> : ScriptedImporter, IProceduralTextureGenerator where T : ProceduralTexureFormat, new()
+	{
 		[Space(10)]
 		public bool linear = false;
 		public bool generateMipMaps = true;
 		public TextureWrapMode wrapMode = TextureWrapMode.Clamp;
 		public FilterMode filterMode = FilterMode.Bilinear;
 
+		public ProceduralTexureFormat LoadFormat()
+		{
+			var text = File.ReadAllText(assetPath);
+			var format = ScriptableObject.CreateInstance<T>();
+			format.Read(text);
+			return format;
+		}
+
 		public override void OnImportAsset(AssetImportContext ctx)
 		{
-			resolution.x = Mathf.Clamp(resolution.x, 1, 4096);
-			resolution.y = Mathf.Clamp(resolution.y, 1, 4096);
-			var texture = new Texture2D(resolution.x, resolution.y, TextureFormat.RGBA32, generateMipMaps, linear);
-			texture.alphaIsTransparency = true;
-			texture.wrapMode = wrapMode;
-			texture.filterMode = filterMode;
+			var format = ScriptableObject.CreateInstance<T>();
+			var texture = CreateBlankTexture(format);
 
-			for(int x = 0; x < resolution.x; x++)
+			for(int x = 0; x < texture.width; x++)
 			{
-				for(int y = 0; y < resolution.y; y++)
+				for(int y = 0; y < texture.height; y++)
 				{
-					Vector2 uv = new Vector2((x + 0.5f) / resolution.x, (y + 0.5f) / resolution.y);
-					texture.SetPixel(x, y, GetPixelColor(x, y, uv));
+					Vector2 uv = new Vector2((x + 0.5f) / texture.width, (y + 0.5f) / texture.height);
+					texture.SetPixel(x, y, format.GetPixelColor(x, y, uv));
 				}
 			}
 			texture.Apply();
@@ -42,7 +52,18 @@ namespace UnityEssentialsEditor
 			ctx.SetMainObject(texture);
 		}
 
-		protected abstract Color GetPixelColor(int x, int y, Vector2 uv);
+		private Texture2D CreateBlankTexture(ProceduralTexureFormat format)
+		{
+			format.Read(File.ReadAllText(assetPath));
+			var resolution = format.resolution;
+			resolution.x = Mathf.Clamp(resolution.x, 1, 4096);
+			resolution.y = Mathf.Clamp(resolution.y, 1, 4096);
+			var texture = new Texture2D(resolution.x, resolution.y, TextureFormat.RGBA32, generateMipMaps, linear);
+			texture.alphaIsTransparency = true;
+			texture.wrapMode = wrapMode;
+			texture.filterMode = filterMode;
+			return texture;
+		}
 
 		public void Bake()
 		{
@@ -60,12 +81,6 @@ namespace UnityEssentialsEditor
 		//TODO: bake operation breaks references in other assets (such as materials)
 		public static string BakeTexture(string assetPath)
 		{
-			var scriptedImporter = (ScriptedTextureGenerator)GetAtPath(assetPath);
-			var linear = scriptedImporter.linear;
-			var generateMipMaps = scriptedImporter.generateMipMaps;
-			var wrapMode = scriptedImporter.wrapMode;
-			var filterMode = scriptedImporter.filterMode;
-
 			var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
 			var pngData = texture.EncodeToPNG();
 			string pngPath = Path.ChangeExtension(assetPath, "png");
@@ -80,18 +95,17 @@ namespace UnityEssentialsEditor
 			File.Delete(assetMetaPath);
 			AssetDatabase.Refresh();
 
-
 			var textureMetaLines = File.ReadAllLines(textureMetaPath);
 			textureMetaLines[1] = $"guid: {originalGUID}";
 			File.WriteAllLines(textureMetaPath, textureMetaLines);
 			//AssetDatabase.CreateAsset(Instantiate(texture), assetPath);
 
 			var pngImporter = (TextureImporter)GetAtPath(pngPath);
-			pngImporter.sRGBTexture = !linear;
-			pngImporter.mipmapEnabled = generateMipMaps;
-			pngImporter.wrapMode = wrapMode;
-			pngImporter.filterMode = filterMode;
-			pngImporter.alphaIsTransparency = true;
+			pngImporter.sRGBTexture = texture.isDataSRGB;
+			pngImporter.mipmapEnabled = texture.mipmapCount > 1;
+			pngImporter.wrapMode = texture.wrapMode;
+			pngImporter.filterMode = texture.filterMode;
+			pngImporter.alphaIsTransparency = texture.alphaIsTransparency;
 			pngImporter.SaveAndReimport();
 			AssetDatabase.Refresh();
 			return pngPath;

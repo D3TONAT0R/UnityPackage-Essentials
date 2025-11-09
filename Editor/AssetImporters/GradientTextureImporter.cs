@@ -8,8 +8,7 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
-	[ScriptedImporter(0, "gradient")]
-	internal class GradientTextureImporter : ScriptedTextureGenerator
+	internal class GradientTextureFormat : ProceduralTexureFormat
 	{
 		public enum InputType
 		{
@@ -47,7 +46,7 @@ namespace UnityEssentialsEditor
 		public bool reversed = false;
 		public bool dithering = false;
 
-		protected override Color GetPixelColor(int x, int y, Vector2 uv)
+		public override Color GetPixelColor(int x, int y, Vector2 uv)
 		{
 			float pos = GetSamplePos(uv, mode);
 			if(reversed) pos = 1f - pos;
@@ -107,5 +106,11 @@ namespace UnityEssentialsEditor
 				default: return 0;
 			}
 		}
+	}
+
+	[ScriptedImporter(0, "gradient")]
+	internal class GradientTextureImporter : ProceduralTextureImporter<GradientTextureFormat>
+	{
+
 	}
 }
