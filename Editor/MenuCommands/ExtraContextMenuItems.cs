@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEssentials;
 
 namespace UnityEssentialsEditor
 {
@@ -11,8 +12,9 @@ namespace UnityEssentialsEditor
 		{
 			class TransformRef
 			{
-				public Transform transform;
-				public TransformRef[] children;
+				private Transform transform;
+				private TransformRef[] children;
+				private bool foldout = false;
 
 				public TransformRef(Transform transform)
 				{
@@ -24,31 +26,44 @@ namespace UnityEssentialsEditor
 					}
 				}
 
-				public bool Draw(out Transform clicked)
+				private bool Draw(EditorWindow w, ref int i, out Transform clicked)
 				{
-					if(GUILayout.Button(transform.name, EditorStyles.foldout))
+					var style = (i % 2 == 0) ? listItemEven : listItemOdd;
+					var rect = EditorGUILayout.GetControlRect();
+					rect.SplitHorizontal(10, out Rect foldoutRect, out rect);
+					if(children.Length > 0)
+					{
+						foldout = EditorGUI.Foldout(foldoutRect, foldout, GUIContent.none);
+						if(foldout)
+						{
+							GUILayout.BeginHorizontal();
+							GUILayout.Space(10);
+							if(DrawChildren(w, ref i, out clicked)) return true;
+							GUILayout.EndHorizontal();
+						}
+					}
+					if(GUI.Button(rect, transform.name, style))
 					{
 						clicked = transform;
 						return true;
 					}
-					GUILayout.BeginHorizontal();
-					GUILayout.Space(20);
-					if (DrawChildren(out clicked)) return true;
-					GUILayout.EndHorizontal();
+					if(rect.Contains(Event.current.mousePosition))
+					{
+						EditorGUI.DrawRect(rect, new Color(1, 1, 1, 0.07f));
+						w.Repaint();
+					}
+					i++;
 					clicked = null;
 					return false;
 				}
 
-				public bool DrawChildren(out Transform clicked)
+				public bool DrawChildren(EditorWindow w, ref int i, out Transform clicked)
 				{
 					GUILayout.BeginVertical();
 					foreach(var child in children)
 					{
 						if(this == child) continue;
-						if(child.Draw(out clicked))
-						{
-							return true;
-						}
+						if(child.Draw(w, ref i, out clicked)) return true;
 					}
 					GUILayout.EndVertical();
 					clicked = null;
@@ -61,6 +76,10 @@ namespace UnityEssentialsEditor
 			private TransformRef rootRef;
 			private Vector2 scrollPos;
 
+			private static GUIStyle listItemEven;
+			private static GUIStyle listItemOdd;
+			private static GUIStyle listItemSelected;
+
 			public static void Show(Transform parent, Component target)
 			{
 				var window = GetWindow<ChildSelectionWindow>(true, "Select Child", true);
@@ -68,6 +87,15 @@ namespace UnityEssentialsEditor
 				window.target = target;
 				window.ShowPopup();
 				window.rootRef = new TransformRef(parent);
+				window.maxSize = new Vector2(300, 300);
+				window.minSize = window.maxSize;
+			}
+
+			private void OnEnable()
+			{
+				listItemEven = "ObjectPickerResultsEven";
+				listItemOdd = "ObjectPickerResultsOdd";
+				listItemSelected = "OL SelectedRow";
 			}
 
 			private void OnLostFocus()
@@ -78,10 +106,17 @@ namespace UnityEssentialsEditor
 			private void OnGUI()
 			{
 				scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.ExpandWidth(true));
-				if(rootRef.DrawChildren(out Transform clicked))
+				int i = 0;
+				if(rootRef.DrawChildren(this, ref i, out Transform clicked))
 				{
-					SeparateComponentTo(target, clicked.gameObject);
-					Close();
+					try
+					{
+						SeparateComponentTo(target, clicked.gameObject);
+					}
+					finally
+					{
+						Close();
+					}
 				}
 				GUILayout.EndScrollView();
 			}
@@ -250,7 +285,7 @@ namespace UnityEssentialsEditor
 		}
 
 
-		[MenuItem("CONTEXT/Component/Separate Component/To First Child")]
+		[MenuItem("CONTEXT/Component/Separate Component/To First Child", priority = 600)]
 		public static void SeparateComponentToFirstChild(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
@@ -259,7 +294,7 @@ namespace UnityEssentialsEditor
 			SeparateComponentTo(comp, target);
 		}
 
-		[MenuItem("CONTEXT/Component/Separate Component/To Last Child")]
+		[MenuItem("CONTEXT/Component/Separate Component/To Last Child", priority = 601)]
 		public static void SeparateComponentToLastChild(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
@@ -268,14 +303,14 @@ namespace UnityEssentialsEditor
 			SeparateComponentTo(comp, target);
 		}
 
-		[MenuItem("CONTEXT/Component/Separate Component/To Specific Child ...")]
+		[MenuItem("CONTEXT/Component/Separate Component/To Specific Child ...", priority = 602)]
 		public static void SeparateComponentToChild(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
 			ChildSelectionWindow.Show(comp.transform, comp);
 		}
 
-		[MenuItem("CONTEXT/Component/Separate Component/To Parent")]
+		[MenuItem("CONTEXT/Component/Separate Component/To Parent", priority = 700)]
 		public static void SeparateComponentToParent(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
@@ -294,6 +329,7 @@ namespace UnityEssentialsEditor
 
 		[MenuItem("CONTEXT/Component/Separate Component/To First Child", validate = true)]
 		[MenuItem("CONTEXT/Component/Separate Component/To Last Child", validate = true)]
+		[MenuItem("CONTEXT/Component/Separate Component/To Specific Child ...", validate = true)]
 		public static bool ValidateSeparateComponentToExistingChild(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
@@ -333,12 +369,13 @@ namespace UnityEssentialsEditor
 						// Component depends on the source component, transfer it first
 					}
 					var dependencyComp = Undo.AddComponent(target, other.GetType());
+					if(dependencyComp == null) dependencyComp = target.GetComponent(other.GetType()); // Assume the component already exists
 					EditorUtility.CopySerialized(other, dependencyComp);
 					Undo.DestroyObjectImmediate(other);
 				}
 			}
 			var destinationComp = Undo.AddComponent(target, source.GetType());
-			if(destinationComp == null) destinationComp = target.GetComponent(source.GetType());
+			if(destinationComp == null) destinationComp = target.GetComponent(source.GetType());  // Assume the component already exists
 			EditorUtility.CopySerialized(source, destinationComp);
 			Undo.DestroyObjectImmediate(source);
 		}
