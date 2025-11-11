@@ -1005,17 +1005,30 @@ namespace UnityEssentials
 		{
 			if(!capsuleCollider) return;
 			var lMatrix = Gizmos.matrix;
-			//TODO: account for non-uniform scale
-			Gizmos.matrix = Matrix4x4.TRS(capsuleCollider.transform.position, capsuleCollider.transform.rotation, capsuleCollider.transform.lossyScale);
+			Gizmos.matrix = Matrix4x4.TRS(capsuleCollider.bounds.center, capsuleCollider.transform.rotation, Vector3.one);
 			var radius = capsuleCollider.radius;
 			var height = capsuleCollider.height;
 			Axis axis;
 			switch(capsuleCollider.direction)
 			{
-				case 0: axis = Axis.X; break;
-				case 1: axis = Axis.Y; break;
-				case 2: axis = Axis.Z; break;
-				default: axis = Axis.Y; break;
+				case 0:
+					axis = Axis.X;
+					height *= capsuleCollider.transform.lossyScale.x;
+					radius *= Mathf.Max(capsuleCollider.transform.lossyScale.y, capsuleCollider.transform.lossyScale.z);
+					break;
+				case 1:
+					axis = Axis.Y;
+					height *= capsuleCollider.transform.lossyScale.y;
+					radius *= Mathf.Max(capsuleCollider.transform.lossyScale.x, capsuleCollider.transform.lossyScale.z);
+					break;
+				case 2:
+					axis = Axis.Z;
+					height *= capsuleCollider.transform.lossyScale.z;
+					radius *= Mathf.Max(capsuleCollider.transform.lossyScale.x, capsuleCollider.transform.lossyScale.y);
+					break;
+					default:
+				axis = Axis.Y;
+					break;
 			}
 			DrawCombinedCapsule(Vector3.zero, axis, radius, height, fillAlpha);
 			Gizmos.matrix = lMatrix;
