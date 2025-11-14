@@ -550,43 +550,53 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws an arrow gizmo.
 		/// </summary>
-		public static void DrawArrow(Vector3 origin, Quaternion rotation, float length, float? fixedHeadLength = null)
+		public static void DrawArrow(Vector3 origin, Quaternion rotation, float length, float? fixedHeadLength = null, bool simple = false)
 		{
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(origin, rotation, Vector3.one);
 			Gizmos.DrawLine(Vector3.zero, Vector3.forward * length);
 			float headLength = fixedHeadLength ?? length * 0.25f;
 			float headStart = length - headLength;
-			DrawWireCone(Vector3.forward * headStart, AxisDirection.ZPos, headLength * 0.25f, headLength, 4);
+			if(simple)
+			{
+				var head = Vector3.forward * length;
+				headLength *= 0.7f;
+				Gizmos.DrawLine(head, head + new Vector3(-headLength, 0, -headLength));
+				Gizmos.DrawLine(head, head + new Vector3(headLength, 0, -headLength));
+			}
+			else
+			{
+				DrawWireCone(Vector3.forward * headStart, AxisDirection.ZPos, headLength * 0.25f, headLength, 4, true);
+			}
 			Gizmos.matrix = lastMatrix;
 		}
 
 		/// <summary>
 		/// Draws an arrow gizmo.
 		/// </summary>
-		public static void DrawArrow(Vector3 origin, Vector3 direction, float length, float? fixedHeadLength = null)
+		public static void DrawArrow(Vector3 origin, Vector3 direction, float length, float? fixedHeadLength = null, bool simple = false)
 		{
-			DrawArrow(origin, Quaternion.LookRotation(direction), length, fixedHeadLength);
+			DrawArrow(origin, Quaternion.LookRotation(direction), length, fixedHeadLength, simple);
 		}
 
 		/// <summary>
 		/// Draws an arrow gizmo.
 		/// </summary>
-		public static void DrawArrow(Vector3 origin, AxisDirection direction, float length, float? fixedHeadLength = null)
+		public static void DrawArrow(Vector3 origin, AxisDirection direction, float length, float? fixedHeadLength = null, bool simple = false)
 		{
-			DrawArrow(origin, Quaternion.LookRotation(direction.GetDirectionVector()), length, fixedHeadLength);
+			DrawArrow(origin, Quaternion.LookRotation(direction.GetDirectionVector()), length, fixedHeadLength, simple);
 		}
 
 		/// <summary>
 		/// Draws an arrow gizmo between the given points.
 		/// </summary>
-		public static void DrawArrowBetween(Vector3 a, Vector3 b, float? fixedHeadLength = null)
+		public static void DrawArrowBetween(Vector3 a, Vector3 b, float? fixedHeadLength = null, bool simple = false)
 		{
 			if(a == b) return;
 			b -= a;
 			var dir = b.normalized;
 			var length = b.magnitude;
-			DrawArrow(a, dir, length, fixedHeadLength);
+			DrawArrow(a, dir, length, fixedHeadLength, simple);
 		}
 
 		/// <summary>
@@ -753,14 +763,21 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a GUI text at the given point in the scene.
 		/// </summary>
-		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, bool shadow = false)
+		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, bool shadow = false, float maxDistance = 0)
 		{
+			if(!CheckDistance(position, maxDistance)) return;
 #if UNITY_EDITOR
 			if(labelStyle == null)
 			{
-				labelStyle = new GUIStyle(GUI.skin.label);
-				labelStyle.richText = true;
-				labelStyle.richText = true;
+				labelStyle = new GUIStyle(GUI.skin.label)
+				{
+					richText = true,
+					normal = { textColor = Color.white },
+					hover = { textColor = Color.white },
+					active = { textColor = Color.white },
+					fontSize = 12,
+					wordWrap = false
+				};
 			}
 			labelStyle.alignment = anchor;
 
@@ -776,13 +793,24 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a GUI text box at the given point in the scene.
 		/// </summary>
-		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null)
+		public static void DrawTextBox(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, GUIStyle style = null, float maxDistance = 0)
 		{
+			if(!CheckDistance(position, maxDistance)) return;
 #if UNITY_EDITOR
 			if(boxStyle == null)
 			{
-				boxStyle = new GUIStyle(GUI.skin.box);
-				boxStyle.richText = true;
+				var backgroundTex = new Texture2D(1, 1);
+				backgroundTex.SetPixel(0, 0, new Color(0.05f, 0.05f, 0.05f, 0.5f));
+				backgroundTex.Apply();
+				boxStyle = new GUIStyle(GUI.skin.box)
+				{
+					richText = true,
+					normal = { textColor = Color.white, background = backgroundTex },
+					hover = { textColor = Color.white },
+					active = { textColor = Color.white },
+					fontSize = 12,
+					wordWrap = false
+				};
 			}
 
 			var lastColor = GUI.color;
@@ -1053,6 +1081,18 @@ namespace UnityEssentials
 		}
 
 		#endregion
+
+		/// <summary>
+		/// Checks if the given position is within a certain distance from the view. Useful for hiding gizmos when too far away. If maxDistance is 0 or less, always returns true.
+		/// </summary>
+		public static bool CheckDistance(Vector3 pos, float maxDistance)
+		{
+			if(maxDistance <= 0) return true;
+			pos = Gizmos.matrix.MultiplyPoint(pos);
+			var cam = Camera.current.transform;
+			var diff = cam.position - pos;
+			return diff.sqrMagnitude <= maxDistance * maxDistance;
+		}
 
 		public static void MakeConstantSize(Vector3 pos, ref float size)
 		{
