@@ -125,7 +125,7 @@ namespace UnityEssentialsEditor
 		private static SerializedObject replaceScriptTarget;
 		private static MonoScript replaceScriptWith;
 
-		[MenuItem("CONTEXT/Transform/Apply Position")]
+		[MenuItem("CONTEXT/Transform/Apply/Position")]
 		public static void ApplyPosition(MenuCommand cmd)
 		{
 			var transform = (Transform)cmd.context;
@@ -144,7 +144,7 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		[MenuItem("CONTEXT/Transform/Apply Rotation")]
+		[MenuItem("CONTEXT/Transform/Apply/Rotation")]
 		public static void ApplyRotation(MenuCommand cmd)
 		{
 			var transform = (Transform)cmd.context;
@@ -166,7 +166,7 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		[MenuItem("CONTEXT/Transform/Apply Scale")]
+		[MenuItem("CONTEXT/Transform/Apply/Scale")]
 		public static void ApplyScale(MenuCommand cmd)
 		{
 			var transform = (Transform)cmd.context;
@@ -182,7 +182,7 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		[MenuItem("CONTEXT/Transform/Apply Full Transform")]
+		[MenuItem("CONTEXT/Transform/Apply/Full Transform")]
 		public static void ApplyFullTransform(MenuCommand cmd)
 		{
 			Undo.SetCurrentGroupName("Apply Full Transform");
