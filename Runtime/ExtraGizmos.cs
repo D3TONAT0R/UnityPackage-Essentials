@@ -25,6 +25,7 @@ namespace UnityEssentials
 	/// </summary>
 	public class ExtraGizmos
 	{
+		internal static Mesh sphereMesh;
 		internal static Mesh planeMesh;
 		internal static Mesh discMesh;
 		internal static Mesh cylinderMesh;
@@ -40,6 +41,11 @@ namespace UnityEssentials
 		static ExtraGizmos()
 		{
 			var builder = new MeshBuilder();
+
+			builder.AddSphere(Vector3.zero, 1, 16, 16);
+			sphereMesh = builder.CreateMesh();
+
+			builder.Clear();
 			builder.AddQuad(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, -0.5f), new Vector3(-0.5f, 0, 0.5f), new Vector3(0.5f, 0, 0.5f), Vector3.up);
 			planeMesh = builder.CreateMesh();
 
@@ -96,9 +102,20 @@ namespace UnityEssentials
 			{
 				using(new GizmoColorScope(Color.clear))
 				{
-					Gizmos.DrawSphere(center, radius);
+					DrawSphere(center, radius);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Draws a solid sphere gizmo.
+		/// </summary>
+		public static void DrawSphere(Vector3 center, float radius)
+		{
+			var lastMatrix = Gizmos.matrix;
+			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.identity, Vector3.one * radius);
+			Gizmos.DrawMesh(sphereMesh);
+			Gizmos.matrix = lastMatrix;
 		}
 
 		/// <summary>
@@ -109,7 +126,7 @@ namespace UnityEssentials
 			DrawWireSphere(center, radius, segments, boundary);
 			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
 			{
-				Gizmos.DrawSphere(center, radius);
+				DrawSphere(center, radius);
 			}
 		}
 
@@ -133,11 +150,29 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a wireframe cube gizmo between the two given points.
 		/// </summary>
-		public static void DrawWireCubeFromTo(Vector3 a, Vector3 b, bool drawPickShape = false)
+		public static void DrawWireCubeBetween(Vector3 a, Vector3 b, bool drawPickShape = false)
 		{
 			var center = (a + b) * 0.5f;
 			var size = (b - a).Abs();
 			DrawWireCube(center, size, drawPickShape);
+		}
+
+		/// <summary>
+		/// Draws a solid cube gizmo.
+		/// </summary>
+		public static void DrawCube(Vector3 center, Vector3 size)
+		{
+			Gizmos.DrawCube(center, size);
+		}
+
+		/// <summary>
+		/// Draws a solid cube gizmo between the two given points.
+		/// </summary>
+		public static void DrawCubeBetween(Vector3 a, Vector3 b)
+		{
+			var center = (a + b) * 0.5f;
+			var size = (b - a).Abs();
+			DrawCube(center, size);
 		}
 
 		/// <summary>
@@ -155,7 +190,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a combined wireframe and solid cube gizmo between the two given points.
 		/// </summary>
-		public static void DrawCombinedCubeFromTo(Vector3 a, Vector3 b, float fillAlpha)
+		public static void DrawCombinedCubeBetween(Vector3 a, Vector3 b, float fillAlpha)
 		{
 			var center = (a + b) * 0.5f;
 			var size = (b - a).Abs();
@@ -489,6 +524,13 @@ namespace UnityEssentials
 		}
 
 
+		/// <summary>
+		/// Draws a line between the two given points.
+		/// </summary>
+		public static void DrawLine(Vector3 a, Vector3 b)
+		{
+			Gizmos.DrawLine(a, b);
+		}
 
 		/// <summary>
 		/// Draws a line starting at the given point towards the given direction.
