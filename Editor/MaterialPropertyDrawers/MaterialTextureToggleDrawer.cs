@@ -19,7 +19,11 @@ namespace UnityEssentialsEditor.MaterialPropertyDrawers
 
 		private static bool IsPropertyTypeSuitable(MaterialProperty prop)
 		{
+#if UNITY_6000_1_OR_NEWER
+			return prop.propertyType == UnityEngine.Rendering.ShaderPropertyType.Texture;
+#else
 			return prop.type == MaterialProperty.PropType.Texture;
+#endif
 		}
 
 		protected virtual void SetKeyword(MaterialProperty prop)
