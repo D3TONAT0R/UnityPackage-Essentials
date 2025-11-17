@@ -41,6 +41,7 @@ namespace UnityEssentialsEditor
 		{
 			//When OnDisable is called, the default editor we created should be destroyed to avoid memory leakage.
 			//Also, make sure to call any required methods like OnDisable
+			if(_defaultEditor == null) return;
 			var disableMethod = _defaultEditor.GetType().GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 			try
 			{
