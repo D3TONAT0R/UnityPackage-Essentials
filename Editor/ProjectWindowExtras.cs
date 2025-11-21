@@ -32,29 +32,32 @@ namespace UnityEssentialsEditor
 			{
 				return;
 			}
-			// Check if we are in prefab mode
-			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
-			if (prefabStage != null)
+			if (EssentialsProjectSettings.Instance.highlightOpenedPrefabInProjectWindow)
 			{
-				var path = AssetDatabase.GUIDToAssetPath(guid);
-				if (path == prefabStage.assetPath)
+				// Check if we are in prefab mode
+				var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+				if (prefabStage != null)
 				{
-					// Draw a border indicating we are in prefab mode
-					bool listView = pos.height <= 32;
-					if(listView)
+					var path = AssetDatabase.GUIDToAssetPath(guid);
+					if (path == prefabStage.assetPath)
 					{
-						pos = pos.Outset(1);
-						pos.width -= 1;
+						// Draw a border indicating we are in prefab mode
+						bool listView = pos.height <= 32;
+						if (listView)
+						{
+							pos = pos.Outset(1);
+							pos.width -= 1;
+						}
+						else
+						{
+							// Add extra offset when in grid view
+							pos = pos.Outset(4);
+						}
+						GUI.color = new Color(0.24f, 0.37f, 0.59f, 1f).Lighten(0.2f);
+						GUI.Label(pos, prefabModeContent, borderStyle);
+						// EditorGUI.DrawRect(pos, Color.red.WithAlpha(0.5f));
+						GUI.color = Color.white;
 					}
-					else
-					{
-						// Add extra offset when in grid view
-						pos = pos.Outset(4);
-					}
-					GUI.color = new Color(0.24f, 0.37f, 0.59f, 1f).Lighten(0.2f);
-					GUI.Label(pos, prefabModeContent, borderStyle);
-					// EditorGUI.DrawRect(pos, Color.red.WithAlpha(0.5f));
-					GUI.color = Color.white;
 				}
 			}
 		}

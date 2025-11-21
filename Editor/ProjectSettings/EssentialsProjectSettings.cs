@@ -58,6 +58,12 @@ namespace UnityEssentialsEditor
 		[Tooltip("Specifies how the extra toolbar is displayed in the Transform inspector.")]
 		public InspectorMode toolbar = InspectorMode.Foldout;
 
+		[Header("Prefab Stage Utilities")]
+		[Tooltip("Highlights the currently opened prefab in the project window.")]
+		public bool highlightOpenedPrefabInProjectWindow = true;
+		[Tooltip("Display a toolbar on top of the Scene View when editing a prefab.")]
+		public bool showPrefabStageGUI = true;
+		
 		public string GetScriptRootNamespace()
 		{
 			if(useDefaultNamespace)

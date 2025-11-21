@@ -14,20 +14,45 @@ namespace UnityEssentialsEditor
 		private static GUIContent frontIcon;
 		private static GUIStyle box;
 		private static GUIStyle centerLabel;
+		
+		private static PrefabStage currentPrefabStage;
+		private static string infoText;
 
 		[InitializeOnLoadMethod]
 		private static void Init()
 		{
 			SceneView.duringSceneGui += OnSceneGUI;
+			PrefabStage.prefabStageOpened += OnPrefabStageOpened;
+			PrefabStage.prefabStageClosing += OnPrefabStageClosing;
 		}
 
-		//TODO: Exclude subfolders when searching for prefabs in the same folder
+		private static void OnPrefabStageOpened(PrefabStage stage)
+		{
+			EditorApplication.delayCall += () =>
+			{
+				currentPrefabStage = stage;
+				bool variant = PrefabUtility.GetPrefabAssetType(currentPrefabStage.prefabContentsRoot) != PrefabAssetType.NotAPrefab;
+				if (variant)
+				{
+					infoText = "Variant of " + PrefabUtility.GetCorrespondingObjectFromSource(currentPrefabStage.prefabContentsRoot).name;
+				}
+				else
+				{
+					infoText = "Prefab Asset";
+				}
+			};
+		}
+
+		private static void OnPrefabStageClosing(PrefabStage obj)
+		{
+			currentPrefabStage = null;
+		}
+
 		private static void OnSceneGUI(SceneView obj)
 		{
+			if(!EssentialsProjectSettings.Instance.showPrefabStageGUI || currentPrefabStage == null) return;
 			try
 			{
-				var stage = PrefabStageUtility.GetCurrentPrefabStage();
-				if (stage == null) return;
 				if (backIcon == null)
 				{
 					backIcon = EditorGUIUtility.IconContent("d_back");
@@ -48,7 +73,7 @@ namespace UnityEssentialsEditor
 				var nextBtnPos = new Rect(w - 30, 5, 25, 20);
 				var namePos = new Rect(30, 0, w - 60, 20);
 				var infoPos = new Rect(30, 15, w - 60, 15);
-				string currentPrefab = stage.prefabContentsRoot.name;
+				string currentPrefab = currentPrefabStage.prefabContentsRoot.name;
 				if (GUI.Button(prevBtnPos, backIcon))
 				{
 					PreviousPrefab();
@@ -66,18 +91,7 @@ namespace UnityEssentialsEditor
 					EditorGUIUtility.PingObject(prefabAsset);
 				}
 				// Check whether it's a prefab variant
-				Debug.Log(stage.openedFromInstanceRoot);
-				bool variant = PrefabUtility.GetPrefabAssetType(stage.prefabContentsRoot) != PrefabAssetType.NotAPrefab;
-				string text;
-				if (variant)
-				{
-					text = "Variant of " + PrefabUtility.GetCorrespondingObjectFromSource(stage.prefabContentsRoot).name;
-				}
-				else
-				{
-					text = "Prefab Asset";
-				}
-				GUI.Label(infoPos, text, EditorStyles.centeredGreyMiniLabel);
+				GUI.Label(infoPos, infoText, EditorStyles.centeredGreyMiniLabel);
 				//GUILayout.FlexibleSpace();
 				GUI.EndGroup();
 				Handles.EndGUI();
