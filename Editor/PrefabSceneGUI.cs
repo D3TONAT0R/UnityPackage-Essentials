@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -10,13 +11,29 @@ namespace UnityEssentialsEditor
 {
 	public class PrefabSceneGUI
 	{
+		private class PrefabRef
+		{
+			public string name;
+			public string guid;
+
+			public PrefabRef(string guid)
+			{
+				this.guid = guid;
+				name = Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(guid));
+			}
+		}
+		
+#if UNITY_2021_2_OR_NEWER
 		private static GUIContent backIcon;
-		private static GUIContent frontIcon;
+		private static GUIContent forwardIcon;
 		private static GUIStyle box;
 		private static GUIStyle centerLabel;
-		
+
 		private static PrefabStage currentPrefabStage;
 		private static string infoText;
+
+		private static PrefabRef previousPrefab;
+		private static PrefabRef nextPrefab;
 
 		[InitializeOnLoadMethod]
 		private static void Init()
@@ -24,6 +41,11 @@ namespace UnityEssentialsEditor
 			SceneView.duringSceneGui += OnSceneGUI;
 			PrefabStage.prefabStageOpened += OnPrefabStageOpened;
 			PrefabStage.prefabStageClosing += OnPrefabStageClosing;
+			var currentStage = PrefabStageUtility.GetCurrentPrefabStage();
+			if (currentStage != null)
+			{
+				OnPrefabStageOpened(currentStage);
+			}
 		}
 
 		private static void OnPrefabStageOpened(PrefabStage stage)
@@ -40,6 +62,17 @@ namespace UnityEssentialsEditor
 				{
 					infoText = "Prefab Asset";
 				}
+				var prefabs = ListPrefabsGUIDsInSameFolder();
+				var index = prefabs.IndexOf(AssetDatabase.AssetPathToGUID(PrefabStageUtility.GetCurrentPrefabStage().assetPath));
+				previousPrefab = null;
+				nextPrefab = null;
+				if (index > -1 && prefabs.Count > 1)
+				{
+					var previousIndex = (index + prefabs.Count - 1) % prefabs.Count;
+					var nextIndex = (index + 1) % prefabs.Count;
+					previousPrefab = new PrefabRef(prefabs[previousIndex]);
+					nextPrefab = new PrefabRef(prefabs[nextIndex]);
+				}
 			};
 		}
 
@@ -50,13 +83,13 @@ namespace UnityEssentialsEditor
 
 		private static void OnSceneGUI(SceneView obj)
 		{
-			if(!EssentialsProjectSettings.Instance.showPrefabStageGUI || currentPrefabStage == null) return;
+			if (!EssentialsProjectSettings.Instance.showPrefabStageSceneGUI || currentPrefabStage == null) return;
 			try
 			{
 				if (backIcon == null)
 				{
 					backIcon = EditorGUIUtility.IconContent("d_back");
-					frontIcon = EditorGUIUtility.IconContent("d_forward");
+					forwardIcon = EditorGUIUtility.IconContent("d_forward");
 					box = "FrameBox";
 					centerLabel = new GUIStyle(EditorStyles.boldLabel)
 					{
@@ -74,14 +107,20 @@ namespace UnityEssentialsEditor
 				var namePos = new Rect(30, 0, w - 60, 20);
 				var infoPos = new Rect(30, 15, w - 60, 15);
 				string currentPrefab = currentPrefabStage.prefabContentsRoot.name;
+				//TODO: tooltips are not positioned correctly
+				GUI.enabled = previousPrefab != null;
+				backIcon.tooltip = "Previous Prefab: " + previousPrefab?.name ?? "";
 				if (GUI.Button(prevBtnPos, backIcon))
 				{
 					PreviousPrefab();
 				}
-				if (GUI.Button(nextBtnPos, frontIcon))
+				GUI.enabled = nextPrefab != null;
+				forwardIcon.tooltip = "Next Prefab: " + nextPrefab?.name ?? "";
+				if (GUI.Button(nextBtnPos, forwardIcon))
 				{
 					NextPrefab();
 				}
+				GUI.enabled = true;
 				if (GUI.Button(namePos, currentPrefab, centerLabel))
 				{
 					// Select and ping the current prefab asset
@@ -104,29 +143,22 @@ namespace UnityEssentialsEditor
 
 		private static void PreviousPrefab()
 		{
-			var prefabs = ListPrefabsGUIDsInSameFolder();
-			var index = prefabs.IndexOf(AssetDatabase.AssetPathToGUID(PrefabStageUtility.GetCurrentPrefabStage().assetPath));
-			if(index == -1) return;
-			index = (index + prefabs.Count - 1) % prefabs.Count;
-			OpenPrefabByGUID(prefabs[index]);
+			if(previousPrefab != null) OpenPrefabByGUID(previousPrefab.guid);
 		}
 
 		private static void NextPrefab()
 		{
-			var prefabs = ListPrefabsGUIDsInSameFolder();
-			var index = prefabs.IndexOf(AssetDatabase.AssetPathToGUID(PrefabStageUtility.GetCurrentPrefabStage().assetPath));
-			if(index == -1) return;
-			index = (index + 1) % prefabs.Count;
-			OpenPrefabByGUID(prefabs[index]);
+			if(nextPrefab != null) OpenPrefabByGUID(nextPrefab.guid);
 		}
-		
+
 		private static List<string> ListPrefabsGUIDsInSameFolder()
 		{
 			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 			var prefabPath = prefabStage.assetPath;
-			var folderPath = System.IO.Path.GetDirectoryName(prefabPath);
+			var folderPath = Path.GetDirectoryName(prefabPath);
 			return AssetDatabase.FindAssets("t:Prefab", new[] { folderPath })
 				.Where(guid => CheckSameDirectory(folderPath, guid))
+				.OrderBy(guid => Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(guid)))
 				.ToList();
 		}
 
@@ -138,7 +170,13 @@ namespace UnityEssentialsEditor
 		private static void OpenPrefabByGUID(string guid)
 		{
 			var path = AssetDatabase.GUIDToAssetPath(guid);
+			if (PrefabStageUtility.GetCurrentPrefabStage() != null)
+			{
+				StageUtility.GoBackToPreviousStage();
+			}
 			PrefabStageUtility.OpenPrefab(path);
+			SceneView.RepaintAll();
 		}
+#endif
 	}
 }

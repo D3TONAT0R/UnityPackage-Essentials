@@ -35,9 +35,6 @@ namespace UnityEssentialsEditor
 		[EnabledIf(nameof(useDefaultNamespace))]
 		[Tooltip("The namespace to use for new scripts. If empty, the unity project name is used. This setting is synchronized with EditorSettings.projectGenerationRootNamespace.")]
 		public string defaultScriptNamespace = "";
-#if UNITY_2020_2_OR_NEWER
-		[NonReorderable]
-#endif
 		[Tooltip("Additional usings that are added on top of new scripts.")]
 		public string[] additionalDefaultUsings = Array.Empty<string>();
 		[Header("Menu Management", order = 0)]
@@ -62,7 +59,7 @@ namespace UnityEssentialsEditor
 		[Tooltip("Highlights the currently opened prefab in the project window.")]
 		public bool highlightOpenedPrefabInProjectWindow = true;
 		[Tooltip("Display a toolbar on top of the Scene View when editing a prefab.")]
-		public bool showPrefabStageGUI = true;
+		public bool showPrefabStageSceneGUI = false;
 		
 		public string GetScriptRootNamespace()
 		{
