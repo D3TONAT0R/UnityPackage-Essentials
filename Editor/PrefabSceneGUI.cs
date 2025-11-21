@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -23,47 +24,68 @@ namespace UnityEssentialsEditor
 		//TODO: Exclude subfolders when searching for prefabs in the same folder
 		private static void OnSceneGUI(SceneView obj)
 		{
-			if(PrefabStageUtility.GetCurrentPrefabStage() == null) return;
-			if(backIcon == null)
+			try
 			{
-				backIcon = EditorGUIUtility.IconContent("d_back");
-				frontIcon = EditorGUIUtility.IconContent("d_forward");
-				box = "FrameBox";
-				centerLabel = new GUIStyle(EditorStyles.boldLabel)
+				var stage = PrefabStageUtility.GetCurrentPrefabStage();
+				if (stage == null) return;
+				if (backIcon == null)
 				{
-					alignment = TextAnchor.MiddleCenter
-				};
+					backIcon = EditorGUIUtility.IconContent("d_back");
+					frontIcon = EditorGUIUtility.IconContent("d_forward");
+					box = "FrameBox";
+					centerLabel = new GUIStyle(EditorStyles.boldLabel)
+					{
+						alignment = TextAnchor.MiddleCenter
+					};
+				}
+				Handles.BeginGUI();
+				var xCenter = obj.cameraViewport.width / 2;
+				var w = 300;
+				var h = 30;
+				var rect = new Rect(xCenter - w / 2, 0, w, h);
+				GUI.BeginGroup(rect, box);
+				var prevBtnPos = new Rect(5, 5, 25, 20);
+				var nextBtnPos = new Rect(w - 30, 5, 25, 20);
+				var namePos = new Rect(30, 0, w - 60, 20);
+				var infoPos = new Rect(30, 15, w - 60, 15);
+				string currentPrefab = stage.prefabContentsRoot.name;
+				if (GUI.Button(prevBtnPos, backIcon))
+				{
+					PreviousPrefab();
+				}
+				if (GUI.Button(nextBtnPos, frontIcon))
+				{
+					NextPrefab();
+				}
+				if (GUI.Button(namePos, currentPrefab, centerLabel))
+				{
+					// Select and ping the current prefab asset
+					var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+					var prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabStage.assetPath);
+					Selection.activeObject = prefabAsset;
+					EditorGUIUtility.PingObject(prefabAsset);
+				}
+				// Check whether it's a prefab variant
+				Debug.Log(stage.openedFromInstanceRoot);
+				bool variant = PrefabUtility.GetPrefabAssetType(stage.prefabContentsRoot) != PrefabAssetType.NotAPrefab;
+				string text;
+				if (variant)
+				{
+					text = "Variant of " + PrefabUtility.GetCorrespondingObjectFromSource(stage.prefabContentsRoot).name;
+				}
+				else
+				{
+					text = "Prefab Asset";
+				}
+				GUI.Label(infoPos, text, EditorStyles.centeredGreyMiniLabel);
+				//GUILayout.FlexibleSpace();
+				GUI.EndGroup();
+				Handles.EndGUI();
 			}
-			Handles.BeginGUI();
-			var x = obj.cameraViewport.width / 2;
-			var w = 300;
-			var h = 30;
-			var rect = new Rect(x - w / 2, 0, w, h);
-			GUILayout.BeginArea(rect);
-			GUILayout.BeginHorizontal(box, GUILayout.ExpandHeight(true));
-			string currentPrefab = PrefabStageUtility.GetCurrentPrefabStage().prefabContentsRoot.name;
-			if(GUILayout.Button(backIcon, GUILayout.ExpandWidth(false), GUILayout.Height(EditorGUIUtility.singleLineHeight)))
+			catch (Exception e)
 			{
-				PreviousPrefab();
+				e.LogException();
 			}
-			//GUILayout.FlexibleSpace();
-			if(GUILayout.Button(currentPrefab, centerLabel, GUILayout.ExpandWidth(true), GUILayout.Height(EditorGUIUtility.singleLineHeight)))
-			{
-				// Select and ping the current prefab asset
-				var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
-				var prefabAsset = AssetDatabase.LoadAssetAtPath<GameObject>(prefabStage.assetPath);
-				Selection.activeObject = prefabAsset;
-				EditorGUIUtility.PingObject(prefabAsset);
-			}
-			//GUILayout.FlexibleSpace();
-			if(GUILayout.Button(frontIcon, GUILayout.ExpandWidth(false), GUILayout.Height(EditorGUIUtility.singleLineHeight)))
-			{
-				NextPrefab();
-			}
-			GUILayout.EndHorizontal();
-			GUILayout.FlexibleSpace();
-			GUILayout.EndArea();
-			Handles.EndGUI();
 		}
 
 		private static void PreviousPrefab()
@@ -83,14 +105,20 @@ namespace UnityEssentialsEditor
 			index = (index + 1) % prefabs.Count;
 			OpenPrefabByGUID(prefabs[index]);
 		}
-
+		
 		private static List<string> ListPrefabsGUIDsInSameFolder()
 		{
 			var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 			var prefabPath = prefabStage.assetPath;
 			var folderPath = System.IO.Path.GetDirectoryName(prefabPath);
-			var guid = AssetDatabase.AssetPathToGUID(prefabPath);
-			return AssetDatabase.FindAssets("t:Prefab", new[] { folderPath }).ToList();
+			return AssetDatabase.FindAssets("t:Prefab", new[] { folderPath })
+				.Where(guid => CheckSameDirectory(folderPath, guid))
+				.ToList();
+		}
+
+		private static bool CheckSameDirectory(string directory, string assetGUID)
+		{
+			return System.IO.Path.GetDirectoryName(AssetDatabase.GUIDToAssetPath(assetGUID)) == directory;
 		}
 
 		private static void OpenPrefabByGUID(string guid)

@@ -53,6 +53,7 @@ namespace UnityEssentialsEditor
 					}
 					GUI.color = new Color(0.24f, 0.37f, 0.59f, 1f).Lighten(0.2f);
 					GUI.Label(pos, prefabModeContent, borderStyle);
+					// EditorGUI.DrawRect(pos, Color.red.WithAlpha(0.5f));
 					GUI.color = Color.white;
 				}
 			}
