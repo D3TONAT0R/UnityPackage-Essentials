@@ -27,8 +27,6 @@ namespace UnityEssentialsEditor
 				//Sync namespace setting with editor settings
 				EditorSettings.projectGenerationRootNamespace = EssentialsProjectSettings.Instance.GetScriptRootNamespace() ?? "";
 			}
-			GUILayout.Space(10);
-			provider.Repaint();
 		}
 
 		private static void OnClose()
