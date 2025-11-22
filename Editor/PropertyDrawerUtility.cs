@@ -493,7 +493,7 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Draws the property using any PropertyAttribute excluding the given attribute type, if any.
 		/// </summary>
-		public static void DrawPropertyWithAttributeExcept(Rect rect, SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder)
+		public static void DrawPropertyWithAttributeExcept(Rect rect, SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder, bool fallbackIsDirect = false)
 		{
 			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder);
 			if(drawer != null)
@@ -502,7 +502,14 @@ namespace UnityEssentialsEditor
 			}
 			else
 			{
-				DrawPropertyField(rect, property, label);
+				if (fallbackIsDirect)
+				{
+					DrawPropertyDirect(rect, label, property);
+				}
+				else
+				{
+					DrawPropertyField(rect, property, label);
+				}
 			}
 		}
 
@@ -529,7 +536,7 @@ namespace UnityEssentialsEditor
 				var t = attr.GetType();
 				return !typeof(DecoratorAttribute).IsAssignableFrom(t)
 				&& attr.order >= minimumOrder
-				&& t != exceptType
+				&& !exceptType.IsAssignableFrom(t)
 				&& t != typeof(TooltipAttribute);
 			}).OrderBy(a => a.order).ToArray();
 			if(attrs.Length > 0)

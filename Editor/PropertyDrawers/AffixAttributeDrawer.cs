@@ -49,17 +49,7 @@ namespace UnityEssentialsEditor
 		private void DrawProperty(Rect position, SerializedProperty property, GUIContent label, bool monospace)
 		{
 			EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
-			if(property.propertyType == SerializedPropertyType.Float && property.TryGetAttribute(out RangeAttribute range))
-			{
-				EditorGUI.Slider(position, property, range.min, range.max);
-				return;
-			}
-			else if(property.propertyType == SerializedPropertyType.Integer && property.TryGetAttribute(out range))
-			{
-				EditorGUI.IntSlider(position, property, (int)range.min, (int)range.max);
-				return;
-			}
-			PropertyDrawerUtility.DrawPropertyDirect(position, label, property, monospace);
+			PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, typeof(AffixAttribute), 0, true);
 			EditorGUI.showMixedValue = false;
 		}
 
