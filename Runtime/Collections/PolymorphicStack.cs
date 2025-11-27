@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace UnityEssentials.Collections
 {
+	/// <summary>
+	/// A stack that can hold polymorphic elements derived from StackElement.
+	/// </summary>
 	[System.Serializable]
 	public class PolymorphicStack<T> : IEnumerable<T> where T : StackElement
 	{

@@ -2,6 +2,9 @@
 
 namespace UnityEssentials.Collections
 {
+	/// <summary>
+	/// Base class for elements that can be added to a Polymorhic Stack.
+	/// </summary>
 	[System.Serializable]
 	public abstract class StackElement
 	{
@@ -9,14 +12,9 @@ namespace UnityEssentials.Collections
 		{
 			get
 			{
-				string custom = null;
-				if(this is ICustomElementNameProvider c)
+				if(!string.IsNullOrEmpty(CustomName))
 				{
-					if(!string.IsNullOrWhiteSpace(c.CustomName)) custom = c.CustomName;
-				}
-				if(custom != null)
-				{
-					return $"{custom} ({ReadableTypeName})";
+					return $"{CustomName} ({ReadableTypeName})";
 				}
 				else
 				{
@@ -24,6 +22,8 @@ namespace UnityEssentials.Collections
 				}
 			}
 		}
+
+		public virtual string CustomName { get; set; } = null;
 
 		public string ReadableTypeName
 		{

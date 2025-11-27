@@ -29,7 +29,7 @@ namespace UnityEssentialsEditor
 
 		private float ItemHeaderHeight => EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-		private static ICustomElementNameProvider renamingElement;
+		private static StackElement renamingElement;
 		private static bool needsRenameFocus;
 		private static string renameInput;
 
@@ -321,30 +321,26 @@ namespace UnityEssentialsEditor
 					menu.AddDisabledItem(down);
 				}
 
-				var customNameProvider = obj as ICustomElementNameProvider;
-				if(customNameProvider != null)
+				menu.AddSeparator("");
+				menu.AddItem(new GUIContent("Set Custom Name"), false, () =>
 				{
-					menu.AddSeparator("");
-					menu.AddItem(new GUIContent("Set Custom Name"), false, () =>
+					renamingElement = obj;
+					needsRenameFocus = true;
+					renameInput = obj.CustomName;
+				});
+				var clear = new GUIContent("Clear Custom Name");
+				if(obj.CustomName != null && obj.CustomName.Length > 0)
+				{
+					menu.AddItem(clear, false, () =>
 					{
-						renamingElement = customNameProvider;
-						needsRenameFocus = true;
-						renameInput = customNameProvider.CustomName;
+						Undo.RecordObject(prop.serializedObject.targetObject, "Clar Custom Name");
+						obj.CustomName = null;
+						prop.serializedObject.Update();
 					});
-					var clear = new GUIContent("Clear Custom Name");
-					if(customNameProvider.CustomName != null && customNameProvider.CustomName.Length > 0)
-					{
-						menu.AddItem(clear, false, () =>
-						{
-							Undo.RecordObject(prop.serializedObject.targetObject, "Clar Custom Name");
-							customNameProvider.CustomName = "";
-							prop.serializedObject.Update();
-						});
-					}
-					else
-					{
-						menu.AddDisabledItem(clear);
-					}
+				}
+				else
+				{
+					menu.AddDisabledItem(clear);
 				}
 
 				menu.ShowAsContext();
