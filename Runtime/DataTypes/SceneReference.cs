@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace UnityEssentials
@@ -187,7 +186,18 @@ namespace UnityEssentials
 
 		public void OnAfterDeserialize()
 		{
-			
+			Debug.Log("OnAfterDeserialize");
+			if (buildIndex >= 0)
+			{
+				// Verify the reference is still up to date
+				var actualName = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(buildIndex));
+				if (sceneName != actualName)
+				{
+					Debug.Log($"Updating scene reference for scene '{sceneName}' (build index was {buildIndex})");
+					// Scene names do not match, resolve again
+					EditorResolve();
+				}
+			}
 		}
 
 		private void EditorResolve()
