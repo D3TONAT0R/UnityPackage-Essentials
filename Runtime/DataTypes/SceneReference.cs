@@ -12,7 +12,6 @@ namespace UnityEssentials
 		: ISerializationCallbackReceiver
 #endif
 	{
-
 #if UNITY_EDITOR
 		[SerializeField]
 		private UnityEditor.SceneAsset sceneAsset;
@@ -42,7 +41,7 @@ namespace UnityEssentials
 			get
 			{
 #if UNITY_EDITOR
-				EditorResolveIfRequired();
+				EditorResolveIfRequired(false);
 #endif
 				return !string.IsNullOrEmpty(sceneName) ? sceneName : null;
 			}
@@ -56,7 +55,7 @@ namespace UnityEssentials
 			get
 			{
 #if UNITY_EDITOR
-				EditorResolveIfRequired();
+				EditorResolveIfRequired(false);
 #endif
 				return buildIndex;
 			}
@@ -69,17 +68,17 @@ namespace UnityEssentials
 		{
 			this.sceneName = sceneName;
 			buildIndex = -1;
-			for(int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+			for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
 			{
 				var name = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(i));
-				if(name == sceneName)
+				if (name == sceneName)
 				{
 					buildIndex = i;
 					break;
 				}
 			}
 #if UNITY_EDITOR
-			if(UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
+			if (UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
 #endif
 		}
 
@@ -88,14 +87,15 @@ namespace UnityEssentials
 		/// </summary>
 		public SceneReference(int buildIndex)
 		{
-			if(buildIndex >= SceneManager.sceneCountInBuildSettings)
+			if (buildIndex >= SceneManager.sceneCountInBuildSettings)
 			{
-				throw new System.ArgumentOutOfRangeException(nameof(buildIndex), $"Build index out of range: {buildIndex}. Scene count: {SceneManager.sceneCountInBuildSettings}");
+				throw new System.ArgumentOutOfRangeException(nameof(buildIndex),
+					$"Build index out of range: {buildIndex}. Scene count: {SceneManager.sceneCountInBuildSettings}");
 			}
 			this.buildIndex = buildIndex;
 			sceneName = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(buildIndex));
 #if UNITY_EDITOR
-			if(UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
+			if (UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
 #endif
 		}
 
@@ -104,7 +104,7 @@ namespace UnityEssentials
 		/// </summary>
 		public SceneReference(Scene scene)
 		{
-			if(scene.IsValid())
+			if (scene.IsValid())
 			{
 				sceneName = scene.name;
 				buildIndex = scene.buildIndex;
@@ -115,7 +115,7 @@ namespace UnityEssentials
 				buildIndex = -1;
 			}
 #if UNITY_EDITOR
-			if(UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
+			if (UnityEditor.EditorApplication.isPlaying) resolvedInEditor = true;
 #endif
 		}
 
@@ -166,12 +166,15 @@ namespace UnityEssentials
 
 		private void BeforeLoadCheck(bool unload = false)
 		{
+#if UNITY_EDITOR
+			EditorResolveIfRequired(true);
+#endif
 			string action = unload ? "unload" : "load";
-			if(!Exists)
+			if (!Exists)
 			{
 				throw new System.InvalidOperationException($"Can not {action} scene because no scene is referenced.");
 			}
-			if(!ExistsInBuild)
+			if (!ExistsInBuild)
 			{
 				throw new System.InvalidOperationException($"Can not {action} scene because the scene '{SceneName}' is not in build settings.");
 			}
@@ -181,39 +184,19 @@ namespace UnityEssentials
 
 		public void OnBeforeSerialize()
 		{
-			EditorResolveIfRequired();
+			EditorResolveIfRequired(false);
 		}
 
 		public void OnAfterDeserialize()
 		{
-			Debug.Log("OnAfterDeserialize");
-			if (buildIndex >= 0)
-			{
-				// Verify the reference is still up to date
-				var actualName = System.IO.Path.GetFileNameWithoutExtension(SceneUtility.GetScenePathByBuildIndex(buildIndex));
-				if (sceneName != actualName)
-				{
-					Debug.Log($"Updating scene reference for scene '{sceneName}' (build index was {buildIndex})");
-					// Scene names do not match, resolve again
-					EditorResolve();
-				}
-			}
 		}
 
 		private void EditorResolve()
 		{
-			if(sceneAsset)
+			if (sceneAsset)
 			{
 				sceneName = sceneAsset.name;
-				buildIndex = -1;
-				var guid = UnityEditor.AssetDatabase.AssetPathToGUID(UnityEditor.AssetDatabase.GetAssetPath(sceneAsset));
-				for(int i = 0; i < UnityEditor.EditorBuildSettings.scenes.Length; i++)
-				{
-					if(guid == UnityEditor.EditorBuildSettings.scenes[i].guid.ToString())
-					{
-						buildIndex = i;
-					}
-				}
+				buildIndex = SceneUtility.GetBuildIndexByScenePath(UnityEditor.AssetDatabase.GetAssetPath(sceneAsset));
 			}
 			else
 			{
@@ -223,18 +206,20 @@ namespace UnityEssentials
 			resolvedInEditor = true;
 		}
 
-		private void EditorResolveIfRequired()
+		private void EditorResolveIfRequired(bool force)
 		{
-			if(Application.isPlaying && resolvedInEditor) return;
-			if(sceneAsset ? sceneAsset.name == sceneName : sceneName == "") return;
+			// Don't resolve during play mode but force it during builds
+			bool resolveRequired = force || !resolvedInEditor || UnityEditor.BuildPipeline.isBuildingPlayer;
+			if (!resolveRequired) return;
+			// if(sceneAsset ? sceneAsset.name == sceneName : sceneName == "") return;
 			EditorResolve();
 		}
 #endif
 
 		public static bool operator ==(SceneReference a, SceneReference b)
 		{
-			if(ReferenceEquals(a, b)) return true;
-			if(a is null || b is null) return false;
+			if (ReferenceEquals(a, b)) return true;
+			if (a is null || b is null) return false;
 			return a.SceneName == b.SceneName && a.BuildIndex == b.BuildIndex;
 		}
 
@@ -250,7 +235,7 @@ namespace UnityEssentials
 
 		public override int GetHashCode()
 		{
-			if(buildIndex >= 0)
+			if (buildIndex >= 0)
 			{
 				int sceneHash = sceneName?.GetHashCode() ?? 0;
 				return (sceneHash * 397) ^ buildIndex;
@@ -260,7 +245,7 @@ namespace UnityEssentials
 
 		public override bool Equals(object obj)
 		{
-			if(obj is SceneReference other)
+			if (obj is SceneReference other)
 			{
 				return this == other;
 			}
