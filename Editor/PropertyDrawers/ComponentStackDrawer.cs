@@ -10,8 +10,8 @@ using UnityEssentials.Collections;
 
 namespace UnityEssentialsEditor
 {
-	[CustomPropertyDrawer(typeof(PolymorphicStack<>), true)]
-	public class PolymorphicStackDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(ComponentStack<>), true)]
+	public class ComponentStackDrawer : PropertyDrawer
 	{
 		private static bool initialized = false;
 
@@ -29,7 +29,7 @@ namespace UnityEssentialsEditor
 
 		private float ItemHeaderHeight => EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-		private static StackElement renamingElement;
+		private static StackComponent renamingElement;
 		private static bool needsRenameFocus;
 		private static string renameInput;
 
@@ -44,7 +44,7 @@ namespace UnityEssentialsEditor
 				var attr = t.GetCustomAttribute<CustomElementDrawerAttribute>();
 				if(attr != null)
 				{
-					if(!typeof(StackElement).IsAssignableFrom(attr.targetType))
+					if(!typeof(StackComponent).IsAssignableFrom(attr.targetType))
 					{
 						Debug.LogError($"Type does not inherit from 'StackElement' ({attr.targetType}).");
 					}
@@ -198,10 +198,10 @@ namespace UnityEssentialsEditor
 
 		private void FixDuplicateReferences(SerializedProperty stack)
 		{
-			var elements = new List<StackElement>();
+			var elements = new List<StackComponent>();
 			for(int i = 0; i < stack.arraySize; i++)
 			{
-				var elem = (StackElement)stack.GetArrayElementAtIndex(i).GetValue();
+				var elem = (StackComponent)stack.GetArrayElementAtIndex(i).GetValue();
 				if(elem != null)
 				{
 					if(!elements.Contains(elem))
@@ -222,7 +222,7 @@ namespace UnityEssentialsEditor
 		private float DrawItem(Rect position, SerializedProperty arrayProp, SerializedProperty stackProp, int i)
 		{
 			var elem = arrayProp.GetArrayElementAtIndex(i);
-			var obj = elem.GetValue() as StackElement;
+			var obj = elem.GetValue() as StackComponent;
 			if(obj != null) elem.FindPropertyRelative("hostComponent").objectReferenceValue = stackProp.serializedObject.targetObject as MonoBehaviour;
 			var drawer = GetDrawerFor(obj?.GetType() ?? typeof(StackElementDrawer));
 
@@ -239,7 +239,7 @@ namespace UnityEssentialsEditor
 			return position.yMax;
 		}
 
-		internal static void DrawItemHeader(Rect position, int i, SerializedProperty prop, StackElement obj, SerializedProperty array)
+		internal static void DrawItemHeader(Rect position, int i, SerializedProperty prop, StackComponent obj, SerializedProperty array)
 		{
 			EditorGUI.BeginProperty(position, new GUIContent(prop.displayName), prop);
 			var title = new GUIContent(obj != null ? obj.HeaderTitle : "null");
@@ -474,7 +474,7 @@ namespace UnityEssentialsEditor
 		{
 			while(elementType != null)
 			{
-				if(elementType == typeof(StackElement))
+				if(elementType == typeof(StackComponent))
 				{
 					return GetOrCreateDrawer(typeof(StackElementDrawer));
 				}

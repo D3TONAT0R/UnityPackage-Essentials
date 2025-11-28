@@ -5,16 +5,15 @@ using UnityEngine;
 namespace UnityEssentials.Collections
 {
 	/// <summary>
-	/// A stack that can hold polymorphic elements derived from StackElement.
+	/// A list that supports polymorphism and can hold elements derived from <see cref="StackComponent"/>.
 	/// </summary>
 	[System.Serializable]
-	public class PolymorphicStack<T> : IEnumerable<T> where T : StackElement
+	public abstract class ComponentStack<T> : IEnumerable<T> where T : StackComponent
 	{
 		[SerializeField, SerializeReference]
 		protected List<T> stack = new List<T>();
 
-		[HideInInspector]
-		public MonoBehaviour hostComponent;
+		public MonoBehaviour HostComponent { get; private set; }
 
 		public T this[int index]
 		{
@@ -24,15 +23,18 @@ namespace UnityEssentials.Collections
 
 		public int Count => stack.Count;
 
+		public void SetHost(MonoBehaviour hostComponent)
+		{
+			HostComponent = hostComponent;
+		}
+
 		public void Add(T item) => stack.Add(item);
 
 		public bool Remove(T item) => stack.Remove(item);
 
 		public void Swap(int indexA, int indexB)
 		{
-			var temp = stack[indexA];
-			stack[indexA] = stack[indexB];
-			stack[indexB] = temp;
+			(stack[indexA], stack[indexB]) = (stack[indexB], stack[indexA]);
 		}
 
 		public int IndexOf(T item) => stack.IndexOf(item);

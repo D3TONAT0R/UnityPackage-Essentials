@@ -30,7 +30,7 @@ namespace UnityEssentials.Collections
 		/// </summary>
 		int Count { get; }
 
-		System.Exception SerializationException { get; }
+		Exception SerializationException { get; }
 
 		/// <summary>
 		/// Clears the dictionary.
@@ -46,7 +46,7 @@ namespace UnityEssentials.Collections
 	/// <summary>
 	/// A value inside a UnityDictionary. Can be used for polymorphic support of dictionaries.
 	/// </summary>
-	[System.Serializable]
+	[Serializable]
 	public abstract class ISerializedDictionaryValue<T> : ISerializedDictionaryValue
 	{
 		public T value;
@@ -54,20 +54,20 @@ namespace UnityEssentials.Collections
 		public static implicit operator T(ISerializedDictionaryValue<T> c) => c.value;
 	}
 
-	[System.Serializable] public class BoolValue : ISerializedDictionaryValue<bool> { }
-	[System.Serializable] public class IntValue : ISerializedDictionaryValue<int> { }
-	[System.Serializable] public class FloatValue : ISerializedDictionaryValue<float> { }
-	[System.Serializable] public class StringValue : ISerializedDictionaryValue<string> { }
-	[System.Serializable] public class Vector2Value : ISerializedDictionaryValue<Vector2> { }
-	[System.Serializable] public class Vector3Value : ISerializedDictionaryValue<Vector3> { }
-	[System.Serializable] public class Vector4Value : ISerializedDictionaryValue<Vector4> { }
+	[Serializable] public class BoolValue : ISerializedDictionaryValue<bool> { }
+	[Serializable] public class IntValue : ISerializedDictionaryValue<int> { }
+	[Serializable] public class FloatValue : ISerializedDictionaryValue<float> { }
+	[Serializable] public class StringValue : ISerializedDictionaryValue<string> { }
+	[Serializable] public class Vector2Value : ISerializedDictionaryValue<Vector2> { }
+	[Serializable] public class Vector3Value : ISerializedDictionaryValue<Vector3> { }
+	[Serializable] public class Vector4Value : ISerializedDictionaryValue<Vector4> { }
 
 	/// <summary>
 	/// A wrapper for .NETs <see cref="Dictionary{TKey, TValue}"/> that supports serialization in Unity.
 	/// </summary>
 	/// <typeparam name="K">The key type for the dictionary.</typeparam>
 	/// <typeparam name="V">The value type for the dictionary.</typeparam>
-	[System.Serializable]
+	[Serializable]
 	public class SerializedDictionary<K, V> : ISerializedDictionary, ISerializationCallbackReceiver, IEnumerable<KeyValuePair<K, V>>
 	{
 		protected Dictionary<K, V> dictionary = new Dictionary<K, V>();
@@ -83,7 +83,7 @@ namespace UnityEssentials.Collections
 		public virtual Dictionary<K, V>.ValueCollection Values => dictionary?.Values;
 		public virtual int Count => dictionary?.Count ?? -1;
 
-		public System.Exception SerializationException { get; private set; }
+		public Exception SerializationException { get; private set; }
 		public bool Valid => SerializationException == null;
 
 		public virtual bool UseMonospaceKeyLabels => true;

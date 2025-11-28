@@ -7,12 +7,12 @@ namespace UnityEssentialsEditor
 	public class StackElementDrawer
 	{
 
-		public virtual void OnHeaderGUI(Rect position, int elementIndex, SerializedProperty elem, StackElement obj, SerializedProperty stack, SerializedProperty array)
+		public virtual void OnHeaderGUI(Rect position, int elementIndex, SerializedProperty elem, StackComponent obj, SerializedProperty stack, SerializedProperty array)
 		{
-			PolymorphicStackDrawer.DrawItemHeader(position, elementIndex, elem, obj, array);
+			ComponentStackDrawer.DrawItemHeader(position, elementIndex, elem, obj, array);
 		}
 
-		public virtual void OnGUI(ref Rect position, SerializedProperty elem, StackElement obj, SerializedProperty stack)
+		public virtual void OnGUI(ref Rect position, SerializedProperty elem, StackComponent obj, SerializedProperty stack)
 		{
 			bool enter = true;
 			var last = elem.GetEndProperty();

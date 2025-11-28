@@ -6,7 +6,7 @@ namespace UnityEssentials.Collections
 	/// Base class for elements that can be added to a Polymorhic Stack.
 	/// </summary>
 	[System.Serializable]
-	public abstract class StackElement
+	public abstract class StackComponent
 	{
 		public virtual string HeaderTitle
 		{
