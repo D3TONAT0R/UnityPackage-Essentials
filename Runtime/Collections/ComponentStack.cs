@@ -13,7 +13,9 @@ namespace UnityEssentials.Collections
 		[SerializeField, SerializeReference]
 		protected List<T> stack = new List<T>();
 
-		public MonoBehaviour HostComponent { get; private set; }
+		[SerializeField, HideInInspector]
+		private MonoBehaviour hostComponent;
+		public MonoBehaviour HostComponent => hostComponent;
 
 		public T this[int index]
 		{
@@ -23,9 +25,9 @@ namespace UnityEssentials.Collections
 
 		public int Count => stack.Count;
 
-		public void SetHost(MonoBehaviour hostComponent)
+		public void SetHost(MonoBehaviour host)
 		{
-			HostComponent = hostComponent;
+			hostComponent = host;
 		}
 
 		public void Add(T item) => stack.Add(item);

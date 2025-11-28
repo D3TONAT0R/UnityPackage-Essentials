@@ -221,20 +221,27 @@ namespace UnityEssentialsEditor
 
 		private float DrawItem(Rect position, SerializedProperty arrayProp, SerializedProperty stackProp, int i)
 		{
-			var elem = arrayProp.GetArrayElementAtIndex(i);
-			var obj = elem.GetValue() as StackComponent;
-			if(obj != null) elem.FindPropertyRelative("hostComponent").objectReferenceValue = stackProp.serializedObject.targetObject as MonoBehaviour;
-			var drawer = GetDrawerFor(obj?.GetType() ?? typeof(StackElementDrawer));
-
-			position.height = ItemHeaderHeight;
-
-			drawer.OnHeaderGUI(position, i, elem, obj, stackProp, arrayProp);
-
-			position.xMin += 2;
-			position.xMax -= 2;
-			if(elem.isExpanded && obj != null)
+			try
 			{
-				drawer.OnGUI(ref position, elem, obj, stackProp);
+				var elem = arrayProp.GetArrayElementAtIndex(i);
+				var obj = elem.GetValue() as StackComponent;
+				if(obj != null) elem.FindPropertyRelative("hostComponent").objectReferenceValue = stackProp.serializedObject.targetObject as MonoBehaviour;
+				var drawer = GetDrawerFor(obj?.GetType() ?? typeof(StackElementDrawer));
+
+				position.height = ItemHeaderHeight;
+
+				drawer.OnHeaderGUI(position, i, elem, obj, stackProp, arrayProp);
+
+				position.xMin += 2;
+				position.xMax -= 2;
+				if(elem.isExpanded && obj != null)
+				{
+					drawer.OnGUI(ref position, elem, obj, stackProp);
+				}
+			}
+			catch (Exception e)
+			{
+				e.LogException();
 			}
 			return position.yMax;
 		}
