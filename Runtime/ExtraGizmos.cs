@@ -196,6 +196,33 @@ namespace UnityEssentials
 			var size = (b - a).Abs();
 			DrawCombinedCube(center, size, fillAlpha);
 		}
+		
+		/// <summary>
+		/// Draws a combined wireframe and solid mesh gizmo.
+		/// </summary>
+		public static void DrawCombinedMesh(Mesh mesh, Vector3 position, Quaternion rotation, Vector3 scale, float fillAlpha)
+		{
+			Gizmos.DrawWireMesh(mesh, position, rotation, scale);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				Gizmos.DrawMesh(mesh, position, rotation, scale);
+			}
+		}
+
+		/// <summary>
+		/// Draws a combined wireframe and solid mesh gizmo.
+		/// </summary>
+		public static void DrawCombinedMesh(Mesh mesh, Matrix4x4 matrix, float fillAlpha)
+		{
+			var lMatrix = Gizmos.matrix;
+			Gizmos.matrix *= matrix;
+			Gizmos.DrawWireMesh(mesh);
+			using(new GizmoColorScope(Gizmos.color.MultiplyAlpha(fillAlpha)))
+			{
+				Gizmos.DrawMesh(mesh);
+			}
+			Gizmos.matrix = lMatrix;
+		}
 
 		#endregion
 
@@ -1038,12 +1065,33 @@ namespace UnityEssentials
 		#endregion
 
 		#region Colliders
+		
+		/// <summary>
+		/// Draws a combined gizmo representing the given collider.
+		/// </summary>
+		public static void DrawCollider(Collider collider, float fillAlpha)
+		{
+			if(collider is BoxCollider boxCollider)
+			{
+				DrawBoxCollider(boxCollider, fillAlpha);
+			}
+			else if(collider is SphereCollider sphereCollider)
+			{
+				DrawSphereCollider(sphereCollider, fillAlpha);
+			}
+			else if(collider is CapsuleCollider capsuleCollider)
+			{
+				DrawCapsuleCollider(capsuleCollider, fillAlpha);
+			}
+			else if(collider is MeshCollider meshCollider)
+			{
+				DrawMeshCollider(meshCollider, fillAlpha);
+			}
+		}
 
 		/// <summary>
 		/// Draws a combined gizmo representing the given BoxCollider.
 		/// </summary>
-		/// <param name="boxCollider"></param>
-		/// <param name="fillAlpha"></param>
 		public static void DrawBoxCollider(BoxCollider boxCollider, float fillAlpha)
 		{
 			if(!boxCollider) return;
