@@ -4,6 +4,8 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 
 ## Features
 
+### Runtime
+
 #### New Property Attributes
 - **ShowIf** - Only shows the property if a given condition is true
 - **EnabledIf** - Makes the property editable only if a given condition is true
@@ -29,10 +31,59 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 - **Scene** - Shows a scene popup for int (build index) or string (scene name)
 - **Separator** - Draws a separator line above the property
 - **ShowInInspector** - Apply to C# properties to make them visible with PropertyView structs
-- **PropertyView** - Specifies which group of marked C# properties to show when categorized using `ShowInInspector`.
+- **PropertyView** - Specifies which group of marked C# properties to show when categorized using `ShowInInspector`
 - **TexturePreview** - Draws a preview of the assigned texture or sprite below the property
 
-#### **New Menu Items**
+#### New Classes and Value Types
+- **Nullables** - Serializable nullable values for many common value types
+- **Dictionaries** - Serialiable Dictionaries that are compatible with the inspector
+- **Collections** - Includes lists that support polymorphism and a component stack for creating a list of sub components
+- **Int/Float Range** - Pair of two floats representing a min and max value
+- **SceneReference** - Object reference to a scene asset
+- **ToggleableFeature** - Subclass with an `enabled` checkbox
+- **RepeatTimer** - Helper class for setting up a timer running at a specific (or random) interval
+- **PropertyView** - Utility field for displaying C# properties marked with `ShowInInspector`
+- **MaterialPropertyName** - Selector for a material property name
+- **Axis/AxisDirecton Enums** - Enums representing a specific axis or direction
+- **BooleanOperator** - Enum for performing boolean operations (AND/OR/XOR)
+- **ComparisonOperator** - Enum representing a comparison operator (such as == or >=)
+
+#### Extension Methods
+- **Basic Math** - Get the absolute value, sign, or round to a specific number of decimals
+- **Colors** - Change alpha, brightness or convert to hex value
+- **Vectors** - Promote to other vector types, perform common math or swizzling
+- **Matrix4x4** - Extract position, rotation or scale information
+- **Rect** - Many helper methods for subdiving or transforming `Rect`s in various ways
+- **Texture2D / Mesh** - Get a copy that is read/write enabled
+- **Terrains** - Helper methods for getting correct height values or converting coordinates from/to terrain space
+- **Exceptions** - Add a custom message to an existing exception
+
+#### Extended Update Loop
+New event injection points on top of unity's own update loop and ability to run static methods in any update loop using attributes or event subscriptions:
+- PreUpdate
+- PreLateUpdate
+- PostLateUpdate
+- PostFixedUpdate
+
+#### Mesh Generators
+Scripts to simplify procedural mesh generation
+- Convex mesh generator (using MIConvexHull)
+- Mesh builder (for triangle, line and voxel meshes)
+- Primitive mesh generator (for generating custom primitives)
+- Topology converter (convert triangle meshes into lines and/or point clouds)
+
+#### Coroutine Tools
+Helper class for managing coroutines and delayed invocation of functions, including support for static coroutines
+
+#### Random Utilities
+Miscellaneous new random functions, including weighted distribution functions
+
+#### Debug Utilities
+Helper functions to aid in debugging, including temporary gizmos
+
+### Editor
+
+#### New Menu Items
 - **Recompile Scripts** - Forces recompilation of scripts
 - **Run Build** - Lists and runs a built executable when placed in the "Builds" directory.
 
@@ -60,69 +111,23 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 - Convex mesh builder
 - Reflection probe bounds tool
 
-#### Extension Methods
-- Basic math
-- Colors
-- Vectors (includes math and shader-like swizzling methods)
-- Matrix4x4
-- Transforms
-- Textures
-- Terrains
-- Exceptions (add a custom message to an already thrown exception)
+#### New Gizmos
+- Draw combined shapes (wireframe and solid gizmos in one)
+- Draw colliders
+- Draw text labels
+- New shapes
+  - Circle / Arc
+  - Rectangle
+  - Cylinder
+  - Capsule
+  - Cone
+  - Arrow / Axes
+  - Point / Crosshair
+  - Radius Cube / Rectangle
+  - Terrain projected shapes
 
-- **Extension methods** - Extensions for many common types, including editor GUI related ones
-- **Property drawer utility** - Helper class for working with SerializedProperties
-- **Repeating Timer** - A simple object useful for timing events at a specific interval or frame rate
-- **Update Loop** - New event injection points on top of unity's own update loop and ability to run static methods in any update loop using attributes or event subscriptions
-	- PreUpdate
-	- PreLateUpdate
-	- PostLateUpdate
-	- PostFixedUpdate
-- **Coroutine Tools** - Helper class for managing coroutines and delayed invocation of functions, including support for static coroutines
-- **Extra Gizmos** - Various new gizmo shapes (circles, cylinders, arrows, texts and more)
-- **Pooling System** - Reuse the same game objects instead of spawning and destroying them
-- **Random Utilities** - Miscellaneous new random functions, including weighted distribution functions
-- **Debug Utilities** - Helper functions to aid in debugging, including temporary gizmos
-
-### Runtime
-
-- **Property Attributes** - A plethora of new attributes for fields in the inspector, including, but not limited to:
-	- Show if / Enabled if (conditionally show / enable fields)
-	- Read only
-	- Progress bar
-	- Buttons to call a specific method
-	- Popups for Layers, Tags or even integers
-	- AnimationCurve parameters (set limits and color)
-	- Monospace text fields
-- **Collections** - Includes lists that support polymorphism and serializable dictionaries
-- **New Data Types** - Various new data types that are commonly used:
-	- Float range (min / max value)
-	- Material property name
-	- Nullables for many common value types
-- **Mesh Generators** - Scripts to simplify procedural mesh generation
-	- Convex mesh generator (using MIConvexHull)
-	- Mesh builder (for triangle, line and voxel meshes)
-	- Topology converter (convert triangle meshes into lines and/or point clouds)
-- **Extension Methods** - Tons of new extension methods, available for:
-	- Basic math
-	- Colors
-	- Vectors (includes math and shader-like swizzling methods)
-	- Matrix4x4
-	- Transforms
-	- Textures
-	- Terrains
-	- Exceptions (add a custom message to an already thrown exception)
-- **Repeating Timer** - A simple object useful for timing events at a specific interval or frame rate
-- **Update Loop** - New event injection points on top of unity's own update loop and ability to run static methods in any update loop using attributes or event subscriptions
-	- PreUpdate
-	- PreLateUpdate
-	- PostLateUpdate
-	- PostFixedUpdate
-- **Coroutine Tools** - Helper class for managing coroutines and delayed invocation of functions, including support for static coroutines
-- **Extra Gizmos** - Various new gizmo shapes (circles, cylinders, arrows, texts and more)
-- **Pooling System** - Reuse the same game objects instead of spawning and destroying them
-- **Random Utilities** - Miscellaneous new random functions, including weighted distribution functions
-- **Debug Utilities** - Helper functions to aid in debugging, including temporary gizmos
+#### Property drawer utility
+Helper class for working with SerializedProperties
 
 ## Installation
 
