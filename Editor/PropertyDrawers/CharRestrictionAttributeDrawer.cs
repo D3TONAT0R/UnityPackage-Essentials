@@ -11,6 +11,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	{
 		private static Texture infoIcon;
 
+		private static GUIContent label = new GUIContent();
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent content)
 		{
 
@@ -41,14 +43,14 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				if(restricted)
 				{
 					GUI.color = GUI.color.MultiplyAlpha(0.25f);
-					GUIContent info = new GUIContent();
-					info.tooltip = "The following characters are allowed:\n" + allowedChars;
+					label = new GUIContent();
+					label.tooltip = "The following characters are allowed:\n" + allowedChars;
 					if(forcedCase.HasValue)
 					{
-						info.tooltip += "\n" + (forcedCase.Value ? "Uppercase" : "Lowercase") + " only.";
+						label.tooltip += "\n" + (forcedCase.Value ? "Uppercase" : "Lowercase") + " only.";
 					}
 					GUI.DrawTexture(infoRect, infoIcon, ScaleMode.ScaleToFit);
-					GUI.Label(infoRect, info);
+					GUI.Label(infoRect, label);
 					GUI.color = GUI.color.MultiplyAlpha(4.0f);
 					value = ApplyRestrictions(value, allowedChars, forcedCase, replacementChar);
 				}

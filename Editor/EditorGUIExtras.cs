@@ -16,6 +16,8 @@ namespace UnityEssentialsEditor
 {
 	public static class EditorGUIExtras
 	{
+		private static GUIContent content = new GUIContent("");
+		
 		/// <summary>
 		/// A monospace font for use in editor GUI elements.
 		/// </summary>
@@ -231,8 +233,9 @@ namespace UnityEssentialsEditor
 				GUIStyle style = i == 0 ? EditorStyles.miniButtonLeft : i == count - 1 ? EditorStyles.miniButtonRight : EditorStyles.miniButtonMid;
 				if(!flags)
 				{
+					content.text = names[i];
 					bool b = values[i] == value;
-					var b2 = GUI.Toggle(buttonPositions[i], b, names[i], style);
+					var b2 = GUI.Toggle(buttonPositions[i], b, content, style);
 					if(b2 && !b)
 					{
 						value = values[i];

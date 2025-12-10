@@ -8,6 +8,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(CreateAssetButtonAttribute))]
 	public class CreateAssetButtonAttributeDrawer : PropertyDrawer
 	{
+		private static readonly GUIContent buttonContent = new GUIContent("New", "Create a new asset and assign it to this field.");
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var type = PropertyDrawerUtility.GetPropertyType(property);
@@ -17,7 +19,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				property.objectReferenceValue = EditorGUI.ObjectField(position, label, property.objectReferenceValue, type, false);
 				position.x += position.width + 5;
 				position.width = 40;
-				if(GUI.Button(position, "New"))
+				if(GUI.Button(position, buttonContent))
 				{
 					CreateNewAssetDialog(property.serializedObject, property.propertyPath, type, ext);
 					GUIUtility.ExitGUI();

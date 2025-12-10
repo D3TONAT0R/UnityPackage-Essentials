@@ -42,8 +42,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				var rects = position.DivideHorizontal(attribute.methodNames.Length, 4);
 				for(int i = 0; i < rects.Length; i++)
 				{
-					string name = attribute.labels[i] ?? ObjectNames.NicifyVariableName(attribute.methodNames[i]);
-					if(GUI.Button(rects[i], name))
+					if(GUI.Button(rects[i], attribute.labels[i]))
 					{
 						Invoke(property, attribute.methodNames[i], attribute.arguments[i]);
 					}

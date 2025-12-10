@@ -16,6 +16,7 @@ namespace UnityEssentialsEditor
 
 		private Editor _defaultEditor;
 		private Transform _transform;
+
 		private static bool expandExtraProperties = false;
 		private static bool expandExtraTools = false;
 
@@ -27,6 +28,27 @@ namespace UnityEssentialsEditor
 		private static Vector3? copiedPosition;
 		private static Quaternion? copiedRotation;
 		private static Vector3? copiedScale;
+		
+		private static readonly GUIContent reset = new GUIContent("Reset");
+		private static readonly GUIContent apply = new GUIContent("Apply");
+		private static readonly GUIContent position = new GUIContent("Position");
+		private static readonly GUIContent rotation = new GUIContent("Rotation");
+		private static readonly GUIContent scale = new GUIContent("Scale");
+		private static readonly GUIContent fullTransform = new GUIContent("Full Transform");
+		private static readonly GUIContent worldPosition = new GUIContent("Position (world)");
+		private static readonly GUIContent worldRotation = new GUIContent("Rotation (world)");
+		private static readonly GUIContent lossyScale = new GUIContent("Scale (lossy)");
+		private static readonly GUIContent upDirection = new GUIContent("Up Direction");
+		private static readonly GUIContent forwardDirection = new GUIContent("Forward Direction");
+		private static readonly GUIContent recursiveChildCount = new GUIContent("Child Count (recursive)");
+		private static readonly GUIContent parentDepth = new GUIContent("Parent Depth");
+		private static readonly GUIContent copy = new GUIContent("Copy");
+		private static readonly GUIContent align = new GUIContent("Align");
+		private static readonly GUIContent paste = new GUIContent("Paste");
+		private static readonly GUIContent hierarchyPath = new GUIContent("Hierarchy Path");
+		private static GUIContent hierarchyPathString = new GUIContent("");
+		private static GUIContent childCounter = new GUIContent("");
+		private static GUIContent parentCounter = new GUIContent("");
 
 		private void OnEnable()
 		{
@@ -89,33 +111,36 @@ namespace UnityEssentialsEditor
 				if(targets.Length == 1)
 				{
 					EditorGUI.BeginChangeCheck();
-					var worldPos = EditorGUILayout.Vector3Field("Position (world)", _transform.position);
+					var worldPos = EditorGUILayout.Vector3Field(worldPosition, _transform.position);
 					if(EditorGUI.EndChangeCheck())
 					{
 						Undo.RecordObject(_transform, "Move (world)");
 						_transform.position = worldPos;
 					}
 					EditorGUI.BeginChangeCheck();
-					var worldEuler = EditorGUILayout.Vector3Field("Rotation (world)", _transform.eulerAngles);
+					var worldEuler = EditorGUILayout.Vector3Field(worldRotation, _transform.eulerAngles);
 					if(EditorGUI.EndChangeCheck())
 					{
 						Undo.RecordObject(_transform, "Rotate (world)");
 						_transform.eulerAngles = worldEuler;
 					}
 					GUI.backgroundColor = Color.white.WithAlpha(0.5f);
-					EditorGUILayout.Vector3Field("Scale (lossy)", _transform.lossyScale);
+					EditorGUILayout.Vector3Field(lossyScale, _transform.lossyScale);
 					EditorGUILayout.Space();
 					EditorGUI.BeginChangeCheck();
-					EditorGUILayout.Vector3Field("Up Direction", _transform.up);
-					EditorGUILayout.Vector3Field("Forward Direction", _transform.forward);
+					EditorGUILayout.Vector3Field(upDirection, _transform.up);
+					EditorGUILayout.Vector3Field(forwardDirection, _transform.forward);
 					GUI.backgroundColor = Color.white;
 					EditorGUILayout.Space();
-					EditorGUILayout.LabelField("Child Count (recursive)", $"{_transform.childCount} ({RecursiveChildCount(_transform)})");
-					EditorGUILayout.LabelField("Parent Depth", RecursiveParentCount(_transform).ToString());
+					childCounter.text = $"{_transform.childCount} ({RecursiveChildCount(_transform)})";
+					EditorGUILayout.LabelField(recursiveChildCount, childCounter);
+					parentCounter.text = RecursiveParentCount(_transform).ToString();
+					EditorGUILayout.LabelField(parentDepth, parentCounter);
 					GUILayout.BeginHorizontal();
-					GUILayout.Label("Hierarchy Path", GUILayout.Width(EditorGUIUtility.labelWidth - 3));
+					GUILayout.Label(hierarchyPath, GUILayout.Width(EditorGUIUtility.labelWidth - 3));
 
-					GUILayout.Label(_transform.GetHierarchyPathString(), pathLabelStyle, GUILayout.Width(EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth - 30));
+					hierarchyPathString.text = _transform.GetHierarchyPathString();
+					GUILayout.Label(hierarchyPathString, pathLabelStyle, GUILayout.Width(EditorGUIUtility.currentViewWidth - EditorGUIUtility.labelWidth - 30));
 					GUILayout.EndHorizontal();
 				}
 				else
@@ -138,7 +163,7 @@ namespace UnityEssentialsEditor
 		private void DrawPrimaryToolbar()
 		{
 			EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-			TriButtonRow(new GUIContent("Reset"), TOOLBAR_BUTTON_WIDTH * 2,
+			TriButtonRow(reset, TOOLBAR_BUTTON_WIDTH * 2,
 				t =>
 				{
 					Undo.RecordObject(t, "Reset Transform");
@@ -165,13 +190,13 @@ namespace UnityEssentialsEditor
 
 			GUI.enabled = _transform.childCount > 0;
 			var rect = GUILayoutUtility.GetRect(TOOLBAR_BUTTON_WIDTH * 2, 0, GUILayout.ExpandHeight(true));
-			if(EditorGUI.DropdownButton(rect, new GUIContent("Apply"), FocusType.Passive, EditorStyles.toolbarDropDown))
+			if(EditorGUI.DropdownButton(rect, apply, FocusType.Passive, EditorStyles.toolbarDropDown))
 			{
 				var menu = new GenericMenu();
-				menu.AddItem(new GUIContent("Position"), false, () => ExtraContextMenuItems.ApplyPosition(new MenuCommand(_transform)));
-				menu.AddItem(new GUIContent("Rotation"), false, () => ExtraContextMenuItems.ApplyRotation(new MenuCommand(_transform)));
-				menu.AddItem(new GUIContent("Scale"), false, () => ExtraContextMenuItems.ApplyScale(new MenuCommand(_transform)));
-				menu.AddItem(new GUIContent("Full Transform"), false, () => ExtraContextMenuItems.ApplyFullTransform(new MenuCommand(_transform)));
+				menu.AddItem(position, false, () => ExtraContextMenuItems.ApplyPosition(new MenuCommand(_transform)));
+				menu.AddItem(rotation, false, () => ExtraContextMenuItems.ApplyRotation(new MenuCommand(_transform)));
+				menu.AddItem(scale, false, () => ExtraContextMenuItems.ApplyScale(new MenuCommand(_transform)));
+				menu.AddItem(fullTransform, false, () => ExtraContextMenuItems.ApplyFullTransform(new MenuCommand(_transform)));
 				menu.DropDown(rect);
 			}
 			GUI.enabled = true;
@@ -180,18 +205,18 @@ namespace UnityEssentialsEditor
 
 			//Copy transform data
 			GUI.enabled = targets.Length == 1;
-			TriButtonRow(new GUIContent("Copy"), TOOLBAR_BUTTON_WIDTH * 2,
+			TriButtonRow(copy, TOOLBAR_BUTTON_WIDTH * 2,
 				t =>
 				{
 					//Copy all transform data
-					copiedPosition = _transform.position;
-					copiedRotation = _transform.rotation;
-					copiedScale = _transform.localScale;
+					copiedPosition = t.position;
+					copiedRotation = t.rotation;
+					copiedScale = t.localScale;
 				},
 				t =>
 				{
 					//Copy position
-					copiedPosition = _transform.position;
+					copiedPosition = t.position;
 					copiedRotation = null;
 					copiedScale = null;
 				},
@@ -199,7 +224,7 @@ namespace UnityEssentialsEditor
 				{
 					//Copy rotation
 					copiedPosition = null;
-					copiedRotation = _transform.rotation;
+					copiedRotation = t.rotation;
 					copiedScale = null;
 				},
 				t =>
@@ -207,7 +232,7 @@ namespace UnityEssentialsEditor
 					//Copy scale
 					copiedPosition = null;
 					copiedRotation = null;
-					copiedScale = _transform.localScale;
+					copiedScale = t.localScale;
 				}
 			);
 			GUI.enabled = true;
@@ -219,7 +244,7 @@ namespace UnityEssentialsEditor
 		{
 			GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-			TriButtonRow(new GUIContent("Align"), TOOLBAR_BUTTON_WIDTH * 2,
+			TriButtonRow(align, TOOLBAR_BUTTON_WIDTH * 2,
 				t =>
 				{
 					Undo.RecordObject(t, "Align Transform to View");
@@ -242,7 +267,7 @@ namespace UnityEssentialsEditor
 			GUILayout.FlexibleSpace();
 
 			//Paste transform data
-			TriButtonRow(new GUIContent("Paste"), TOOLBAR_BUTTON_WIDTH * 2,
+			TriButtonRow(paste, TOOLBAR_BUTTON_WIDTH * 2,
 				t =>
 				{
 					Undo.RecordObject(t, "Paste Transform Values");

@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace UnityEssentials
 {
-
 	/// <summary>
 	/// Draws a clickable button above or below a field in the inspector.
 	/// </summary>
@@ -24,7 +23,7 @@ namespace UnityEssentials
 			Both = 3
 		}
 
-		public readonly string[] labels;
+		public readonly GUIContent[] labels;
 		public readonly string[] methodNames;
 		public readonly string[][] arguments;
 
@@ -48,16 +47,16 @@ namespace UnityEssentials
 		{
 #if UNITY_EDITOR
 			order = -1100;
-			labels = new string[buttons.Length];
+			labels = new GUIContent[buttons.Length];
 			methodNames = new string[buttons.Length];
 			arguments = new string[buttons.Length][];
-			for(int i = 0; i < buttons.Length; i++)
+			for (int i = 0; i < buttons.Length; i++)
 			{
 				string[] split = buttons[i].Split(new char[] { ':' }, 2);
 				var call = split[0];
-				if(call.Contains("("))
+				if (call.Contains("("))
 				{
-					if(!call.Contains(")"))
+					if (!call.Contains(")"))
 					{
 						Debug.LogError("Malformed method call detected: " + buttons[i]);
 					}
@@ -77,13 +76,13 @@ namespace UnityEssentials
 					methodNames[i] = split[0];
 					arguments[i] = Array.Empty<string>();
 				}
-				if(split.Length > 1)
+				if (split.Length > 1)
 				{
-					labels[i] = split[1];
+					labels[i] = new GUIContent(split[1]);
 				}
 				else
 				{
-					labels[i] = UnityEditor.ObjectNames.NicifyVariableName(split[0]);
+					labels[i] = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(split[0]));
 				}
 			}
 #endif
@@ -98,7 +97,9 @@ namespace UnityEssentials
 	{
 		public override Usage EnabledIn => Usage.EditMode;
 
-		public EditorButtonAttribute(params string[] buttons) : base(buttons) { }
+		public EditorButtonAttribute(params string[] buttons) : base(buttons)
+		{
+		}
 	}
 
 	/// <summary>
@@ -109,6 +110,8 @@ namespace UnityEssentials
 	{
 		public override Usage EnabledIn => Usage.PlayMode;
 
-		public RuntimeButtonAttribute(params string[] buttons) : base(buttons) { }
+		public RuntimeButtonAttribute(params string[] buttons) : base(buttons)
+		{
+		}
 	}
 }
