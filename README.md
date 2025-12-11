@@ -4,9 +4,8 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 
 ## Features
 
-### Runtime
-
-#### New Property Attributes
+### New Property Attributes
+![Attributes Example](Readme~/AttributesExample.jpg "Attributes Example")
 - **ShowIf** - Only shows the property if a given condition is true
 - **EnabledIf** - Makes the property editable only if a given condition is true
 - **Prefix / Suffix** - Apply prefixes and/or suffixes to value fields
@@ -34,7 +33,7 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 - **PropertyView** - Specifies which group of marked C# properties to show when categorized using `ShowInInspector`
 - **TexturePreview** - Draws a preview of the assigned texture or sprite below the property
 
-#### New Classes and Value Types
+### New Classes and Value Types
 - **Nullables** - Serializable nullable values for many common value types
 - **Dictionaries** - Serialiable Dictionaries that are compatible with the inspector
 - **Collections** - Includes lists that support polymorphism and a component stack for creating a list of sub components
@@ -48,7 +47,7 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 - **BooleanOperator** - Enum for performing boolean operations (AND/OR/XOR)
 - **ComparisonOperator** - Enum representing a comparison operator (such as == or >=)
 
-#### Extension Methods
+### Extension Methods
 - **Basic Math** - Get the absolute value, sign, or round to a specific number of decimals
 - **Colors** - Change alpha, brightness or convert to hex value
 - **Vectors** - Promote to other vector types, perform common math or swizzling
@@ -58,42 +57,43 @@ Collection of essential scripts and tools suitable for any type of Unity Project
 - **Terrains** - Helper methods for getting correct height values or converting coordinates from/to terrain space
 - **Exceptions** - Add a custom message to an existing exception
 
-#### Extended Update Loop
+### Extended Update Loop
 New event injection points on top of unity's own update loop and ability to run static methods in any update loop using attributes or event subscriptions:
 - PreUpdate
 - PreLateUpdate
 - PostLateUpdate
 - PostFixedUpdate
 
-#### Mesh Generators
+### Mesh Generators
 Scripts to simplify procedural mesh generation
 - Convex mesh generator (using MIConvexHull)
 - Mesh builder (for triangle, line and voxel meshes)
 - Primitive mesh generator (for generating custom primitives)
 - Topology converter (convert triangle meshes into lines and/or point clouds)
 
-#### Coroutine Tools
+### Coroutine Tools
 Helper class for managing coroutines and delayed invocation of functions, including support for static coroutines
 
-#### Random Utilities
+### Random Utilities
 Miscellaneous new random functions, including weighted distribution functions
 
 #### Debug Utilities
 Helper functions to aid in debugging, including temporary gizmos
 
-### Editor
+## Editor Features
 
-#### New Menu Items
+### New Menu Items
 - **Recompile Scripts** - Forces recompilation of scripts
 - **Run Build** - Lists and runs a built executable when placed in the "Builds" directory.
 
-#### Transform Inspector Enhancements
+### Transform Inspector Enhancements
+![Transform GUI](Readme~/TransformGUI.jpg "Transform GUI")
 - New extra properties such as world position, direction normals, and more
 - Toolbar with controls to copy and paste specific properties between Transforms (same as right click -> "Copy/...")
   - Both can be hidden via the project settings
 - Apply position / rotation / scale on a parent transform
 
-#### New Component Context Menu Items
+### New Component Context Menu Items
 - **Cut Component** - "Copy Component" and "Remove Component" in one command
 - **Separate Component** - Separates the selected component into an existing child, a new child object, or parent
 - **Search Similar** - Searches for similar components in the hierarchy
@@ -101,17 +101,18 @@ Helper functions to aid in debugging, including temporary gizmos
 - **Mesh Filter: Export Mesh as Asset** - Extracts the current Mesh as a new asset in the project folder
 - **Mesh Renderer: Instantiate Materials** - Creates instances of the renderer's materials to make them unique for this renderer.
 
-#### New Script Templates
+### New Script Templates
 - New templates for script other than MonoBehaviours
   
-#### Scene View Tools
+### Scene View Tools
 - Prefab placement tool
 - Distance measurement tool
 - Randomize transform tool
 - Convex mesh builder
 - Reflection probe bounds tool
 
-#### New Gizmos
+### New Gizmos
+![Scene View Gizmos](Readme~/ExtraGizmos.jpg "Scene View Gizmos")
 - Draw combined shapes (wireframe and solid gizmos in one)
 - Draw colliders
 - Draw text labels
@@ -126,7 +127,7 @@ Helper functions to aid in debugging, including temporary gizmos
   - Radius Cube / Rectangle
   - Terrain projected shapes
 
-#### Property drawer utility
+### Property drawer utility
 Helper class for working with SerializedProperties
 
 ## Installation
