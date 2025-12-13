@@ -88,10 +88,11 @@ Helper functions to aid in debugging, including temporary gizmos
 
 ### Transform Inspector Enhancements
 ![Transform GUI](Readme~/TransformGUI.jpg "Transform GUI")
-- New extra properties such as world position, direction normals, and more
-- Toolbar with controls to copy and paste specific properties between Transforms (same as right click -> "Copy/...")
-  - Both can be hidden via the project settings
-- Apply position / rotation / scale on a parent transform
+- Are optional and can be configured via the project settings
+- Can display extra properties such as world position, direction vectors, hierarchy paths, and more
+- Toolbar with various controls to apply, reset, copy and paste specific transform properties
+- Apply position / rotation / scale on a parent transform using a context menu item
+- Can be further extended using multiple provided GUI events
 
 ### New Component Context Menu Items
 - **Cut Component** - "Copy Component" and "Remove Component" in one command
