@@ -34,6 +34,12 @@ namespace UnityEssentials
 
 
 	/// <summary>
+	/// Add this attribute to a static method to have it called before the FixedUpdate period.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Method)]
+	public class PreFixedUpdateAttribute : Attribute { }
+
+	/// <summary>
 	/// Add this attribute to a static method to have it called during the FixedUpdate period.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method)]

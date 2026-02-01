@@ -19,15 +19,41 @@ namespace UnityEssentials.PlayerLoop
 			After
 		}
 
-		public struct UpdateLoopPreUpdateEvent { }
-		public struct UpdateLoopUpdateEvent { }
-		public struct UpdateLoopPreLateUpdateEvent { }
-		public struct UpdateLoopLateUpdateEvent { }
-		public struct UpdateLoopPostLateUpdateEvent { }
+		public struct UpdateLoopPreUpdateEvent
+		{
+		}
 
-		public struct UpdateLoopFixedUpdateEvent { }
-		public struct UpdateLoopLateFixedUpdateEvent { }
-		public struct UpdateLoopPostFixedUpdateEvent { }
+		public struct UpdateLoopUpdateEvent
+		{
+		}
+
+		public struct UpdateLoopPreLateUpdateEvent
+		{
+		}
+
+		public struct UpdateLoopLateUpdateEvent
+		{
+		}
+
+		public struct UpdateLoopPostLateUpdateEvent
+		{
+		}
+
+		public struct UpdateLoopPreFixedUpdateEvent
+		{
+		}
+
+		public struct UpdateLoopFixedUpdateEvent
+		{
+		}
+
+		public struct UpdateLoopLateFixedUpdateEvent
+		{
+		}
+
+		public struct UpdateLoopPostFixedUpdateEvent
+		{
+		}
 
 		internal class InvocationList
 		{
@@ -49,7 +75,7 @@ namespace UnityEssentials.PlayerLoop
 
 				public bool IsActiveAndEnabled()
 				{
-					if(isComponentTarget) return targetComponent != null && targetComponent.isActiveAndEnabled;
+					if (isComponentTarget) return targetComponent != null && targetComponent.isActiveAndEnabled;
 					else return true;
 				}
 			}
@@ -69,9 +95,9 @@ namespace UnityEssentials.PlayerLoop
 
 			public void Remove(Action action)
 			{
-				for(int i = 0; i < subscribers.Count; i++)
+				for (int i = 0; i < subscribers.Count; i++)
 				{
-					if(subscribers[i]?.action == action)
+					if (subscribers[i]?.action == action)
 					{
 						subscribers.RemoveAt(i);
 						return;
@@ -81,26 +107,28 @@ namespace UnityEssentials.PlayerLoop
 
 			public void RemoveAll(bool? componentActiveState = null)
 			{
-				if(componentActiveState == true) subscribers.RemoveAll(t => t.IsActiveAndEnabled());
-				else if(componentActiveState == false) subscribers.RemoveAll(t => !t.IsActiveAndEnabled());
+				if (componentActiveState == true) subscribers.RemoveAll(t => t.IsActiveAndEnabled());
+				else if (componentActiveState == false) subscribers.RemoveAll(t => !t.IsActiveAndEnabled());
 				else subscribers.Clear();
 			}
 
 			public void EnumerateSubscribers(List<InvocationTarget> cache, bool activeComponentsOnly = true)
 			{
 				cache.Clear();
-				for(int i = 0; i < subscribers.Count; i++)
+				for (int i = 0; i < subscribers.Count; i++)
 				{
 					var sub = subscribers[i];
-					if(sub == null || sub.ComponentWasDestroyed)
+					if (sub == null || sub.ComponentWasDestroyed)
 					{
-						if(Application.isPlaying) Debug.LogWarning($"Destroyed subscriber detected in {name}. Make sure to unsubscribe from the Update Loop when the object is destroyed.");
+						if (Application.isPlaying)
+							Debug.LogWarning(
+								$"Destroyed subscriber detected in {name}. Make sure to unsubscribe from the Update Loop when the object is destroyed.");
 						subscribers.RemoveAt(i);
 						i--;
 					}
 					else
 					{
-						if(activeComponentsOnly && !sub.IsActiveAndEnabled()) continue;
+						if (activeComponentsOnly && !sub.IsActiveAndEnabled()) continue;
 						cache.Add(sub);
 					}
 				}
@@ -152,6 +180,14 @@ namespace UnityEssentials.PlayerLoop
 			remove => postLateUpdate.Remove(value);
 		}
 
+		/// <summary>
+		/// Event that is invoked before the regular FixedUpdate period.
+		/// </summary>
+		public static event Action PreFixedUpdate
+		{
+			add => preFixedUpdate.Add(value);
+			remove => preFixedUpdate.Remove(value);
+		}
 
 		/// <summary>
 		/// Event that is invoked during the regular FixedUpdate period.
@@ -232,6 +268,7 @@ namespace UnityEssentials.PlayerLoop
 		private static readonly InvocationList lateUpdate = new InvocationList("LateUpdate");
 		private static readonly InvocationList postLateUpdate = new InvocationList("PostLateUpdate");
 
+		private static readonly InvocationList preFixedUpdate = new InvocationList("FixedUpdate");
 		private static readonly InvocationList fixedUpdate = new InvocationList("FixedUpdate");
 		private static readonly InvocationList lateFixedUpdate = new InvocationList("LateFixedUpdate");
 		private static readonly InvocationList postFixedUpdate = new InvocationList("PostFixedUpdate");
@@ -258,10 +295,10 @@ namespace UnityEssentials.PlayerLoop
 
 		private static void Invoke(InvocationList eventHandler)
 		{
-			if(IsEditorPaused) return;
+			if (IsEditorPaused) return;
 			eventHandler.EnumerateSubscribers(enumerationCache);
 			int count = enumerationCache.Count;
-			for(int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				enumerationCache[i].action.Invoke();
 			}
@@ -269,10 +306,10 @@ namespace UnityEssentials.PlayerLoop
 
 		private static void InvokeOnce(InvocationList eventHandler)
 		{
-			if(IsEditorPaused) return;
+			if (IsEditorPaused) return;
 			eventHandler.EnumerateSubscribers(enumerationCache);
 			int count = enumerationCache.Count;
-			for(int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				enumerationCache[i].action.Invoke();
 			}
@@ -283,7 +320,7 @@ namespace UnityEssentials.PlayerLoop
 		{
 			onGUI.EnumerateSubscribers(enumerationCache);
 			int count = enumerationCache.Count;
-			for(int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				enumerationCache[i].action.Invoke();
 				GUI.enabled = true;
@@ -301,7 +338,7 @@ namespace UnityEssentials.PlayerLoop
 		{
 			onDrawGizmosRuntime.EnumerateSubscribers(enumerationCache);
 			int count = enumerationCache.Count;
-			for(int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				enumerationCache[i].action.Invoke();
 				Gizmos.matrix = Matrix4x4.identity;
@@ -315,14 +352,29 @@ namespace UnityEssentials.PlayerLoop
 			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
 
 			InsertSubsystem(ref loop, typeof(PreUpdate), typeof(UpdateLoopPreUpdateEvent), () => Invoke(preUpdate), null, Position.After);
-			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopUpdateEvent), () => { Invoke(update); InvokeOnce(updateOnce); }, typeof(Update.ScriptRunBehaviourUpdate), Position.Before);
-			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopPreLateUpdateEvent), () => Invoke(preLateUpdate), typeof(Update.ScriptRunBehaviourUpdate), Position.After);
-			InsertSubsystem(ref loop, typeof(PreLateUpdate), typeof(UpdateLoopLateUpdateEvent), () => Invoke(lateUpdate), typeof(PreLateUpdate.ScriptRunBehaviourLateUpdate), Position.Before);
-			InsertSubsystem(ref loop, typeof(PostLateUpdate), typeof(UpdateLoopPostLateUpdateEvent), () => Invoke(postLateUpdate), null, Position.After);
+			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopUpdateEvent), () =>
+			{
+				Invoke(update);
+				InvokeOnce(updateOnce);
+			}, typeof(Update.ScriptRunBehaviourUpdate), Position.Before);
+			InsertSubsystem(ref loop, typeof(Update), typeof(UpdateLoopPreLateUpdateEvent), () => Invoke(preLateUpdate),
+				typeof(Update.ScriptRunBehaviourUpdate), Position.After);
+			InsertSubsystem(ref loop, typeof(PreLateUpdate), typeof(UpdateLoopLateUpdateEvent), () => Invoke(lateUpdate),
+				typeof(PreLateUpdate.ScriptRunBehaviourLateUpdate), Position.Before);
+			InsertSubsystem(ref loop, typeof(PostLateUpdate), typeof(UpdateLoopPostLateUpdateEvent), () => Invoke(postLateUpdate), null,
+				Position.After);
 
-			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopFixedUpdateEvent), () => { Invoke(fixedUpdate); InvokeOnce(fixedUpdateOnce); }, typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), Position.Before);
-			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopLateFixedUpdateEvent), () => Invoke(lateFixedUpdate), typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), Position.After);
-			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPostFixedUpdateEvent), () => Invoke(postFixedUpdate), typeof(UpdateLoopLateFixedUpdateEvent), Position.After);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPreFixedUpdateEvent), () => Invoke(preFixedUpdate),
+				typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), Position.Before);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopFixedUpdateEvent), () =>
+			{
+				Invoke(fixedUpdate);
+				InvokeOnce(fixedUpdateOnce);
+			}, typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), Position.Before);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopLateFixedUpdateEvent), () => Invoke(lateFixedUpdate),
+				typeof(FixedUpdate.ScriptRunBehaviourFixedUpdate), Position.After);
+			InsertSubsystem(ref loop, typeof(FixedUpdate), typeof(UpdateLoopPostFixedUpdateEvent), () => Invoke(postFixedUpdate),
+				typeof(UpdateLoopLateFixedUpdateEvent), Position.After);
 
 			UnityPlayerLoop.SetPlayerLoop(loop);
 
@@ -341,6 +393,7 @@ namespace UnityEssentials.PlayerLoop
 			preLateUpdate.RemoveAll();
 			lateUpdate.RemoveAll();
 			postLateUpdate.RemoveAll();
+			preFixedUpdate.RemoveAll();
 			fixedUpdate.RemoveAll();
 			postFixedUpdate.RemoveAll();
 			updateOnce.RemoveAll();
@@ -357,6 +410,7 @@ namespace UnityEssentials.PlayerLoop
 			SubscribeAttributeToEvent<PreLateUpdateAttribute>(preLateUpdate);
 			SubscribeAttributeToEvent<LateUpdateAttribute>(lateUpdate);
 			SubscribeAttributeToEvent<PostLateUpdateAttribute>(postLateUpdate);
+			SubscribeAttributeToEvent<PreFixedUpdateAttribute>(fixedUpdate);
 			SubscribeAttributeToEvent<FixedUpdateAttribute>(fixedUpdate);
 			SubscribeAttributeToEvent<LateFixedUpdateAttribute>(lateFixedUpdate);
 			SubscribeAttributeToEvent<PostFixedUpdateAttribute>(postFixedUpdate);
@@ -364,7 +418,7 @@ namespace UnityEssentials.PlayerLoop
 			SubscribeAttributeToEvent<FixedUpdateOnceAttribute>(fixedUpdateOnce);
 			SubscribeAttributeToEvent<OnGUIAttribute>(onGUI);
 			SubscribeAttributeToEvent<OnDrawGizmosRuntimeAttribute>(onDrawGizmosRuntime);
-			if(onDrawGizmosRuntime.subscribers.Count > 0)
+			if (onDrawGizmosRuntime.subscribers.Count > 0)
 			{
 				UpdateLoopScriptInstance.InitIfRequired();
 			}
@@ -372,14 +426,15 @@ namespace UnityEssentials.PlayerLoop
 
 		private static void SubscribeAttributeToEvent<A>(InvocationList eventHandler) where A : Attribute
 		{
-			foreach(var m in ReflectionUtility.GetMethodsWithAttribute<A>(true))
+			foreach (var m in ReflectionUtility.GetMethodsWithAttribute<A>(true))
 			{
 				var action = (Action)m.CreateDelegate(typeof(Action));
 				eventHandler.Add(action);
 			}
-			foreach(var m in ReflectionUtility.GetMethodsWithAttribute<A>(false))
+			foreach (var m in ReflectionUtility.GetMethodsWithAttribute<A>(false))
 			{
-				Debug.LogError($"The Attribute '{typeof(A)}' is only valid on static methods ({m.DeclaringType}:{m.Name}). The method will not be invoked.");
+				Debug.LogError(
+					$"The Attribute '{typeof(A)}' is only valid on static methods ({m.DeclaringType}:{m.Name}). The method will not be invoked.");
 			}
 		}
 
@@ -423,19 +478,20 @@ namespace UnityEssentials.PlayerLoop
 			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
-		private static void InsertSubsystem(ref PlayerLoopSystem root, Type subSystemRoot, Type typeToAdd, PlayerLoopSystem.UpdateFunction invocationTarget, Type referenceSubSystem, Position position)
+		private static void InsertSubsystem(ref PlayerLoopSystem root, Type subSystemRoot, Type typeToAdd,
+			PlayerLoopSystem.UpdateFunction invocationTarget, Type referenceSubSystem, Position position)
 		{
 			int index = -1;
-			for(int i = 0; i < root.subSystemList.Length; i++)
+			for (int i = 0; i < root.subSystemList.Length; i++)
 			{
-				if(root.subSystemList[i].type != null && root.subSystemList[i].type.Name == subSystemRoot.Name)
+				if (root.subSystemList[i].type != null && root.subSystemList[i].type.Name == subSystemRoot.Name)
 				{
 					index = i;
 					break;
 				}
 			}
 
-			if(index < 0)
+			if (index < 0)
 			{
 				throw new NullReferenceException($"Subsystem of type '{subSystemRoot}' not found.");
 			}
@@ -448,7 +504,7 @@ namespace UnityEssentials.PlayerLoop
 		private static void Insert(ref PlayerLoopSystem system, PlayerLoopSystem systemToAdd, Type reference, Position position)
 		{
 			List<PlayerLoopSystem> subsystems;
-			if(system.subSystemList == null)
+			if (system.subSystemList == null)
 			{
 				subsystems = new List<PlayerLoopSystem>();
 			}
@@ -457,15 +513,15 @@ namespace UnityEssentials.PlayerLoop
 				subsystems = new List<PlayerLoopSystem>(system.subSystemList);
 			}
 
-			if(reference != null)
+			if (reference != null)
 			{
 				var index = subsystems.FindIndex((s) => s.type == reference);
-				if(index < 0)
+				if (index < 0)
 				{
 					throw new NullReferenceException($"Subsystem of type '{reference}' not found, system not added.");
 				}
 				systemToAdd.loopConditionFunction = subsystems[index].loopConditionFunction;
-				if(position == Position.Before)
+				if (position == Position.Before)
 				{
 					subsystems.Insert(index, systemToAdd);
 				}
@@ -476,7 +532,7 @@ namespace UnityEssentials.PlayerLoop
 			}
 			else
 			{
-				if(position == Position.Before)
+				if (position == Position.Before)
 				{
 					subsystems.Insert(0, systemToAdd);
 				}
@@ -500,28 +556,28 @@ namespace UnityEssentials.PlayerLoop
 
 		private static void PrintLoopRecursive(StringBuilder sb, PlayerLoopSystem root, int indentLevel, bool includeFunctionPtrs)
 		{
-			for(int i = 0; i < indentLevel; i++) sb.Append("\t");
+			for (int i = 0; i < indentLevel; i++) sb.Append("\t");
 			string name = root.type?.Name ?? (indentLevel == 0 ? "PlayerLoop" : "<NULL>");
 			sb.Append(name);
-			if(includeFunctionPtrs)
+			if (includeFunctionPtrs)
 			{
 				int loopConditionPtr = (int)root.loopConditionFunction;
 				int updatePtr = (int)root.updateFunction;
-				if(loopConditionPtr != 0 || updatePtr != 0)
+				if (loopConditionPtr != 0 || updatePtr != 0)
 				{
 					sb.Append("    [");
-					if(loopConditionPtr != 0) sb.Append($"LoopCondition: 0x{loopConditionPtr:X}");
-					if(loopConditionPtr != 0 && updatePtr != 0) sb.Append(" ");
-					if(updatePtr != 0) sb.Append($"Update: 0x{updatePtr:X}");
+					if (loopConditionPtr != 0) sb.Append($"LoopCondition: 0x{loopConditionPtr:X}");
+					if (loopConditionPtr != 0 && updatePtr != 0) sb.Append(" ");
+					if (updatePtr != 0) sb.Append($"Update: 0x{updatePtr:X}");
 					sb.Append("]");
 				}
 			}
 			sb.AppendLine();
 
-			if(root.subSystemList != null)
+			if (root.subSystemList != null)
 			{
 				indentLevel++;
-				foreach(var s in root.subSystemList)
+				foreach (var s in root.subSystemList)
 				{
 					PrintLoopRecursive(sb, s, indentLevel, includeFunctionPtrs);
 				}
