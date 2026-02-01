@@ -8,14 +8,17 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(ToggleableFeature), true)]
 	public class ToggleableFeatureDrawer : PropertyDrawer
 	{
+		private CachedObject<ToggleableFeature> targetObject;
+		private CachedSerializedProperty enabledProp;
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
-			var obj = PropertyDrawerUtility.GetPropertyValue<ToggleableFeature>(property);
 			DrawBgBox(position);
 			position.height = EditorGUIUtility.singleLineHeight;
 			bool enabled = DrawCheckbox(position, property);
 			GUI.backgroundColor = Color.clear;
+			var obj = targetObject.Get(property);
 			string displayName = !string.IsNullOrWhiteSpace(obj.CustomName) ? obj.CustomName : property.displayName;
 			property.isExpanded = EditorGUI.BeginFoldoutHeaderGroup(position, property.isExpanded, displayName);
 			EditorGUI.EndFoldoutHeaderGroup();
@@ -50,9 +53,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			checkPos.x += EditorGUIUtility.labelWidth + 2;
 			checkPos.y += 2;
 			checkPos.width = 20;
-			var prop = property.FindPropertyRelative("enabled");
-			EditorGUI.PropertyField(checkPos, prop, GUIContent.none);
-			return prop.boolValue;
+			enabledProp.Find(property, "enabled");
+			EditorGUI.showMixedValue = enabledProp.Property.hasMultipleDifferentValues;
+			EditorGUI.PropertyField(checkPos, property, GUIContent.none, false);
+			EditorGUI.showMixedValue = false;
+			return enabledProp.Property.boolValue;
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

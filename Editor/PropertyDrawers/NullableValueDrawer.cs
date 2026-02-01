@@ -1,5 +1,6 @@
 ﻿using UnityEssentials;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,10 +9,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(NullableValue), true)]
 	public class NullableValueDrawer : PropertyDrawer
 	{
+		private CachedSerializedProperty hasValue;
+		private CachedSerializedProperty backingValue;
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var hv = property.FindPropertyRelative("hasValue");
-			var v = property.FindPropertyRelative("backingValue");
+			var hv = hasValue.Find(property, "hasValue");
+			var v = backingValue.Find(property, "backingValue");
 
 			EditorGUI.BeginProperty(position, label, property);
 
@@ -46,11 +50,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			EditorGUI.PropertyField(position, v, new GUIContent(" "));
 		}
-
-		protected bool TryGetAttribute<T>(SerializedProperty v, out T attr) where T : System.Attribute
-		{
-			return PropertyDrawerUtility.TryGetAttribute<T>(PropertyDrawerUtility.GetParentProperty(v), true, out attr);
-		}
 	}
 
 	[CustomPropertyDrawer(typeof(NullableBool))]
@@ -66,11 +65,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(NullableFloat))]
 	public class NullableFloatDrawer : NullableValueDrawer
 	{
+		private CachedAttribute<NullableRangeAttribute> rangeAttribute;
+		
 		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
 		{
 			EditorGUI.BeginChangeCheck();
 			float value;
-			if(TryGetAttribute<NullableRangeAttribute>(v, out var rangeAttr))
+			if(rangeAttribute.TryGet(fieldInfo, out var rangeAttr))
 			{
 				value = EditorGUI.Slider(position, displayName, v.floatValue, rangeAttr.min, rangeAttr.max);
 			}
@@ -88,11 +89,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(NullableInt))]
 	public class NullableIntDrawer : NullableValueDrawer
 	{
+		private CachedAttribute<NullableRangeAttribute> rangeAttribute;
+		
 		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
 		{
 			EditorGUI.BeginChangeCheck();
 			int value;
-			if(TryGetAttribute<NullableRangeAttribute>(v, out var rangeAttr))
+			if(rangeAttribute.TryGet(fieldInfo, out var rangeAttr))
 			{
 				value = EditorGUI.IntSlider(position, displayName, v.intValue, (int)rangeAttr.min, (int)rangeAttr.max);
 			}
@@ -139,11 +142,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(NullableColor))]
 	public class NullableColorDrawer : NullableValueDrawer
 	{
+		private CachedAttribute<NullableColorUsageAttribute> colorUsageAttribute;
+		
 		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
 		{
 			bool showAlpha = true;
 			bool hdr = false;
-			if(TryGetAttribute<NullableColorUsageAttribute>(v, out var attr))
+			if(colorUsageAttribute.TryGet(fieldInfo, out var attr))
 			{
 				showAlpha = attr.showAlpha;
 				hdr = attr.hdr;

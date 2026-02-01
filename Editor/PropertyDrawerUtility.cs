@@ -84,21 +84,6 @@ namespace UnityEssentialsEditor
 			}
 		}
 
-		/// <summary>
-		/// Gets the object the property represents.
-		/// </summary>
-		public static object GetPropertyValue(SerializedProperty prop)
-		{
-			if(prop == null) return null;
-
-#if UNITY_2022_1_OR_NEWER
-			if(prop.isArray) return GetPropertyValueViaReflection(prop);
-			else return prop.boxedValue;
-#else
-			return GetPropertyValueViaReflection(prop);
-#endif
-		}
-
 		public static object GetPropertyValueViaReflection(SerializedProperty prop)
 		{
 			var path = prop.propertyPath.Replace(".Array.data[", "[");
@@ -279,6 +264,44 @@ namespace UnityEssentialsEditor
 			while(index-- >= 0)
 				enm.MoveNext();
 			return enm.Current;
+		}
+		
+		/// <summary>
+		/// Gets the value of the given property.
+		/// </summary>
+		public static object GetPropertyValue(SerializedProperty prop)
+		{
+			switch(prop.propertyType)
+			{
+				case SerializedPropertyType.Integer: return prop.intValue;
+				case SerializedPropertyType.Boolean: return prop.boolValue;
+				case SerializedPropertyType.Float: return prop.floatValue;
+				case SerializedPropertyType.String: return prop.stringValue;
+				case SerializedPropertyType.Color: return prop.colorValue;
+				case SerializedPropertyType.ObjectReference: return prop.objectReferenceValue;
+				case SerializedPropertyType.LayerMask: return prop.intValue;
+				case SerializedPropertyType.Enum: return prop.intValue;
+				case SerializedPropertyType.Vector2: return prop.vector2Value;
+				case SerializedPropertyType.Vector3: return prop.vector3Value;
+				case SerializedPropertyType.Vector4: return prop.vector4Value;
+				case SerializedPropertyType.Rect: return prop.rectValue;
+				case SerializedPropertyType.ArraySize: return prop.arraySize;
+				case SerializedPropertyType.Character: return prop.stringValue;
+				case SerializedPropertyType.AnimationCurve: return prop.animationCurveValue;
+				case SerializedPropertyType.Bounds: return prop.boundsValue;
+				case SerializedPropertyType.Gradient: return GetGradientValue(prop);
+				case SerializedPropertyType.Quaternion: return prop.quaternionValue;
+				case SerializedPropertyType.ExposedReference: return prop.exposedReferenceValue;
+				case SerializedPropertyType.Vector2Int: return prop.vector2IntValue;
+				case SerializedPropertyType.Vector3Int: return prop.vector3IntValue;
+				case SerializedPropertyType.RectInt: return prop.rectIntValue;
+				case SerializedPropertyType.BoundsInt: return prop.boundsIntValue;
+				case SerializedPropertyType.ManagedReference: return prop.managedReferenceValue;
+#if UNITY_2022_1_OR_NEWER
+				case SerializedPropertyType.Generic: return prop.boxedValue;
+#endif
+				default: throw new NotImplementedException();
+			}
 		}
 
 		/// <summary>

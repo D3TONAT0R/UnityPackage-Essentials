@@ -1,4 +1,6 @@
-﻿using UnityEssentials;
+﻿using System.Linq;
+using System.Reflection;
+using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,23 +9,26 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(FloatRange)), CustomPropertyDrawer(typeof(IntRange))]
 	public class RangedStructDrawer : PropertyDrawer
 	{
+		private CachedSerializedProperty min;
+		private CachedSerializedProperty max;
+		private CachedAttribute<MinMaxRangeAttribute> rangeAttribute;
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			var minProp = min.Find(property, "min");
+			var maxProp = max.Find(property, "max");
 			EditorGUI.BeginProperty(position, label, property);
 			EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
 			position.height = EditorGUIUtility.singleLineHeight;
-			var min = property.FindPropertyRelative(nameof(FloatRange.min));
-			var max = property.FindPropertyRelative(nameof(FloatRange.max));
-			bool integer = min.propertyType == SerializedPropertyType.Integer;
-			var rangeAttribute = GetRangeAttribute(property);
-			if(rangeAttribute != null)
+			bool integer = minProp.propertyType == SerializedPropertyType.Integer;
+			if(rangeAttribute.TryGet(fieldInfo, out var attr))
 			{
-				DrawSlider(position, label, min, max, rangeAttribute, integer);
+				DrawSlider(position, label, minProp, maxProp, attr, integer);
 				position.NextProperty();
 			}
 			bool hasLabel = !string.IsNullOrEmpty(label.text);
 			position.SplitHorizontal(hasLabel ? EditorGUIUtility.labelWidth : 0, out var labelRect, out position);
-			if(rangeAttribute == null)
+			if(rangeAttribute.Get(fieldInfo) == null)
 			{
 				EditorGUI.LabelField(labelRect, label);
 			}
@@ -32,8 +37,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			EditorGUI.indentLevel = 0;
 			EditorGUIUtility.labelWidth = 30;
 
-			DrawField(min, max, minRect, rangeAttribute, integer, false);
-			DrawField(max, min, maxRect, rangeAttribute, integer, true);
+			DrawField(minProp, maxProp, minRect, rangeAttribute.Get(fieldInfo), integer, false);
+			DrawField(maxProp, minProp, maxRect, rangeAttribute.Get(fieldInfo), integer, true);
 
 			EditorGUI.indentLevel = indent;
 			EditorGUI.showMixedValue = false;
@@ -93,7 +98,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			if(GetRangeAttribute(property) != null)
+			if(rangeAttribute.TryGet(fieldInfo, out _))
 			{
 				return 2 * EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 			}
@@ -101,11 +106,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				return base.GetPropertyHeight(property, label);
 			}
-		}
-
-		private MinMaxRangeAttribute GetRangeAttribute(SerializedProperty property)
-		{
-			return PropertyDrawerUtility.GetAttribute<MinMaxRangeAttribute>(property, true);
 		}
 	}
 }
