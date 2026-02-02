@@ -8,28 +8,36 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(ProgressBarAttribute))]
 	public class ProgressBarAttributeDrawer : PropertyDrawer
 	{
-		private static GUIStyle progressBarBack = "ProgressBarBack";
-		private static GUIStyle progressBarFill = "ProgressBarBar";
-		private static GUIStyle progressBarText = "ProgressBarText";
-
-		private static GUIStyle manualEditButton = "PaneOptions";
+		private static bool stylesInitialized = false;
+		private static GUIStyle progressBarBack;
+		private static GUIStyle progressBarFill;
+		private static GUIStyle progressBarText;
+		private static GUIStyle manualEditButton;
+		private static GUIStyle manualEditCloseButton;
 
 #if UNITY_2022_1_OR_NEWER
-		private static GUIStyle manualEditCloseButton = "ToolbarSearchCancelButton";
 #else
 		private static GUIStyle manualEditCloseButton = "ToolbarSeachCancelButton";
 #endif
 
 		private bool manualEdit = false;
 
-		public override VisualElement CreatePropertyGUI(SerializedProperty property)
-		{
-			manualEditButton = new GUIStyle("PaneOptions");
-			return base.CreatePropertyGUI(property);
-		}
-
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			if (!stylesInitialized)
+			{
+				progressBarBack = "ProgressBarBack";
+				progressBarFill = "ProgressBarBar";
+				progressBarText = "ProgressBarText";
+				manualEditButton = "PaneOptions";
+#if UNITY_2022_1_OR_NEWER
+				manualEditCloseButton = "ToolbarSearchCancelButton";
+#else
+				manualEditCloseButton = "ToolbarSeachCancelButton";
+#endif
+				stylesInitialized = true;
+			}
+			
 			EditorGUI.BeginProperty(position, label, property);
 
 			if(!PropertyDrawerUtility.ValidatePropertyTypeForAttribute(position, property, label, SerializedPropertyType.Float, SerializedPropertyType.Integer)) return;

@@ -22,7 +22,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private bool IsEnabled(SerializedProperty property)
 		{
-			var attr = PropertyDrawerUtility.GetAttribute<EnabledIfAttribute>(property, true);
+			var attr = (EnabledIfAttribute)attribute;
 			return attr?.IsEnabled(PropertyDrawerUtility.GetParentObject(property)) ?? true;
 		}
 	}

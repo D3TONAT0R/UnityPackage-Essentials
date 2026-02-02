@@ -9,6 +9,8 @@ namespace UnityEssentialsEditor
 	public class ExpandAttributeDrawer : PropertyDrawer
 	{
 		private const float BOX_PADDING = 4;
+		
+		private CachedObject<object> targetObject;
 
 		//TODO: check for invalid usage of ExpandAttribute
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -17,7 +19,7 @@ namespace UnityEssentialsEditor
 			{
 				return;
 			}
-			if(property.GetValue() is IDrawInlined)
+			if(targetObject.Get(property) is IDrawInlined)
 			{
 				EditorGUIExtras.ErrorLabelField(position, label, new GUIContent("(Incompatible Attribute Usage)"));
 				return;
@@ -102,7 +104,7 @@ namespace UnityEssentialsEditor
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			bool incompatible = (property.propertyType != SerializedPropertyType.ObjectReference && property.propertyType != SerializedPropertyType.Generic)
-				|| property.GetValue() is IDrawInlined;
+				|| targetObject.Get(property) is IDrawInlined;
 			if(incompatible)
 			{
 				return EditorGUIUtility.singleLineHeight;

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
@@ -16,6 +17,9 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			var hv = hasValue.Find(property, "hasValue");
 			var v = backingValue.Find(property, "backingValue");
+			hv = property.FindPropertyRelative("hasValue");
+			v = property.FindPropertyRelative("backingValue");
+			// v.NextVisible(true);
 
 			EditorGUI.BeginProperty(position, label, property);
 
@@ -24,7 +28,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var guiEnabled = GUI.enabled;
 			GUI.enabled &= hv.boolValue;
 			EditorGUIUtility.labelWidth += 16;
-			EditorGUI.showMixedValue = v.hasMultipleDifferentValues;
+			// EditorGUI.showMixedValue = v.hasMultipleDifferentValues;
 			DrawValueField(position, v, " ");
 			EditorGUIUtility.labelWidth -= 16;
 			GUI.enabled = guiEnabled;
@@ -71,7 +75,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			EditorGUI.BeginChangeCheck();
 			float value;
-			if(rangeAttribute.TryGet(fieldInfo, out var rangeAttr))
+			if(rangeAttribute.TryGet(v, out var rangeAttr))
 			{
 				value = EditorGUI.Slider(position, displayName, v.floatValue, rangeAttr.min, rangeAttr.max);
 			}
@@ -116,8 +120,9 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		protected override void DrawValueField(Rect position, SerializedProperty v, string displayName)
 		{
-			v.NextVisible(true);
-			EditorGUI.MultiPropertyField(position, SubLabels.Select(l => new GUIContent(l)).ToArray(), v, new GUIContent(displayName));
+			var v1 = v.Copy();
+			v1.NextVisible(true);
+			EditorGUI.MultiPropertyField(position, SubLabels.Select(l => new GUIContent(l)).ToArray(), v1, new GUIContent(displayName));
 		}
 	}
 

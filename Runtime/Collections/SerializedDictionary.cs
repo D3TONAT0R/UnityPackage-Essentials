@@ -31,6 +31,8 @@ namespace UnityEssentials.Collections
 		int Count { get; }
 
 		Exception SerializationException { get; }
+		
+		bool UseMonospaceKeyLabels { get; }
 
 		/// <summary>
 		/// Clears the dictionary.

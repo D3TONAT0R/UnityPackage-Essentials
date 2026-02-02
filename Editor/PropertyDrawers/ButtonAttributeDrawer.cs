@@ -11,7 +11,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var attr = PropertyDrawerUtility.GetAttribute<ButtonAttribute>(property, true);
+			var attr = (ButtonAttribute)attribute;
 			if(!attr.Below)
 			{
 				position.SplitVertical(EditorGUIUtility.singleLineHeight, out var top, out var bottom, EditorGUIUtility.standardVerticalSpacing);

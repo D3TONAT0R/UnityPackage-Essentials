@@ -23,6 +23,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static GUIStyle indexStyle;
 
+		private CachedObject<ISerializedDictionary> target;
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			if(property.hasMultipleDifferentValues)
@@ -43,17 +45,16 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				indexStyle.normal.textColor = indexStyle.normal.textColor.MultiplyAlpha(0.4f);
 			}
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
-			var target = property.GetValue();
-			var dictionary = (ISerializedDictionary)target;
-			bool preferMonospaceKeys = (bool)target.GetType().GetProperty(nameof(SerializedDictionary<Null, Null>.UseMonospaceKeyLabels)).GetValue(target);
-			var dictionaryType = target.GetType();
+			var dictionary = target.Get(property);
+			bool preferMonospaceKeys = dictionary.UseMonospaceKeyLabels;
+			var dictionaryType = dictionary.GetType();
 			var polymorphicAttr = dictionaryType.GetCustomAttribute<PolymorphicAttribute>();
 			bool polymorphic = polymorphicAttr != null;
 			if(polymorphic)
 			{
 				if(!polymorphicTypes.ContainsKey(dictionaryType))
 				{
-					var valueType = ((ISerializedDictionary)target).ValueType;
+					var valueType = dictionary.ValueType;
 					if((valueType == typeof(object) || valueType == typeof(UnityEngine.Object)) && polymorphicAttr.specificTypes == null)
 					{
 						Debug.LogError("When creating a polymorphic dictionary for System.Object or UnityEngine.Object you must specify the subtypes allowed in the dictionary.", property.serializedObject.targetObject);

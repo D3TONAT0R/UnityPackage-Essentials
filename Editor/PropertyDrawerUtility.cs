@@ -298,9 +298,11 @@ namespace UnityEssentialsEditor
 				case SerializedPropertyType.BoundsInt: return prop.boundsIntValue;
 				case SerializedPropertyType.ManagedReference: return prop.managedReferenceValue;
 #if UNITY_2022_1_OR_NEWER
-				case SerializedPropertyType.Generic: return prop.boxedValue;
+				case SerializedPropertyType.Generic:
+					if(prop.isArray) return GetPropertyValueViaReflection(prop);
+					return prop.boxedValue;
 #endif
-				default: throw new NotImplementedException();
+				default: return GetPropertyValueViaReflection(prop);
 			}
 		}
 
@@ -496,6 +498,8 @@ namespace UnityEssentialsEditor
 
 			if(drawerType != null)
 			{
+				//BUG: Reused property drawers don't work with CachedSerializedProperty
+				/*
 				if(propertyDrawersCache.TryGetValue(drawerType, out var pd))
 				{
 					return pd;
@@ -506,6 +510,8 @@ namespace UnityEssentialsEditor
 					propertyDrawersCache.Add(drawerType, pd);
 					return pd;
 				}
+				*/
+				return (PropertyDrawer)Activator.CreateInstance(drawerType);
 			}
 			else
 			{
@@ -595,6 +601,7 @@ namespace UnityEssentialsEditor
 				var drawer = GetPropertyDrawerFromType(GetPropertyType(property));
 				if(drawer != null)
 				{
+					drawer.GetType().GetField("m_FieldInfo", allInclusiveBindingFlags)?.SetValue(drawer, null);
 					drawer.OnGUI(rect, property, label);
 				}
 				else

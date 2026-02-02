@@ -55,7 +55,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			checkPos.width = 20;
 			enabledProp.Find(property, "enabled");
 			EditorGUI.showMixedValue = enabledProp.Property.hasMultipleDifferentValues;
-			EditorGUI.PropertyField(checkPos, property, GUIContent.none, false);
+			EditorGUI.PropertyField(checkPos, enabledProp.Property, GUIContent.none, false);
 			EditorGUI.showMixedValue = false;
 			return enabledProp.Property.boolValue;
 		}

@@ -7,6 +7,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(ShowIfAttribute), true)]
 	public class ShowIfAttributeDrawer : ModificationPropertyDrawer
 	{
+		private CachedAttribute<SpaceAttribute> spaceAttribute;
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			bool shouldDraw = ShouldDraw(property);
@@ -25,7 +27,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			else
 			{
 				int extraHeight = 0;
-                if(PropertyDrawerUtility.TryGetAttribute(property, true, out SpaceAttribute space))
+                if(spaceAttribute.TryGet(fieldInfo, out SpaceAttribute space))
                 {
                     extraHeight += (int)space.height;
 				}
@@ -35,7 +37,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private bool ShouldDraw(SerializedProperty property)
 		{
-			var attr = PropertyDrawerUtility.GetAttribute<ShowIfAttribute>(property, true);
+			var attr = (ShowIfAttribute)attribute;
 			return attr.ShouldDraw(PropertyDrawerUtility.GetParentObject(property));
 		}
 	}
