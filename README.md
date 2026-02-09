@@ -141,7 +141,7 @@ Helper class for working with SerializedProperties
 
 Open the Package Manager window, click on "Add Package from Git URL ...", then enter the following:
 ```
-https://github.com/d3tonat0r/unitypackage-essentials.git#1.0.0-preview-2
+https://github.com/d3tonat0r/unitypackage-essentials.git#1.0.0
 ```
 OR to target the latest commit:
 ```
