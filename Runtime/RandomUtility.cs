@@ -72,15 +72,37 @@ namespace UnityEssentials
 		public static int RangeExcluding(int min, int max, params int[] exclude)
 		{
 			if(max - min <= 0) return -1;
-			var array = Enumerable.Range(min, max - min).Except(exclude).ToArray();
-			if(array.Length > 0)
+			
+			// Build valid range without LINQ to avoid allocations
+			int rangeSize = max - min;
+			int validCount = rangeSize;
+			
+			// Count how many values are excluded
+			for(int i = 0; i < exclude.Length; i++)
 			{
-				return Random.Range(0, array.Length);
+				if(exclude[i] >= min && exclude[i] < max)
+				{
+					validCount--;
+				}
 			}
-			else
+			
+			if(validCount <= 0) return -1;
+			
+			// Pick a random index in the valid range
+			int pick = Random.Range(0, validCount);
+			int current = min;
+			
+			// Skip excluded values
+			for(int offset = 0; offset <= pick; offset++)
 			{
-				return -1;
+				while(System.Array.IndexOf(exclude, current) >= 0)
+				{
+					current++;
+				}
+				if(offset < pick) current++;
 			}
+			
+			return current;
 		}
 
 		/// <summary>
@@ -89,6 +111,10 @@ namespace UnityEssentials
 		/// <returns>A random item from the array.</returns>
 		public static T PickRandom<T>(params T[] array)
 		{
+			if(array == null || array.Length == 0)
+			{
+				throw new System.ArgumentException("Array cannot be null or empty");
+			}
 			return array[Random.Range(0, array.Length)];
 		}
 
@@ -98,6 +124,10 @@ namespace UnityEssentials
 		/// <returns>A random item from the list.</returns>
 		public static T PickRandom<T>(List<T> list)
 		{
+			if(list == null || list.Count == 0)
+			{
+				throw new System.ArgumentException("List cannot be null or empty");
+			}
 			return list[Random.Range(0, list.Count)];
 		}
 
@@ -129,15 +159,34 @@ namespace UnityEssentials
 		/// <returns>A random item from the array.</returns>
 		public static int PickRandomIndexExcluding(int length, params int[] excludeIndices)
 		{
-			var indices = Enumerable.Range(0, length).Except(excludeIndices).ToArray();
-			if(indices.Length > 0)
+			// Calculate valid count without LINQ to avoid allocations
+			int validCount = length;
+			
+			for(int i = 0; i < excludeIndices.Length; i++)
 			{
-				return indices[Random.Range(0, indices.Length)];
+				if(excludeIndices[i] >= 0 && excludeIndices[i] < length)
+				{
+					validCount--;
+				}
 			}
-			else
+			
+			if(validCount <= 0) return -1;
+			
+			// Pick a random index in the valid range
+			int pick = Random.Range(0, validCount);
+			int current = 0;
+			
+			// Skip excluded indices
+			for(int offset = 0; offset <= pick; offset++)
 			{
-				return -1;
+				while(System.Array.IndexOf(excludeIndices, current) >= 0)
+				{
+					current++;
+				}
+				if(offset < pick) current++;
 			}
+			
+			return current;
 		}
 
 		/// <summary>
@@ -145,6 +194,10 @@ namespace UnityEssentials
 		/// </summary>
 		public static T TakeRandomItem<T>(List<T> list)
 		{
+			if(list == null || list.Count == 0)
+			{
+				throw new System.ArgumentException("List cannot be null or empty");
+			}
 			int i = Random.Range(0, list.Count);
 			var item = list[i];
 			list.RemoveAt(i);
@@ -158,8 +211,16 @@ namespace UnityEssentials
 		/// <returns>The picked item's index.</returns>
 		public static int PickRandomWeighted(float[] weights)
 		{
+			if(weights == null || weights.Length == 0)
+			{
+				throw new System.ArgumentException("Weights array cannot be null or empty");
+			}
 			float total = 0;
 			foreach(var w in weights) total += w;
+			if(total <= 0)
+			{
+				throw new System.ArgumentException("Total weight must be greater than zero");
+			}
 			float pick = Random.value * total;
 			for(int i = 0; i < weights.Length; i++)
 			{
@@ -173,29 +234,36 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Returns a shuffled version of the given array.
+		/// Returns a shuffled version of the given array using the Fisher-Yates algorithm.
 		/// </summary>
 		public static T[] Shuffle<T>(T[] array)
 		{
 			T[] shuffled = new T[array.Length];
-			var list = array.ToList();
-			for(int i = 0; i < array.Length; i++)
+			System.Array.Copy(array, shuffled, array.Length);
+			
+			// Fisher-Yates shuffle algorithm
+			for(int i = shuffled.Length - 1; i > 0; i--)
 			{
-				shuffled[i] = TakeRandomItem(list);
+				int j = Random.Range(0, i + 1);
+				T temp = shuffled[i];
+				shuffled[i] = shuffled[j];
+				shuffled[j] = temp;
 			}
 			return shuffled;
 		}
 
 		/// <summary>
-		/// Randomly shuffles the given list.
+		/// Randomly shuffles the given list using the Fisher-Yates algorithm.
 		/// </summary>
 		public static void Shuffle<T>(List<T> list)
 		{
-			var elements = new List<T>(list);
-			list.Clear();
-			for(int i = 0; i < elements.Count; i++)
+			// Fisher-Yates shuffle algorithm - in-place
+			for(int i = list.Count - 1; i > 0; i--)
 			{
-				list.Add(TakeRandomItem(elements));
+				int j = Random.Range(0, i + 1);
+				T temp = list[i];
+				list[i] = list[j];
+				list[j] = temp;
 			}
 		}
 	}
