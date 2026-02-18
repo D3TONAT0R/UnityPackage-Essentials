@@ -38,8 +38,10 @@ namespace UnityEssentials
 
 		private static List<Vector3> circlePointCache = new List<Vector3>();
 
-		static ExtraGizmos()
+		private static void EnsureInitialization()
 		{
+			if(sphereMesh) return;
+			
 			var builder = new MeshBuilder();
 
 			builder.AddSphere(Vector3.zero, 1, 16, 16);
@@ -112,6 +114,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawSphere(Vector3 center, float radius)
 		{
+			EnsureInitialization();
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.identity, Vector3.one * radius);
 			Gizmos.DrawMesh(sphereMesh);
@@ -258,6 +261,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawCircle(Vector3 center, Vector3 normal, float radius, bool doubleSided = true)
 		{
+			EnsureInitialization();
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal) * Quaternion.Euler(90, 0, 0), Vector3.one * radius);
 			Gizmos.DrawMesh(discMesh);
@@ -347,6 +351,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawCylinder(Vector3 center, Quaternion rotation, float radius, float height)
 		{
+			EnsureInitialization();
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
 			Gizmos.DrawMesh(cylinderMesh);
@@ -432,6 +437,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawCapsule(Vector3 center, Quaternion rotation, float radius, float height)
 		{
+			EnsureInitialization();
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, Vector3.one);
 			height = Mathf.Max(0, height - radius * 2);
@@ -514,6 +520,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawCone(Vector3 center, Quaternion rotation, float radius, float height)
 		{
+			EnsureInitialization();
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, new Vector3(radius, height, radius));
 			Gizmos.DrawMesh(coneMesh);
@@ -673,6 +680,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawRectangle(Vector3 center, Quaternion rotation, Vector2 size, bool doubleSided = true)
 		{
+			EnsureInitialization();
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, rotation, size.XVY(1));
 			Gizmos.DrawMesh(planeMesh);
@@ -838,7 +846,7 @@ namespace UnityEssentials
 #if UNITY_EDITOR
 			if(labelStyle == null)
 			{
-				labelStyle = new GUIStyle(GUI.skin.label)
+				labelStyle = new GUIStyle()
 				{
 					richText = true,
 					normal = { textColor = Color.white },
@@ -871,7 +879,7 @@ namespace UnityEssentials
 				var backgroundTex = new Texture2D(1, 1);
 				backgroundTex.SetPixel(0, 0, new Color(0.05f, 0.05f, 0.05f, 0.5f));
 				backgroundTex.Apply();
-				boxStyle = new GUIStyle(GUI.skin.box)
+				boxStyle = new GUIStyle()
 				{
 					richText = true,
 					normal = { textColor = Color.white, background = backgroundTex },
