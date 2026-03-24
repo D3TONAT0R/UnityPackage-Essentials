@@ -37,7 +37,7 @@ namespace UnityEssentials
 			}
 		}
 
-		public float Random()
+		public int Random()
 		{
 			return UnityEngine.Random.Range(min, max + 1);
 		}
