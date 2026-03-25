@@ -840,7 +840,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Draws a GUI text at the given point in the scene.
 		/// </summary>
-		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offset = 0, Vector2? offsetUnits = null, bool shadow = false, float maxDistance = 0)
+		public static void DrawText(Vector3 position, string text, Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, float fontSize = 0, float offsetPixels = 0, Vector2? offsetUnits = null, bool shadow = false, float maxDistance = 0)
 		{
 			if(!CheckDistance(position, maxDistance)) return;
 #if UNITY_EDITOR
@@ -862,7 +862,7 @@ namespace UnityEssentials
 			if(color.HasValue) GUI.color = color.Value;
 			else GUI.color = Gizmos.color.WithAlpha(1);
 			if(fontSize > 0) text = $"<size={fontSize}>{text}</size>";
-			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offset, offsetUnits ?? Vector2.zero, shadow, fontSize);
+			Label(Gizmos.matrix.MultiplyPoint(position), new GUIContent(text), labelStyle, offsetPixels, offsetUnits ?? Vector2.zero, shadow, fontSize);
 			GUI.color = lastColor;
 #endif
 		}
@@ -991,6 +991,25 @@ namespace UnityEssentials
 			return style.padding.Add(rect);
 		}
 #endif
+
+		#endregion
+
+		#region 2D Shapes
+
+		public static void Draw2DShape(Vector3 center, float radius, int polygonSides, float rotation = 0)
+		{
+			// rotation += 180;
+			var lMatrix = Gizmos.matrix;
+			Gizmos.matrix = Matrix4x4.TRS(lMatrix.MultiplyPoint(center), Camera.current.transform.rotation, Vector3.one * radius);
+			var lastPoint = Vector3.zero + Quaternion.Euler(0, 0, -rotation) * Vector3.up;
+            for(int i = 1; i <= polygonSides; i++)
+            {
+                var nextPoint = Vector3.zero + Quaternion.Euler(0, 0, -rotation + (i / (float)polygonSides) * 360f) * Vector3.up;
+                Gizmos.DrawLine(lastPoint, nextPoint);
+                lastPoint = nextPoint;
+            }
+			Gizmos.matrix = lMatrix;
+		}
 
 		#endregion
 
@@ -1198,6 +1217,12 @@ namespace UnityEssentials
 			var worldPos = Gizmos.matrix.MultiplyPoint(pos);
 			size *= UnityEditor.HandleUtility.GetHandleSize(worldPos);
 #endif
+		}
+		
+		public static float MakeConstantSize(Vector3 pos, float size)
+		{
+			MakeConstantSize(pos, ref size);
+			return size;
 		}
 
 		private static Quaternion GetAxisRotation(Axis a)
