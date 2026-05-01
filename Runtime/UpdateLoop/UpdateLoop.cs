@@ -300,7 +300,14 @@ namespace UnityEssentials.PlayerLoop
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
 			{
-				enumerationCache[i].action.Invoke();
+				try
+				{
+					enumerationCache[i].action.Invoke();
+				}
+				catch (Exception e)
+				{
+					e.LogException();
+				}
 			}
 		}
 
@@ -311,7 +318,14 @@ namespace UnityEssentials.PlayerLoop
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
 			{
-				enumerationCache[i].action.Invoke();
+				try
+				{
+					enumerationCache[i].action.Invoke();
+				}
+				catch (Exception e)
+				{
+					e.LogException();
+				}
 			}
 			eventHandler.RemoveAll(true);
 		}
@@ -322,15 +336,25 @@ namespace UnityEssentials.PlayerLoop
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
 			{
-				enumerationCache[i].action.Invoke();
-				GUI.enabled = true;
-				GUI.depth = 0;
-				GUI.changed = false;
-				GUI.tooltip = null;
-				GUI.matrix = Matrix4x4.identity;
-				GUI.color = Color.white;
-				GUI.backgroundColor = Color.white;
-				GUI.contentColor = Color.white;
+				try
+				{
+					enumerationCache[i].action.Invoke();
+				}
+				catch (Exception e)
+				{
+					e.LogException();
+				}
+				finally
+				{
+					GUI.enabled = true;
+					GUI.depth = 0;
+					GUI.changed = false;
+					GUI.tooltip = null;
+					GUI.matrix = Matrix4x4.identity;
+					GUI.color = Color.white;
+					GUI.backgroundColor = Color.white;
+					GUI.contentColor = Color.white;
+				}
 			}
 		}
 
@@ -340,9 +364,19 @@ namespace UnityEssentials.PlayerLoop
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
 			{
-				enumerationCache[i].action.Invoke();
-				Gizmos.matrix = Matrix4x4.identity;
-				Gizmos.color = Color.white;
+				try
+				{
+					enumerationCache[i].action.Invoke();
+				}
+				catch (Exception e)
+				{
+					e.LogException();
+				}
+				finally
+				{
+					Gizmos.matrix = Matrix4x4.identity;
+					Gizmos.color = Color.white;
+				}
 			}
 		}
 
