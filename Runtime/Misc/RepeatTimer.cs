@@ -65,6 +65,11 @@ namespace UnityEssentials
 		/// The last delta time passed to the timer.
 		/// </summary>
 		public float DeltaTime { get; private set; } = 0;
+		
+		/// <summary>
+		/// The next time at which this timer will trigger a tick. This value is updated every tick, so if random interval is used, this value will be randomized every tick.
+		/// </summary>
+		public float NextTickTime => lastUpdateTime + Interval;
 
 		/// <summary>
 		/// The current time interval this timer runs at. If random interval is used, this value is randomized every tick.
@@ -73,8 +78,8 @@ namespace UnityEssentials
 		{
 			get
 			{
-				if(!useRandomInterval) return lastUpdateTime + interval;
-				else return lastUpdateTime + intervalRange.Lerp(nextTickRandom);
+				if(!useRandomInterval) return interval;
+				else return intervalRange.Lerp(nextTickRandom);
 			}
 		}
 
@@ -86,7 +91,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// The time until the next tick is triggered.
 		/// </summary>
-		public float NextUpdateDelta => Interval - time;
+		public float NextUpdateDelta => NextTickTime - time;
 
 		private RepeatTimer(float interval)
 		{
@@ -200,7 +205,7 @@ namespace UnityEssentials
 
 			if(useRandomInterval && nextTickRandom < 0) nextTickRandom = Random.value;
 
-			if(time >= Interval)
+			if(time >= NextTickTime)
 			{
 				PerformTick();
 				return true;
