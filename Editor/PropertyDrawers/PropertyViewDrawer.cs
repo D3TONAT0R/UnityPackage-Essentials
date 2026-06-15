@@ -11,21 +11,21 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(PropertyView))]
 	public class PropertyViewDrawer : PropertyDrawer
 	{
-		private class ExposedProperty
+		private class ExposedMember
 		{
-			public readonly PropertyInfo property;
+			public readonly MemberInfo member;
 			public readonly ShowInInspectorAttribute attribute;
 
-			public ExposedProperty(PropertyInfo prop)
+			public ExposedMember(MemberInfo m)
 			{
-				property = prop;
-				attribute = prop.GetCustomAttribute<ShowInInspectorAttribute>();
+				member = m;
+				attribute = m.GetCustomAttribute<ShowInInspectorAttribute>();
 			}
 		}
 
-		private static Dictionary<Type, ExposedProperty[]> exposedProperties = new Dictionary<Type, ExposedProperty[]>();
+		private static Dictionary<Type, ExposedMember[]> exposedProperties = new Dictionary<Type, ExposedMember[]>();
 
-		private static List<ExposedProperty> propertiesToShow = new List<ExposedProperty>();
+		private static List<ExposedMember> propertiesToShow = new List<ExposedMember>();
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -56,11 +56,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			return lines * EditorGUIUtility.singleLineHeight + (lines - 1) * EditorGUIUtility.standardVerticalSpacing;
 		}
 
-		private static void DrawExposedPropertyField(Rect position, ExposedProperty prop, object parent)
+		private static void DrawExposedPropertyField(Rect position, ExposedMember prop, object parent)
 		{
-			bool isStatic = prop.property.GetGetMethod(true).IsStatic;
-			var value = prop.property.GetValue(isStatic ? null : parent);
-			string name = prop.attribute.customLabel ?? ObjectNames.NicifyVariableName(prop.property.Name);
+			bool isStatic = prop.member.IsStatic();
+			var value = prop.member.GetValue(isStatic ? null : parent);
+			string name = prop.attribute.customLabel ?? ObjectNames.NicifyVariableName(prop.member.Name);
 			if(isStatic)
 			{
 				name += " *";
@@ -69,13 +69,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			position.SplitHorizontal(EditorGUIUtility.labelWidth, out var labelPos, out var fieldPos, 2);
 			EditorGUI.LabelField(labelPos, name);
 
-			bool editable = prop.attribute.editableAtRuntime && EditorApplication.isPlaying && prop.property.SetMethod != null;
+			bool editable = prop.attribute.editableAtRuntime && EditorApplication.isPlaying && prop.member.CanWrite();
 			GUI.enabled = editable;
 			EditorGUI.BeginChangeCheck();
-			value = DrawProperty(fieldPos, prop.property.PropertyType, value);
+			value = DrawProperty(fieldPos, prop.member.GetValueType(), value);
 			if(EditorGUI.EndChangeCheck())
 			{
-				prop.property.SetValue(isStatic ? null : parent, value);
+				prop.member.SetValue(isStatic ? null : parent, value);
 			}
 			GUI.enabled = true;
 		}
@@ -86,7 +86,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			propertiesToShow.Clear();
 			var attribute = property.GetAttribute<PropertyViewAttribute>();
 			var category = attribute?.category;
-			foreach(var prop in GetExposedProperties(parent))
+			foreach(var prop in GetExposedMembers(parent))
 			{
 				if(prop.attribute.category == category)
 				{
@@ -95,7 +95,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 		}
 
-		private static ExposedProperty[] GetExposedProperties(object target)
+		private static ExposedMember[] GetExposedMembers(object target)
 		{
 			var type = target.GetType();
 			if(exposedProperties.TryGetValue(type, out var properties))
@@ -104,9 +104,9 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
-				var props = type.GetProperties(ReflectionUtility.allInclusiveBindingFlags)
-					.Where(p => p.GetCustomAttribute<ShowInInspectorAttribute>() != null && p.GetGetMethod(true) != null)
-					.Select(p => new ExposedProperty(p))
+				var props = type.GetMembers(ReflectionUtility.allInclusiveBindingFlags)
+					.Where(m => m.GetCustomAttribute<ShowInInspectorAttribute>() != null && m.CanRead())
+					.Select(p => new ExposedMember(p))
 					.ToArray();
 				exposedProperties[type] = props;
 				return props;

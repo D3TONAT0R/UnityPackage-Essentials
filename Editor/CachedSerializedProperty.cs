@@ -12,7 +12,7 @@ namespace UnityEssentialsEditor
 
 		public SerializedProperty Find(SerializedProperty parent, string path)
 		{
-			if (!Resolved || Property == null)
+			if (!Resolved || Property == null || Property.propertyPath != path)
 			{
 				Property = parent.FindPropertyRelative(path);
 				if (Property == null)
