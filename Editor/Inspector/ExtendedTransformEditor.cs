@@ -46,50 +46,50 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static event Action<TransformGUIContext> AfterExtrasGUI;
 		
-		private const int TOOLBAR_BUTTON_WIDTH = 25;
+		protected const int TOOLBAR_BUTTON_WIDTH = 25;
 
-		private Editor _defaultEditor;
-		private Transform _transform;
+		protected Editor _defaultEditor;
+		protected Transform _transform;
 
-		private static bool expandExtraProperties = false;
-		private static bool expandExtraTools = false;
+		protected static bool expandExtraProperties = false;
+		protected static bool expandExtraTools = false;
 
-		private static GUIStyle pathLabelStyle;
-		private static GUIContent positionIcon;
-		private static GUIContent rotationIcon;
-		private static GUIContent scaleIcon;
-		private static GUIContent globalIcon;
-		private static GUIContent localIcon;
+		protected static GUIStyle pathLabelStyle;
+		protected static GUIContent positionIcon;
+		protected static GUIContent rotationIcon;
+		protected static GUIContent scaleIcon;
+		protected static GUIContent globalIcon;
+		protected static GUIContent localIcon;
 
-		private static Space currentSpace = Space.Self;
+		protected static Space currentSpace = Space.Self;
 
-		private static Space copiedSpace = Space.Self;
-		private static Vector3? copiedPosition;
-		private static Quaternion? copiedRotation;
-		private static Vector3? copiedScale;
+		protected static Space copiedSpace = Space.Self;
+		protected static Vector3? copiedPosition;
+		protected static Quaternion? copiedRotation;
+		protected static Vector3? copiedScale;
 
-		private static readonly GUIContent reset = new GUIContent("Reset", "Reset Transform");
-		private static readonly GUIContent apply = new GUIContent("Apply", "Apply Transform to Children");
-		private static readonly GUIContent position = new GUIContent("Position");
-		private static readonly GUIContent rotation = new GUIContent("Rotation");
-		private static readonly GUIContent scale = new GUIContent("Scale");
-		private static readonly GUIContent fullTransform = new GUIContent("Full Transform");
-		private static readonly GUIContent worldPosition = new GUIContent("Position (world)");
-		private static readonly GUIContent worldRotation = new GUIContent("Rotation (world)");
-		private static readonly GUIContent lossyScale = new GUIContent("Scale (lossy)");
-		private static readonly GUIContent upDirection = new GUIContent("Up Direction");
-		private static readonly GUIContent forwardDirection = new GUIContent("Forward Direction");
-		private static readonly GUIContent recursiveChildCount = new GUIContent("Child Count (recursive)");
-		private static readonly GUIContent parentDepth = new GUIContent("Parent Depth");
-		private static readonly GUIContent copy = new GUIContent("Copy", "Copy Transform Values using the current space");
-		private static readonly GUIContent align = new GUIContent("Align", "Align Transform to Scene View");
-		private static readonly GUIContent paste = new GUIContent("Paste", "Paste Transform Values using the copied space");
-		private static readonly GUIContent hierarchyPath = new GUIContent("Hierarchy Path");
-		private static GUIContent hierarchyPathString = new GUIContent("");
-		private static GUIContent childCounter = new GUIContent("");
-		private static GUIContent parentCounter = new GUIContent("");
+		protected static readonly GUIContent reset = new GUIContent("Reset", "Reset Transform");
+		protected static readonly GUIContent apply = new GUIContent("Apply", "Apply Transform to Children");
+		protected static readonly GUIContent position = new GUIContent("Position");
+		protected static readonly GUIContent rotation = new GUIContent("Rotation");
+		protected static readonly GUIContent scale = new GUIContent("Scale");
+		protected static readonly GUIContent fullTransform = new GUIContent("Full Transform");
+		protected static readonly GUIContent worldPosition = new GUIContent("Position (world)");
+		protected static readonly GUIContent worldRotation = new GUIContent("Rotation (world)");
+		protected static readonly GUIContent lossyScale = new GUIContent("Scale (lossy)");
+		protected static readonly GUIContent upDirection = new GUIContent("Up Direction");
+		protected static readonly GUIContent forwardDirection = new GUIContent("Forward Direction");
+		protected static readonly GUIContent recursiveChildCount = new GUIContent("Child Count (recursive)");
+		protected static readonly GUIContent parentDepth = new GUIContent("Parent Depth");
+		protected static readonly GUIContent copy = new GUIContent("Copy", "Copy Transform Values using the current space");
+		protected static readonly GUIContent align = new GUIContent("Align", "Align Transform to Scene View");
+		protected static readonly GUIContent paste = new GUIContent("Paste", "Paste Transform Values using the copied space");
+		protected static readonly GUIContent hierarchyPath = new GUIContent("Hierarchy Path");
+		protected static GUIContent hierarchyPathString = new GUIContent("");
+		protected static GUIContent childCounter = new GUIContent("");
+		protected static GUIContent parentCounter = new GUIContent("");
 
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			//When this inspector is created, also create the built-in inspector
 			_defaultEditor = CreateEditor(targets, System.Type.GetType("UnityEditor.TransformInspector, UnityEditor"));
@@ -470,6 +470,20 @@ namespace UnityEssentialsEditor
 			{
 				e.LogException("Exception in ExtendedTransformEditor event");
 			}
+		}
+	}
+
+	[CustomEditor(typeof(RectTransform))]
+	[CanEditMultipleObjects]
+	public class ExtendedRectTransformEditor : ExtendedTransformEditor
+	{
+		protected override void OnEnable()
+		{
+			//When this inspector is created, also create the built-in inspector
+			_defaultEditor = CreateEditor(targets, System.Type.GetType("UnityEditor.RectTransformEditor, UnityEditor"));
+			_transform = target as Transform;
+			expandExtraProperties = EditorPrefs.GetBool("TransformExtraPropertiesExpanded", false);
+			expandExtraTools = EditorPrefs.GetBool("TransformToolbarExpanded", false);
 		}
 	}
 }
