@@ -7,14 +7,14 @@ using UnityEngine;
 
 namespace UnityEssentialsEditor
 {
-	public class ErrorPauseToolbarToggle
+	public class MainToolbarErrorPauseToggle
 	{
 		public static readonly Type consoleWindowType = typeof(EditorWindow).Assembly.GetType("UnityEditor.ConsoleWindow");
 		
 		private const string MENU_PATH = "Editor Controls/Error Pause Toggle";
 
 		[MainToolbarElement(MENU_PATH, defaultDockPosition = MainToolbarDockPosition.Middle)]
-		public static MainToolbarElement CreateSceneSelectorDropdown()
+		public static MainToolbarElement Create()
 		{
 			var icon = EditorGUIUtility.IconContent("d_console.erroricon.inactive.sml").image as Texture2D;
 			var content = new MainToolbarContent("", icon, "Click to toggle error pause");

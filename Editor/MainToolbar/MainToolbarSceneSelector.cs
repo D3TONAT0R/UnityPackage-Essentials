@@ -8,13 +8,13 @@ using UnityEngine.SceneManagement;
 
 namespace UnityEssentialsEditor
 {
-	public class SceneSelectionToolbarDropdown
+	public class MainToolbarSceneSelector
 	{
 		private const string MENU_PATH = "Editor Controls/Scene Selector";
 		private static string[] scenePaths;
 
 		[MainToolbarElement(MENU_PATH, defaultDockPosition = MainToolbarDockPosition.Middle)]
-		public static MainToolbarElement CreateSceneSelectorDropdown()
+		public static MainToolbarElement Create()
 		{
 			var icon = EditorGUIUtility.IconContent("UnityLogo").image as Texture2D;
 			var content = new MainToolbarContent("Scenes", icon, "Select active scene");
@@ -88,7 +88,7 @@ namespace UnityEssentialsEditor
 			MainToolbar.Refresh(MENU_PATH);
 		}
 
-		static SceneSelectionToolbarDropdown()
+		static MainToolbarSceneSelector()
 		{
 			RefreshSceneList();
 			EditorApplication.projectChanged += RefreshSceneList;
