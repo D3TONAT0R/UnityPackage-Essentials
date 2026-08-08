@@ -57,10 +57,10 @@ namespace UnityEssentials.Pooling
 		/// </summary>
 		public int TotalInstanceCount => InactiveInstanceCount + ActiveInstanceCount;
 
-		private List<T> inactivePool;
-		private List<T> activePool;
-		private Dictionary<T, float> lastActivationTimes;
-		private T[] iterationCache;
+		private readonly List<T> inactivePool;
+		private readonly List<T> activePool;
+		private readonly Dictionary<T, float> lastActivationTimes;
+		private readonly T[] iterationCache;
 		private float lastUpdateTime;
 
 		/// <summary>
