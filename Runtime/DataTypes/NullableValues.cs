@@ -70,7 +70,7 @@ namespace UnityEssentials
 			}
 		}
 
-		public override object ValueObject => GetValue();
+		public override object ValueObject => hasValue ? backingValue : null;
 
 		public override bool HasValue
 		{
@@ -140,7 +140,7 @@ namespace UnityEssentials
 		{
 			if(obj is NullableValue<T> other)
 			{
-				return hasValue == other.hasValue && backingValue.Equals(other.backingValue);
+				return hasValue == other.hasValue && object.Equals(backingValue, other.backingValue);
 			}
 			else
 			{
@@ -150,7 +150,7 @@ namespace UnityEssentials
 
 		public override int GetHashCode()
 		{
-			return unchecked(hasValue.GetHashCode() + Value.GetHashCode());
+			return HashCode.Combine(hasValue, backingValue);
 		}
 
 		public override string ToString()
@@ -158,9 +158,9 @@ namespace UnityEssentials
 			return $"({hasValue}): {backingValue}";
 		}
 
-		public static implicit operator T?(NullableValue<T> v) => v.Nullable;
+		public static implicit operator T?(NullableValue<T> v) => v?.Nullable;
 
-		public static implicit operator bool(NullableValue<T> v) => v.hasValue;
+		public static implicit operator bool(NullableValue<T> v) => v?.hasValue ?? false;
 	}
 
 	/// <summary>
