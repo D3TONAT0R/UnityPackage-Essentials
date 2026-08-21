@@ -421,7 +421,6 @@ namespace UnityEssentials.PlayerLoop
 
 		private static void Cleanup()
 		{
-#if UNITY_EDITOR
 			preUpdate.RemoveAll();
 			update.RemoveAll();
 			preLateUpdate.RemoveAll();
@@ -429,12 +428,13 @@ namespace UnityEssentials.PlayerLoop
 			postLateUpdate.RemoveAll();
 			preFixedUpdate.RemoveAll();
 			fixedUpdate.RemoveAll();
+			lateFixedUpdate.RemoveAll();
 			postFixedUpdate.RemoveAll();
 			updateOnce.RemoveAll();
+			fixedUpdateOnce.RemoveAll();
 			onGUI.RemoveAll();
 			onDrawGizmosRuntime.RemoveAll();
 			UpdateLoopScriptInstance.Cleanup();
-#endif
 		}
 
 		private static void SubscribeMethodsWithAttributes()
@@ -444,7 +444,7 @@ namespace UnityEssentials.PlayerLoop
 			SubscribeAttributeToEvent<PreLateUpdateAttribute>(preLateUpdate);
 			SubscribeAttributeToEvent<LateUpdateAttribute>(lateUpdate);
 			SubscribeAttributeToEvent<PostLateUpdateAttribute>(postLateUpdate);
-			SubscribeAttributeToEvent<PreFixedUpdateAttribute>(fixedUpdate);
+			SubscribeAttributeToEvent<PreFixedUpdateAttribute>(preFixedUpdate);
 			SubscribeAttributeToEvent<FixedUpdateAttribute>(fixedUpdate);
 			SubscribeAttributeToEvent<LateFixedUpdateAttribute>(lateFixedUpdate);
 			SubscribeAttributeToEvent<PostFixedUpdateAttribute>(postFixedUpdate);
