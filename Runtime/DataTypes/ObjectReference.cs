@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UnityEssentials
 {
@@ -8,7 +10,7 @@ namespace UnityEssentials
 	/// </summary>
 	/// <typeparam name="T">The type constraint to use for the object picker in the inspector.</typeparam>
 	[System.Serializable]
-	public struct ObjectReference<T> where T : class
+	public struct ObjectReference<T> where T : class // Constraint must be 'class' instead of 'Object' to allow for interface types
 	{
 		[SerializeField]
 		private Object objectRef;
@@ -45,7 +47,15 @@ namespace UnityEssentials
 
 		public ObjectReference(T value)
 		{
-			objectRef = value as MonoBehaviour;
+			if (value != null)
+			{
+				if(value is Object o) objectRef = o;
+				else throw new ArgumentException("Value must be a UnityEngine.Object or an interface inheriting from a UnityEngine.Object.");
+			}
+			else
+			{
+				objectRef = null;
+			}
 		}
 		
 		public static implicit operator T(ObjectReference<T> r) => r.Value;
