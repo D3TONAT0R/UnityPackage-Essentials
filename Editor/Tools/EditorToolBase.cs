@@ -3,6 +3,7 @@ using ToolManager = UnityEditor.EditorTools.ToolManager;
 #else
 using ToolManager = UnityEditor.EditorTools.EditorTools;
 #endif
+using System.Reflection;
 using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEditor;
@@ -39,8 +40,10 @@ namespace UnityEssentialsEditor.Tools
 					}
 					else
 					{
-						_toolbarIcon = new GUIContent("?");
+						_toolbarIcon = new GUIContent(EditorGUIUtility.IconContent("d_CustomTool").image);
 					}
+					var toolName = GetType().GetCustomAttribute<EditorToolAttribute>()?.displayName ?? ObjectNames.NicifyVariableName(GetType().Name);
+					_toolbarIcon.tooltip = toolName;
 				}
 				return _toolbarIcon;
 			}
