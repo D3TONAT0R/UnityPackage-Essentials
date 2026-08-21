@@ -10,7 +10,7 @@ namespace UnityEssentials.Pooling
 	/// A pool of GameObjects with a specific component attached.
 	/// </summary>
 	/// <typeparam name="T">The component attached to each instance of this pool.</typeparam>
-	public class InstancePool<T> where T : Component
+	public class InstancePool<T> where T : Component, IDisposable
 	{
 		/// <summary>
 		/// The scene to which this pool is bound to. If set, all objects are destroyed when this scene is unloaded. If left null, instances are created in the active scene (unless <see cref="dontDestroyOnLoad"/> is set)
@@ -213,6 +213,14 @@ namespace UnityEssentials.Pooling
 		}
 
 		/// <summary>
+		/// Detaches all active instances from this pool, making them independent of this pool.
+		/// </summary>
+		public void DetachAllInstances()
+		{
+			activePool.Clear();
+		}
+
+		/// <summary>
 		/// Destroys all instances created from this pool.
 		/// </summary>
 		public void DestroyAllInstances()
@@ -349,5 +357,15 @@ namespace UnityEssentials.Pooling
 			}
 		}
 #endif
+
+		public void Dispose()
+		{
+			SceneManager.sceneUnloaded -= OnSceneUnloaded;
+			Application.quitting -= OnApplicationQuit;
+#if UNITY_EDITOR
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload -= OnAssemblyReload;
+#endif
+			DestroyAllInstances();
+		}
 	}
 }
