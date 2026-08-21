@@ -1,5 +1,7 @@
+using System;
 using UnityEssentials.PlayerLoop;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace UnityEssentials
 {
@@ -7,13 +9,20 @@ namespace UnityEssentials
 	/// Helper class for setting up a repeating timer.
 	/// </summary>
 	[System.Serializable]
-	public class RepeatTimer
+	public class RepeatTimer : IDisposable
 	{
-		public enum UpdateMode : byte
+		public enum UpdateMode
 		{
 			DeltaTime = 0,
 			UnscaledDeltaTime = 1,
 			FixedDeltaTime = 2
+		}
+
+		public enum UpdateTiming
+		{
+			Early = -1,
+			Normal = 0,
+			Late = 1
 		}
 
 		[Tooltip("Whether to use a random interval.")]
@@ -30,7 +39,7 @@ namespace UnityEssentials
 		private float nextTickRandom = -1;
 
 		private UpdateMode autoUpdateMode;
-		private MonoBehaviour autoUpdateOwner;
+		private Component autoUpdateOwner;
 
 		/// <summary>
 		/// An optional name for debugging purposes.
@@ -92,6 +101,11 @@ namespace UnityEssentials
 		/// The time until the next tick is triggered.
 		/// </summary>
 		public float NextUpdateDelta => NextTickTime - time;
+		
+		/// <summary>
+		/// Whether this timer has been disposed. Disposing a timer will stop it from auto updating and remove all event listeners.
+		/// </summary>
+		public bool IsDisposed { get; private set; } = false;
 
 		private RepeatTimer(float interval)
 		{
@@ -123,20 +137,25 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Enabled automatic updating of the timer.
+		/// Enables automatic updating of the timer.
 		/// </summary>
-		public void EnableAutoUpdate(MonoBehaviour owner, UpdateMode mode, bool early = true)
+		public void EnableAutoUpdate(Component owner, UpdateMode mode = UpdateMode.DeltaTime, UpdateTiming timing = UpdateTiming.Normal)
 		{
-			if(!owner) throw new System.NullReferenceException("Owner object must not be null.");
+			DisposedCheck();
+			if(!owner) throw new ArgumentException("Owner object must not be null.");
+			autoUpdateOwner = owner;
 			autoUpdateMode = mode;
 			if(mode == UpdateMode.DeltaTime || mode == UpdateMode.UnscaledDeltaTime)
 			{
-				if(early) UpdateLoop.PreUpdate += AutoUpdate;
+				if(timing == UpdateTiming.Early) UpdateLoop.PreUpdate += AutoUpdate;
+				else if(timing == UpdateTiming.Late) UpdateLoop.LateUpdate += AutoUpdate;
 				else UpdateLoop.Update += AutoUpdate;
 			}
 			else if(mode == UpdateMode.FixedDeltaTime)
 			{
-				UpdateLoop.FixedUpdate += AutoUpdate;
+				if(timing == UpdateTiming.Early) UpdateLoop.PreFixedUpdate += AutoUpdate;
+				else if(timing == UpdateTiming.Late) UpdateLoop.PostFixedUpdate += AutoUpdate;
+				else UpdateLoop.FixedUpdate += AutoUpdate;
 			}
 			else throw new System.InvalidOperationException();
 			AutoUpdateActive = true;
@@ -159,6 +178,7 @@ namespace UnityEssentials
 		/// </summary>
 		public void Restart()
 		{
+			DisposedCheck();
 			lastUpdateTime = 0;
 			time = 0;
 		}
@@ -180,29 +200,30 @@ namespace UnityEssentials
 		/// </summary>
 		public void ForceTick()
 		{
+			DisposedCheck();
 			PerformTick();
 		}
 
 		private void AutoUpdate()
 		{
-			if(autoUpdateOwner == null)
+			if(!autoUpdateOwner)
 			{
 				DisableAutoUpdate();
 				return;
 			}
 			switch(autoUpdateMode)
 			{
-				case UpdateMode.DeltaTime: Update(Time.deltaTime); break;
-				case UpdateMode.UnscaledDeltaTime: Update(Time.unscaledDeltaTime); break;
-				case UpdateMode.FixedDeltaTime: Update(Time.fixedDeltaTime); break;
+				case UpdateMode.DeltaTime: UpdateInternal(Time.deltaTime); break;
+				case UpdateMode.UnscaledDeltaTime: UpdateInternal(Time.unscaledDeltaTime); break;
+				case UpdateMode.FixedDeltaTime: UpdateInternal(Time.fixedDeltaTime); break;
 				default: throw new System.InvalidOperationException();
 			}
 		}
 
 		private bool UpdateInternal(float delta)
 		{
+			DisposedCheck();
 			time += delta;
-
 			if(useRandomInterval && nextTickRandom < 0) nextTickRandom = Random.value;
 
 			if(time >= NextTickTime)
@@ -234,6 +255,18 @@ namespace UnityEssentials
 			if(useRandomInterval) s += $"({intervalRange.min}-{intervalRange.max})";
 			else s += $"({interval})";
 			return s;
+		}
+
+		public void Dispose()
+		{
+			IsDisposed = true;
+			if(AutoUpdateActive) DisableAutoUpdate();
+			Tick = null;
+		}
+
+		private void DisposedCheck()
+		{
+			if(IsDisposed) throw new ObjectDisposedException("RepeatTimer has been disposed.");
 		}
 	}
 }
