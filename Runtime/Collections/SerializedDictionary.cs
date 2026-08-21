@@ -194,7 +194,7 @@ namespace UnityEssentials.Collections
 				e.LogException("Exception thrown while deserializing dictionary");
 #endif
 				SerializationException = e;
-				dictionary = null;
+				dictionary = new Dictionary<K, V>();
 			}
 		}
 	}
