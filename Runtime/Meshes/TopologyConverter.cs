@@ -16,7 +16,7 @@ namespace UnityEssentials.Meshes
 			if(!triangleMesh.isReadable)
 			{
 #if UNITY_2021_2_OR_NEWER
-				lineMesh = triangleMesh.GetReadableCopy();
+				triangleMesh = triangleMesh.GetReadableCopy();
 #else
 				throw new System.InvalidOperationException("Mesh must be readable: " + triangleMesh);
 #endif
@@ -52,10 +52,10 @@ namespace UnityEssentials.Meshes
 					int quadCount = srcIndices.Count / 4;
 					for(int i = 0; i < quadCount; i++)
 					{
-						int index0 = srcIndices[i * 3];
-						int index1 = srcIndices[i * 3 + 1];
-						int index2 = srcIndices[i * 3 + 2];
-						int index3 = srcIndices[i * 3 + 3];
+						int index0 = srcIndices[i * 4];
+						int index1 = srcIndices[i * 4 + 1];
+						int index2 = srcIndices[i * 4 + 2];
+						int index3 = srcIndices[i * 4 + 3];
 						//Line 1
 						AddLine(indices, index0, index1, avoidDuplicates);
 						//Line 2
