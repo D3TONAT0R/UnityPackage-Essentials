@@ -16,7 +16,7 @@ namespace UnityEssentials.Meshes
 			if(!triangleMesh.isReadable)
 			{
 #if UNITY_2021_2_OR_NEWER
-				triangleMesh = triangleMesh.GetReadableCopy();
+				lineMesh = triangleMesh.GetReadableCopy();
 #else
 				throw new System.InvalidOperationException("Mesh must be readable: " + triangleMesh);
 #endif
@@ -25,12 +25,12 @@ namespace UnityEssentials.Meshes
 
 			List<int> srcIndices = new List<int>();
 			List<int> indices = new List<int>();
-			for(int submesh = 0; submesh < triangleMesh.subMeshCount; submesh++)
+			for(int submesh = 0; submesh < lineMesh.subMeshCount; submesh++)
 			{
 				srcIndices.Clear();
 				indices.Clear();
-				var topology = triangleMesh.GetTopology(submesh);
-				triangleMesh.GetIndices(srcIndices, submesh, true);
+				var topology = lineMesh.GetTopology(submesh);
+				lineMesh.GetIndices(srcIndices, submesh, true);
 				if(topology == MeshTopology.Triangles)
 				{
 					int triangleCount = srcIndices.Count / 3;
