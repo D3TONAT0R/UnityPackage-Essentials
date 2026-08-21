@@ -64,13 +64,11 @@ namespace UnityEssentials
 		public static int Sign(this int i) => i > 0 ? 1 : i < 0 ? -1 : 0;
 
 		/// <summary>
-		/// Clamps the given angle between a -180 to 180 degrees range.
+		/// Wraps the given angle between a -180 to 180 degree range.
 		/// </summary>
-		public static float ClampAngle(this float f)
+		public static float WrapAngle180(this float f)
 		{
-			while(f > 180) f -= 360;
-			while(f < -180) f += 360;
-			return f;
+			return Mathf.Repeat(f + 180f, 360f) - 180f;
 		}
 
 		#endregion

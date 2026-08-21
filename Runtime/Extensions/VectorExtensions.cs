@@ -346,12 +346,12 @@ namespace UnityEssentials
 		/// <summary>
 		/// Clamps all component's angles between a -180 to 180 degrees range.
 		/// </summary>
-		public static Vector2 ClampAngle(this Vector2 v) => new Vector2(v.x.ClampAngle(), v.y.ClampAngle());
+		public static Vector2 ClampAngle(this Vector2 v) => new Vector2(v.x.WrapAngle180(), v.y.WrapAngle180());
 
 		/// <summary>
 		/// Clamps all component's angles between a -180 to 180 degrees range.
 		/// </summary>
-		public static Vector3 ClampAngle(this Vector3 v) => new Vector3(v.x.ClampAngle(), v.y.ClampAngle(), v.z.ClampAngle());
+		public static Vector3 ClampAngle(this Vector3 v) => new Vector3(v.x.WrapAngle180(), v.y.WrapAngle180(), v.z.WrapAngle180());
 
 		/// <summary>
 		/// Clamps all components of this vector between the given minimum and maximum values.
