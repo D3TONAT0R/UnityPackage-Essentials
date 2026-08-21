@@ -39,14 +39,14 @@ namespace UnityEssentials
 				}
 				foreach(var r in matches)
 				{
-					if(r == null)
+					if(memberValue == null)
 					{
-						if(memberValue == null)
+						if(r == null)
 						{
 							return true;
 						}
 					}
-					if(memberValue.Equals(r))
+					else if(memberValue.Equals(r))
 					{
 						return true;
 					}
