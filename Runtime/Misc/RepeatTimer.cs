@@ -44,7 +44,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// An optional name for debugging purposes.
 		/// </summary>
-		public static string Name
+		public string Name
 		{
 			get;
 			set;
@@ -95,7 +95,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// The time elapsed since the last tick.
 		/// </summary>
-		public float LastUpdateDelta => time;
+		public float LastUpdateDelta => time - lastUpdateTime;
 
 		/// <summary>
 		/// The time until the next tick is triggered.
@@ -107,7 +107,7 @@ namespace UnityEssentials
 		/// </summary>
 		public bool IsDisposed { get; private set; } = false;
 
-		private RepeatTimer(float interval)
+		public RepeatTimer(float interval)
 		{
 			this.interval = interval;
 		}
