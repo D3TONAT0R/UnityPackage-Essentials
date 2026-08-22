@@ -10,12 +10,12 @@ namespace UnityEssentials
 	public static class PersistentFileUtility
 	{
 		/// <summary>
-		/// The possible file location to store files in.
+		/// The file location to store files in.
 		/// </summary>
 		public enum FileLocation
 		{
 			/// <summary>
-			/// The "_Data" folder next to the game's executable or the project's root folder when in the editor.
+			/// The data directory next to the game's executable.
 			/// </summary>
 			DataPath = 0,
 			/// <summary>
@@ -25,9 +25,18 @@ namespace UnityEssentials
 			/// </summary>
 			PersistentDataPath = 1,
 			/// <summary>
-			/// The current user's documents folder defined by the operating system. Always returns the project's root folder when in the editor.
+			/// The current user's documents folder defined by the operating system.
 			/// </summary>
-			Documents = 2
+			Documents = 2,
+			/// <summary>
+			/// Windows: Usually points to %userprofile%\AppData\LocalLow\(companyname)\(productname).
+			/// Mac: Points to the user Library folder. (This folder is often hidden)
+			/// </summary>
+			PersistentDataPathOrProjectRoot = 3,
+			/// <summary>
+			/// The current user's documents folder defined by the operating system. Returns the project's root folder when in the editor.
+			/// </summary>
+			DocumentsOrProjectRoot = 4,
 		}
 
 		/// <summary>
@@ -45,16 +54,15 @@ namespace UnityEssentials
 		/// </summary>
 		public static string GetRootPathForLocation(FileLocation location)
 		{
-			if(Application.isEditor)
+			return location switch
 			{
-				return Directory.GetParent(Application.dataPath).ToString();
-			}
-			if((int)location >= 10) location -= 10;
-
-			if(location == FileLocation.PersistentDataPath) return Application.persistentDataPath;
-			else if(location == FileLocation.Documents) return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName);
-			else if(location == FileLocation.DataPath) return Application.dataPath;
-			else throw new NotImplementedException();
+				FileLocation.DataPath => Application.dataPath,
+				FileLocation.PersistentDataPath => Application.persistentDataPath,
+				FileLocation.Documents => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName),
+				FileLocation.PersistentDataPathOrProjectRoot => Application.isEditor ? GetProjectRootPath() : Application.persistentDataPath,
+				FileLocation.DocumentsOrProjectRoot => Application.isEditor ? GetProjectRootPath() : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName),
+				_ => throw new NotImplementedException()
+			};
 		}
 
 		/// <summary>
@@ -74,6 +82,11 @@ namespace UnityEssentials
 		public static string GetDefaultFullPath(string relativePath)
 		{
 			return GetFullPath(DefaultFileLocation, relativePath);
+		}
+		
+		private static string GetProjectRootPath()
+		{
+			return Directory.GetParent(Application.dataPath).ToString();
 		}
 	}
 }
