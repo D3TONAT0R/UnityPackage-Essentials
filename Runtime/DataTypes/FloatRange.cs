@@ -48,7 +48,7 @@ namespace UnityEssentials
 
 		public float InverseLerp(float v) => Mathf.InverseLerp(min, max, v);
 
-		public float InverseLerpUnclamped(float v) => (v - min) / (max - min);
+		public float InverseLerpUnclamped(float v) => (max - min) != 0 ? (v - min) / (max - min) : 0;
 
 		public float ClampValue(float v) => Mathf.Clamp(v, min, max);
 

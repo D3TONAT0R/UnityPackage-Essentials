@@ -92,7 +92,7 @@ namespace UnityEssentials
 			int mask = 0;
 			for(int i = 0; i < 32; i++)
 			{
-				if(!Physics.GetIgnoreLayerCollision(layer, i)) mask += 1 << i;
+				if(!Physics.GetIgnoreLayerCollision(layer, i)) mask |= 1 << i;
 			}
 			return mask;
 		}

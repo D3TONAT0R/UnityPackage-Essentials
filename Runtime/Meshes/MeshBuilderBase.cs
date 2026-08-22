@@ -6,7 +6,7 @@ namespace UnityEssentials.Meshes
 {
 	public abstract class MeshBuilderBase
 	{
-		public class MatrixScope : System.IDisposable
+		public struct MatrixScope : IDisposable
 		{
 			private MeshBuilderBase builder;
 

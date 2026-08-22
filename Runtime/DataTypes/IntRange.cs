@@ -42,9 +42,11 @@ namespace UnityEssentials
 			return UnityEngine.Random.Range(min, max + 1);
 		}
 
-		public float ClampValue(int v) => Mathf.Clamp(v, min, max);
+		public int ClampValue(int v) => Mathf.Clamp(v, min, max);
 
 		public Vector2 ToVector2() => new Vector2(min, max);
+		
+		public Vector2Int ToVector2Int() => new Vector2Int(min, max);
 
 		public FloatRange ToFloatRange() => new FloatRange(min, max);
 	}

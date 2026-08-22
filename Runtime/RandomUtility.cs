@@ -19,7 +19,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static bool Probability(float prob)
 		{
-			return Random.value <= prob;
+			return Random.value < prob;
 		}
 
 		/// <summary>

@@ -203,15 +203,15 @@ namespace UnityEssentials
 		/// <summary>
 		/// Converts the given color to a 32-bit integer.
 		/// </summary>
-		public static int ToInt(Color32 color, bool includeAlpha = true)
+		public static uint ToUInt(Color32 color, bool includeAlpha = true)
 		{
 			if(includeAlpha)
 			{
-				return (color.r << 24) | (color.g << 16) | (color.b << 8) | color.a;
+				return ((uint)color.r << 24) | ((uint)color.g << 16) | ((uint)color.b << 8) | (uint)color.a;
 			}
 			else
 			{
-				return (color.r << 16) | (color.g << 8) | color.b;
+				return ((uint)color.r << 16) | ((uint)color.g << 8) | (uint)color.b;
 			}
 		}
 
@@ -220,14 +220,14 @@ namespace UnityEssentials
 		/// </summary>
 		public static string ToHex(Color32 color, bool includeAlpha = true)
 		{
-			int i = ToInt(color, includeAlpha);
+			uint i = ToUInt(color, includeAlpha);
 			return Convert.ToString(i, 16).ToUpper().PadLeft(includeAlpha ? 8 : 6, '0');
 		}
 
 		/// <summary>
 		/// Creates a color from the given 32-bit integer.
 		/// </summary>
-		public static Color32 FromInt(int value, bool includeAlpha = true)
+		public static Color32 FromUInt(uint value, bool includeAlpha = true)
 		{
 			if(includeAlpha)
 			{
@@ -251,12 +251,13 @@ namespace UnityEssentials
 		/// </summary>
 		public static Color32 FromHex(string hex)
 		{
+			if(hex.StartsWith("#")) hex = hex.Substring(1);
 			bool includeAlpha;
 			if(hex.Length == 8) includeAlpha = true;
 			else if(hex.Length == 6) includeAlpha = false;
 			else throw new ArgumentException("Color hex code must be either 6 or 8 characters long.");
-			int i = Convert.ToInt32(hex, 16);
-			return FromInt(i, includeAlpha);
+			uint i = Convert.ToUInt32(hex, 16);
+			return FromUInt(i, includeAlpha);
 		}
 		#endregion
 
