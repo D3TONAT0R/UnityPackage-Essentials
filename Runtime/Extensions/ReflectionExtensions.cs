@@ -10,6 +10,7 @@ namespace UnityEssentials
 		{
 			if(m is FieldInfo fi) return fi.GetValue(obj);
 			if(m is PropertyInfo pi) return pi.GetValue(obj);
+			if(m is MethodInfo mi) return mi.Invoke(obj, Array.Empty<object>());
 			throw new ArgumentException("MemberInfo must be of type FieldInfo or PropertyInfo");
 		}
 		
@@ -17,14 +18,14 @@ namespace UnityEssentials
 		{
 			if(m is FieldInfo fi) fi.SetValue(obj, value);
 			else if(m is PropertyInfo pi) pi.SetValue(obj, value);
-			else throw new ArgumentException("MemberInfo must be of type FieldInfo or PropertyInfo");
+			else throw new ArgumentException("MemberInfo must be of type FieldInfo, PropertyInfo or MethodInfo");
 		}
 		
 		public static bool CanRead(this MemberInfo m)
 		{
 			if(m is FieldInfo) return true;
 			else if(m is PropertyInfo pi) return pi.CanRead;
-			else if(m is MethodInfo) return true;
+			else if(m is MethodInfo mi && mi.ReturnType != typeof(void)) return mi.GetParameters().Length == 0;
 			else throw new ArgumentException("MemberInfo must be of type FieldInfo, PropertyInfo or MethodInfo");
 		}
 		
