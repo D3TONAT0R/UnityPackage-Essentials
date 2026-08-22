@@ -396,7 +396,7 @@ namespace UnityEssentials
 			}
 			else
 			{
-				if (throwException) throw new NullReferenceException($"Member '{name}' not found in type '{type.Name}'.");
+				if (throwException) throw new InvalidOperationException($"Member '{name}' not found in type '{type.Name}'.");
 				return null;
 			}
 		}

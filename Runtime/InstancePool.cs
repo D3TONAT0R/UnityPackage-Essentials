@@ -336,7 +336,7 @@ namespace UnityEssentials.Pooling
 			inst = instantiator.Invoke();
 			if(inst == null)
 			{
-				throw new NullReferenceException("Instantiated object was null.");
+				throw new ArgumentException("Instantiated object must not be null.");
 			}
 			if(dontDestroyOnLoad)
 			{

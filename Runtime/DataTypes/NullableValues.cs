@@ -132,7 +132,7 @@ namespace UnityEssentials
 			}
 			else
 			{
-				throw new NullReferenceException("Nullable does not have a value.");
+				throw new InvalidOperationException("Nullable does not have a value.");
 			}
 		}
 

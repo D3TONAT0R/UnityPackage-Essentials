@@ -120,13 +120,13 @@ namespace UnityEssentials
 
 		private static Coroutine InvokeCoroutine(MonoBehaviour owner, Delay delay, IEnumerator routine)
 		{
-			if(owner == null) throw new NullReferenceException("Coroutine owner object must no be null.");
+			if(owner == null) throw new ArgumentException("Coroutine owner object must not be null.");
 			return owner.StartCoroutine(ExecuteCoroutine(routine, delay));
 		}
 
 		private static Coroutine InvokeActionDelayed(MonoBehaviour owner, Delay delay, Action action)
 		{
-			if(owner == null) throw new NullReferenceException("Coroutine owner object must no be null.");
+			if(owner == null) throw new ArgumentException("Coroutine owner object must not be null.");
 			return owner.StartCoroutine(ExecuteAction(action, delay));
 		}
 

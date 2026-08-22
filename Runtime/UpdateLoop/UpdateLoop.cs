@@ -527,7 +527,7 @@ namespace UnityEssentials.PlayerLoop
 
 			if (index < 0)
 			{
-				throw new NullReferenceException($"Subsystem of type '{subSystemRoot}' not found.");
+				throw new InvalidOperationException($"Subsystem of type '{subSystemRoot}' not found.");
 			}
 
 			var sub = root.subSystemList[index];
@@ -552,7 +552,7 @@ namespace UnityEssentials.PlayerLoop
 				var index = subsystems.FindIndex((s) => s.type == reference);
 				if (index < 0)
 				{
-					throw new NullReferenceException($"Subsystem of type '{reference}' not found, system not added.");
+					throw new InvalidOperationException($"Subsystem of type '{reference}' not found, system not added.");
 				}
 				systemToAdd.loopConditionFunction = subsystems[index].loopConditionFunction;
 				if (position == Position.Before)
