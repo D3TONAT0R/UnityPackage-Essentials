@@ -8,20 +8,20 @@ namespace UnityEssentials
 	public class MessagedException : Exception
 	{
 		private readonly string message;
-		private readonly Exception rootException;
+		private readonly Exception innerException;
 
-		public override string Message => $"{message}: {rootException.Message}";
-		public override string StackTrace => rootException.StackTrace;
+		public override string Message => $"{message}: {innerException?.Message}";
+		public override string StackTrace => innerException?.StackTrace;
 
-		public MessagedException(string message, Exception rootException) : base()
+		public MessagedException(string message, Exception innerException) : base(message, innerException)
 		{
-			this.rootException = rootException;
+			this.innerException = innerException;
 			this.message = message;
 		}
 
 		public override Exception GetBaseException()
 		{
-			return rootException;
+			return innerException;
 		}
 
 	}
