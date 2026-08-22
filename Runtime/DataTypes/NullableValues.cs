@@ -44,8 +44,8 @@ namespace UnityEssentials
 		public static NullableValue CreateInstance(Type t, object nullableObject)
 		{
 			bool hasValue = nullableObject != null;
-			if(nullableObject == null) nullableObject = Activator.CreateInstance(t);
-			return CreateInstance(hasValue, nullableObject);
+			if(hasValue) return CreateInstance(true, nullableObject);
+			else return CreateInstance(false, Activator.CreateInstance(t));
 		}
 	}
 
