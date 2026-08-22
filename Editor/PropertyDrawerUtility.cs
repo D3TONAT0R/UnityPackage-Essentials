@@ -601,7 +601,7 @@ namespace UnityEssentialsEditor
 				var drawer = GetPropertyDrawerFromType(GetPropertyType(property));
 				if(drawer != null)
 				{
-					drawer.GetType().GetField("m_FieldInfo", allInclusiveBindingFlags)?.SetValue(drawer, null);
+					drawer.GetType().GetField("m_FieldInfo", ALL_BINDING_FLAGS)?.SetValue(drawer, null);
 					drawer.OnGUI(rect, property, label);
 				}
 				else

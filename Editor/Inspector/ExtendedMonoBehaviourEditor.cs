@@ -65,7 +65,7 @@ namespace UnityEssentialsEditor.Inspector
 			}
 			else
 			{
-				var props = type.GetProperties(ReflectionUtility.allInclusiveBindingFlags).Where(p => p.GetCustomAttribute<ShowInInspectorAttribute>() != null && p.GetGetMethod(true) != null).ToArray();
+				var props = type.GetProperties(ReflectionUtility.ALL_BINDING_FLAGS).Where(p => p.GetCustomAttribute<ShowInInspectorAttribute>() != null && p.GetGetMethod(true) != null).ToArray();
 				exposedProperties[type] = props;
 				return props;
 			}

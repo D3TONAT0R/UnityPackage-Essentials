@@ -104,7 +104,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
-				var props = type.GetMembers(ReflectionUtility.allInclusiveBindingFlags)
+				var props = type.GetMembers(ReflectionUtility.ALL_BINDING_FLAGS)
 					.Where(m => m.GetCustomAttribute<ShowInInspectorAttribute>() != null && m.CanRead())
 					.Select(p => new ExposedMember(p))
 					.ToArray();

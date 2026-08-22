@@ -90,8 +90,8 @@ namespace UnityEssentials
 		protected void DrawEditorProperties(UnityEditor.SerializedObject obj)
 		{
 			var prop = obj.GetIterator();
-			prop.NextVisible(true);
 			obj.Update();
+			prop.NextVisible(true);
 			while(prop.NextVisible(false))
 			{
 				UnityEditor.EditorGUILayout.PropertyField(prop);

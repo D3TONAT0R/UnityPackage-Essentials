@@ -54,15 +54,15 @@ namespace UnityEssentials
 
 		public override string ToString()
 		{
-			if(TargetMember != null)
+			if (TargetMember != null)
 			{
 				return $"{Attribute.GetType().Name} in {TargetMember.DeclaringType.FullName}.{TargetMember.Name}";
 			}
-			else if(TargetType != null)
+			else if (TargetType != null)
 			{
 				return $"{Attribute.GetType().Name} in {TargetType.FullName}";
 			}
-			else if(TargetAssembly != null)
+			else if (TargetAssembly != null)
 			{
 				return $"{Attribute.GetType().Name} in Assembly {TargetAssembly.FullName}";
 			}
@@ -78,7 +78,7 @@ namespace UnityEssentials
 	/// </summary>
 	public static class ReflectionUtility
 	{
-		public const BindingFlags allInclusiveBindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+		public const BindingFlags ALL_BINDING_FLAGS = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
 		private static readonly string[] excludedAssemblyPrefixesNoUnity = new string[]
 		{
@@ -86,7 +86,7 @@ namespace UnityEssentials
 			"UnityEditor",
 			"Unity.",
 			"mscorlib",
-			"System",
+			"System.",
 			"Mono.",
 			"SyntaxTree",
 			"netstandard"
@@ -95,7 +95,7 @@ namespace UnityEssentials
 		private static readonly string[] excludedAssemblyPrefixesWithUnity = new string[]
 		{
 			"mscorlib",
-			"System",
+			"System.",
 			"Mono.",
 			"SyntaxTree",
 			"netstandard"
@@ -107,14 +107,35 @@ namespace UnityEssentials
 
 		private static Dictionary<Type, Type[]> interfaceCache = new Dictionary<Type, Type[]>();
 
+		[RuntimeInitializeOnLoadMethod]
+		private static void Init()
+		{
+			RefreshAssemblyCache();
+		}
+		
+		public static void RefreshAssemblyCache()
+		{
+#if UNITY_EDITOR
+			//TODO: store player assembly names in build to make this available in builds too
+			var unityAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(
+				UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies);
+			DebugUtility.LogArray("Unity Assemblies", unityAssemblies.Select(a => a.name).ToArray());
+			assemblyCache = AppDomain.CurrentDomain.GetAssemblies().Where(a => unityAssemblies.Any(ua => ua.name == a.GetName().Name)).ToArray();
+#else
+			assemblyCache = AppDomain.CurrentDomain.GetAssemblies();
+#endif
+			gameAssemblyCache = GetAssembliesExcluding(excludedAssemblyPrefixesNoUnity);
+			gameAssemblyWithUnityCache = GetAssembliesExcluding(excludedAssemblyPrefixesWithUnity);
+		}
+
 		/// <summary>
 		/// Returns all game related assemblies (excluding unity assemblies).
 		/// </summary>
 		public static Assembly[] GetGameAssemblies()
 		{
-			if(gameAssemblyCache == null)
+			if (gameAssemblyCache == null)
 			{
-				gameAssemblyCache = GetAssembliesExcluding(excludedAssemblyPrefixesNoUnity);
+				RefreshAssemblyCache();
 			}
 			return gameAssemblyCache;
 		}
@@ -124,9 +145,9 @@ namespace UnityEssentials
 		/// </summary>
 		public static Assembly[] GetGameAssembliesIncludingUnity()
 		{
-			if(gameAssemblyWithUnityCache == null)
+			if (gameAssemblyWithUnityCache == null)
 			{
-				gameAssemblyWithUnityCache = GetAssembliesExcluding(excludedAssemblyPrefixesWithUnity);
+				RefreshAssemblyCache();
 			}
 			return gameAssemblyWithUnityCache;
 		}
@@ -136,7 +157,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static Type[] GetInterfaces(Type type)
 		{
-			if(interfaceCache.TryGetValue(type, out var interfaces))
+			if (interfaceCache.TryGetValue(type, out var interfaces))
 			{
 				return interfaces;
 			}
@@ -150,9 +171,9 @@ namespace UnityEssentials
 
 		private static bool ShouldIgnoreAssembly(Assembly assembly, string[] excludePrefixes)
 		{
-			foreach(var prefix in excludePrefixes)
+			foreach (var prefix in excludePrefixes)
 			{
-				if(assembly.FullName.StartsWith(prefix))
+				if (assembly.FullName.StartsWith(prefix))
 				{
 					return true;
 				}
@@ -167,19 +188,19 @@ namespace UnityEssentials
 		{
 			var types = new List<Type>();
 			var assemblies = includeUnityAssembly ? GetGameAssembliesIncludingUnity() : GetGameAssemblies();
-			foreach(var assembly in assemblies)
+			foreach (var assembly in assemblies)
 			{
 				try
 				{
-					foreach(var t in assembly.GetTypes())
+					foreach (var t in assembly.GetTypes())
 					{
-						if(baseType.IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
+						if (baseType.IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
 						{
 							types.Add(t);
 						}
 					}
 				}
-				catch(ReflectionTypeLoadException)
+				catch (ReflectionTypeLoadException)
 				{
 					//Ignore this exception
 				}
@@ -196,69 +217,69 @@ namespace UnityEssentials
 
 			var defs = new List<AttributeDefinition<T>>();
 			var assemblies = GetGameAssemblies();
-			foreach(var assembly in assemblies)
+			foreach (var assembly in assemblies)
 			{
 				try
 				{
-					if(searchFlags.HasFlag(SearchFlags.Assemblies))
+					if (searchFlags.HasFlag(SearchFlags.Assemblies))
 					{
-						foreach(var attr in assembly.GetCustomAttributes<T>())
+						foreach (var attr in assembly.GetCustomAttributes<T>())
 						{
 							defs.Add(new AttributeDefinition<T>(attr, assembly));
 						}
 					}
-					if(searchFlags.HasFlag(SearchFlags.Classes)
-						|| searchFlags.HasFlag(SearchFlags.Structs)
-						|| searchFlags.HasFlag(SearchFlags.Properties)
-						|| searchFlags.HasFlag(SearchFlags.Fields)
-						|| searchFlags.HasFlag(SearchFlags.Methods)
-						|| searchFlags.HasFlag(SearchFlags.Events)
-						)
+					if (searchFlags.HasFlag(SearchFlags.Classes)
+					    || searchFlags.HasFlag(SearchFlags.Structs)
+					    || searchFlags.HasFlag(SearchFlags.Properties)
+					    || searchFlags.HasFlag(SearchFlags.Fields)
+					    || searchFlags.HasFlag(SearchFlags.Methods)
+					    || searchFlags.HasFlag(SearchFlags.Events)
+					   )
 					{
-						foreach(var t in assembly.GetTypes())
+						foreach (var t in assembly.GetTypes())
 						{
-							if(condition(t))
+							if (condition(t))
 							{
-								foreach(var attr in t.GetCustomAttributes<T>(false))
+								foreach (var attr in t.GetCustomAttributes<T>(false))
 								{
 									defs.Add(new AttributeDefinition<T>(attr, t));
 								}
 							}
-							if(searchFlags.HasFlag(SearchFlags.Properties))
+							if (searchFlags.HasFlag(SearchFlags.Properties))
 							{
-								foreach(var p in t.GetProperties())
+								foreach (var p in t.GetProperties(ALL_BINDING_FLAGS))
 								{
-									foreach(var attr in p.GetCustomAttributes<T>(false))
+									foreach (var attr in p.GetCustomAttributes<T>(false))
 									{
 										defs.Add(new AttributeDefinition<T>(attr, p));
 									}
 								}
 							}
-							if(searchFlags.HasFlag(SearchFlags.Fields))
+							if (searchFlags.HasFlag(SearchFlags.Fields))
 							{
-								foreach(var f in t.GetFields())
+								foreach (var f in t.GetFields(ALL_BINDING_FLAGS))
 								{
-									foreach(var attr in f.GetCustomAttributes<T>(false))
+									foreach (var attr in f.GetCustomAttributes<T>(false))
 									{
 										defs.Add(new AttributeDefinition<T>(attr, f));
 									}
 								}
 							}
-							if(searchFlags.HasFlag(SearchFlags.Methods))
+							if (searchFlags.HasFlag(SearchFlags.Methods))
 							{
-								foreach(var m in t.GetMethods())
+								foreach (var m in t.GetMethods(ALL_BINDING_FLAGS))
 								{
-									foreach(var attr in m.GetCustomAttributes<T>(false))
+									foreach (var attr in m.GetCustomAttributes<T>(false))
 									{
 										defs.Add(new AttributeDefinition<T>(attr, m));
 									}
 								}
 							}
-							if(searchFlags.HasFlag(SearchFlags.Events))
+							if (searchFlags.HasFlag(SearchFlags.Events))
 							{
-								foreach(var e in t.GetEvents())
+								foreach (var e in t.GetEvents(ALL_BINDING_FLAGS))
 								{
-									foreach(var attr in e.GetCustomAttributes<T>(false))
+									foreach (var attr in e.GetCustomAttributes<T>(false))
 									{
 										defs.Add(new AttributeDefinition<T>(attr, e));
 									}
@@ -276,7 +297,7 @@ namespace UnityEssentials
 							{
 								defs.Add(new AttributeDefinition<T>(attr, t));
 							}
-							foreach(var m in t.GetMembers())
+							foreach(var m in t.GetMembers(ALL_BINDING_FLAGS))
 							{
 								foreach(var attr in m.GetCustomAttributes<T>(false))
 								{
@@ -287,7 +308,7 @@ namespace UnityEssentials
 					}
 					*/
 				}
-				catch(ReflectionTypeLoadException)
+				catch (ReflectionTypeLoadException)
 				{
 					//Ignore this exception
 				}
@@ -301,28 +322,30 @@ namespace UnityEssentials
 		/// <typeparam name="T">The type of attribute to search for.</typeparam>
 		/// <param name="staticMethods"><c>true</c> to list <see langword="static"/> methods, <c>false</c> to list instance methods.</param>
 		/// <param name="includeNonPublic">Whether to include private/protected/internal methods in the returned list.</param>
-		public static List<MethodInfo> GetMethodsWithAttribute<T>(bool staticMethods, bool includeNonPublic = true, bool includeStructs = true) where T : Attribute
+		public static List<MethodInfo> GetMethodsWithAttribute<T>(bool staticMethods, bool includeNonPublic = true, bool includeStructs = true)
+			where T : Attribute
 		{
 			var condition = GetClassOrStructCondition(includeStructs ? SearchFlags.Classes | SearchFlags.Structs : SearchFlags.Classes);
 			var bindingFlags = GetBindingFlags(staticMethods, includeNonPublic);
 
 			var methods = new List<MethodInfo>();
-			foreach(var assembly in GetGameAssemblies())
+			foreach (var assembly in GetGameAssemblies())
 			{
 				try
 				{
 					methods.AddRange(assembly.GetTypes() // returns all types defined in this assembly
-						.Where(condition) // classes only
-						.SelectMany(x => x.GetMethods(bindingFlags)) // returns all methods
-						.Where(x => x.GetCustomAttributes(typeof(T), false).FirstOrDefault() != null) // returns only methods that have the Attribute
+							.Where(condition) // classes only
+							.SelectMany(x => x.GetMethods(bindingFlags)) // returns all methods
+							.Where(x => x.GetCustomAttributes(typeof(T), false).FirstOrDefault() !=
+							            null) // returns only methods that have the Attribute
 					);
 				}
-				catch(ReflectionTypeLoadException)
+				catch (ReflectionTypeLoadException)
 				{
 					//Ignore this exception
 				}
 			}
-			
+
 			return methods;
 		}
 
@@ -333,23 +356,23 @@ namespace UnityEssentials
 		{
 			var assemblies = includeUnityAssembly ? GetGameAssembliesIncludingUnity() : GetGameAssemblies();
 			var defs = new List<AttributeDefinition<T>>();
-			foreach(var assembly in assemblies)
+			foreach (var assembly in assemblies)
 			{
 				try
 				{
-					foreach(var attr in assembly.GetCustomAttributes<T>())
+					foreach (var attr in assembly.GetCustomAttributes<T>())
 					{
 						defs.Add(new AttributeDefinition<T>(attr, assembly));
 					}
-					foreach(var t in assembly.GetTypes())
+					foreach (var t in assembly.GetTypes())
 					{
-						foreach(var attr in t.GetCustomAttributes<T>(false))
+						foreach (var attr in t.GetCustomAttributes<T>(false))
 						{
 							defs.Add(new AttributeDefinition<T>(attr, t));
 						}
 					}
 				}
-				catch(ReflectionTypeLoadException)
+				catch (ReflectionTypeLoadException)
 				{
 					//Ignore this exception
 				}
@@ -362,18 +385,18 @@ namespace UnityEssentials
 		/// </summary>
 		public static MemberInfo FindMemberInType(Type type, string name, bool throwException = false)
 		{
-			var members = type.GetMember(name, allInclusiveBindingFlags);
-			if(members.Length > 0)
+			var members = type.GetMember(name, ALL_BINDING_FLAGS);
+			if (members.Length > 0)
 			{
 				return members[0];
 			}
-			else if(type.BaseType != null)
+			else if (type.BaseType != null)
 			{
 				return FindMemberInType(type.BaseType, name, throwException);
 			}
 			else
 			{
-				if(throwException) throw new NullReferenceException($"Member '{name}' not found in type '{type.Name}'.");
+				if (throwException) throw new NullReferenceException($"Member '{name}' not found in type '{type.Name}'.");
 				return null;
 			}
 		}
@@ -384,7 +407,7 @@ namespace UnityEssentials
 		public static object GetMemberValueByName(object source, string name)
 		{
 			var m = FindMemberInType(source.GetType(), name);
-			if(m != null)
+			if (m != null)
 			{
 				return GetMemberValue(m, source);
 			}
@@ -399,11 +422,11 @@ namespace UnityEssentials
 		/// </summary>
 		public static object GetMemberValue(MemberInfo m, object obj)
 		{
-			if(m is FieldInfo f)
+			if (m is FieldInfo f)
 			{
 				return f.GetValue(obj);
 			}
-			else if(m is PropertyInfo p)
+			else if (m is PropertyInfo p)
 			{
 				return p.GetValue(obj);
 			}
@@ -426,48 +449,50 @@ namespace UnityEssentials
 		/// </summary>
 		public static void InvokeStaticMethods(IEnumerable<MethodInfo> methods, bool allowParameterlessMethods, params object[] parameters)
 		{
-			if(parameters == null) parameters = new object[0];
-			foreach(var m in methods)
+			if (parameters == null) parameters = new object[0];
+			foreach (var m in methods)
 			{
 				try
 				{
-					if(!m.IsStatic)
+					if (!m.IsStatic)
 					{
 						throw new MethodAccessException($"Method '{m.DeclaringType.FullName}.{m.Name}' is not static.");
 					}
-					if(allowParameterlessMethods)
+					if (allowParameterlessMethods)
 					{
 						int paramCount = m.GetParameters().Length;
-						if(paramCount > 0 && paramCount != parameters.Length)
+						if (paramCount > 0 && paramCount != parameters.Length)
 						{
-							throw new MethodAccessException($"Method '{m.DeclaringType.FullName}.{m.Name}' cannot be called due to parameter count mismatch.");
+							throw new MethodAccessException(
+								$"Method '{m.DeclaringType.FullName}.{m.Name}' cannot be called due to parameter count mismatch.");
 						}
 						try
 						{
 							m.Invoke(null, paramCount == 0 ? null : parameters);
 						}
-						catch(Exception e)
+						catch (Exception e)
 						{
 							Debug.LogException(e);
 						}
 					}
 					else
 					{
-						if(m.GetParameters().Length != parameters.Length)
+						if (m.GetParameters().Length != parameters.Length)
 						{
-							throw new MethodAccessException($"Method '{m.DeclaringType.FullName}.{m.Name}' cannot be called due to parameter count mismatch.");
+							throw new MethodAccessException(
+								$"Method '{m.DeclaringType.FullName}.{m.Name}' cannot be called due to parameter count mismatch.");
 						}
 						try
 						{
 							m.Invoke(null, parameters);
 						}
-						catch(Exception e)
+						catch (Exception e)
 						{
 							Debug.LogException(e);
 						}
 					}
 				}
-				catch(Exception e)
+				catch (Exception e)
 				{
 					e.LogException($"Failed to invoke method '{m.DeclaringType.Name}.{m.Name}'");
 				}
@@ -480,10 +505,7 @@ namespace UnityEssentials
 		public static void SetValueAtPath(object root, MemberInfo[] path, object value)
 		{
 			var obj = root;
-			Resolve(ref obj, path, 0, (o) =>
-			{
-				SetValueOfMember(o, path[path.Length - 1], value);
-			}, true);
+			Resolve(ref obj, path, 0, (o) => { SetValueOfMember(o, path[path.Length - 1], value); }, true);
 		}
 
 		/// <summary>
@@ -506,10 +528,7 @@ namespace UnityEssentials
 		public static object GetValueAtPath(object root, MemberInfo[] path)
 		{
 			var obj = root;
-			Resolve(ref obj, path, 0, (o) =>
-			{
-				obj = GetValueOfMember(obj, path[path.Length - 1]);
-			}, false);
+			Resolve(ref obj, path, 0, (o) => { obj = GetValueOfMember(obj, path[path.Length - 1]); }, false);
 			return obj;
 		}
 
@@ -518,8 +537,8 @@ namespace UnityEssentials
 		/// </summary>
 		public static void SetValueOfMember(object obj, MemberInfo member, object value)
 		{
-			if(member is FieldInfo f) f.SetValue(obj, value);
-			else if(member is PropertyInfo p) p.SetValue(obj, value);
+			if (member is FieldInfo f) f.SetValue(obj, value);
+			else if (member is PropertyInfo p) p.SetValue(obj, value);
 			else throw new InvalidOperationException();
 		}
 
@@ -528,9 +547,9 @@ namespace UnityEssentials
 		/// </summary>
 		public static object GetValueOfMember(object obj, MemberInfo member)
 		{
-			if(member == null) throw new ArgumentNullException("member");
-			if(member is FieldInfo f) return f.GetValue(obj);
-			else if(member is PropertyInfo p) return p.GetValue(obj);
+			if (member == null) throw new ArgumentNullException("member");
+			if (member is FieldInfo f) return f.GetValue(obj);
+			else if (member is PropertyInfo p) return p.GetValue(obj);
 			else throw new InvalidOperationException("Invalid member type: " + member.GetType().Name);
 		}
 
@@ -539,20 +558,20 @@ namespace UnityEssentials
 		/// </summary>
 		public static object AddValues(object a, object b)
 		{
-			if(a is float f) return f + (float)b;
-			else if(a is int i) return i + (int)b;
-			else if(a is Vector2 v2) return v2 + (Vector2)b;
-			else if(a is Vector3 v3) return v3 + (Vector3)b;
-			else if(a is Vector4 v4) return v4 + (Vector4)b;
-			else if(a is short s) return (short)(s + (short)b);
-			else if(a is long l) return l + (long)b;
-			else if(a is double d) return d + (double)b;
-			else if(a is byte y) return (byte)(y + (byte)b);
-			else if(a is uint u) return u + (uint)b;
-			else if(a is ulong ul) return ul + (ulong)b;
-			else if(a is ushort us) return (ushort)(us + (ushort)b);
-			else if(a is decimal dec) return dec + (decimal)b;
-			else if(a is Color c) return c + (Color)b;
+			if (a is float f) return f + (float)b;
+			else if (a is int i) return i + (int)b;
+			else if (a is Vector2 v2) return v2 + (Vector2)b;
+			else if (a is Vector3 v3) return v3 + (Vector3)b;
+			else if (a is Vector4 v4) return v4 + (Vector4)b;
+			else if (a is short s) return (short)(s + (short)b);
+			else if (a is long l) return l + (long)b;
+			else if (a is double d) return d + (double)b;
+			else if (a is byte y) return (byte)(y + (byte)b);
+			else if (a is uint u) return u + (uint)b;
+			else if (a is ulong ul) return ul + (ulong)b;
+			else if (a is ushort us) return (ushort)(us + (ushort)b);
+			else if (a is decimal dec) return dec + (decimal)b;
+			else if (a is Color c) return c + (Color)b;
 			else throw new InvalidOperationException("The given type does not support addition.");
 		}
 
@@ -564,7 +583,7 @@ namespace UnityEssentials
 			object obj = root;
 			string[] pathParts = path.Split('.');
 			var memberPath = new MemberInfo[pathParts.Length];
-			for(int i = 0; i < pathParts.Length; i++)
+			for (int i = 0; i < pathParts.Length; i++)
 			{
 				memberPath[i] = FindMemberInType(obj.GetType(), pathParts[i]);
 				obj = GetValueOfMember(obj, memberPath[i]);
@@ -574,15 +593,15 @@ namespace UnityEssentials
 
 		private static Assembly[] GetAssembliesExcluding(string[] excludePrefixes)
 		{
-			if(assemblyCache == null)
+			if (assemblyCache == null)
 			{
-				assemblyCache = AppDomain.CurrentDomain.GetAssemblies();
+				RefreshAssemblyCache();
 			}
 
 			var list = new List<Assembly>();
-			foreach(var assembly in assemblyCache)
+			foreach (var assembly in assemblyCache)
 			{
-				if(!ShouldIgnoreAssembly(assembly, excludePrefixes))
+				if (!ShouldIgnoreAssembly(assembly, excludePrefixes))
 				{
 					list.Add(assembly);
 				}
@@ -592,15 +611,15 @@ namespace UnityEssentials
 
 		private static void Resolve(ref object obj, MemberInfo[] path, int index, Action<object> action, bool set)
 		{
-			while(index < path.Length - 1)
+			while (index < path.Length - 1)
 			{
 				var memberInfo = path[index];
 				var lObj = obj;
 				obj = GetValueOfMember(obj, memberInfo);
-				if(obj.GetType().IsValueType)
+				if (obj.GetType().IsValueType)
 				{
 					Resolve(ref obj, path, index + 1, action, set);
-					if(set)
+					if (set)
 					{
 						SetValueOfMember(lObj, memberInfo, obj);
 					}
@@ -616,15 +635,15 @@ namespace UnityEssentials
 
 		private static Func<Type, bool> GetClassOrStructCondition(SearchFlags flags)
 		{
-			if(flags.HasFlag(SearchFlags.Types))
+			if (flags.HasFlag(SearchFlags.Types))
 			{
 				return x => x.IsClass || x.IsValueType;
 			}
-			else if(flags.HasFlag(SearchFlags.Classes))
+			else if (flags.HasFlag(SearchFlags.Classes))
 			{
 				return x => x.IsClass;
 			}
-			else if(flags.HasFlag(SearchFlags.Structs))
+			else if (flags.HasFlag(SearchFlags.Structs))
 			{
 				return x => x.IsValueType;
 			}
@@ -638,7 +657,7 @@ namespace UnityEssentials
 		{
 			var flags = BindingFlags.Public;
 			flags |= staticOnly ? BindingFlags.Static : BindingFlags.Instance;
-			if(inclideNonPublic) flags |= BindingFlags.NonPublic;
+			if (inclideNonPublic) flags |= BindingFlags.NonPublic;
 			return flags;
 		}
 	}
