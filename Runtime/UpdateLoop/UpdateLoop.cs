@@ -244,7 +244,7 @@ namespace UnityEssentials.PlayerLoop
 			add
 			{
 				onGUI.Add(value);
-				UpdateLoopScriptInstance.InitIfRequired();
+				UpdateLoopScriptInstance.CheckInitialization();
 			}
 			remove => onGUI.Remove(value);
 		}
@@ -257,7 +257,7 @@ namespace UnityEssentials.PlayerLoop
 			add
 			{
 				onDrawGizmosRuntime.Add(value);
-				UpdateLoopScriptInstance.InitIfRequired();
+				UpdateLoopScriptInstance.CheckInitialization();
 			}
 			remove => onDrawGizmosRuntime.Remove(value);
 		}
@@ -454,7 +454,7 @@ namespace UnityEssentials.PlayerLoop
 			SubscribeAttributeToEvent<OnDrawGizmosRuntimeAttribute>(onDrawGizmosRuntime);
 			if (onDrawGizmosRuntime.subscribers.Count > 0)
 			{
-				UpdateLoopScriptInstance.InitIfRequired();
+				UpdateLoopScriptInstance.CheckInitialization();
 			}
 		}
 

@@ -214,7 +214,7 @@ namespace UnityEssentials
 			}
 			instances.Add(instance);
 #endif
-			UpdateLoopScriptInstance.InitIfRequired();
+			UpdateLoopScriptInstance.CheckInitialization();
 			if(!gizmosSubscribed)
 			{
 				UpdateLoop.OnDrawGizmosRuntime += OnDrawGizmos;

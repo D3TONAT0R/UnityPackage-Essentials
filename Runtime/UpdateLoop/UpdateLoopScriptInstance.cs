@@ -6,7 +6,7 @@ namespace UnityEssentials.PlayerLoop
 	{
 		internal static UpdateLoopScriptInstance instance;
 
-		internal static void InitIfRequired()
+		internal static void CheckInitialization()
 		{
 			if(instance) return;
 			var go = new GameObject("UpdateLoopScriptInstance")
@@ -61,13 +61,13 @@ namespace UnityEssentials.PlayerLoop
 			if(instance == null)
 			{
 				Debug.LogError("Missing UpdateLoopScriptInstance detected.");
-				DestroyInstance(this);
+				instance = this;
 				return false;
 			}
 			else if(instance != this)
 			{
 				Debug.LogError("Duplicate UpdateLoopScriptInstance detected.");
-				DestroyInstance(instance);
+				DestroyInstance(this);
 				return false;
 			}
 			return true;
