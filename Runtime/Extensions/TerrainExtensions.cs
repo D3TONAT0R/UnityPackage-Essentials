@@ -44,48 +44,42 @@ namespace UnityEssentials
 		/// <summary>
 		/// Returns an array containing all tree instances inside the given area.
 		/// </summary>
-		public static TreeInstance[] GetTreesInArea(this Terrain terrain, Vector3 from, Vector3 to, bool ignoreHeight)
+		public static IEnumerable<TreeInstance> GetTreesInArea(this Terrain terrain, Vector3 from, Vector3 to, bool ignoreHeight)
 		{
 			var offset = terrain.GetPosition();
 			var size = terrain.terrainData.size;
-			List<TreeInstance> trees = new List<TreeInstance>();
 			if(ignoreHeight)
 			{
 				return terrain.terrainData.treeInstances.Where((tree) =>
 					tree.GetWorldPosition(offset, size).XZ().IsBetween(from.XZ(), to.XZ())
-				).ToArray();
+				);
 			}
 			else
 			{
 				return terrain.terrainData.treeInstances.Where((tree) =>
 					tree.GetWorldPosition(offset, size).IsBetween(from, to)
-				).ToArray();
+				);
 			}
 		}
 
 		/// <summary>
 		/// Returns an array containing all tree instances within the given radius from a given center point.
 		/// </summary>
-		public static TreeInstance[] GetTreesWithinRadius(this Terrain terrain, Vector3 center, float radius, bool ignoreHeight)
+		public static IEnumerable<TreeInstance> GetTreesWithinRadius(this Terrain terrain, Vector3 center, float radius, bool ignoreHeight)
 		{
 			var offset = terrain.GetPosition();
 			var size = terrain.terrainData.size;
-			List<TreeInstance> trees = new List<TreeInstance>();
-			if(ignoreHeight)
-			{
-				center.y = 0;
-			}
 			if(ignoreHeight)
 			{
 				return terrain.terrainData.treeInstances.Where((tree) =>
 					Vector2.Distance(tree.GetWorldPosition(offset, size).XZ(), center.XZ()) <= radius
-				).ToArray();
+				);
 			}
 			else
 			{
 				return terrain.terrainData.treeInstances.Where((tree) =>
 					Vector3.Distance(tree.GetWorldPosition(offset, size), center) <= radius
-				).ToArray();
+				);
 			}
 		}
 
