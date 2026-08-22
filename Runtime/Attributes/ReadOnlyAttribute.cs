@@ -19,6 +19,7 @@ namespace UnityEssentials
 		public ReadOnlyAttribute(bool drawAsFields)
 		{
 			this.drawAsFields = drawAsFields;
+			order = -20;
 		}
 	}
 }

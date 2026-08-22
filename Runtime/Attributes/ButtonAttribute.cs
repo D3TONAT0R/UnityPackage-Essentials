@@ -58,7 +58,7 @@ namespace UnityEssentials
 				{
 					if (!call.Contains(")"))
 					{
-						Debug.LogError("Malformed method call detected: " + buttons[i]);
+						Debug.LogError($"Malformed method call detected in ButtonAttribute: {buttons[i]}");
 					}
 					else
 					{
@@ -67,22 +67,24 @@ namespace UnityEssentials
 						arguments[i] = match.Value.Substring(1, match.Value.Length - 2).Split(',');
 						var methodName = call.Substring(0, call.IndexOf('('));
 						methodNames[i] = methodName;
+						labels[i] = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(methodName));
 					}
-					var splitCall = call.Split(new char[] { '(', ')' }, StringSplitOptions.RemoveEmptyEntries);
-					methodNames[i] = splitCall[0];
 				}
 				else
 				{
 					methodNames[i] = split[0];
 					arguments[i] = Array.Empty<string>();
 				}
-				if (split.Length > 1)
+				if (labels[i] == null)
 				{
-					labels[i] = new GUIContent(split[1]);
-				}
-				else
-				{
-					labels[i] = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(split[0]));
+					if (split.Length > 1)
+					{
+						labels[i] = new GUIContent(split[1]);
+					}
+					else
+					{
+						labels[i] = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(split[0]));
+					}
 				}
 			}
 #endif
