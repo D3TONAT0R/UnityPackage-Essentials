@@ -158,11 +158,12 @@ namespace UnityEssentials
 		/// </summary>
 		public static void SplitHorizontalMulti(this Rect r, int count, float width, Rect[] results, out Rect leftover, float margin = 0)
 		{
+			if(results.Length < count) 
+				throw new System.ArgumentException("Results array is too short. Must be at least as long as the number of requested rects.", nameof(results));
 			margin = Mathf.Max(margin, 0);
 			if(count <= 0)
 			{
-				leftover = Rect.zero;
-				results[0] = r;
+				leftover = r;
 				return;
 			}
 			for(int i = 0; i < count; i++)
@@ -189,11 +190,12 @@ namespace UnityEssentials
 		/// </summary>
 		public static void SplitHorizontalMultiRight(this Rect r, int count, float width, Rect[] results, out Rect leftover, float margin = 0)
 		{
+			if(results.Length < count) 
+				throw new System.ArgumentException("Results array is too short. Must be at least as long as the number of requested rects.", nameof(results));
 			margin = Mathf.Max(margin, 0);
 			if(count <= 0)
 			{
-				leftover = Rect.zero;
-				results[0] = r;
+				leftover = r;
 				return;
 			}
 			float w = count * (width + margin) - margin;
@@ -219,11 +221,12 @@ namespace UnityEssentials
 		/// </summary>
 		public static void SplitVerticalMulti(this Rect r, int count, float height, Rect[] results, out Rect leftover, float margin = 0)
 		{
+			if(results.Length < count) 
+				throw new System.ArgumentException("Results array is too short. Must be at least as long as the number of requested rects.", nameof(results));
 			margin = Mathf.Max(margin, 0);
 			if(count <= 0)
 			{
-				leftover = Rect.zero;
-				results[0] = r;
+				leftover = r;
 				return;
 			}
 			for(int i = 0; i < count; i++)
@@ -250,11 +253,12 @@ namespace UnityEssentials
 		/// </summary>
 		public static void SplitVerticalMultiBottom(this Rect r, int count, float height, Rect[] results, out Rect leftover, float margin = 0)
 		{
+			if(results.Length < count) 
+				throw new System.ArgumentException("Results array is too short. Must be at least as long as the number of requested rects.", nameof(results));
 			margin = Mathf.Max(margin, 0);
 			if(count <= 0)
 			{
-				leftover = Rect.zero;
-				results[0] = r;
+				leftover = r;
 				return;
 			}
 			float h = count * (height + margin) - margin;
