@@ -43,6 +43,7 @@ namespace UnityEssentials.Collections
 		public void InvokeStart(MonoBehaviour host)
 		{
 			hostComponent = host;
+			Start();
 		}
 
 		protected virtual void Start()
