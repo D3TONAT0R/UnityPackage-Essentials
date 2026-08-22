@@ -49,20 +49,20 @@ namespace UnityEssentials.Collections
 	/// A value inside a UnityDictionary. Can be used for polymorphic support of dictionaries.
 	/// </summary>
 	[Serializable]
-	public abstract class ISerializedDictionaryValue<T> : ISerializedDictionaryValue
+	public abstract class SerializedDictionaryValue<T> : ISerializedDictionaryValue
 	{
 		public T value;
 
-		public static implicit operator T(ISerializedDictionaryValue<T> c) => c.value;
+		public static implicit operator T(SerializedDictionaryValue<T> c) => c.value;
 	}
 
-	[Serializable] public class BoolValue : ISerializedDictionaryValue<bool> { }
-	[Serializable] public class IntValue : ISerializedDictionaryValue<int> { }
-	[Serializable] public class FloatValue : ISerializedDictionaryValue<float> { }
-	[Serializable] public class StringValue : ISerializedDictionaryValue<string> { }
-	[Serializable] public class Vector2Value : ISerializedDictionaryValue<Vector2> { }
-	[Serializable] public class Vector3Value : ISerializedDictionaryValue<Vector3> { }
-	[Serializable] public class Vector4Value : ISerializedDictionaryValue<Vector4> { }
+	[Serializable] public class BoolValue : SerializedDictionaryValue<bool> { }
+	[Serializable] public class IntValue : SerializedDictionaryValue<int> { }
+	[Serializable] public class FloatValue : SerializedDictionaryValue<float> { }
+	[Serializable] public class StringValue : SerializedDictionaryValue<string> { }
+	[Serializable] public class Vector2Value : SerializedDictionaryValue<Vector2> { }
+	[Serializable] public class Vector3Value : SerializedDictionaryValue<Vector3> { }
+	[Serializable] public class Vector4Value : SerializedDictionaryValue<Vector4> { }
 
 	/// <summary>
 	/// A wrapper for .NETs <see cref="Dictionary{TKey, TValue}"/> that supports serialization in Unity.

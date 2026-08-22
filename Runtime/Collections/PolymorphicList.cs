@@ -7,6 +7,7 @@ namespace UnityEssentials.Collections
 	/// <summary>
 	/// Wrapper for a generic list that can be serialized and supports polymorphism.
 	/// </summary>
+	[System.Serializable]
 	public abstract class PolymorphicList<T> : IEnumerable<T> where T : class
 	{
 		/// <summary>
