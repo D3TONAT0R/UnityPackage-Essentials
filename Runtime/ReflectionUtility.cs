@@ -369,7 +369,7 @@ namespace UnityEssentials
 			}
 			else if(type.BaseType != null)
 			{
-				return FindMemberInType(type.BaseType, name);
+				return FindMemberInType(type.BaseType, name, throwException);
 			}
 			else
 			{
@@ -544,9 +544,15 @@ namespace UnityEssentials
 			else if(a is Vector2 v2) return v2 + (Vector2)b;
 			else if(a is Vector3 v3) return v3 + (Vector3)b;
 			else if(a is Vector4 v4) return v4 + (Vector4)b;
-			else if(a is short s) return s + (short)b;
+			else if(a is short s) return (short)(s + (short)b);
 			else if(a is long l) return l + (long)b;
 			else if(a is double d) return d + (double)b;
+			else if(a is byte y) return (byte)(y + (byte)b);
+			else if(a is uint u) return u + (uint)b;
+			else if(a is ulong ul) return ul + (ulong)b;
+			else if(a is ushort us) return (ushort)(us + (ushort)b);
+			else if(a is decimal dec) return dec + (decimal)b;
+			else if(a is Color c) return c + (Color)b;
 			else throw new InvalidOperationException("The given type does not support addition.");
 		}
 
