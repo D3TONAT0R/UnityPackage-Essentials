@@ -1,11 +1,14 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UnityEssentials
 {
 	public static class Extensions
 	{
-		private static StringBuilder stringBuilder = new StringBuilder();
+		[ThreadStatic]
+		private static StringBuilder stringBuilder;
 
 		#region Numerics
 
@@ -115,6 +118,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static string ToTimeString(this int seconds, bool hours)
 		{
+			stringBuilder ??= new StringBuilder();
 			stringBuilder.Clear();
 			bool positive = seconds >= 0;
 			stringBuilder.Append(positive ? "" : "-");

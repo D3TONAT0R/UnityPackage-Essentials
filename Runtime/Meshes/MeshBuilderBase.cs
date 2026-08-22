@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnityEssentials.Meshes
@@ -31,7 +32,8 @@ namespace UnityEssentials.Meshes
 		protected List<Matrix4x4> matrixStack = new List<Matrix4x4>();
 		protected Matrix4x4 currentMatrix = Matrix4x4.identity;
 
-		protected static List<Vector3> tempVertexCache = new List<Vector3>();
+		[ThreadStatic]
+		protected static List<Vector3> tempVertexCache;
 
 		/// <summary>
 		/// Builds the current mesh data into the given mesh object.

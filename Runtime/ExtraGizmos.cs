@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEssentials.Meshes;
+using Object = UnityEngine.Object;
 
 namespace UnityEssentials
 {
@@ -37,7 +39,8 @@ namespace UnityEssentials
 		private static GUIStyle boxStyle;
 		private static Texture2D boxTexture;
 
-		private static List<Vector3> circlePointCache = new List<Vector3>();
+		[ThreadStatic]
+		private static List<Vector3> circlePointCache;
 
 		private static void EnsureInitialization()
 		{
@@ -269,6 +272,7 @@ namespace UnityEssentials
 			segments = Mathf.Clamp(segments, 3, 256);
 			var lastMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(normal), Vector3.one * radius);
+			circlePointCache ??= new List<Vector3>();
 			MeshBuilderBase.GetCirclePoints(circlePointCache, segments, 1);
 			for(int i = 0; i < segments - 1; i++)
 			{
@@ -325,6 +329,7 @@ namespace UnityEssentials
 			segments = Mathf.Clamp(segments, 3, 256);
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix *= Matrix4x4.TRS(center, Quaternion.LookRotation(forward, up), Vector3.one);
+			circlePointCache ??= new List<Vector3>();
 			circlePointCache.Clear();
 			for(int i = 0; i <= segments; i++)
 			{

@@ -13,7 +13,8 @@ namespace UnityEssentials
 	/// </summary>
 	public static partial class DebugUtility
 	{
-		private static StringBuilder stringBuilder = new StringBuilder();
+		[ThreadStatic]
+		private static StringBuilder stringBuilder;
 
 		/// <summary>
 		/// Logs an array's content to the console.
@@ -21,6 +22,7 @@ namespace UnityEssentials
 		public static void LogArray<T>(string message, IList<T> array, Func<T, string> elementFunc = null)
 		{
 			elementFunc ??= t => t.ToString();
+			stringBuilder ??= new StringBuilder();
 			stringBuilder.Clear();
 			if (!string.IsNullOrEmpty(message)) stringBuilder.Append(message + " ");
 			if (array != null)
@@ -46,6 +48,7 @@ namespace UnityEssentials
 		public static void LogTransform(string message, Transform t, bool oneLine = false, bool position = true, bool rotation = true,
 			bool scale = true)
 		{
+			stringBuilder ??= new StringBuilder();
 			stringBuilder.Clear();
 			message ??= t.name;
 			if (t)
@@ -82,6 +85,7 @@ namespace UnityEssentials
 				Debug.Log($"{message}: (null)");
 				return;
 			}
+			stringBuilder ??= new StringBuilder();
 			stringBuilder.Clear();
 			var type = obj.GetType();
 			var bindingFlags = BindingFlags.Instance | BindingFlags.Public;

@@ -1,11 +1,13 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using UnityEngine;
 
 namespace UnityEssentials
 {
 	public static class TransformExtensions
 	{
-		private static StringBuilder stringBuilder = new StringBuilder();
+		[ThreadStatic]
+		private static StringBuilder stringBuilder;
 
 		/// <summary>
 		/// Makes this transform look at another transform while remaining vertical.
@@ -41,6 +43,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static string GetHierarchyPathString(this Transform transform, Transform parent = null)
 		{
+			stringBuilder ??= new StringBuilder();
 			stringBuilder.Clear();
 			stringBuilder.Append(transform.name);
 			var t = transform;
