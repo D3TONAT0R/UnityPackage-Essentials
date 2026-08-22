@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace UnityEssentials
@@ -235,12 +236,7 @@ namespace UnityEssentials
 
 		public override int GetHashCode()
 		{
-			if (buildIndex >= 0)
-			{
-				int sceneHash = sceneName?.GetHashCode() ?? 0;
-				return (sceneHash * 397) ^ buildIndex;
-			}
-			return 0;
+			return HashCode.Combine(sceneName, buildIndex);
 		}
 
 		public override bool Equals(object obj)
