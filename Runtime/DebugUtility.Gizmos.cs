@@ -7,10 +7,7 @@ using UnityEssentials.PlayerLoop;
 
 namespace UnityEssentials
 {
-	/// <summary>
-	/// Utility functions for debugging.
-	/// </summary>
-	public class DebugUtility
+	public static partial class DebugUtility
 	{
 		private abstract class GizmoInstance
 		{
@@ -26,7 +23,7 @@ namespace UnityEssentials
 			{
 				get
 				{
-					if(SingleFrame) return Time.unscaledTime > spawnTime && (lastDrawTime != 0 && lastDrawTime < Time.unscaledTime);
+					if (SingleFrame) return Time.unscaledTime > spawnTime && (lastDrawTime != 0 && lastDrawTime < Time.unscaledTime);
 					else return Time.unscaledTime - spawnTime > duration;
 				}
 			}
@@ -54,7 +51,8 @@ namespace UnityEssentials
 			protected readonly float distance;
 			protected IEnumerable<RaycastHit> hits;
 
-			public RaycastGizmoInstance(Ray ray, float hitSize, IEnumerable<RaycastHit> hits, float distance, Color color, float duration) : base(color, duration)
+			public RaycastGizmoInstance(Ray ray, float hitSize, IEnumerable<RaycastHit> hits, float distance, Color color, float duration) : base(
+				color, duration)
 			{
 				this.ray = ray;
 				this.hitSize = Mathf.Max(0, hitSize);
@@ -65,11 +63,11 @@ namespace UnityEssentials
 			protected override void DrawGizmos()
 			{
 				Gizmos.DrawLine(ray.origin, ray.origin + ray.direction * distance);
-				if(hits != null)
+				if (hits != null)
 				{
-					foreach(var hit in hits)
+					foreach (var hit in hits)
 					{
-						if(!hit.collider) continue;
+						if (!hit.collider) continue;
 						Gizmos.matrix = Matrix4x4.TRS(hit.point, Quaternion.LookRotation(hit.normal), Vector3.one);
 						Gizmos.DrawWireCube(Vector3.zero, Vector3.one * hitSize);
 						Gizmos.DrawLine(Vector3.zero, Vector3.forward * hitSize * 2f);
@@ -83,7 +81,6 @@ namespace UnityEssentials
 			public SphereCastGizmoInstance(Ray ray, float hitSize, IEnumerable<RaycastHit> hits, float distance, Color color, float duration)
 				: base(ray, hitSize, hits, distance, color, duration)
 			{
-
 			}
 
 			protected override void DrawGizmos()
@@ -97,9 +94,9 @@ namespace UnityEssentials
 				ExtraGizmos.DrawLineFrom(Vector3.right * hitSize, Vector3.forward, distance);
 				ExtraGizmos.DrawLineFrom(Vector3.down * hitSize, Vector3.forward, distance);
 				ExtraGizmos.DrawLineFrom(Vector3.left * hitSize, Vector3.forward, distance);
-				foreach(var hit in hits)
+				foreach (var hit in hits)
 				{
-					if(!hit.collider) continue;
+					if (!hit.collider) continue;
 					var localPos = inverseMatrix.MultiplyPoint(hit.point);
 					var localNormal = inverseMatrix.MultiplyVector(hit.normal);
 					Gizmos.DrawWireSphere(localPos + localNormal * hitSize, hitSize);
@@ -115,7 +112,8 @@ namespace UnityEssentials
 			private readonly bool constantSize;
 			private readonly bool centerSphere;
 
-			public PointGizmoInstance(Vector3 position, float size, bool centerSphere, bool constantSize, Color color, float duration) : base(color, duration)
+			public PointGizmoInstance(Vector3 position, float size, bool centerSphere, bool constantSize, Color color, float duration) : base(color,
+				duration)
 			{
 				this.position = position;
 				this.size = size;
@@ -172,7 +170,8 @@ namespace UnityEssentials
 			private Quaternion rotation;
 			private Vector3 size;
 
-			public ShapeGizmoInstance(byte type, Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration) : base(color, duration)
+			public ShapeGizmoInstance(byte type, Vector3 position, Quaternion rotation, Vector3 size, Color color, float duration) : base(color,
+				duration)
 			{
 				this.type = type;
 				this.position = position;
@@ -183,7 +182,7 @@ namespace UnityEssentials
 			protected override void DrawGizmos()
 			{
 				Gizmos.matrix = Matrix4x4.TRS(position, rotation, Vector3.one);
-				switch(type)
+				switch (type)
 				{
 					case TYPE_CUBE:
 						ExtraGizmos.DrawWireCube(Vector3.zero, size);
@@ -200,14 +199,19 @@ namespace UnityEssentials
 
 		private static List<GizmoInstance> instances = new List<GizmoInstance>();
 
-		private static StringBuilder stringBuilder = new StringBuilder();
-
 		private static bool gizmosSubscribed = false;
+
+		[RuntimeInitializeOnLoadMethod]
+		private static void Init()
+		{
+			UpdateLoop.OnDrawGizmosRuntime += OnDrawGizmos;
+			UpdateLoop.PostLateUpdate += OnPostLateUpdate;
+		}
 
 		private static void AddGizmo(GizmoInstance instance)
 		{
 #if UNITY_EDITOR
-			if(!Application.isPlaying)
+			if (!Application.isPlaying)
 			{
 				Debug.LogWarning("Debug Gizmos are only supported during play mode.");
 				return;
@@ -215,7 +219,7 @@ namespace UnityEssentials
 			instances.Add(instance);
 #endif
 			UpdateLoopScriptInstance.CheckInitialization();
-			if(!gizmosSubscribed)
+			if (!gizmosSubscribed)
 			{
 				UpdateLoop.OnDrawGizmosRuntime += OnDrawGizmos;
 				gizmosSubscribed = true;
@@ -225,16 +229,19 @@ namespace UnityEssentials
 		/// <summary>
 		/// Temporarily draws a Raycast trajectory and its hit point as gizmos.
 		/// </summary>
-		public static void DrawRaycast(Ray ray, RaycastHit? hit = null, float maxDistance = 1000, float hitSize = 0.05f, Color? color = null, float duration = 1f)
+		public static void DrawRaycast(Ray ray, RaycastHit? hit = null, float maxDistance = 1000, float hitSize = 0.05f, Color? color = null,
+			float duration = 1f)
 		{
 			var distance = GetMaxDistance(hit.HasValue ? new RaycastHit[] { hit.Value } : null, 1, maxDistance);
-			AddGizmo(new RaycastGizmoInstance(ray, hitSize, hit.HasValue ? new RaycastHit[] { hit.Value } : Array.Empty<RaycastHit>(), distance, color ?? Color.white, duration));
+			AddGizmo(new RaycastGizmoInstance(ray, hitSize, hit.HasValue ? new RaycastHit[] { hit.Value } : Array.Empty<RaycastHit>(), distance,
+				color ?? Color.white, duration));
 		}
 
 		/// <summary>
 		/// Temporarily draws a Raycast trajectory and all hit points as gizmos.
 		/// </summary>
-		public static void DrawRaycastAll(Ray ray, RaycastHit[] hits, int hitCount, float maxDistance = 1000, float hitSize = 0.05f, Color? color = null, float duration = 1f)
+		public static void DrawRaycastAll(Ray ray, RaycastHit[] hits, int hitCount, float maxDistance = 1000, float hitSize = 0.05f,
+			Color? color = null, float duration = 1f)
 		{
 			AddGizmo(new RaycastGizmoInstance(ray, hitSize, hits, maxDistance, color ?? Color.white, duration));
 		}
@@ -242,16 +249,19 @@ namespace UnityEssentials
 		/// <summary>
 		/// Temporarily draws a SphereCast trajectory and its hit point as gizmos.
 		/// </summary>
-		public static void DrawSphereCast(Ray ray, float radius, RaycastHit? hit = null, float maxDistance = 1000, Color? color = null, float duration = 1f)
+		public static void DrawSphereCast(Ray ray, float radius, RaycastHit? hit = null, float maxDistance = 1000, Color? color = null,
+			float duration = 1f)
 		{
 			var distance = GetMaxDistance(hit.HasValue ? new RaycastHit[] { hit.Value } : null, 1, maxDistance);
-			AddGizmo(new SphereCastGizmoInstance(ray, radius, hit.HasValue ? new RaycastHit[] { hit.Value } : Array.Empty<RaycastHit>(), distance, color ?? Color.white, duration));
+			AddGizmo(new SphereCastGizmoInstance(ray, radius, hit.HasValue ? new RaycastHit[] { hit.Value } : Array.Empty<RaycastHit>(), distance,
+				color ?? Color.white, duration));
 		}
 
 		/// <summary>
 		/// Temporarily draws a SphereCast trajectory and all its hit points as gizmos.
 		/// </summary>
-		public static void DrawSphereCastAll(Ray ray, float radius, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null, float duration = 1f)
+		public static void DrawSphereCastAll(Ray ray, float radius, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null,
+			float duration = 1f)
 		{
 			AddGizmo(new SphereCastGizmoInstance(ray, radius, hits, maxDistance, color ?? Color.white, duration));
 		}
@@ -259,7 +269,8 @@ namespace UnityEssentials
 		/// <summary>
 		/// Temporarily draws a point gizmo at the given location.
 		/// </summary>
-		public static void DrawPoint(Vector3 point, float size, bool centerSphere = false, bool constantSize = false, Color? color = null, float duration = 1f)
+		public static void DrawPoint(Vector3 point, float size, bool centerSphere = false, bool constantSize = false, Color? color = null,
+			float duration = 1f)
 		{
 			AddGizmo(new PointGizmoInstance(point, size, centerSphere, constantSize, color ?? Color.white, duration));
 		}
@@ -293,7 +304,8 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawSphere(Vector3 position, Quaternion rotation, float radius, Color? color = null, float duration = 1f)
 		{
-			AddGizmo(new ShapeGizmoInstance(ShapeGizmoInstance.TYPE_SPHERE, position, rotation, Vector3.one * radius, color ?? Color.white, duration));
+			AddGizmo(new ShapeGizmoInstance(ShapeGizmoInstance.TYPE_SPHERE, position, rotation, Vector3.one * radius, color ?? Color.white,
+				duration));
 		}
 
 		/// <summary>
@@ -301,7 +313,8 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawCapsule(Vector3 position, Quaternion rotation, float radius, float height, Color? color = null, float duration = 1f)
 		{
-			AddGizmo(new ShapeGizmoInstance(ShapeGizmoInstance.TYPE_CAPSULE, position, rotation, new Vector3(radius, height, 0), color ?? Color.white, duration));
+			AddGizmo(new ShapeGizmoInstance(ShapeGizmoInstance.TYPE_CAPSULE, position, rotation, new Vector3(radius, height, 0), color ?? Color.white,
+				duration));
 		}
 
 		/// <summary>
@@ -312,87 +325,43 @@ namespace UnityEssentials
 			AddGizmo(new CustomGizmoInstance(drawer, color ?? Color.white, duration));
 		}
 
-		/// <summary>
-		/// Logs an array's content to the console.
-		/// </summary>
-		public static void LogArray<T>(string message, IEnumerable<T> array, Func<T, string> elementFunc = null)
+		private static void OnPostLateUpdate()
 		{
-			if(elementFunc == null) elementFunc = (t) => t.ToString();
-			stringBuilder.Clear();
-			if(!string.IsNullOrEmpty(message)) stringBuilder.Append(message + " ");
-			if(array != null)
+			for (int i = 0; i < instances.Count; i++)
 			{
-				stringBuilder.AppendLine($"{array.GetType().GetElementType()}[{array.Count()}]");
-				int i = 0;
-				foreach(var elem in array)
+				if (instances[i].Expired)
 				{
-					stringBuilder.AppendLine($"{i}: {(elem != null ? elementFunc(elem) : "(null)")}");
-					i++;
+					instances.RemoveAt(i);
+					i--;
 				}
 			}
-			else
-			{
-				stringBuilder.AppendLine("(null)");
-			}
-			Debug.Log(stringBuilder.ToString());
-		}
-
-		/// <summary>
-		/// Logs a transform's position, rotation and scale to the console
-		/// </summary>
-		public static void LogTransform(string message, Transform t, bool oneLine = false, bool position = true, bool rotation = true, bool scale = true)
-		{
-			stringBuilder.Clear();
-			if(message == null && t) stringBuilder.Append(t.name);
-			stringBuilder.AppendLine(message);
-			if(t)
-			{
-				if(!oneLine)
-				{
-					if(position) stringBuilder.AppendLine("  Position: " + t.position);
-					if(rotation) stringBuilder.AppendLine("  Rotation: " + t.eulerAngles);
-					if(scale) stringBuilder.AppendLine("  Scale (Local): " + t.localScale);
-				}
-				else
-				{
-					if(position) stringBuilder.Append(" Pos: " + t.position);
-					if(rotation) stringBuilder.Append(" Rot: " + t.eulerAngles);
-					if(scale) stringBuilder.Append(" Scale (Local): " + t.localScale);
-				}
-			}
-			else
-			{
-				stringBuilder.Append(" (null)");
-			}
-			Debug.Log(stringBuilder.ToString());
 		}
 
 		private static void OnDrawGizmos()
 		{
-			foreach(var i in instances)
+			for (var i = 0; i < instances.Count; i++)
 			{
-				if(i.Expired) continue;
-				Gizmos.color = i.color.MultiplyAlpha(i.Life);
-				i.Draw();
+				var inst = instances[i];
+				Gizmos.color = inst.color.MultiplyAlpha(inst.Life);
+				inst.Draw();
 				Gizmos.color = Color.white;
 				Gizmos.matrix = Matrix4x4.identity;
 			}
-			instances.RemoveAll((i) => i.Expired);
 		}
 
 		private static float GetMaxDistance(RaycastHit[] hits, int hitCount, float maxDistance)
 		{
-			if(hits != null)
+			if (hits != null)
 			{
 				float distance = 0;
-				for(int i = 0; i < hitCount; i++)
+				for (int i = 0; i < hitCount; i++)
 				{
-					if(hits[i].collider != null)
+					if (hits[i].collider != null)
 					{
 						distance = Mathf.Max(distance, hits[i].distance);
 					}
 				}
-				if(distance == 0) distance = maxDistance;
+				if (distance == 0) distance = maxDistance;
 				return distance;
 			}
 			else
