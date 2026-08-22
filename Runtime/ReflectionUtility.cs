@@ -119,7 +119,6 @@ namespace UnityEssentials
 			//TODO: store player assembly names in build to make this available in builds too
 			var unityAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(
 				UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies);
-			DebugUtility.LogArray("Unity Assemblies", unityAssemblies.Select(a => a.name).ToArray());
 			assemblyCache = AppDomain.CurrentDomain.GetAssemblies().Where(a => unityAssemblies.Any(ua => ua.name == a.GetName().Name)).ToArray();
 #else
 			assemblyCache = AppDomain.CurrentDomain.GetAssemblies();

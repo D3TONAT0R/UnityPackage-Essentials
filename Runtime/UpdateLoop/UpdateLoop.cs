@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
@@ -69,7 +70,7 @@ namespace UnityEssentials.PlayerLoop
 				public InvocationTarget(Action action)
 				{
 					this.action = action;
-					targetComponent = action.Target as Behaviour;
+					targetComponent = GetBehaviourTarget(action?.Target);
 					isComponentTarget = targetComponent != null;
 				}
 
@@ -135,6 +136,9 @@ namespace UnityEssentials.PlayerLoop
 			}
 		}
 
+		private static readonly Dictionary<Type, FieldInfo[]> behaviourTargetFieldCache = new Dictionary<Type, FieldInfo[]>();
+		private static readonly BindingFlags behaviourTargetFieldFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
 		/// <summary>
 		/// Event that is invoked before the regular Update period.
 		/// </summary>
@@ -199,7 +203,7 @@ namespace UnityEssentials.PlayerLoop
 		}
 
 		/// <summary>
-		/// Event that is invoked during the regular FixedUpdate period.
+		/// Event that is invoked during the regular LateFixedUpdate period.
 		/// </summary>
 		public static event Action LateFixedUpdate
 		{
@@ -208,7 +212,7 @@ namespace UnityEssentials.PlayerLoop
 		}
 
 		/// <summary>
-		/// Event that is invoked after the regular FixedUpdate period.
+		/// Event that is invoked after the regular LateFixedUpdate period.
 		/// </summary>
 		public static event Action PostFixedUpdate
 		{
@@ -279,8 +283,6 @@ namespace UnityEssentials.PlayerLoop
 		private static readonly InvocationList onGUI = new InvocationList("OnGUI");
 		private static readonly InvocationList onDrawGizmosRuntime = new InvocationList("OnDrawGizmosRuntime");
 
-		private static readonly List<InvocationList.InvocationTarget> enumerationCache = new List<InvocationList.InvocationTarget>();
-
 		private static bool IsEditorPaused
 		{
 			get
@@ -296,25 +298,22 @@ namespace UnityEssentials.PlayerLoop
 		private static void Invoke(InvocationList eventHandler)
 		{
 			if (IsEditorPaused) return;
+			var enumerationCache = new List<InvocationList.InvocationTarget>(eventHandler.subscribers.Count);
 			eventHandler.EnumerateSubscribers(enumerationCache);
-			int count = enumerationCache.Count;
-			for (int i = 0; i < count; i++)
-			{
-				try
-				{
-					enumerationCache[i].action.Invoke();
-				}
-				catch (Exception e)
-				{
-					e.LogException();
-				}
-			}
+			InvokeEnumeratedSubscribers(enumerationCache);
 		}
 
 		private static void InvokeOnce(InvocationList eventHandler)
 		{
 			if (IsEditorPaused) return;
+			var enumerationCache = new List<InvocationList.InvocationTarget>(eventHandler.subscribers.Count);
 			eventHandler.EnumerateSubscribers(enumerationCache);
+			InvokeEnumeratedSubscribers(enumerationCache);
+			eventHandler.RemoveAll(true);
+		}
+
+		private static void InvokeEnumeratedSubscribers(List<InvocationList.InvocationTarget> enumerationCache)
+		{
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
 			{
@@ -327,11 +326,11 @@ namespace UnityEssentials.PlayerLoop
 					e.LogException();
 				}
 			}
-			eventHandler.RemoveAll(true);
 		}
 
 		internal static void InvokeOnGUI()
 		{
+			var enumerationCache = new List<InvocationList.InvocationTarget>(onGUI.subscribers.Count);
 			onGUI.EnumerateSubscribers(enumerationCache);
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
@@ -360,6 +359,7 @@ namespace UnityEssentials.PlayerLoop
 
 		internal static void InvokeOnDrawGizmosRuntime()
 		{
+			var enumerationCache = new List<InvocationList.InvocationTarget>(onDrawGizmosRuntime.subscribers.Count);
 			onDrawGizmosRuntime.EnumerateSubscribers(enumerationCache);
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
@@ -378,6 +378,64 @@ namespace UnityEssentials.PlayerLoop
 					Gizmos.color = Color.white;
 				}
 			}
+		}
+
+		private static Behaviour GetBehaviourTarget(object target)
+		{
+			return GetBehaviourTarget(target, new List<object>());
+		}
+
+		private static Behaviour GetBehaviourTarget(object target, List<object> visitedTargets)
+		{
+			if (target == null) return null;
+			if (target is Behaviour behaviour) return behaviour;
+			if (target is UnityEngine.Object) return null;
+
+			var targetType = target.GetType();
+			if (targetType.IsPrimitive || targetType.IsEnum || targetType == typeof(string)) return null;
+
+			for (int i = 0; i < visitedTargets.Count; i++)
+			{
+				if (ReferenceEquals(visitedTargets[i], target)) return null;
+			}
+			visitedTargets.Add(target);
+
+			foreach (var field in GetBehaviourTargetFields(targetType))
+			{
+				object fieldValue;
+				try
+				{
+					fieldValue = field.GetValue(target);
+				}
+				catch
+				{
+					continue;
+				}
+
+				if (fieldValue == null) continue;
+				if (fieldValue is Behaviour behaviourField) return behaviourField;
+				if (fieldValue is UnityEngine.Object) continue;
+
+				var nestedBehaviour = GetBehaviourTarget(fieldValue, visitedTargets);
+				if (nestedBehaviour != null) return nestedBehaviour;
+			}
+
+			return null;
+		}
+
+		private static FieldInfo[] GetBehaviourTargetFields(Type type)
+		{
+			if (behaviourTargetFieldCache.TryGetValue(type, out var fields)) return fields;
+
+			var collectedFields = new List<FieldInfo>();
+			for (var current = type; current != null && current != typeof(object); current = current.BaseType)
+			{
+				collectedFields.AddRange(current.GetFields(behaviourTargetFieldFlags | BindingFlags.DeclaredOnly));
+			}
+
+			fields = collectedFields.ToArray();
+			behaviourTargetFieldCache[type] = fields;
+			return fields;
 		}
 
 		[RuntimeInitializeOnLoadMethod]
@@ -462,8 +520,24 @@ namespace UnityEssentials.PlayerLoop
 		{
 			foreach (var m in ReflectionUtility.GetMethodsWithAttribute<A>(true))
 			{
-				var action = (Action)m.CreateDelegate(typeof(Action));
-				eventHandler.Add(action);
+				if (m.ReturnType != typeof(void) || m.GetParameters().Length != 0)
+				{
+					Debug.LogError(
+						$"The Attribute '{typeof(A)}' is only valid on static parameterless void methods ({m.DeclaringType}:{m.Name}). The method will not be invoked.");
+					continue;
+				}
+
+				try
+				{
+					var action = (Action)m.CreateDelegate(typeof(Action));
+					eventHandler.Add(action);
+				}
+				catch (Exception e)
+				{
+					Debug.LogError(
+						$"Failed to subscribe method ({m.DeclaringType}:{m.Name}) to '{typeof(A)}'. The method will not be invoked.");
+					e.LogException();
+				}
 			}
 			foreach (var m in ReflectionUtility.GetMethodsWithAttribute<A>(false))
 			{
@@ -595,8 +669,8 @@ namespace UnityEssentials.PlayerLoop
 			sb.Append(name);
 			if (includeFunctionPtrs)
 			{
-				int loopConditionPtr = (int)root.loopConditionFunction;
-				int updatePtr = (int)root.updateFunction;
+				ulong loopConditionPtr = (ulong)root.loopConditionFunction;
+				ulong updatePtr = (ulong)root.updateFunction;
 				if (loopConditionPtr != 0 || updatePtr != 0)
 				{
 					sb.Append("    [");

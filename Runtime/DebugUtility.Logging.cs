@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
-using UnityEssentials.PlayerLoop;
 
 namespace UnityEssentials
 {
@@ -19,6 +17,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Logs an array's content to the console.
 		/// </summary>
+		[HideInCallstack]
 		public static void LogArray<T>(string message, IList<T> array, Func<T, string> elementFunc = null)
 		{
 			elementFunc ??= t => t.ToString();
