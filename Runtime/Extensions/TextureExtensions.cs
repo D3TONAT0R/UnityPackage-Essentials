@@ -23,16 +23,15 @@ namespace UnityEssentials
 			if(tex.isReadable)
 			{
 				Debug.LogWarning($"Texture '{tex.name}' is already readable.");
-				return tex;
+				return Object.Instantiate(tex);
 			}
-			Texture2D copy = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount, false)
+			Texture2D copy = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount, !tex.isDataSRGB)
 			{
 				name = name != null ? name : $"{tex.name} (Readable)",
 				wrapMode = tex.wrapMode,
 				filterMode = tex.filterMode
 			};
 			Graphics.CopyTexture(tex, copy);
-			copy.Apply();
 			return copy;
 		}
 

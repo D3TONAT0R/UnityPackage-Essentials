@@ -13,10 +13,10 @@ namespace UnityEssentials
 		/// </summary>
 		public static Mesh GetReadableCopy(this Mesh mesh, string name = null)
 		{
-			if(mesh.isReadable)
+			if (mesh.isReadable)
 			{
 				Debug.LogWarning($"Mesh '{mesh.name}' is already readable.");
-				return mesh;
+				return Object.Instantiate(mesh);
 			}
 			var copy = new Mesh { name = name ?? $"{mesh.name} (Readable)" };
 			copy.indexFormat = mesh.indexFormat;
@@ -31,15 +31,21 @@ namespace UnityEssentials
 			// Handle triangles
 			copy.subMeshCount = mesh.subMeshCount;
 			GraphicsBuffer indexesBuffer = mesh.GetIndexBuffer();
-			int tot = indexesBuffer.stride * indexesBuffer.count;
-			byte[] indexesData = new byte[tot];
-			indexesBuffer.GetData(indexesData);
-			copy.SetIndexBufferParams(indexesBuffer.count, mesh.indexFormat);
-			copy.SetIndexBufferData(indexesData, 0, 0, tot);
-			indexesBuffer.Release();
+			try
+			{
+				int total = indexesBuffer.stride * indexesBuffer.count;
+				byte[] indexesData = new byte[total];
+				indexesBuffer.GetData(indexesData);
+				copy.SetIndexBufferParams(indexesBuffer.count, mesh.indexFormat);
+				copy.SetIndexBufferData(indexesData, 0, 0, total);
+			}
+			finally
+			{
+				indexesBuffer.Release();
+			}
 			// Restore submesh structure
 			uint currentIndexOffset = 0;
-			for(int i = 0; i < copy.subMeshCount; i++)
+			for (int i = 0; i < copy.subMeshCount; i++)
 			{
 				uint subMeshIndexCount = mesh.GetIndexCount(i);
 				copy.SetSubMesh(i, new SubMeshDescriptor((int)currentIndexOffset, (int)subMeshIndexCount));
