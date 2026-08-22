@@ -23,7 +23,7 @@ namespace UnityEssentials
 	/// <summary>
 	/// Provides additional gizmo drawing methods on top of Unity's own Gizmos.
 	/// </summary>
-	public class ExtraGizmos
+	public static class ExtraGizmos
 	{
 		private static Mesh sphereMesh;
 		private static Mesh planeMesh;
