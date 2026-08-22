@@ -25,16 +25,17 @@ namespace UnityEssentials
 	/// </summary>
 	public class ExtraGizmos
 	{
-		internal static Mesh sphereMesh;
-		internal static Mesh planeMesh;
-		internal static Mesh discMesh;
-		internal static Mesh cylinderMesh;
-		internal static Mesh capsuleCenterMesh;
-		internal static Mesh capsuleCapMesh;
-		internal static Mesh coneMesh;
+		private static Mesh sphereMesh;
+		private static Mesh planeMesh;
+		private static Mesh discMesh;
+		private static Mesh cylinderMesh;
+		private static Mesh capsuleCenterMesh;
+		private static Mesh capsuleCapMesh;
+		private static Mesh coneMesh;
 
-		internal static GUIStyle labelStyle;
-		internal static GUIStyle boxStyle;
+		private static GUIStyle labelStyle;
+		private static GUIStyle boxStyle;
+		private static Texture2D boxTexture;
 
 		private static List<Vector3> circlePointCache = new List<Vector3>();
 
@@ -42,34 +43,63 @@ namespace UnityEssentials
 		{
 			if(sphereMesh) return;
 			
+			Cleanup();
 			var builder = new MeshBuilder();
 
 			builder.AddSphere(Vector3.zero, 1, 16, 16);
 			sphereMesh = builder.CreateMesh();
+			sphereMesh.hideFlags = HideFlags.HideAndDontSave;
 
 			builder.Clear();
 			builder.AddQuad(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, -0.5f), new Vector3(-0.5f, 0, 0.5f), new Vector3(0.5f, 0, 0.5f), Vector3.up);
 			planeMesh = builder.CreateMesh();
+			planeMesh.hideFlags = HideFlags.HideAndDontSave;
 
 			builder.Clear();
 			builder.AddCircle(Vector3.zero, Vector3.up, 1f, 32);
 			discMesh = builder.CreateMesh();
+			discMesh.hideFlags = HideFlags.HideAndDontSave;
 
 			builder.Clear();
 			builder.AddCylinder(Vector3.zero, 1, 1, 16, true);
 			cylinderMesh = builder.CreateMesh();
+			cylinderMesh.hideFlags = HideFlags.HideAndDontSave;
 
 			builder.Clear();
 			builder.AddCylinder(Vector3.zero, 1, 1, 16, false);
 			capsuleCenterMesh = builder.CreateMesh();
+			capsuleCenterMesh.hideFlags = HideFlags.HideAndDontSave;
 			builder.Clear();
 			builder.AddHemisphere(Vector3.zero, 1, 1, 16, 8);
 			capsuleCapMesh = builder.CreateMesh();
+			capsuleCapMesh.hideFlags = HideFlags.HideAndDontSave;
 
 			builder.Clear();
 			builder.AddCone(Vector3.zero, AxisDirection.YPos, 1f, 1f, 16, true);
 			coneMesh = builder.CreateMesh();
+			coneMesh.hideFlags = HideFlags.HideAndDontSave;
 		}
+
+		private static void Cleanup()
+		{
+			if(sphereMesh) Object.DestroyImmediate(sphereMesh);
+			if(planeMesh) Object.DestroyImmediate(planeMesh);
+			if(discMesh) Object.DestroyImmediate(discMesh);
+			if(cylinderMesh) Object.DestroyImmediate(cylinderMesh);
+			if(capsuleCenterMesh) Object.DestroyImmediate(capsuleCenterMesh);
+			if(capsuleCapMesh) Object.DestroyImmediate(capsuleCapMesh);
+			if(coneMesh) Object.DestroyImmediate(coneMesh);
+			if(boxStyle != null && boxStyle.normal.background) 
+				Object.DestroyImmediate(boxStyle.normal.background);
+		}
+
+#if UNITY_EDITOR
+		[UnityEditor.InitializeOnLoadMethod]
+		private static void Init()
+		{
+			UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += Cleanup;
+		}
+#endif
 
 		#region Enhanced built-in shapes
 
@@ -81,7 +111,7 @@ namespace UnityEssentials
 			DrawWireCircle(center, Vector3.up, radius, segments);
 			DrawWireCircle(center, Vector3.right, radius, segments);
 			DrawWireCircle(center, Vector3.forward, radius, segments);
-			if(boundary)
+			if(boundary && Camera.current)
 			{
 				if(Camera.current.orthographic)
 				{
@@ -876,13 +906,17 @@ namespace UnityEssentials
 #if UNITY_EDITOR
 			if(boxStyle == null)
 			{
-				var backgroundTex = new Texture2D(1, 1);
-				backgroundTex.SetPixel(0, 0, new Color(0.05f, 0.05f, 0.05f, 0.5f));
-				backgroundTex.Apply();
+				if (!boxTexture)
+				{
+					boxTexture = new Texture2D(1, 1);
+					boxTexture.SetPixel(0, 0, new Color(0.05f, 0.05f, 0.05f, 0.5f));
+					boxTexture.Apply();
+					boxTexture.hideFlags = HideFlags.HideAndDontSave;
+				}
 				boxStyle = new GUIStyle()
 				{
 					richText = true,
-					normal = { textColor = Color.white, background = backgroundTex },
+					normal = { textColor = Color.white, background = boxTexture },
 					hover = { textColor = Color.white },
 					active = { textColor = Color.white },
 					fontSize = 12,
@@ -998,7 +1032,7 @@ namespace UnityEssentials
 
 		public static void Draw2DShape(Vector3 center, float radius, int polygonSides, float rotation = 0)
 		{
-			// rotation += 180;
+			if(!Camera.current) return;
 			var lMatrix = Gizmos.matrix;
 			Gizmos.matrix = Matrix4x4.TRS(lMatrix.MultiplyPoint(center), Camera.current.transform.rotation, Vector3.one * radius);
 			var lastPoint = Vector3.zero + Quaternion.Euler(0, 0, -rotation) * Vector3.up;
@@ -1114,6 +1148,25 @@ namespace UnityEssentials
 			{
 				DrawMeshCollider(meshCollider, fillAlpha);
 			}
+			else if (collider is CharacterController characterController)
+			{
+				var lMatrix = Gizmos.matrix;
+				Gizmos.matrix = Matrix4x4.TRS(characterController.bounds.center, characterController.transform.rotation, Vector3.one);
+				var radius = characterController.radius;
+				var height = characterController.height;
+				height *= characterController.transform.lossyScale.y;
+				radius *= Mathf.Max(characterController.transform.lossyScale.x, characterController.transform.lossyScale.z);
+				DrawCombinedCapsule(Vector3.zero, Axis.Y, radius, height, fillAlpha);
+				Gizmos.matrix = lMatrix;
+			}
+			else
+			{
+				//Fallback to drawing the collider's bounds if we don't know how to draw it
+				var lMatrix = Gizmos.matrix;
+				Gizmos.matrix = Matrix4x4.identity;
+				Gizmos.DrawWireCube(collider.bounds.center, collider.bounds.size);
+				Gizmos.matrix = lMatrix;
+			}
 		}
 
 		/// <summary>
@@ -1204,10 +1257,10 @@ namespace UnityEssentials
 		/// </summary>
 		public static bool CheckDistance(Vector3 pos, float maxDistance)
 		{
-			if(maxDistance <= 0) return true;
+			if(maxDistance <= 0 || !Camera.current) return true;
 			pos = Gizmos.matrix.MultiplyPoint(pos);
-			var cam = Camera.current.transform;
-			var diff = cam.position - pos;
+			var cam = Camera.current.transform.position;
+			var diff = cam - pos;
 			return diff.sqrMagnitude <= maxDistance * maxDistance;
 		}
 
