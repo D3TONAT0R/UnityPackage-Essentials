@@ -67,9 +67,9 @@ namespace UnityEssentials
 		{
 			if (useLockBufferForWrite)
 			{
+				var array = buffer.LockBufferForWrite<T>(0, Count);
 				try
 				{
-					var array = buffer.LockBufferForWrite<T>(0, Count);
 					for (int i = 0; i < Count; i++)
 					{
 						array[i] = data[i];

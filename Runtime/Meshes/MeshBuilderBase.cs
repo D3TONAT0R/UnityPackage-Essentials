@@ -165,7 +165,7 @@ namespace UnityEssentials.Meshes
 			{
 				while(vertexColors.Count < verts.Count)
 				{
-					vertexColors.Add(CurrentVertexColor.Value);
+					vertexColors.Add(Color.clear);
 				}
 			}
 		}

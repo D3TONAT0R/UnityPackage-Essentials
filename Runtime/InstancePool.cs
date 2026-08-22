@@ -13,13 +13,13 @@ namespace UnityEssentials.Pooling
 	public class InstancePool<T> : IDisposable where T : Component
 	{
 		/// <summary>
+		/// The maximum number of objects that can be instantiated for this pool.
+		/// </summary>
+		public readonly int maxPoolSize;
+		/// <summary>
 		/// The scene to which this pool is bound to. If set, all objects are destroyed when this scene is unloaded. If left null, instances are created in the active scene (unless <see cref="dontDestroyOnLoad"/> is set)
 		/// </summary>
 		public Scene? TargetScene { get; private set; }
-		/// <summary>
-		/// The maximum number of objects that can be instantiated for this pool.
-		/// </summary>
-		public int maxPoolSize;
 		/// <summary>
 		/// An optional function that supplies custom instantiation behaviour (when an object is first created)
 		/// </summary>
@@ -78,6 +78,7 @@ namespace UnityEssentials.Pooling
 			activePool = new List<T>();
 			lastActivationTimes = new Dictionary<T, float>();
 			TargetScene = scene;
+			if(maxPoolSize < 1) throw new ArgumentException("Max pool size must be greater than zero.", nameof(maxPoolSize));
 			this.maxPoolSize = maxPoolSize;
 			this.instantiator = instantiator ?? DefaultInstantiator;
 			this.activator = activator;
@@ -159,7 +160,7 @@ namespace UnityEssentials.Pooling
 					}
 					else
 					{
-						Debug.LogError("Max pool size reached. Increase the max pool size or have less objects active at the same time or enable 'alwaysDecativateOldest' to keep activating instances.");
+						Debug.LogError("Max pool size reached. Increase the max pool size or have less objects active at the same time or enable 'replaceLast' to reuse old instances.");
 						return null;
 					}
 				}
