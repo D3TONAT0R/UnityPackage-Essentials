@@ -1,7 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace UnityEssentials
 {
+	/// <summary>
+	/// Attribute that allows for a dynamic range to be defined for a float or int field in the Unity Inspector. The range can be defined using either constant values or other serialized fields.
+	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class DynamicRangeAttribute : PropertyAttribute
 	{
 		public string minPropertyName;

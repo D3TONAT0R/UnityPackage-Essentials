@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 namespace UnityEssentials
 {
 	/// <summary>
-	/// Base class for all custom proeprty attributes.
+	/// Base class for all custom property attributes.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field)]
 	public abstract class PropertyModifierAttribute : PropertyAttribute

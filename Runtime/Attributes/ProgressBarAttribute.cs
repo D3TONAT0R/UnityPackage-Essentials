@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace UnityEssentials
@@ -5,6 +6,7 @@ namespace UnityEssentials
 	/// <summary>
 	/// Makes a float field display as a progress bar in the inspector.
 	/// </summary>
+	[AttributeUsage(AttributeTargets.Field)]
 	public class ProgressBarAttribute : PropertyAttribute
 	{
 		public readonly float min;

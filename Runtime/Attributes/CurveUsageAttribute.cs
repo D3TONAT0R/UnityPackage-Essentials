@@ -6,7 +6,7 @@ namespace UnityEssentials
 	/// <summary>
 	/// Color for an AnimationCurve.
 	/// </summary>
-	public enum CurveColor : uint
+	public enum CurveColor : byte
 	{
 		Red,
 		Green,

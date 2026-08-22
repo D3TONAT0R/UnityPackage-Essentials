@@ -41,9 +41,9 @@ namespace UnityEssentials
 		public MaterialPropertyName(string name)
 		{
 			propertyName = name;
-			propertyID = 0;
+			propertyID = Shader.PropertyToID(propertyName);
 #if UNITY_EDITOR
-			lastPropertyName = null;
+			lastPropertyName = name;
 #endif
 		}
 

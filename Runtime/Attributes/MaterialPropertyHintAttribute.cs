@@ -22,7 +22,7 @@ namespace UnityEssentials
 	/// Shows a dropdown menu for selecting a material property type.
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-	public class MaterialPropertyHintAttribute : Attribute
+	public class MaterialPropertyHintAttribute : PropertyAttribute
 	{
 		public MaterialPropertyType propertyType;
 
