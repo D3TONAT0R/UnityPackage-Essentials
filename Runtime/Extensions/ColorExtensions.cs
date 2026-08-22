@@ -204,11 +204,11 @@ namespace UnityEssentials
 		}
 
 		/// <summary>
-		/// Converts this color to a 32-bit integer.
+		/// Converts this color to a 32-bit unsigned integer.
 		/// </summary>
-		public static int ToInt(this Color c, bool includeAlpha = true)
+		public static uint ToUInt(this Color c, bool includeAlpha = true)
 		{
-			return Colors.ToInt(c, includeAlpha);
+			return Colors.ToUInt(c, includeAlpha);
 		}
 
 		/// <summary>
