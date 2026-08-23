@@ -888,6 +888,7 @@ namespace UnityEssentialsEditor
 
 		/// <summary>
 		/// Performs a type check on the property and displays an error label if the type is not valid for the given property.
+		/// Returns false if the type is not valid, true otherwise.
 		/// </summary>
 		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label,
 			params SerializedPropertyType[] types)
