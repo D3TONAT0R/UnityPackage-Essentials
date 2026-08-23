@@ -25,12 +25,12 @@ namespace UnityEssentialsEditor
 
 			public bool Equals(FromToType other)
 			{
-				return GetHashCode() == other.GetHashCode();
+				return from == other.from && to == other.to;
 			}
 
 			public override int GetHashCode()
 			{
-				return unchecked(from.GetHashCode() * 17 + to.GetHashCode());
+				return HashCode.Combine(from, to);
 			}
 		}
 
@@ -46,39 +46,36 @@ namespace UnityEssentialsEditor
 		[InitializeOnLoadMethod]
 		public static void Init()
 		{
-			if(!EditorApplication.isPlayingOrWillChangePlaymode)
+			try
 			{
-				try
+				var assembly = Assembly.Load("D3T.AdvancedObjectSelector");
+				if (assembly != null)
 				{
-					var assembly = Assembly.Load("D3T.AdvancedObjectSelector");
-					if(assembly != null)
-					{
-						advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
-							.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
-					}
+					advancedObjectPropertyDrawer = assembly.GetType("AdvancedObjectSelector.ObjectPropertyDrawer")
+						.GetMethod("OnGUI", BindingFlags.Public | BindingFlags.Static);
 				}
-				catch
-				{
-					
-				}
+			}
+			catch
+			{
+			}
 
-				propertyDrawerTypes = new Dictionary<Type, Type>();
-				foreach(var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
+			propertyDrawerTypes = new Dictionary<Type, Type>();
+			foreach (var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
+			{
+				var attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(false);
+				if (attributes == null || attributes.Count() == 0)
 				{
-					var attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(false);
-					if(attributes == null || attributes.Count() == 0)
+					//Extend search to include ancestors
+					attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(true);
+				}
+				if (attributes != null && attributes.Count() > 0)
+				{
+					var attribute = attributes.First();
+					Type targetType = (Type)attribute.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic)
+						.GetValue(attribute);
+					if (!propertyDrawerTypes.ContainsKey(targetType))
 					{
-						//Extend search to include ancestors
-						attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(true);
-					}
-					if(attributes != null && attributes.Count() > 0)
-					{
-						var attribute = attributes.First();
-						Type targetType = (Type)attribute.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(attribute);
-						if(!propertyDrawerTypes.ContainsKey(targetType))
-						{
-							propertyDrawerTypes.Add(targetType, propertyDrawerType);
-						}
+						propertyDrawerTypes.Add(targetType, propertyDrawerType);
 					}
 				}
 			}
@@ -89,12 +86,12 @@ namespace UnityEssentialsEditor
 			var path = prop.propertyPath.Replace(".Array.data[", "[");
 			object obj = prop.serializedObject.targetObject;
 			var elements = path.Split('.');
-			foreach(var element in elements)
+			foreach (var element in elements)
 			{
-				if(element.Contains("["))
+				if (element.Contains("["))
 				{
 					var elementName = element.Substring(0, element.IndexOf("["));
-					if(elementName.Length > 0)
+					if (elementName.Length > 0)
 					{
 						obj = GetMemberValueByName(obj, elementName);
 					}
@@ -117,26 +114,26 @@ namespace UnityEssentialsEditor
 			var path = property.propertyPath;
 			System.Type parentType = property.serializedObject.targetObject.GetType();
 			object obj = property.serializedObject.targetObject;
-			while(path.Contains("."))
+			while (path.Contains("."))
 			{
 				string root = path.Split('.')[0];
-				if(path.StartsWith("Array.data["))
+				if (path.StartsWith("Array.data["))
 				{
 					path = path.Substring("Array.data[".Length);
 					string indexString = "";
-					while(path[0] != ']')
+					while (path[0] != ']')
 					{
 						indexString += path[0];
 						path = path.Substring(1);
 					}
 					int index = int.Parse(indexString);
 					path = path.Substring(1);
-					if(path.Length > 0 && path[0] == '.') path = path.Substring(1);
-					if(parentType.IsArray)
+					if (path.Length > 0 && path[0] == '.') path = path.Substring(1);
+					if (parentType.IsArray)
 					{
 						//It's a regular array
 						var arr = obj as System.Array;
-						if(index >= 0 && index < arr.Length)
+						if (index >= 0 && index < arr.Length)
 						{
 							obj = arr.GetValue(index);
 						}
@@ -153,7 +150,7 @@ namespace UnityEssentialsEditor
 						obj = indexer.GetGetMethod().Invoke(obj, new object[] { index });
 						parentType = parentType.GenericTypeArguments[0];
 					}
-					if(path.Length == 0) return parentType;
+					if (path.Length == 0) return parentType;
 				}
 				else
 				{
@@ -168,9 +165,9 @@ namespace UnityEssentialsEditor
 
 		private static PropertyInfo GetIndexer(Type type)
 		{
-			foreach(PropertyInfo pi in type.GetProperties())
+			foreach (PropertyInfo pi in type.GetProperties())
 			{
-				if(pi.GetIndexParameters().Length > 0) return pi;
+				if (pi.GetIndexParameters().Length > 0) return pi;
 			}
 			return null;
 		}
@@ -219,9 +216,9 @@ namespace UnityEssentialsEditor
 			var path = prop.propertyPath.Replace(".Array.data[", "[");
 			object obj = prop.serializedObject.targetObject;
 			var elements = path.Split('.');
-			foreach(var element in elements.Take(elements.Length - 1))
+			foreach (var element in elements.Take(elements.Length - 1))
 			{
-				if(element.Contains("["))
+				if (element.Contains("["))
 				{
 					var elementName = element.Substring(0, element.IndexOf("["));
 					var index = Convert.ToInt32(element.Substring(element.IndexOf("[")).Replace("[", "").Replace("]", ""));
@@ -240,14 +237,14 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static object GetMemberValue(object source, string name)
 		{
-			if(source == null)
+			if (source == null)
 				return null;
 			var type = source.GetType();
 			var f = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-			if(f == null)
+			if (f == null)
 			{
 				var p = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-				if(p == null)
+				if (p == null)
 					return null;
 				return p.GetValue(source, null);
 			}
@@ -261,17 +258,17 @@ namespace UnityEssentialsEditor
 		{
 			var enumerable = GetMemberValue(source, name) as IEnumerable;
 			var enm = enumerable.GetEnumerator();
-			while(index-- >= 0)
+			while (index-- >= 0)
 				enm.MoveNext();
 			return enm.Current;
 		}
-		
+
 		/// <summary>
 		/// Gets the value of the given property.
 		/// </summary>
 		public static object GetPropertyValue(SerializedProperty prop)
 		{
-			switch(prop.propertyType)
+			switch (prop.propertyType)
 			{
 				case SerializedPropertyType.Integer: return prop.intValue;
 				case SerializedPropertyType.Boolean: return prop.boolValue;
@@ -299,7 +296,7 @@ namespace UnityEssentialsEditor
 				case SerializedPropertyType.ManagedReference: return prop.managedReferenceValue;
 #if UNITY_2022_1_OR_NEWER
 				case SerializedPropertyType.Generic:
-					if(prop.isArray) return GetPropertyValueViaReflection(prop);
+					if (prop.isArray) return GetPropertyValueViaReflection(prop);
 					return prop.boxedValue;
 #endif
 				default: return GetPropertyValueViaReflection(prop);
@@ -311,7 +308,7 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static void SetPropertyValue(SerializedProperty prop, object value)
 		{
-			switch(prop.propertyType)
+			switch (prop.propertyType)
 			{
 				case SerializedPropertyType.Integer: prop.intValue = (int)value; break;
 				case SerializedPropertyType.Boolean: prop.boolValue = (bool)value; break;
@@ -386,7 +383,7 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static MemberInfo GetMemberInfoOfProperty(SerializedProperty prop, out object obj)
 		{
-			if(prop == null)
+			if (prop == null)
 			{
 				obj = null;
 				return null;
@@ -396,7 +393,7 @@ namespace UnityEssentialsEditor
 
 			MemberInfo m;
 			var arrayMatch = System.Text.RegularExpressions.Regex.Match(prop.propertyPath, @"\.Array\.data\[([0-9]+)\]$");
-			if(arrayMatch.Success)
+			if (arrayMatch.Success)
 			{
 				m = GetMember(ref obj, prop.propertyPath.Substring(0, prop.propertyPath.Length - arrayMatch.Length));
 			}
@@ -412,19 +409,19 @@ namespace UnityEssentialsEditor
 			path = path.Replace("Array.data[", "[");
 			var names = new List<string>(path.Split('.'));
 			MemberInfo member = obj.GetType();
-			while(names.Count > 0)
+			while (names.Count > 0)
 			{
-				if(names[0].StartsWith("["))
+				if (names[0].StartsWith("["))
 				{
 					int index = Convert.ToInt32(names[0].Replace("[", "").Replace("]", ""));
 					obj = GetElementAtIndex(obj, index);
 					names.RemoveAt(0);
 				}
 
-				if(obj == null) return null;
+				if (obj == null) return null;
 
 				member = FindMemberInType(obj.GetType(), names[0]);
-				if(member != null)
+				if (member != null)
 				{
 					obj = ReflectionUtility.GetMemberValue(member, obj);
 				}
@@ -441,47 +438,56 @@ namespace UnityEssentialsEditor
 		{
 			var fromTo = new FromToType(givenType, genericType);
 
-			if(assignabilityToGenericTypeCache.TryGetValue(fromTo, out var result))
+			if (assignabilityToGenericTypeCache.TryGetValue(fromTo, out var result))
 			{
 				return result;
 			}
 
+			result = false;
+
 			var interfaceTypes = givenType.GetInterfacesNonAlloc();
 
-			foreach(var it in interfaceTypes)
+			foreach (var it in interfaceTypes)
 			{
-				if(it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
-					return true;
+				if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+				{
+					result = true;
+					break;
+				}
 			}
 
-			if(givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
-				return true;
+			if (!result && givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+			{
+				result = true;
+			}
 
-			Type baseType = givenType.BaseType;
-			if(baseType == null) return false;
+			if (!result)
+			{
+				Type baseType = givenType.BaseType;
+				result = baseType != null && IsAssignableToGenericType(baseType, genericType);
+			}
 
-			result = IsAssignableToGenericType(baseType, genericType);
-			assignabilityToGenericTypeCache[new FromToType(baseType, genericType)] = result;
+			assignabilityToGenericTypeCache[fromTo] = result;
 			return result;
 		}
 
 		private static Type GetPropertyDrawerType(Type objectOrAttributeType)
 		{
-			foreach(var kv in propertyDrawerTypes)
+			foreach (var kv in propertyDrawerTypes)
 			{
-				if(kv.Key == objectOrAttributeType)
+				if (kv.Key == objectOrAttributeType)
 				{
 					return kv.Value;
 				}
 			}
 			//TODO: check if property drawer is allowed for child classes
-			foreach(var kv in propertyDrawerTypes)
+			foreach (var kv in propertyDrawerTypes)
 			{
-				if(kv.Key.IsGenericType)
+				if (kv.Key.IsGenericType)
 				{
-					if(IsAssignableToGenericType(objectOrAttributeType, kv.Key)) return kv.Value;
+					if (IsAssignableToGenericType(objectOrAttributeType, kv.Key)) return kv.Value;
 				}
-				else if(kv.Key.IsAssignableFrom(objectOrAttributeType))
+				else if (kv.Key.IsAssignableFrom(objectOrAttributeType))
 				{
 					return kv.Value;
 				}
@@ -496,10 +502,9 @@ namespace UnityEssentialsEditor
 		{
 			Type drawerType = GetPropertyDrawerType(objectOrAttributeType);
 
-			if(drawerType != null)
+			if (drawerType != null)
 			{
 				//BUG: Reused property drawers don't work with CachedSerializedProperty
-				/*
 				if(propertyDrawersCache.TryGetValue(drawerType, out var pd))
 				{
 					return pd;
@@ -510,8 +515,7 @@ namespace UnityEssentialsEditor
 					propertyDrawersCache.Add(drawerType, pd);
 					return pd;
 				}
-				*/
-				return (PropertyDrawer)Activator.CreateInstance(drawerType);
+				// return (PropertyDrawer)Activator.CreateInstance(drawerType);
 			}
 			else
 			{
@@ -522,10 +526,11 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Draws the property using any PropertyAttribute excluding the given attribute type, if any.
 		/// </summary>
-		public static void DrawPropertyWithAttributeExcept(Rect rect, SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder, bool fallbackIsDirect = false)
+		public static void DrawPropertyWithAttributeExcept(Rect rect, SerializedProperty property, GUIContent label, Type exceptType,
+			int minimumOrder, bool fallbackIsDirect = false)
 		{
 			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder);
-			if(drawer != null)
+			if (drawer != null)
 			{
 				drawer.OnGUI(rect, property, label);
 			}
@@ -548,7 +553,7 @@ namespace UnityEssentialsEditor
 		public static float GetPropertyHeightWithAttributeExcept(SerializedProperty property, GUIContent label, Type exceptType, int minimumOrder)
 		{
 			var drawer = GetDecoratedPropertyDrawerExcept(property, exceptType, minimumOrder) ?? GetPropertyDrawerFromType(GetPropertyType(property));
-			if(drawer != null)
+			if (drawer != null)
 			{
 				return drawer.GetPropertyHeight(property, label);
 			}
@@ -564,19 +569,20 @@ namespace UnityEssentialsEditor
 			{
 				var t = attr.GetType();
 				return !typeof(DecoratorAttribute).IsAssignableFrom(t)
-				&& attr.order >= minimumOrder
-				&& !exceptType.IsAssignableFrom(t)
-				&& t != typeof(TooltipAttribute);
+				       && attr.order >= minimumOrder
+				       && !exceptType.IsAssignableFrom(t)
+				       && t != typeof(TooltipAttribute);
 			}).OrderBy(a => a.order).ToArray();
-			if(attrs.Length > 0)
+			if (attrs.Length > 0)
 			{
-				if(attrs.Length > 1)
+				if (attrs.Length > 1)
 				{
-					Debug.LogWarning($"More than one PropertyAttribute detected on '{property.name}': [{string.Join(", ", attrs.Select(a => a.GetType().Name))}]");
+					Debug.LogWarning(
+						$"More than one PropertyAttribute detected on '{property.name}': [{string.Join(", ", attrs.Select(a => a.GetType().Name))}]");
 				}
 
 				var drawer = GetPropertyDrawerFromType(attrs[0].GetType());
-				if(drawer != null)
+				if (drawer != null)
 				{
 					typeof(PropertyDrawer).GetField("m_Attribute", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(drawer, attrs[0]);
 					typeof(PropertyDrawer).GetField("m_FieldInfo", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(drawer, fieldInfo);
@@ -592,14 +598,14 @@ namespace UnityEssentialsEditor
 		public static void DrawPropertyField(Rect rect, SerializedProperty property, GUIContent label, Type fieldType)
 		{
 			var elementType = GetElementType(fieldType, out _);
-			if(typeof(UnityEngine.Object).IsAssignableFrom(elementType) && advancedObjectPropertyDrawer != null)
+			if (typeof(UnityEngine.Object).IsAssignableFrom(elementType) && advancedObjectPropertyDrawer != null)
 			{
 				advancedObjectPropertyDrawer.Invoke(null, new object[] { rect, property, label, elementType });
 			}
 			else
 			{
 				var drawer = GetPropertyDrawerFromType(GetPropertyType(property));
-				if(drawer != null)
+				if (drawer != null)
 				{
 					drawer.GetType().GetField("m_FieldInfo", ALL_BINDING_FLAGS)?.SetValue(drawer, null);
 					drawer.OnGUI(rect, property, label);
@@ -624,7 +630,7 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static void CopyPropertyValue(SerializedProperty from, SerializedProperty to)
 		{
-			switch(from.propertyType)
+			switch (from.propertyType)
 			{
 				case SerializedPropertyType.Integer: to.intValue = from.intValue; break;
 				case SerializedPropertyType.Boolean: to.boolValue = from.boolValue; break;
@@ -669,7 +675,7 @@ namespace UnityEssentialsEditor
 		public static void DrawPropertyDirect(Rect position, GUIContent label, SerializedProperty prop, bool monospaceTextFields = false)
 		{
 			var textFieldStyle = monospaceTextFields ? EditorGUIExtras.GetMonospaceTextField(prop) : GUI.skin.textField;
-			switch(prop.propertyType)
+			switch (prop.propertyType)
 			{
 				case SerializedPropertyType.Integer:
 					HandleDirectPropertyDraw(
@@ -697,14 +703,14 @@ namespace UnityEssentialsEditor
 						{
 							bool showAlpha = true;
 							bool hdr = false;
-							if(prop.TryGetAttribute(out ColorUsageAttribute colorUsage))
+							if (prop.TryGetAttribute(out ColorUsageAttribute colorUsage))
 							{
 								showAlpha = colorUsage.showAlpha;
 								hdr = colorUsage.hdr;
 							}
-							if(!prop.hasMultipleDifferentValues)
+							if (!prop.hasMultipleDifferentValues)
 							{
-								if(!showAlpha) prop.colorValue = prop.colorValue.WithAlpha(1);
+								if (!showAlpha) prop.colorValue = prop.colorValue.WithAlpha(1);
 							}
 							return EditorGUI.ColorField(position, label, prop.colorValue, true, showAlpha, hdr);
 						},
@@ -722,7 +728,8 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.Enum:
 					HandleDirectPropertyDraw(
-						() => EditorGUI.EnumPopup(position, label, (Enum)Enum.ToObject(SerializedPropertyExtensions.GetValueType(prop), prop.intValue)),
+						() => EditorGUI.EnumPopup(position, label,
+							(Enum)Enum.ToObject(SerializedPropertyExtensions.GetValueType(prop), prop.intValue)),
 						e => prop.intValue = Convert.ToInt32(e));
 					break;
 				case SerializedPropertyType.Vector2:
@@ -767,10 +774,11 @@ namespace UnityEssentialsEditor
 					break;
 				case SerializedPropertyType.Gradient:
 					HandleDirectPropertyDraw(
-						() => {
+						() =>
+						{
 							bool hdr = false;
 							ColorSpace colorSpace = ColorSpace.Gamma;
-							if(prop.TryGetAttribute(out GradientUsageAttribute gradientUsage))
+							if (prop.TryGetAttribute(out GradientUsageAttribute gradientUsage))
 							{
 								hdr = gradientUsage.hdr;
 								colorSpace = gradientUsage.colorSpace;
@@ -826,7 +834,7 @@ namespace UnityEssentialsEditor
 		{
 			EditorGUI.BeginChangeCheck();
 			T newValue = drawer();
-			if(EditorGUI.EndChangeCheck())
+			if (EditorGUI.EndChangeCheck())
 			{
 				applier(newValue);
 			}
@@ -838,7 +846,7 @@ namespace UnityEssentialsEditor
 		public static float DrawChildProperties(Rect position, SerializedProperty parent)
 		{
 			float yOffset = 0;
-			foreach(SerializedProperty child in parent)
+			foreach (SerializedProperty child in parent)
 			{
 				position.height = EditorGUI.GetPropertyHeight(child);
 				EditorGUI.PropertyField(position, child, new GUIContent(child.displayName));
@@ -854,7 +862,7 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static void DrawChildProperties(SerializedProperty parent)
 		{
-			foreach(SerializedProperty child in parent)
+			foreach (SerializedProperty child in parent)
 			{
 				EditorGUILayout.PropertyField(child, new GUIContent(child.displayName));
 			}
@@ -881,12 +889,13 @@ namespace UnityEssentialsEditor
 		/// <summary>
 		/// Performs a type check on the property and displays an error label if the type is not valid for the given property.
 		/// </summary>
-		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label, params SerializedPropertyType[] types)
+		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label,
+			params SerializedPropertyType[] types)
 		{
 			var type = property.propertyType;
-			foreach(var t in types)
+			foreach (var t in types)
 			{
-				if(type == t)
+				if (type == t)
 				{
 					return true;
 				}
@@ -901,9 +910,9 @@ namespace UnityEssentialsEditor
 		public static bool ValidatePropertyTypeForAttribute(Rect position, SerializedProperty property, GUIContent label, params Type[] types)
 		{
 			var type = GetPropertyType(property);
-			foreach(var t in types)
+			foreach (var t in types)
 			{
-				if(t.IsAssignableFrom(type))
+				if (t.IsAssignableFrom(type))
 				{
 					return true;
 				}
@@ -917,12 +926,12 @@ namespace UnityEssentialsEditor
 		/// </summary>
 		public static Type GetElementType(Type type, out bool isArrayOrList)
 		{
-			if(type.IsArray)
+			if (type.IsArray)
 			{
 				isArrayOrList = true;
 				return type.GetElementType();
 			}
-			else if(typeof(IList).IsAssignableFrom(type) && type.IsGenericType)
+			else if (typeof(IList).IsAssignableFrom(type) && type.IsGenericType)
 			{
 				isArrayOrList = true;
 				return type.GetGenericArguments()[0];

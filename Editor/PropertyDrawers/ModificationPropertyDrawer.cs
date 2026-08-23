@@ -15,6 +15,10 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, attribute.GetType(), attribute.order);
 			}
+			catch(ExitGUIException)
+			{
+				throw;
+			}
 			catch(Exception e)
 			{
 				e.LogException();

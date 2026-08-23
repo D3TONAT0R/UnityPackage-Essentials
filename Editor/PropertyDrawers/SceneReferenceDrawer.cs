@@ -26,7 +26,7 @@ namespace UnityEssentialsEditor
 			{
 				EditorGUI.PropertyField(position, property.FindPropertyRelative("sceneAsset"), label);
 			}
-			catch(ExitGUIException e)
+			catch(ExitGUIException)
 			{
 				//Ignore exit gui exceptions
 			}

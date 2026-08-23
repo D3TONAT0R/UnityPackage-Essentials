@@ -9,6 +9,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(ButtonAttribute), true)]
 	public class ButtonAttributeDrawer : ModificationPropertyDrawer
 	{
+		private static Rect[] buttonRects = new Rect[8];
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var attr = (ButtonAttribute)attribute;
@@ -39,10 +41,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 			using(new EnabledScope(enabled))
 			{
-				var rects = position.DivideHorizontal(attribute.methodNames.Length, 4);
-				for(int i = 0; i < rects.Length; i++)
+				int count = attribute.methodNames.Length;
+				position.DivideHorizontal(count, buttonRects, 4);
+				for(int i = 0; i < count; i++)
 				{
-					if(GUI.Button(rects[i], attribute.labels[i]))
+					if(GUI.Button(buttonRects[i], attribute.labels[i]))
 					{
 						Invoke(property, attribute.methodNames[i], attribute.arguments[i]);
 					}
