@@ -12,11 +12,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private static GUIStyle manualEditButton;
 		private static GUIStyle manualEditCloseButton;
 
-#if UNITY_2022_1_OR_NEWER
-#else
-		private static GUIStyle manualEditCloseButton = "ToolbarSeachCancelButton";
-#endif
-
 		private bool manualEdit = false;
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

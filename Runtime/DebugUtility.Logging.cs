@@ -17,11 +17,13 @@ namespace UnityEssentials
 		/// <summary>
 		/// Logs an array's content to the console.
 		/// </summary>
+#if UNITY_2021_3_OR_NEWER
 		[HideInCallstack]
+#endif
 		public static void LogArray<T>(string message, IList<T> array, Func<T, string> elementFunc = null)
 		{
-			elementFunc ??= t => t.ToString();
-			stringBuilder ??= new StringBuilder();
+			elementFunc = elementFunc ?? (t => t.ToString());
+			stringBuilder = stringBuilder ?? new StringBuilder();
 			stringBuilder.Clear();
 			if (!string.IsNullOrEmpty(message)) stringBuilder.Append(message + " ");
 			if (array != null)
@@ -47,9 +49,9 @@ namespace UnityEssentials
 		public static void LogTransform(string message, Transform t, bool oneLine = false, bool position = true, bool rotation = true,
 			bool scale = true)
 		{
-			stringBuilder ??= new StringBuilder();
+			stringBuilder = stringBuilder ?? new StringBuilder();
 			stringBuilder.Clear();
-			message ??= t.name;
+			message = message ?? t.name;
 			if (t)
 			{
 				if (!oneLine)
@@ -73,18 +75,18 @@ namespace UnityEssentials
 			}
 			Debug.Log(stringBuilder.ToString());
 		}
-		
+
 		/// <summary>
 		/// Logs an object's data to the console.
 		/// </summary>
 		public static void LogObject(string message, object obj, bool fields = true, bool properties = true, bool includePrivate = true)
 		{
-			if(obj == null) 
+			if (obj == null)
 			{
 				Debug.Log($"{message}: (null)");
 				return;
 			}
-			stringBuilder ??= new StringBuilder();
+			stringBuilder = stringBuilder ?? new StringBuilder();
 			stringBuilder.Clear();
 			var type = obj.GetType();
 			var bindingFlags = BindingFlags.Instance | BindingFlags.Public;
@@ -104,8 +106,9 @@ namespace UnityEssentials
 					if (property.CanRead)
 					{
 						var obsoleteAttr = property.GetCustomAttribute<ObsoleteAttribute>();
-						if(obsoleteAttr != null) continue;
-						stringBuilder.AppendLine($"- {property.Name} ({property.PropertyType.Name}): {property.GetValue(obj)?.ToString() ?? "(null)"}");
+						if (obsoleteAttr != null) continue;
+						stringBuilder.AppendLine(
+							$"- {property.Name} ({property.PropertyType.Name}): {property.GetValue(obj)?.ToString() ?? "(null)"}");
 					}
 				}
 			}

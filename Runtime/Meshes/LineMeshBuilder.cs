@@ -111,7 +111,7 @@ namespace UnityEssentials.Meshes
 		/// </summary>
 		public void AddCircle(Vector3 center, Quaternion rotation, float radius, int detail = 32)
 		{
-			tempVertexCache ??= new List<Vector3>();
+			if (tempVertexCache == null) tempVertexCache = new List<Vector3>();
 			GetCirclePoints(tempVertexCache, detail, radius);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;
@@ -127,7 +127,7 @@ namespace UnityEssentials.Meshes
 		/// </summary>
 		public void AddCylinder(Vector3 center, Quaternion rotation, float radius1, float radius2, float height, int detail = 32)
 		{
-			tempVertexCache ??= new List<Vector3>();
+			if (tempVertexCache == null) tempVertexCache = new List<Vector3>();
 			GetCirclePoints(tempVertexCache, detail, 1f);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;
@@ -159,7 +159,7 @@ namespace UnityEssentials.Meshes
 		/// </summary>
 		public void AddCone(Vector3 center, Quaternion rotation, float radius, float height, int detail = 32)
 		{
-			tempVertexCache ??= new List<Vector3>();
+			if (tempVertexCache == null) tempVertexCache = new List<Vector3>();
 			GetCirclePoints(tempVertexCache, detail, radius);
 			var matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
 			int startIndex = verts.Count;

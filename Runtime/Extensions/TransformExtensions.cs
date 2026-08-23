@@ -43,7 +43,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static string GetHierarchyPathString(this Transform transform, Transform parent = null)
 		{
-			stringBuilder ??= new StringBuilder();
+			stringBuilder = stringBuilder ?? new StringBuilder();
 			stringBuilder.Clear();
 			stringBuilder.Append(transform.name);
 			var t = transform;

@@ -70,7 +70,7 @@ namespace UnityEssentials
 			}
 		}
 
-		public override object ValueObject => hasValue ? backingValue : null;
+		public override object ValueObject => hasValue ? backingValue : (object)null;
 
 		public override bool HasValue
 		{
@@ -150,7 +150,13 @@ namespace UnityEssentials
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(hasValue, backingValue);
+			unchecked
+			{
+				int hash = 17;
+				hash = hash * 31 + hasValue.GetHashCode();
+				hash = hash * 31 + (object.Equals(backingValue, null) ? 0 : backingValue.GetHashCode());
+				return hash;
+			}
 		}
 
 		public override string ToString()

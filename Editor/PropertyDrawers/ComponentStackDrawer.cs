@@ -18,7 +18,7 @@ namespace UnityEssentialsEditor
 		private Dictionary<Type, string> supportedTypes;
 		private SerializedObject serializedObject;
 
-		static Dictionary<Type, Dictionary<Type, string>> subtypes = new();
+		static Dictionary<Type, Dictionary<Type, string>> subtypes = new Dictionary<Type, Dictionary<Type, string>>();
 
 		static GUIStyle headerStyle;
 		private static GUIContent expandAll = new GUIContent("Expand All");
@@ -36,8 +36,8 @@ namespace UnityEssentialsEditor
 		private static bool needsRenameFocus;
 		private static string renameInput;
 
-		private static Dictionary<Type, Type> drawerTypes = new();
-		private List<StackElementDrawer> drawerInstances = new();
+		private static Dictionary<Type, Type> drawerTypes = new Dictionary<Type, Type>();
+		private List<StackElementDrawer> drawerInstances = new List<StackElementDrawer>();
 
 		private static void Init()
 		{
@@ -67,7 +67,7 @@ namespace UnityEssentialsEditor
 			{
 				//Find all valid subtypes for this type
 				var types = new List<Type>(ReflectionUtility.GetGameAssembliesIncludingUnity().SelectMany(a => a.GetTypes().Where(t => elementBaseType.IsAssignableFrom(t) && !t.IsAbstract)));
-				supportedTypes = new();
+				supportedTypes = new Dictionary<Type, string>();
 				foreach(var t in types)
 				{
 					string menuName = "";
@@ -110,7 +110,7 @@ namespace UnityEssentialsEditor
 				GetSupportedTypes(stackElemType);
 			}
 
-			if(headerStyle == null) headerStyle = new(EditorStyles.toolbar) { fixedHeight = 0 };
+			if(headerStyle == null) headerStyle = new GUIStyle(EditorStyles.toolbar) { fixedHeight = 0 };
 			GUIStyle boxStyle = "FrameBox";
 			GUIStyle topBoxStyle = "Tab onlyOne";
 
@@ -251,7 +251,7 @@ namespace UnityEssentialsEditor
 
 		internal static void DrawItemHeader(Rect position, int i, SerializedProperty prop, StackComponent obj, SerializedProperty array)
 		{
-			EditorGUI.BeginProperty(position, new(prop.displayName), prop);
+			EditorGUI.BeginProperty(position, new GUIContent(prop.displayName), prop);
 			title.text = obj != null ? obj.HeaderTitle : "null";
 
 			var headerRect = position;
@@ -286,7 +286,7 @@ namespace UnityEssentialsEditor
 				var menu = new GenericMenu();
 				if(obj != null)
 				{
-					menu.AddItem(new("Copy Element"), false, () => CopyObject(obj));
+					menu.AddItem(new GUIContent("Copy Element"), false, () => CopyObject(obj));
 					bool canPaste = !string.IsNullOrEmpty(jsonClipboard) && obj.GetType() == jsonClipboardType;
 					var paste = new GUIContent("Paste Element Values");
 					if(canPaste)
@@ -298,7 +298,7 @@ namespace UnityEssentialsEditor
 						menu.AddDisabledItem(paste, false);
 					}
 				}
-				menu.AddItem(new("Remove Element"), false, () =>
+				menu.AddItem(new GUIContent("Remove Element"), false, () =>
 				{
 					Undo.RecordObject(array.serializedObject.targetObject, "Remove " + title);
 					RemoveItem((IList)array.GetValue(), i);
@@ -332,7 +332,7 @@ namespace UnityEssentialsEditor
 				}
 
 				menu.AddSeparator("");
-				menu.AddItem(new("Set Custom Name"), false, () =>
+				menu.AddItem(new GUIContent("Set Custom Name"), false, () =>
 				{
 					renamingElement = obj;
 					needsRenameFocus = true;
@@ -412,7 +412,7 @@ namespace UnityEssentialsEditor
 				var menu = new GenericMenu();
 				foreach(var t in supportedTypes)
 				{
-					menu.AddItem(new(t.Value), false, () =>
+					menu.AddItem(new GUIContent(t.Value), false, () =>
 					{
 						Undo.RecordObject(serializedObject.targetObject, "Add " + t.Key.Name);
 						AddNewItem(stack, t.Key);

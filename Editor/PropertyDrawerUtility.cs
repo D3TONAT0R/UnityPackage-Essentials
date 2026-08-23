@@ -30,7 +30,13 @@ namespace UnityEssentialsEditor
 
 			public override int GetHashCode()
 			{
-				return HashCode.Combine(from, to);
+				unchecked
+				{
+					int hash = 17;
+					hash = hash * 31 + (from != null ? from.GetHashCode() : 0);
+					hash = hash * 31 + (to != null ? to.GetHashCode() : 0);
+					return hash;
+				}
 			}
 		}
 
@@ -293,7 +299,12 @@ namespace UnityEssentialsEditor
 				case SerializedPropertyType.Vector3Int: return prop.vector3IntValue;
 				case SerializedPropertyType.RectInt: return prop.rectIntValue;
 				case SerializedPropertyType.BoundsInt: return prop.boundsIntValue;
-				case SerializedPropertyType.ManagedReference: return prop.managedReferenceValue;
+				case SerializedPropertyType.ManagedReference: 
+#if UNITY_2021_2_OR_NEWER
+					return prop.managedReferenceValue;
+#else
+					return GetPropertyValueViaReflection(prop);
+#endif
 #if UNITY_2022_1_OR_NEWER
 				case SerializedPropertyType.Generic:
 					if (prop.isArray) return GetPropertyValueViaReflection(prop);
@@ -781,9 +792,15 @@ namespace UnityEssentialsEditor
 							if (prop.TryGetAttribute(out GradientUsageAttribute gradientUsage))
 							{
 								hdr = gradientUsage.hdr;
+#if UNITY_2020_2_OR_NEWER
 								colorSpace = gradientUsage.colorSpace;
+#endif
 							}
+#if UNITY_2020_2_OR_NEWER
 							return EditorGUI.GradientField(position, label, GetGradientValue(prop), hdr, colorSpace);
+#else
+							return EditorGUI.GradientField(position, label, GetGradientValue(prop), hdr);
+#endif
 						},
 						g => SetGradientValue(prop, g));
 					break;

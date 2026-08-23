@@ -499,7 +499,7 @@ namespace UnityEssentials.Meshes
 			PushMatrix();
 			ApplyMatrix(matrix);
 			var nrm = TransformVector(Vector3.down);
-			tempVertexCache ??= new List<Vector3>();
+			if (tempVertexCache == null) tempVertexCache = new List<Vector3>();
 			GetCirclePoints(tempVertexCache, detail, 1f);
 			AddTransformedVertex(Vector3.zero);
 			int b = verts.Count;
@@ -584,7 +584,7 @@ namespace UnityEssentials.Meshes
 
 			var nrmL = Vector3.down;
 			var nrmU = Vector3.up;
-			tempVertexCache ??= new List<Vector3>();
+			if (tempVertexCache == null) tempVertexCache = new List<Vector3>();
 			GetCirclePoints(tempVertexCache, detail, 1f);
 
 			if(caps)
@@ -686,7 +686,7 @@ namespace UnityEssentials.Meshes
 			{
 				ApplyMatrix(Matrix4x4.TRS(pos, GetAxisRotation(direction), Vector3.one));
 
-				tempVertexCache ??= new List<Vector3>();
+				if (tempVertexCache == null) tempVertexCache = new List<Vector3>();
 				GetCirclePoints(tempVertexCache, detail, radius);
 				if(cap)
 				{

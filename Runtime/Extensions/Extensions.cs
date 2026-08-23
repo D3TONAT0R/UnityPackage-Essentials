@@ -118,7 +118,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static string ToTimeString(this int seconds, bool hours)
 		{
-			stringBuilder ??= new StringBuilder();
+			stringBuilder = stringBuilder ?? new StringBuilder();
 			stringBuilder.Clear();
 			bool positive = seconds >= 0;
 			stringBuilder.Append(positive ? "" : "-");

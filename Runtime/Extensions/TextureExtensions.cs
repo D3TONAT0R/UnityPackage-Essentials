@@ -25,7 +25,12 @@ namespace UnityEssentials
 				Debug.LogWarning($"Texture '{tex.name}' is already readable.");
 				return Object.Instantiate(tex);
 			}
-			Texture2D copy = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount, !tex.isDataSRGB)
+#if UNITY_2021_3_OR_NEWER
+			bool srgb = tex.isDataSRGB;
+#else
+			bool srgb = UnityEngine.Experimental.Rendering.GraphicsFormatUtility.IsSRGBFormat(tex.graphicsFormat);
+#endif
+			Texture2D copy = new Texture2D(tex.width, tex.height, tex.format, tex.mipmapCount, !srgb)
 			{
 				name = name != null ? name : $"{tex.name} (Readable)",
 				wrapMode = tex.wrapMode,

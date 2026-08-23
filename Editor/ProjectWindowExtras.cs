@@ -1,8 +1,12 @@
 ﻿using System.IO;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEssentials;
+#if UNITY_2021_2_OR_NEWER
+using UnityEditor.SceneManagement;
+#else
+using UnityEditor.Experimental.SceneManagement;
+#endif
 
 namespace UnityEssentialsEditor
 {
@@ -15,7 +19,8 @@ namespace UnityEssentialsEditor
 		private static void Init()
 		{
 			EditorApplication.projectWindowItemOnGUI = ProjectWindowItemOnGUI;
-			var borderTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(Path.Combine(EssentialsPackageInfo.ROOT_PATH, "Editor", "EditorAssets", "border_box.png"));
+			var borderTexture =
+				AssetDatabase.LoadAssetAtPath<Texture2D>(Path.Combine(EssentialsPackageInfo.ROOT_PATH, "Editor", "EditorAssets", "border_box.png"));
 			borderStyle = new GUIStyle
 			{
 				normal =
@@ -28,7 +33,7 @@ namespace UnityEssentialsEditor
 
 		private static void ProjectWindowItemOnGUI(string guid, Rect pos)
 		{
-			if(Event.current.type != EventType.Repaint)
+			if (Event.current.type != EventType.Repaint)
 			{
 				return;
 			}
@@ -39,7 +44,12 @@ namespace UnityEssentialsEditor
 				if (prefabStage != null)
 				{
 					var path = AssetDatabase.GUIDToAssetPath(guid);
-					if (path == prefabStage.assetPath)
+#if UNITY_2021_2_OR_NEWER
+					var prefabPath = prefabStage.assetPath;
+#else
+					var prefabPath = prefabStage.prefabAssetPath;
+#endif
+					if (path == prefabPath)
 					{
 						// Draw a border indicating we are in prefab mode
 						bool listView = pos.height <= 32;

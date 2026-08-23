@@ -54,15 +54,23 @@ namespace UnityEssentials
 		/// </summary>
 		public static string GetRootPathForLocation(FileLocation location)
 		{
-			return location switch
+			switch (location)
 			{
-				FileLocation.DataPath => Application.dataPath,
-				FileLocation.PersistentDataPath => Application.persistentDataPath,
-				FileLocation.Documents => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName),
-				FileLocation.PersistentDataPathOrProjectRoot => Application.isEditor ? GetProjectRootPath() : Application.persistentDataPath,
-				FileLocation.DocumentsOrProjectRoot => Application.isEditor ? GetProjectRootPath() : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName),
-				_ => throw new NotImplementedException()
-			};
+				case FileLocation.DataPath:
+					return Application.dataPath;
+				case FileLocation.PersistentDataPath:
+					return Application.persistentDataPath;
+				case FileLocation.Documents:
+					return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName);
+				case FileLocation.PersistentDataPathOrProjectRoot:
+					return Application.isEditor ? GetProjectRootPath() : Application.persistentDataPath;
+				case FileLocation.DocumentsOrProjectRoot:
+					return Application.isEditor
+						? GetProjectRootPath()
+						: Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Application.productName);
+				default:
+					throw new NotImplementedException();
+			}
 		}
 
 		/// <summary>

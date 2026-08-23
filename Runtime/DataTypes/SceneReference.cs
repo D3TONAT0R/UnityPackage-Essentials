@@ -236,7 +236,13 @@ namespace UnityEssentials
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(sceneName, buildIndex);
+			unchecked
+			{
+				int hash = 17;
+				hash = hash * 31 + (sceneName != null ? sceneName.GetHashCode() : 0);
+				hash = hash * 31 + buildIndex.GetHashCode();
+				return hash;
+			}
 		}
 
 		public override bool Equals(object obj)

@@ -326,7 +326,8 @@ namespace UnityEssentialsEditor
 		public static bool ValidateComponentCommands(MenuCommand cmd)
 		{
 			var comp = (Component)cmd.context;
-			return comp is not Transform;
+			bool isTransform = comp is Transform;
+			return !isTransform;
 		}
 
 		[MenuItem("CONTEXT/Component/Separate Component/To First Child", validate = true)]

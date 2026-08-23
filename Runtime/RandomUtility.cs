@@ -105,7 +105,7 @@ namespace UnityEssentials
 		/// <returns>A random item from the array.</returns>
 		public static int PickRandomIndexExcluding(int length, params int[] excludeIndices)
 		{
-			indices ??= new List<int>();
+			if (indices == null) indices = new List<int>();
 			indices.Clear();
 			indices.AddRange(Enumerable.Range(0, length).Except(excludeIndices));
 			if(indices.Count > 0)
