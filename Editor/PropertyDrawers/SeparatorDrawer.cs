@@ -2,7 +2,7 @@ using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 
-namespace UnityEssentialsEditor
+namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(SeparatorAttribute))]
 	public class SeparatorDrawer : DecoratorDrawer

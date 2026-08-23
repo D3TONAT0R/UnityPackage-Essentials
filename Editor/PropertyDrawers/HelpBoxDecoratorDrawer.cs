@@ -11,7 +11,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		public override void OnGUI(Rect position)
 		{
 			position.height -= EditorGUIUtility.standardVerticalSpacing;
-			position.x += EditorGUI.indentLevel * 15;
+			position.xMin += EditorGUI.indentLevel * 15;
 			var attr = (HelpBoxAttribute)attribute;
 			EditorGUI.HelpBox(position, attr.message, attr.MessageType);
 		}

@@ -210,7 +210,7 @@ namespace UnityEssentialsEditor
 			Mesh meshToSave = UnityEngine.Object.Instantiate(mf.sharedMesh);
 			MeshUtility.Optimize(meshToSave);
 
-			string path = EditorUtility.SaveFilePanel("Save Separate Mesh Asset", "Assets/", meshToSave.name, "asset");
+			string path = EditorUtility.SaveFilePanelInProject("Save Separate Mesh Asset", "Assets/", meshToSave.name, "asset");
 			if(!string.IsNullOrEmpty(path))
 			{
 				path = FileUtil.GetProjectRelativePath(path);
@@ -234,9 +234,10 @@ namespace UnityEssentialsEditor
 			var materials = renderer.sharedMaterials;
 			for(int i = 0; i < materials.Length; i++)
 			{
+				if(!materials[i]) continue;
 				var name = materials[i].name;
 				materials[i] = UnityEngine.Object.Instantiate(materials[i]);
-				if(!materials[i].name.EndsWith("(Instance)")) materials[i].name = name + " (Instance)";
+				materials[i].name = name + " (Object Instance)";
 			}
 			renderer.sharedMaterials = materials;
 		}

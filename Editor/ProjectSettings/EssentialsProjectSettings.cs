@@ -38,7 +38,7 @@ namespace UnityEssentialsEditor
 		[Tooltip("Additional usings that are added on top of new scripts.")]
 		public string[] additionalDefaultUsings = Array.Empty<string>();
 		[Header("Menu Management", order = 0)]
-		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1), SerializeField]
+		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1)]
 #if !UNITY_6000_0_OR_NEWER
 		public bool reorganizeAssetMenu = true;
 #endif

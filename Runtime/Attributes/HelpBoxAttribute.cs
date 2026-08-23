@@ -17,7 +17,7 @@ namespace UnityEssentials
 	/// <summary>
 	/// Add this attribute to a field to draw a help box above it in the inspector.
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
+	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
 	public class HelpBoxAttribute : DecoratorAttribute
 	{
 
