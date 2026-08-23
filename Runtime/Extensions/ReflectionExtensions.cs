@@ -2,7 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace UnityEssentials
+namespace UnityEssentials.Reflection
 {
 	public static class ReflectionExtensions
 	{

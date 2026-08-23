@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEssentials;
 using UnityEssentials.Collections;
+using UnityEssentials.Reflection;
 
 namespace UnityEssentialsEditor
 {

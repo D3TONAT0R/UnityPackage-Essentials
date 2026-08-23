@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
+using UnityEssentials.Reflection;
 using UnityPlayerLoop = UnityEngine.LowLevel.PlayerLoop;
 
 namespace UnityEssentials.PlayerLoop

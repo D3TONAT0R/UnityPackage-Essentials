@@ -2,6 +2,7 @@ using UnityEssentials;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEssentials.Reflection;
 
 namespace UnityEssentialsEditor
 {

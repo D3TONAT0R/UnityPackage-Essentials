@@ -5,6 +5,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEssentials;
+using UnityEssentials.Reflection;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {

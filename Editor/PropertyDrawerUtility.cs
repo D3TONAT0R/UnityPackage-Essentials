@@ -6,7 +6,8 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using static UnityEssentials.ReflectionUtility;
+using UnityEssentials.Reflection;
+using static UnityEssentials.Reflection.ReflectionUtility;
 
 namespace UnityEssentialsEditor
 {
@@ -434,7 +435,7 @@ namespace UnityEssentialsEditor
 				member = FindMemberInType(obj.GetType(), names[0]);
 				if (member != null)
 				{
-					obj = ReflectionUtility.GetMemberValue(member, obj);
+					obj = UnityEssentials.Reflection.ReflectionUtility.GetMemberValue(member, obj);
 				}
 				else
 				{
