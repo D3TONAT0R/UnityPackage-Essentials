@@ -30,6 +30,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static void DrawButtons(SerializedProperty property, ButtonAttribute attribute, Rect position)
 		{
+			if (attribute.methodNames.Length == 0)
+			{
+				Debug.LogWarning("ButtonAttribute has no buttons defined for property: " + property.name);
+				return;
+			}
 			bool enabled = true;
 			switch(attribute.EnabledIn)
 			{
@@ -47,13 +52,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				{
 					if(GUI.Button(buttonRects[i], attribute.labels[i]))
 					{
-						Invoke(property, attribute.methodNames[i], attribute.arguments[i]);
+						Invoke(property, attribute.methodNames[i], attribute.arguments[i], attribute.labels[i].text);
 					}
 				}
 			}
 		}
 
-		private static void Invoke(SerializedProperty property, string methodName, string[] args)
+		private static void Invoke(SerializedProperty property, string methodName, string[] args, string name)
 		{
 			object target;
 			var parentProp = PropertyDrawerUtility.GetParentProperty(property);
@@ -66,11 +71,18 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				Debug.LogError($"Could not find method to invoke: '{methodName}'");
 				return;
 			}
+			
+			Undo.RecordObject(property.serializedObject.targetObject, name);
 			var parameters = ParseParameters(method, args);
+			if(parameters == null) return;
 			method.Invoke(target, parameters);
+			
+			if(parentProp != null) parentProp.SetValue(target);
 
 			var onValidate = target.GetType().GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			onValidate?.Invoke(target, Array.Empty<object>());
+			
+			property.serializedObject.ApplyModifiedProperties();
 		}
 
 
