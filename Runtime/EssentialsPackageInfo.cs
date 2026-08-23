@@ -1,6 +1,4 @@
-﻿using UnityEditor;
-
-namespace UnityEssentials
+﻿namespace UnityEssentials
 {
 	public static class EssentialsPackageInfo
 	{

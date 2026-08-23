@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEditor;
 
 namespace UnityEssentials
 {
@@ -17,22 +16,22 @@ namespace UnityEssentials
 	/// <summary>
 	/// Add this attribute to a field to draw a help box above it in the inspector.
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+	[AttributeUsage(AttributeTargets.Field)]
 	public class HelpBoxAttribute : DecoratorAttribute
-	{
+	{	
 
 		public HelpBoxType type;
 		public string message;
 
 #if UNITY_EDITOR
-		public MessageType MessageType
+		public UnityEditor.MessageType MessageType
 		{
 			get
 			{
-				if(type == HelpBoxType.Error) return MessageType.Error;
-				else if(type == HelpBoxType.Warning) return MessageType.Warning;
-				else if(type == HelpBoxType.Info) return MessageType.Info;
-				else return MessageType.None;
+				if(type == HelpBoxType.Error) return UnityEditor.MessageType.Error;
+				else if(type == HelpBoxType.Warning) return UnityEditor.MessageType.Warning;
+				else if(type == HelpBoxType.Info) return UnityEditor.MessageType.Info;
+				else return UnityEditor.MessageType.None;
 			}
 		}
 #endif
