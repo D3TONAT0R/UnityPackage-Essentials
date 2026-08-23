@@ -7,6 +7,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	[CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
 	public class ReadOnlyAttributeDrawer : PropertyDrawer
 	{
+		private GUIContent content = new GUIContent();
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var attr = (ReadOnlyAttribute)attribute;
@@ -14,12 +16,16 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				var lEnabledState = GUI.enabled;
 				GUI.enabled = false;
+				EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
 				PropertyDrawerUtility.DrawPropertyWithAttributeExcept(position, property, label, typeof(ReadOnlyAttribute), attribute.order);
+				EditorGUI.showMixedValue = false;
 				GUI.enabled = lEnabledState;
 			}
 			else
 			{
-				EditorGUI.LabelField(position, label, new GUIContent(property.GetValue()?.ToString() ?? "(null)"));
+				if(property.hasMultipleDifferentValues) content.text = "—";
+				else content.text = property.GetValue()?.ToString() ?? "(null)";
+				EditorGUI.LabelField(position, label, content);
 			}
 		}
 
@@ -28,7 +34,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var attr = (ReadOnlyAttribute)attribute;
 			if(attr.drawAsFields)
 			{
-				return base.GetPropertyHeight(property, label);
+				return PropertyDrawerUtility.GetPropertyHeightWithAttributeExcept(property, label, attribute.GetType(), attribute.order);
 			}
 			else
 			{

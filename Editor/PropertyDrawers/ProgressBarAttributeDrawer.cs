@@ -9,9 +9,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	public class ProgressBarAttributeDrawer : PropertyDrawer
 	{
 		private static bool stylesInitialized = false;
-		private static GUIStyle progressBarBack;
-		private static GUIStyle progressBarFill;
-		private static GUIStyle progressBarText;
 		private static GUIStyle manualEditButton;
 		private static GUIStyle manualEditCloseButton;
 
@@ -26,9 +23,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			if (!stylesInitialized)
 			{
-				progressBarBack = "ProgressBarBack";
-				progressBarFill = "ProgressBarBar";
-				progressBarText = "ProgressBarText";
 				manualEditButton = "PaneOptions";
 #if UNITY_2022_1_OR_NEWER
 				manualEditCloseButton = "ToolbarSearchCancelButton";
@@ -84,7 +78,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				else property.intValue = (int)value;
 			}
 
-			DrawProgressBar(position, attr, value);
+			DrawProgressBar(position, attr, value, property.hasMultipleDifferentValues);
 		}
 
 		private void DrawManualEditGUI(Rect position, SerializedProperty property, GUIContent label, ProgressBarAttribute attr)
@@ -98,19 +92,27 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				if(property.propertyType == SerializedPropertyType.Float) property.floatValue = Mathf.Clamp(property.floatValue, attr.min, attr.max);
 				else property.intValue = (int)Mathf.Clamp(property.intValue, attr.min, attr.max);
 			}
-			DrawProgressBar(barRect, attr, property.propertyType == SerializedPropertyType.Float ? property.floatValue : property.intValue);
+			DrawProgressBar(barRect, attr, property.propertyType == SerializedPropertyType.Float ? property.floatValue : property.intValue, property.hasMultipleDifferentValues);
 		}
 
-		private void DrawProgressBar(Rect position, ProgressBarAttribute attr, float value)
+		private void DrawProgressBar(Rect position, ProgressBarAttribute attr, float value, bool hasMultipleDifferentValues)
 		{
+			/*
 			var fillRect = position;
 			fillRect.width *= Mathf.Clamp01(Mathf.InverseLerp(attr.min, attr.max, value));
 
 			progressBarBack.DrawOnRepaint(position);
 			if(fillRect.width > 0) progressBarFill.DrawOnRepaint(fillRect);
 
-			string valueString = (value * attr.valueScale).ToString((attr.showAsPercentage ? "P" : "F") + attr.decimals);
 			GUI.Label(position, valueString, progressBarText);
+			*/
+			float fillAmount = !hasMultipleDifferentValues
+				? Mathf.InverseLerp(attr.min, attr.max, value)
+				: 0;
+			string valueString = !hasMultipleDifferentValues
+					? (value * attr.valueScale).ToString((attr.showAsPercentage ? "P" : "F") + attr.decimals)
+					: "—";
+			EditorGUI.ProgressBar(position, fillAmount, valueString);
 		}
 	}
 }
