@@ -193,9 +193,10 @@ namespace UnityEssentialsEditor
 			Undo.CollapseUndoOperations(group);
 		}
 
-		[MenuItem("CONTEXT/Transform/Apply Position", validate = true)]
-		[MenuItem("CONTEXT/Transform/Apply Rotation", validate = true)]
-		[MenuItem("CONTEXT/Transform/Apply Scale", validate = true)]
+		[MenuItem("CONTEXT/Transform/Apply/Position", validate = true)]
+		[MenuItem("CONTEXT/Transform/Apply/Rotation", validate = true)]
+		[MenuItem("CONTEXT/Transform/Apply/Scale", validate = true)]
+		[MenuItem("CONTEXT/Transform/Apply/Full Transform", validate = true)]
 		public static bool ValidateTransformApplyCommand(MenuCommand cmd)
 		{
 			var transform = (Transform)cmd.context;
