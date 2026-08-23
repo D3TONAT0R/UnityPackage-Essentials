@@ -101,54 +101,80 @@ namespace UnityEssentials.Reflection
 			"netstandard"
 		};
 
-		private static Assembly[] assemblyCache;
-		private static Assembly[] gameAssemblyCache;
-		private static Assembly[] gameAssemblyWithUnityCache;
+		private static Assembly unityEngineAssembly;
+		private static Assembly[] playerAssemblies;
+		private static Assembly[] playerAssembliesWithUnity;
+
+#if UNITY_EDITOR
+		private static Assembly unityEditorAssembly;
+		private static Assembly[] editorAssemblies;
+		private static Assembly[] editorAssembliesWithUnity;
+#endif
 
 		private static Dictionary<Type, Type[]> interfaceCache = new Dictionary<Type, Type[]>();
 
-		[RuntimeInitializeOnLoadMethod]
+#if UNITY_EDITOR
+		[UnityEditor.InitializeOnLoadMethod]
+#else
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+#endif
 		private static void Init()
 		{
-			RefreshAssemblyCache();
+			var assemblyList = new List<Assembly>();
+			unityEngineAssembly = typeof(GameObject).Assembly;
+			var playerAssemblyNames = AssemblyNames.GetPlayerAssemblyNames();
+			foreach (var name in playerAssemblyNames)
+			{
+				TryLoadAssembly(name, assemblyList);
+			}
+			playerAssemblies = assemblyList.ToArray();
+			assemblyList.Add(unityEngineAssembly);
+			playerAssembliesWithUnity = assemblyList.ToArray();
+#if UNITY_EDITOR
+			assemblyList.Clear();
+			unityEditorAssembly = typeof(UnityEditor.Editor).Assembly;
+			var editorAssemblyNames = AssemblyNames.GetEditorAssemblyNames();
+			foreach (var name in editorAssemblyNames)
+			{
+				TryLoadAssembly(name, assemblyList);
+			}
+			editorAssemblies = assemblyList.ToArray();
+			assemblyList.Add(unityEngineAssembly);
+			assemblyList.Add(unityEditorAssembly);
+			editorAssembliesWithUnity = assemblyList.ToArray();
+#endif
 		}
 		
-		public static void RefreshAssemblyCache()
+		private static void TryLoadAssembly(string name, List<Assembly> assemblyList)
 		{
-#if UNITY_EDITOR
-			//TODO: store player assembly names in build to make this available in builds too
-			var unityAssemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies(
-				UnityEditor.Compilation.AssembliesType.PlayerWithoutTestAssemblies);
-			assemblyCache = AppDomain.CurrentDomain.GetAssemblies().Where(a => unityAssemblies.Any(ua => ua.name == a.GetName().Name)).ToArray();
-#else
-			assemblyCache = AppDomain.CurrentDomain.GetAssemblies();
-#endif
-			gameAssemblyCache = GetAssembliesExcluding(excludedAssemblyPrefixesNoUnity);
-			gameAssemblyWithUnityCache = GetAssembliesExcluding(excludedAssemblyPrefixesWithUnity);
+			try
+			{
+				var assembly = Assembly.Load(name);
+				assemblyList.Add(assembly);
+			}
+			catch (Exception e)
+			{
+				e.LogException($"Failed to load assembly '{name}'");
+			}
 		}
 
 		/// <summary>
 		/// Returns all game related assemblies (excluding unity assemblies).
 		/// </summary>
-		public static Assembly[] GetGameAssemblies()
+		public static Assembly[] GetAssemblies(bool includeUnityAssembly = false, bool includeEditorAssemblies = false)
 		{
-			if (gameAssemblyCache == null)
-			{
-				RefreshAssemblyCache();
+			#if UNITY_EDITOR
+			if (includeEditorAssemblies)
+			{	
+				return includeUnityAssembly ? editorAssembliesWithUnity : editorAssemblies;
 			}
-			return gameAssemblyCache;
-		}
-
-		/// <summary>
-		/// Returns all game related and unity assemblies.
-		/// </summary>
-		public static Assembly[] GetGameAssembliesIncludingUnity()
-		{
-			if (gameAssemblyWithUnityCache == null)
+			else
 			{
-				RefreshAssemblyCache();
+				return includeUnityAssembly ? playerAssembliesWithUnity : playerAssemblies;
 			}
-			return gameAssemblyWithUnityCache;
+			#else
+			return includeUnityAssembly ? playerAssembliesWithUnity : playerAssemblies;
+			#endif
 		}
 
 		/// <summary>
@@ -186,7 +212,7 @@ namespace UnityEssentials.Reflection
 		public static IEnumerable<Type> GetClassesOfType(Type baseType, bool includeUnityAssembly = false)
 		{
 			var types = new List<Type>();
-			var assemblies = includeUnityAssembly ? GetGameAssembliesIncludingUnity() : GetGameAssemblies();
+			var assemblies = GetAssemblies(includeUnityAssembly, true);
 			foreach (var assembly in assemblies)
 			{
 				try
@@ -215,7 +241,7 @@ namespace UnityEssentials.Reflection
 			var condition = GetClassOrStructCondition(searchFlags);
 
 			var defs = new List<AttributeDefinition<T>>();
-			var assemblies = GetGameAssemblies();
+			var assemblies = GetAssemblies();
 			foreach (var assembly in assemblies)
 			{
 				try
@@ -328,7 +354,7 @@ namespace UnityEssentials.Reflection
 			var bindingFlags = GetBindingFlags(staticMethods, includeNonPublic);
 
 			var methods = new List<MethodInfo>();
-			foreach (var assembly in GetGameAssemblies())
+			foreach (var assembly in GetAssemblies())
 			{
 				try
 				{
@@ -353,7 +379,7 @@ namespace UnityEssentials.Reflection
 		/// </summary>
 		public static List<AttributeDefinition<T>> GetClassAndAssemblyAttributes<T>(bool includeUnityAssembly) where T : Attribute
 		{
-			var assemblies = includeUnityAssembly ? GetGameAssembliesIncludingUnity() : GetGameAssemblies();
+			var assemblies = GetAssemblies(includeUnityAssembly, true);
 			var defs = new List<AttributeDefinition<T>>();
 			foreach (var assembly in assemblies)
 			{
@@ -588,24 +614,6 @@ namespace UnityEssentials.Reflection
 				obj = GetValueOfMember(obj, memberPath[i]);
 			}
 			return memberPath;
-		}
-
-		private static Assembly[] GetAssembliesExcluding(string[] excludePrefixes)
-		{
-			if (assemblyCache == null)
-			{
-				RefreshAssemblyCache();
-			}
-
-			var list = new List<Assembly>();
-			foreach (var assembly in assemblyCache)
-			{
-				if (!ShouldIgnoreAssembly(assembly, excludePrefixes))
-				{
-					list.Add(assembly);
-				}
-			}
-			return list.ToArray();
 		}
 
 		private static void Resolve(ref object obj, MemberInfo[] path, int index, Action<object> action, bool set)

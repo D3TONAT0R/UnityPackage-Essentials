@@ -67,7 +67,7 @@ namespace UnityEssentialsEditor
 			if(!subtypes.TryGetValue(elementBaseType, out supportedTypes))
 			{
 				//Find all valid subtypes for this type
-				var types = new List<Type>(ReflectionUtility.GetGameAssembliesIncludingUnity().SelectMany(a => a.GetTypes().Where(t => elementBaseType.IsAssignableFrom(t) && !t.IsAbstract)));
+				var types = new List<Type>(ReflectionUtility.GetAssemblies(true, true).SelectMany(a => a.GetTypes().Where(t => elementBaseType.IsAssignableFrom(t) && !t.IsAbstract)));
 				supportedTypes = new Dictionary<Type, string>();
 				foreach(var t in types)
 				{
