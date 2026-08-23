@@ -16,56 +16,67 @@ namespace UnityEssentials.Pooling
 		/// The maximum number of objects that can be instantiated for this pool.
 		/// </summary>
 		public readonly int maxPoolSize;
+		
 		/// <summary>
 		/// The scene to which this pool is bound to. If set, all objects are destroyed when this scene is unloaded. If left null, instances are created in the active scene (unless <see cref="dontDestroyOnLoad"/> is set)
 		/// </summary>
 		public Scene? TargetScene { get; private set; }
+		
 		/// <summary>
 		/// An optional function that supplies custom instantiation behaviour (when an object is first created)
 		/// </summary>
 		public Func<T> instantiator;
+		
 		/// <summary>
 		/// An optional callback that is invoked when an instance is activated.
 		/// </summary>
 		public Action<T> activator = null;
+		
 		/// <summary>
 		/// An optional callback that is invoked when an instance is deactivated.
 		/// </summary>
 		public Action<T> deactivator = null;
+		
 		/// <summary>
 		/// If set to true, old, already active instances are reused if all objects are in use and the max pool size is reached.
 		/// </summary>
 		public bool replaceLast = false;
+		
 		/// <summary>
 		/// If set to true, instances will be independent from any loaded scenes and are not destroyed when loading another scene.
 		/// </summary>
 		public bool dontDestroyOnLoad = false;
+		
 		/// <summary>
 		/// An optional duration that limits the maximum active time for each instance until they are forcefully released.
 		/// </summary>
 		public float? maxActiveTime = null;
-		/// <summary>
-		/// The number of currently unused instances in this pool.
-		/// </summary>
-		public int InactiveInstanceCount => inactivePool.Count;
-		/// <summary>
-		/// The number of currently used instances in this pool.
-		/// </summary>
-		public int ActiveInstanceCount => activePool.Count;
-		/// <summary>
-		/// The total number of instances that exist in this pool.
-		/// </summary>
-		public int TotalInstanceCount => InactiveInstanceCount + ActiveInstanceCount;
-		/// <summary>
-		/// Returns true if this pool has been disposed and is no longer usable.
-		/// </summary>
-		public bool IsDisposed { get; private set; } = false;
-
+		
 		private List<T> inactivePool;
 		private List<T> activePool;
 		private Dictionary<T, float> lastActivationTimes;
 		private T[] iterationCache;
 		private float lastUpdateTime;
+		
+		/// <summary>
+		/// The number of currently unused instances in this pool.
+		/// </summary>
+		public int InactiveInstanceCount => inactivePool.Count;
+		
+		/// <summary>
+		/// The number of currently used instances in this pool.
+		/// </summary>
+		public int ActiveInstanceCount => activePool.Count;
+		
+		/// <summary>
+		/// The total number of instances that exist in this pool.
+		/// </summary>
+		public int TotalInstanceCount => InactiveInstanceCount + ActiveInstanceCount;
+		
+		/// <summary>
+		/// Returns true if this pool has been disposed and is no longer usable.
+		/// </summary>
+		public bool IsDisposed { get; private set; } = false;
 
 		/// <summary>
 		/// Creates a new instance pool.

@@ -62,6 +62,8 @@ New event injection points on top of unity's own update loop and ability to run 
 - PreUpdate
 - PreLateUpdate
 - PostLateUpdate
+- PreFixedUpdate
+- LateFixedUpdate
 - PostFixedUpdate
 
 ### Mesh Generators
@@ -77,8 +79,14 @@ Helper class for managing coroutines and delayed invocation of functions, includ
 ### Random Utilities
 Miscellaneous new random functions, including weighted distribution functions
 
-#### Debug Utilities
+### Debug Utilities
 Helper functions to aid in debugging, including temporary gizmos
+
+### Shader Buffer Builder
+Helper class for building compute buffers and structured buffers for shaders
+
+### Project Settings Assets
+Simplifies the creation of project settings assets and provides a base class for creating your own project settings assets.
 
 ## Editor Features
 
