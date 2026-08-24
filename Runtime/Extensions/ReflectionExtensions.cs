@@ -9,16 +9,21 @@ namespace UnityEssentials.Reflection
 		public static object GetValue(this MemberInfo m, object obj)
 		{
 			if(m is FieldInfo fi) return fi.GetValue(obj);
-			if(m is PropertyInfo pi) return pi.GetValue(obj);
-			if(m is MethodInfo mi) return mi.Invoke(obj, Array.Empty<object>());
-			throw new ArgumentException("MemberInfo must be of type FieldInfo or PropertyInfo");
+			else if(m is PropertyInfo pi) return pi.GetValue(obj);
+			else if(m is MethodInfo mi)
+			{
+				if(mi.ReturnType == typeof(void) || mi.GetParameters().Length > 0)
+					throw new ArgumentException($"Method '{mi.Name}' must be parameterless and return a value to be read.");
+				return mi.Invoke(obj, Array.Empty<object>());
+			}
+			else throw new ArgumentException("MemberInfo must be of type FieldInfo, PropertyInfo or MethodInfo");
 		}
 		
 		public static void SetValue(this MemberInfo m, object obj, object value)
 		{
 			if(m is FieldInfo fi) fi.SetValue(obj, value);
 			else if(m is PropertyInfo pi) pi.SetValue(obj, value);
-			else throw new ArgumentException("MemberInfo must be of type FieldInfo, PropertyInfo or MethodInfo");
+			else throw new ArgumentException("MemberInfo must be of type FieldInfo or PropertyInfo");
 		}
 		
 		public static bool CanRead(this MemberInfo m)

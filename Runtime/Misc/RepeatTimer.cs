@@ -1,6 +1,7 @@
 using System;
 using UnityEssentials.PlayerLoop;
 using UnityEngine;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 namespace UnityEssentials
@@ -33,6 +34,9 @@ namespace UnityEssentials
 		[ShowIf(nameof(useRandomInterval), true)]
 		[Tooltip("The random interval range on which this timer will trigger.")]
 		public FloatRange intervalRange = new FloatRange(0.5f, 1f);
+		
+		[Space, SerializeField]
+		private UnityEvent onTick = new UnityEvent();
 
 		private float time = 0;
 		private float lastUpdateTime = 0;
@@ -53,7 +57,19 @@ namespace UnityEssentials
 		/// <summary>
 		/// Called when the timer triggers a tick.
 		/// </summary>
-		public event System.Action Tick;
+		public event UnityAction Tick
+		{
+			add
+			{
+				DisposedCheck();
+				onTick.AddListener(value);
+			}
+			remove
+			{
+				DisposedCheck();
+				onTick.RemoveListener(value);
+			}
+		}
 
 		/// <summary>
 		/// Whether the timer has triggered a tick this frame.
@@ -111,6 +127,8 @@ namespace UnityEssentials
 		{
 			this.interval = interval;
 		}
+		
+		public RepeatTimer() : this(1f) { }
 
 		/// <summary>
 		/// Creates a new repeating timer with the given interval.
@@ -248,7 +266,7 @@ namespace UnityEssentials
 			DeltaTime = time - lastUpdateTime;
 			lastUpdateTime = time;
 			TriggeredThisFrame = true;
-			Tick?.Invoke();
+			onTick.Invoke();
 			if(useRandomInterval) nextTickRandom = Random.value;
 		}
 
@@ -265,7 +283,7 @@ namespace UnityEssentials
 		{
 			IsDisposed = true;
 			if(AutoUpdateActive) DisableAutoUpdate();
-			Tick = null;
+			onTick.RemoveAllListeners();
 		}
 
 		private void DisposedCheck()

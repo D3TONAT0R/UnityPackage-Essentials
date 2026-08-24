@@ -523,7 +523,6 @@ namespace UnityEssentialsEditor
 
 			if (drawerType != null)
 			{
-				//BUG: Reused property drawers don't work with CachedSerializedProperty
 				if(propertyDrawersCache.TryGetValue(drawerType, out var pd))
 				{
 					return pd;
@@ -534,7 +533,6 @@ namespace UnityEssentialsEditor
 					propertyDrawersCache.Add(drawerType, pd);
 					return pd;
 				}
-				// return (PropertyDrawer)Activator.CreateInstance(drawerType);
 			}
 			else
 			{
@@ -626,7 +624,8 @@ namespace UnityEssentialsEditor
 				var drawer = GetPropertyDrawerFromType(GetPropertyType(property));
 				if (drawer != null)
 				{
-					drawer.GetType().GetField("m_FieldInfo", ALL_BINDING_FLAGS)?.SetValue(drawer, null);
+					var fieldInfo = GetMemberInfoOfProperty(property, out var get) as FieldInfo;
+					drawer.GetType().GetField("m_FieldInfo", ALL_BINDING_FLAGS)?.SetValue(drawer, fieldInfo);
 					drawer.OnGUI(rect, property, label);
 				}
 				else
