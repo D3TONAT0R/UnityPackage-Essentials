@@ -199,8 +199,6 @@ namespace UnityEssentials
 
 		private static List<GizmoInstance> instances = new List<GizmoInstance>();
 
-		private static bool gizmosSubscribed = false;
-
 		[RuntimeInitializeOnLoadMethod]
 		private static void Init()
 		{
@@ -219,11 +217,6 @@ namespace UnityEssentials
 			instances.Add(instance);
 #endif
 			UpdateLoopScriptInstance.CheckInitialization();
-			if (!gizmosSubscribed)
-			{
-				UpdateLoop.OnDrawGizmosRuntime += OnDrawGizmos;
-				gizmosSubscribed = true;
-			}
 		}
 
 		/// <summary>
