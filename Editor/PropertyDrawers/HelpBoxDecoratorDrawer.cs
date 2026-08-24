@@ -28,7 +28,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				}
 				catch(System.ArgumentException e)
 				{
-					e.LogException();
+					// currentViewWidth is unavailable outside a GUI context; the 200px fallback stands.
 				}
 			}
 			return Mathf.Max(20, EditorStyles.helpBox.CalcHeight(new GUIContent(attr.message), width - 30)) + EditorGUIUtility.standardVerticalSpacing;

@@ -238,7 +238,7 @@ namespace UnityEssentials
 		public static void DrawRaycastAll(Ray ray, RaycastHit[] hits, int hitCount, float maxDistance = 1000, float hitSize = 0.05f,
 			Color? color = null, float duration = 1f)
 		{
-			AddGizmo(new RaycastGizmoInstance(ray, hitSize, hits.Take(hitCount), maxDistance, color ?? Color.white, duration));
+			AddGizmo(new RaycastGizmoInstance(ray, hitSize, hits.Take(hitCount).ToArray(), maxDistance, color ?? Color.white, duration));
 		}
 
 		/// <summary>
@@ -258,7 +258,7 @@ namespace UnityEssentials
 		public static void DrawSphereCastAll(Ray ray, float radius, RaycastHit[] hits, int hitCount, float maxDistance = 1000, Color? color = null,
 			float duration = 1f)
 		{
-			AddGizmo(new SphereCastGizmoInstance(ray, radius, hits.Take(hitCount), maxDistance, color ?? Color.white, duration));
+			AddGizmo(new SphereCastGizmoInstance(ray, radius, hits.Take(hitCount).ToArray(), maxDistance, color ?? Color.white, duration));
 		}
 
 		/// <summary>

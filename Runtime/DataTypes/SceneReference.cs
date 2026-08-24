@@ -221,6 +221,10 @@ namespace UnityEssentials
 		{
 			if (ReferenceEquals(a, b)) return true;
 			if (a is null || b is null) return false;
+#if UNITY_EDITOR
+			a.EditorResolveIfRequired(false);
+			b.EditorResolveIfRequired(false);
+#endif
 			return a.SceneName == b.SceneName && a.BuildIndex == b.BuildIndex;
 		}
 

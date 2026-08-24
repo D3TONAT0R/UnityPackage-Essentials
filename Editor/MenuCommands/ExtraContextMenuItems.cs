@@ -229,7 +229,6 @@ namespace UnityEssentialsEditor
 		[MenuItem("CONTEXT/MeshRenderer/Instantiate Materials")]
 		public static void InstantiateMaterials(MenuCommand cmd)
 		{
-			Undo.RecordObject(cmd.context, "Instantiate Materials");
 			var renderer = (MeshRenderer)cmd.context;
 			var materials = renderer.sharedMaterials;
 			for(int i = 0; i < materials.Length; i++)
@@ -238,7 +237,11 @@ namespace UnityEssentialsEditor
 				var name = materials[i].name;
 				materials[i] = UnityEngine.Object.Instantiate(materials[i]);
 				materials[i].name = name + " (Object Instance)";
+				Undo.RegisterCreatedObjectUndo(materials[i], "Instantiate Materials");
 			}
+			// Recorded after the copies are registered. With RecordObject first, a single undo
+			// destroys the copies but leaves the renderer pointing at the emptied slots.
+			Undo.RecordObject(renderer, "Instantiate Materials");
 			renderer.sharedMaterials = materials;
 		}
 

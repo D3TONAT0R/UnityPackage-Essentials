@@ -12,7 +12,12 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var type = fieldInfo.FieldType;
+			if (fieldInfo == null)
+			{
+				EditorGUI.PropertyField(position, property, label); 
+				return;
+			}
+			var type = PropertyDrawerUtility.GetElementType(fieldInfo.FieldType, out _);
 			if(IsTypeSupported(type, out string ext))
 			{
 				using (new EditorGUI.PropertyScope(position, label, property))
