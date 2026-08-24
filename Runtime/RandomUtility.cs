@@ -153,7 +153,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Randomly shuffles the given array.
 		/// </summary>
-		public static void Shuffle1<T>(IList<T> list)
+		public static void Shuffle<T>(IList<T> list)
 		{
 			for (int i = list.Count - 1; i > 0; i--)
 			{
