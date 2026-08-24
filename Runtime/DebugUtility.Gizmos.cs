@@ -15,6 +15,7 @@ namespace UnityEssentials
 			public readonly Color color;
 			private readonly float spawnTime;
 			private float lastDrawTime;
+			private readonly int spawnFrame;
 
 			public float Life => SingleFrame ? 1f : 1f - (Time.unscaledTime - spawnTime) / duration;
 			private bool SingleFrame => duration <= 0;
@@ -23,7 +24,7 @@ namespace UnityEssentials
 			{
 				get
 				{
-					if (SingleFrame) return Time.unscaledTime > spawnTime && (lastDrawTime != 0 && lastDrawTime < Time.unscaledTime);
+					if (SingleFrame) return Time.frameCount > spawnFrame;
 					else return Time.unscaledTime - spawnTime > duration;
 				}
 			}
@@ -31,6 +32,7 @@ namespace UnityEssentials
 			protected GizmoInstance(Color color, float duration)
 			{
 				spawnTime = Time.unscaledTime;
+				spawnFrame = Time.frameCount;
 				this.duration = duration;
 				this.color = color;
 			}

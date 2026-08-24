@@ -48,6 +48,8 @@ namespace UnityEssentialsEditor
 		private static Dictionary<Type, PropertyDrawer> propertyDrawersCache = new Dictionary<Type, PropertyDrawer>();
 
 		private static Dictionary<FromToType, bool> assignabilityToGenericTypeCache = new Dictionary<FromToType, bool>();
+		
+		private static readonly HashSet<string> warnedMultiAttribute = new HashSet<string>();
 
 		[System.Diagnostics.DebuggerHidden]
 		[InitializeOnLoadMethod]
@@ -594,8 +596,13 @@ namespace UnityEssentialsEditor
 			{
 				if (attrs.Length > 1)
 				{
-					Debug.LogWarning(
-						$"More than one PropertyAttribute detected on '{property.name}': [{string.Join(", ", attrs.Select(a => a.GetType().Name))}]");
+					var key = $"{property.serializedObject.targetObject?.GetType().FullName}.{property.propertyPath}";
+					if (warnedMultiAttribute.Add(key))
+					{
+						Debug.LogWarning($"More than one PropertyAttribute on '{property.propertyPath}': " +
+						                 $"[{string.Join(", ", attrs.Select(a => a.GetType().Name))}]. " +
+						                 $"Only {attrs[0].GetType().Name} will be used.");
+					}
 				}
 
 				var drawer = GetPropertyDrawerFromType(attrs[0].GetType());

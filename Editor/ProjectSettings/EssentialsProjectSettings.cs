@@ -28,6 +28,7 @@ namespace UnityEssentialsEditor
 		private static EssentialsProjectSettings instance;
 
 		[Header("Scripts")]
+		
 		[Tooltip("If checked, the default script menu will be removed in favor of custom script templates.")]
 		public bool removeDefaultScriptMenu = true;
 		[Tooltip("If checked, all newly created scripts are placed in the namespace given below.")]
@@ -37,8 +38,12 @@ namespace UnityEssentialsEditor
 		public string defaultScriptNamespace = "";
 		[Tooltip("Additional usings that are added on top of new scripts.")]
 		public string[] additionalDefaultUsings = Array.Empty<string>();
+		
 		[Header("Menu Management", order = 0)]
+		
 		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1)]
+		[SerializeField] private Null _; // Dummy holder for the above attributes
+		
 #if !UNITY_6000_0_OR_NEWER
 		public bool reorganizeAssetMenu = true;
 #endif
@@ -50,12 +55,14 @@ namespace UnityEssentialsEditor
 		public string playmodeShortcutProfileName = "";
 
 		[Header("Transform Inspector")]
+		
 		[Tooltip("Specifies how extra properties are displayed in the Transform inspector.")]
 		public InspectorMode extraProperties = InspectorMode.Foldout;
 		[Tooltip("Specifies how the extra toolbar is displayed in the Transform inspector.")]
 		public InspectorMode toolbar = InspectorMode.Foldout;
 
 		[Header("Prefab Stage Utilities")]
+		
 		[Tooltip("Highlights the currently opened prefab in the project window.")]
 		public bool highlightOpenedPrefabInProjectWindow = true;
 		[Tooltip("Display a toolbar on top of the Scene View when editing a prefab.")]

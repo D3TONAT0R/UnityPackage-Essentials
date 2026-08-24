@@ -284,7 +284,7 @@ namespace UnityEssentials.PlayerLoop
 		private static readonly InvocationList lateUpdate = new InvocationList("LateUpdate");
 		private static readonly InvocationList postLateUpdate = new InvocationList("PostLateUpdate");
 
-		private static readonly InvocationList preFixedUpdate = new InvocationList("FixedUpdate");
+		private static readonly InvocationList preFixedUpdate = new InvocationList("PreFixedUpdate");
 		private static readonly InvocationList fixedUpdate = new InvocationList("FixedUpdate");
 		private static readonly InvocationList lateFixedUpdate = new InvocationList("LateFixedUpdate");
 		private static readonly InvocationList postFixedUpdate = new InvocationList("PostFixedUpdate");
@@ -559,7 +559,7 @@ namespace UnityEssentials.PlayerLoop
 		}
 
 		/// <summary>
-		/// Adds a subsystem to the given root system before all other child systems.
+		/// Adds a subsystem to the given root system, before all other child systems.
 		/// </summary>
 		public static void AddSubsystemFirst(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
 		{
@@ -569,17 +569,7 @@ namespace UnityEssentials.PlayerLoop
 		}
 
 		/// <summary>
-		/// Adds a subsystem to the given root system after all other child systems.
-		/// </summary>
-		public static void AddSubsystemLast(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
-		{
-			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
-			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, Position.After);
-			UnityPlayerLoop.SetPlayerLoop(loop);
-		}
-
-		/// <summary>
-		/// Adds a subsystem to the given root system and after the given child system.
+		/// Adds a subsystem to the given root system, before the given child system.
 		/// </summary>
 		public static void AddSubsystemBefore(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget, Type beforeSubSystem)
 		{
@@ -587,14 +577,24 @@ namespace UnityEssentials.PlayerLoop
 			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, beforeSubSystem, Position.Before);
 			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
-
+		
 		/// <summary>
-		/// Adds a subsystem to the given root system and after the given child system.
+		/// Adds a subsystem to the given root system, after the given child system.
 		/// </summary>
 		public static void AddSubsystemAfter(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget, Type afterSubSystem)
 		{
 			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
 			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, afterSubSystem, Position.After);
+			UnityPlayerLoop.SetPlayerLoop(loop);
+		}
+		
+		/// <summary>
+		/// Adds a subsystem to the given root system, after all other child systems.
+		/// </summary>
+		public static void AddSubsystemLast(Type subSystemRoot, Type add, PlayerLoopSystem.UpdateFunction invocationTarget)
+		{
+			var loop = UnityPlayerLoop.GetCurrentPlayerLoop();
+			InsertSubsystem(ref loop, subSystemRoot, add, invocationTarget, null, Position.After);
 			UnityPlayerLoop.SetPlayerLoop(loop);
 		}
 
