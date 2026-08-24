@@ -11,6 +11,13 @@ namespace UnityEssentials
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class ButtonAttribute : PropertyAttribute
 	{
+		public class ButtonInfo
+		{
+			public GUIContent label;
+			public string methodName;
+			public string[] arguments;
+		}
+		
 		/// <summary>
 		/// Determines in which context the button is enabled.
 		/// </summary>
@@ -23,9 +30,7 @@ namespace UnityEssentials
 			Both = 3
 		}
 
-		public readonly GUIContent[] labels;
-		public readonly string[] methodNames;
-		public readonly string[][] arguments;
+		public readonly ButtonInfo[] buttons;
 
 		public bool Below { get; set; }
 
@@ -34,7 +39,7 @@ namespace UnityEssentials
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		/// <param name="buttons">The button(s) that should be drawn in the inspector, in any of the following formats:
+		/// <param name="buttonParams">The button(s) that should be drawn in the inspector, in any of the following formats:
 		/// <c>"TargetMethodName"</c>,
 		/// <c>"TargetMethodName(arguments)"</c>,
 		/// <c>"TargetMethodName:Button Label"</c>
@@ -43,48 +48,57 @@ namespace UnityEssentials
 		/// Parameter arguments can be separated with commas and must not have spaces in between.
 		/// Note that method overloads and combining this attribute with <see cref="ShowIfAttribute"/>
 		/// or <see cref="HideIfAttribute"/> are currently unsupported.</param>
-		public ButtonAttribute(params string[] buttons)
+		public ButtonAttribute(params string[] buttonParams)
 		{
 #if UNITY_EDITOR
 			order = -1100;
-			labels = new GUIContent[buttons.Length];
-			methodNames = new string[buttons.Length];
-			arguments = new string[buttons.Length][];
-			for (int i = 0; i < buttons.Length; i++)
+			buttons = new ButtonInfo[buttonParams.Length];
+			if(buttonParams.Length > 8)
 			{
-				string[] split = buttons[i].Split(new char[] { ':' }, 2);
+				Debug.LogWarning($"ButtonAttribute supports a up to 8 buttons per property ({buttonParams.Length} provided).");
+			}
+			int length = Mathf.Min(buttonParams.Length, 8);
+			for (int i = 0; i < length; i++)
+			{
+				var button = new ButtonInfo();
+				buttons[i] = button;
+				string[] split = buttonParams[i].Split(new char[] { ':' }, 2);
+				
+				//Method name and arguments
 				var call = split[0];
 				if (call.Contains("("))
 				{
 					if (!call.Contains(")"))
 					{
-						Debug.LogError($"Malformed method call detected in ButtonAttribute: {buttons[i]}");
+						Debug.LogError($"Malformed method call detected in ButtonAttribute: {buttonParams[i]}");
+						button.methodName = null;
+						button.arguments = Array.Empty<string>();
 					}
 					else
 					{
 						//Get content between parentheses using regex
 						var match = Regex.Match(call, @"\(([^)]*)\)");
-						arguments[i] = match.Value.Substring(1, match.Value.Length - 2).Split(',');
+						button.arguments = match.Value.Substring(1, match.Value.Length - 2).Split(',');
 						var methodName = call.Substring(0, call.IndexOf('('));
-						methodNames[i] = methodName;
-						labels[i] = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(methodName));
+						button.methodName = methodName;
 					}
 				}
 				else
 				{
-					methodNames[i] = split[0];
-					arguments[i] = Array.Empty<string>();
+					button.methodName = split[0];
+					button.arguments = Array.Empty<string>();
 				}
-				if (labels[i] == null)
+				
+				//Button label
+				if (split.Length > 1)
 				{
-					if (split.Length > 1)
-					{
-						labels[i] = new GUIContent(split[1]);
-					}
-					else
-					{
-						labels[i] = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(split[0]));
-					}
+					button.label = new GUIContent(split[1]);
+				}
+				else
+				{
+					int parenIndex = call.IndexOf('(');
+					if (parenIndex >= 0) button.label = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(call.Substring(0, parenIndex)));
+					else button.label = new GUIContent(UnityEditor.ObjectNames.NicifyVariableName(call));
 				}
 			}
 #endif
@@ -99,7 +113,7 @@ namespace UnityEssentials
 	{
 		public override Usage EnabledIn => Usage.EditMode;
 
-		public EditorButtonAttribute(params string[] buttons) : base(buttons)
+		public EditorButtonAttribute(params string[] buttonParams) : base(buttonParams)
 		{
 		}
 	}
@@ -112,7 +126,7 @@ namespace UnityEssentials
 	{
 		public override Usage EnabledIn => Usage.PlayMode;
 
-		public RuntimeButtonAttribute(params string[] buttons) : base(buttons)
+		public RuntimeButtonAttribute(params string[] buttonParams) : base(buttonParams)
 		{
 		}
 	}

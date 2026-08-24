@@ -30,7 +30,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static void DrawButtons(SerializedProperty property, ButtonAttribute attribute, Rect position)
 		{
-			if (attribute.methodNames.Length == 0)
+			if (attribute.buttons.Length == 0)
 			{
 				Debug.LogWarning("ButtonAttribute has no buttons defined for property: " + property.name);
 				return;
@@ -46,15 +46,20 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 			using(new EnabledScope(enabled))
 			{
-				int count = attribute.methodNames.Length;
+				int count = attribute.buttons.Length;
 				position.DivideHorizontal(count, buttonRects, 4);
 				for(int i = 0; i < count; i++)
 				{
-					if(GUI.Button(buttonRects[i], attribute.labels[i]))
+					var button = attribute.buttons[i];
+					bool valid = button.methodName != null;
+					GUI.enabled = valid;
+					GUI.backgroundColor = valid ? Color.white : Color.red;
+					if(GUI.Button(buttonRects[i], button.label))
 					{
-						Invoke(property, attribute.methodNames[i], attribute.arguments[i], attribute.labels[i].text);
+						Invoke(property, button.methodName, button.arguments, button.label.text);
 					}
 				}
+				GUI.backgroundColor = Color.white;
 			}
 		}
 
