@@ -142,6 +142,7 @@ namespace UnityEssentials
 		public void EnableAutoUpdate(Component owner, UpdateMode mode = UpdateMode.DeltaTime, UpdateTiming timing = UpdateTiming.Normal)
 		{
 			DisposedCheck();
+			if (AutoUpdateActive) DisableAutoUpdate();
 			if(!owner) throw new ArgumentException("Owner object must not be null.");
 			autoUpdateOwner = owner;
 			autoUpdateMode = mode;
@@ -157,7 +158,7 @@ namespace UnityEssentials
 				else if(timing == UpdateTiming.Late) UpdateLoop.PostFixedUpdate += AutoUpdate;
 				else UpdateLoop.FixedUpdate += AutoUpdate;
 			}
-			else throw new System.InvalidOperationException();
+			else throw new InvalidOperationException();
 			AutoUpdateActive = true;
 		}
 
@@ -169,7 +170,10 @@ namespace UnityEssentials
 			autoUpdateOwner = null;
 			UpdateLoop.PreUpdate -= AutoUpdate;
 			UpdateLoop.Update -= AutoUpdate;
+			UpdateLoop.LateUpdate -= AutoUpdate;
+			UpdateLoop.PreFixedUpdate -= AutoUpdate;
 			UpdateLoop.FixedUpdate -= AutoUpdate;
+			UpdateLoop.PostFixedUpdate -= AutoUpdate;
 			AutoUpdateActive = false;
 		}
 
