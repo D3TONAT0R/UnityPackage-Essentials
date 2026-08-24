@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace UnityEssentials.Reflection
@@ -19,6 +20,12 @@ namespace UnityEssentials.Reflection
 #else
 				instance = Resources.Load<AssemblyNames>("PlayerAssemblyNames");
 #endif
+				if (instance == null)
+				{
+					Debug.LogError("PlayerAssemblyNames asset is missing. Reflection-based features will not be available in this build.");
+					instance = CreateInstance<AssemblyNames>();
+					instance.assemblyNames = Array.Empty<string>();
+				}
 			}
 			return instance.assemblyNames;
 		} 
