@@ -101,6 +101,8 @@ namespace UnityEssentials.Reflection
 			"netstandard"
 		};
 
+		private static bool assemblyListsInitialized = false;
+
 		private static Assembly unityEngineAssembly;
 		private static Assembly[] playerAssemblies;
 		private static Assembly[] playerAssembliesWithUnity;
@@ -113,13 +115,17 @@ namespace UnityEssentials.Reflection
 
 		private static Dictionary<Type, Type[]> interfaceCache = new Dictionary<Type, Type[]>();
 
-#if UNITY_EDITOR
-		[UnityEditor.InitializeOnLoadMethod]
-#else
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-#endif
-		private static void Init()
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+		private static void RuntimeInit()
 		{
+			// Load assemblies and cache them to avoid reflection overhead during runtime.
+			EnsureInitialized();
+		}
+		
+		private static void EnsureInitialized()
+		{
+			if (assemblyListsInitialized) return;
+			assemblyListsInitialized = true;
 			var assemblyList = new List<Assembly>();
 			unityEngineAssembly = typeof(GameObject).Assembly;
 			var playerAssemblyNames = AssemblyNames.GetPlayerAssemblyNames();
@@ -163,6 +169,7 @@ namespace UnityEssentials.Reflection
 		/// </summary>
 		public static Assembly[] GetAssemblies(bool includeUnityAssembly = false, bool includeEditorAssemblies = false)
 		{
+			EnsureInitialized();
 			#if UNITY_EDITOR
 			if (includeEditorAssemblies)
 			{	
@@ -192,18 +199,6 @@ namespace UnityEssentials.Reflection
 				interfaceCache.Add(type, interfaces);
 				return interfaces;
 			}
-		}
-
-		private static bool ShouldIgnoreAssembly(Assembly assembly, string[] excludePrefixes)
-		{
-			foreach (var prefix in excludePrefixes)
-			{
-				if (assembly.FullName.StartsWith(prefix))
-				{
-					return true;
-				}
-			}
-			return false;
 		}
 
 		/// <summary>
@@ -239,7 +234,6 @@ namespace UnityEssentials.Reflection
 		public static List<AttributeDefinition<T>> GetAllAttributeDefinitions<T>(SearchFlags searchFlags = SearchFlags.All) where T : Attribute
 		{
 			var condition = GetClassOrStructCondition(searchFlags);
-
 			var defs = new List<AttributeDefinition<T>>();
 			var assemblies = GetAssemblies();
 			foreach (var assembly in assemblies)

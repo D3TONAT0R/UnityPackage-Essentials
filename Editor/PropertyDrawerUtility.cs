@@ -69,21 +69,28 @@ namespace UnityEssentialsEditor
 			propertyDrawerTypes = new Dictionary<Type, Type>();
 			foreach (var propertyDrawerType in GetClassesOfType(typeof(PropertyDrawer), true))
 			{
-				var attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(false);
-				if (attributes == null || attributes.Count() == 0)
+				try
 				{
-					//Extend search to include ancestors
-					attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(true);
-				}
-				if (attributes != null && attributes.Count() > 0)
-				{
-					var attribute = attributes.First();
-					Type targetType = (Type)attribute.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic)
-						.GetValue(attribute);
-					if (!propertyDrawerTypes.ContainsKey(targetType))
+					var attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(false);
+					if (attributes == null || attributes.Count() == 0)
 					{
-						propertyDrawerTypes.Add(targetType, propertyDrawerType);
+						//Extend search to include ancestors
+						attributes = propertyDrawerType.GetCustomAttributes<CustomPropertyDrawer>(true);
 					}
+					if (attributes != null && attributes.Count() > 0)
+					{
+						var attribute = attributes.First();
+						Type targetType = (Type)attribute.GetType().GetField("m_Type", BindingFlags.Instance | BindingFlags.NonPublic)
+							.GetValue(attribute);
+						if (!propertyDrawerTypes.ContainsKey(targetType))
+						{
+							propertyDrawerTypes.Add(targetType, propertyDrawerType);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					e.LogException($"Failed to register property drawer '{propertyDrawerType.FullName}'");
 				}
 			}
 		}
