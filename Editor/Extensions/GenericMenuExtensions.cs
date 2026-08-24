@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEssentials;
 
 namespace UnityEssentialsEditor
 {
 	public static class GenericMenuExtensions
 	{
+		private static readonly FieldInfo menuItemsField = UnityInternals.Field(typeof(GenericMenu), "m_MenuItems");
+		
 		/// <summary>
 		/// Adds a menu item to the menu.
 		/// </summary>
@@ -104,7 +108,8 @@ namespace UnityEssentialsEditor
 
 		private static IList GetMenuItemList(this GenericMenu m)
 		{
-			return (IList)typeof(GenericMenu).GetField("m_MenuItems", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(m);
+			if (menuItemsField == null) return null;
+			return (IList)menuItemsField.GetValue(m);
 		}
 
 		private static object CreateMenuItem(GUIContent content, bool separator, bool enabled, bool on, GenericMenu.MenuFunction func)

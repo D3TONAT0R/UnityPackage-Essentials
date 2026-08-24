@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+using UnityEssentials;
 
 namespace UnityEssentialsEditor
 {
@@ -12,6 +13,8 @@ namespace UnityEssentialsEditor
 		private string fileName = "New File";
 		private string extension = "";
 		private string errorMessage = "";
+		
+		private static readonly MethodInfo tryGetActiveFolderPathMethod = UnityInternals.Method(typeof(ProjectWindowUtil), "TryGetActiveFolderPath", BindingFlags.Static | BindingFlags.NonPublic);
 
 		[MenuItem("Assets/Create/Blank File ...", priority = 500)]
 		public static void CreateBlankFile()
@@ -22,7 +25,11 @@ namespace UnityEssentialsEditor
 
 		private static bool TryGetActiveFolderPath(out string path)
 		{
-			var tryGetActiveFolderPathMethod = typeof(ProjectWindowUtil).GetMethod("TryGetActiveFolderPath", BindingFlags.Static | BindingFlags.NonPublic);
+			if(tryGetActiveFolderPathMethod == null)
+			{
+				path = null;
+				return false;
+			}
 			object[] args = new object[] { null };
 			bool found = (bool)tryGetActiveFolderPathMethod.Invoke(null, args);
 			path = (string)args[0];

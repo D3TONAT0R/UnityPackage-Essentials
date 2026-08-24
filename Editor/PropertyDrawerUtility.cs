@@ -50,7 +50,9 @@ namespace UnityEssentialsEditor
 		private static Dictionary<FromToType, bool> assignabilityToGenericTypeCache = new Dictionary<FromToType, bool>();
 		
 		private static readonly HashSet<string> warnedMultiAttribute = new HashSet<string>();
-
+		private static readonly FieldInfo drawerAttributeField = UnityInternals.Field(typeof(PropertyDrawer), "m_Attribute");
+	private static readonly FieldInfo drawerFieldInfoField = UnityInternals.Field(typeof(PropertyDrawer), "m_FieldInfo");
+		
 		[System.Diagnostics.DebuggerHidden]
 		[InitializeOnLoadMethod]
 		public static void Init()
@@ -608,8 +610,9 @@ namespace UnityEssentialsEditor
 				var drawer = GetPropertyDrawerFromType(attrs[0].GetType());
 				if (drawer != null)
 				{
-					typeof(PropertyDrawer).GetField("m_Attribute", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(drawer, attrs[0]);
-					typeof(PropertyDrawer).GetField("m_FieldInfo", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(drawer, fieldInfo);
+					if (drawerAttributeField == null || drawerFieldInfoField == null) return null;
+					drawerAttributeField.SetValue(drawer, attrs[0]);
+					drawerFieldInfoField.SetValue(drawer, fieldInfo);
 					return drawer;
 				}
 			}
