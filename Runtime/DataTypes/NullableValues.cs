@@ -21,6 +21,8 @@ namespace UnityEssentials
 
 		public static NullableValue CreateInstance(bool hasValue, object value)
 		{
+			if (value == null) throw new ArgumentNullException(nameof(value),
+				"A boxed default is required even when hasValue is false. Use CreateInstance(Type, object) instead.");
 			var type = value.GetType();
 			if(type == typeof(bool)) return new NullableBool(hasValue, (bool)value);
 			else if(type == typeof(byte)) return new NullableByte(hasValue, (byte)value);
@@ -43,6 +45,9 @@ namespace UnityEssentials
 
 		public static NullableValue CreateInstance(Type t, object nullableObject)
 		{
+			if (t == null) throw new ArgumentNullException(nameof(t));
+			t = Nullable.GetUnderlyingType(t) ?? t;
+			if (!t.IsValueType) throw new ArgumentException($"{t} is not a value type.", nameof(t));
 			bool hasValue = nullableObject != null;
 			if(hasValue) return CreateInstance(true, nullableObject);
 			else return CreateInstance(false, Activator.CreateInstance(t));
