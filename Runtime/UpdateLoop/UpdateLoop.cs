@@ -90,8 +90,19 @@ namespace UnityEssentials.PlayerLoop
 				this.name = name;
 			}
 
-			public void Add(Action action)
+			public void Add(Action action, bool allowDuplicates = false)
 			{
+				if (!allowDuplicates)
+				{
+					for (int i = 0; i < subscribers.Count; i++)
+					{
+						if (subscribers[i]?.action == action)
+						{
+							Debug.LogWarning($"Duplicate subscription to {name} ignored.");
+							return;
+						}
+					}
+				}
 				subscribers.Add(new InvocationTarget(action));
 			}
 
@@ -102,7 +113,7 @@ namespace UnityEssentials.PlayerLoop
 					if (subscribers[i]?.action == action)
 					{
 						subscribers.RemoveAt(i);
-						return;
+						i--;
 					}
 				}
 			}
