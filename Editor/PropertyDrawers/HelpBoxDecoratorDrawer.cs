@@ -1,37 +1,35 @@
 ﻿using UnityEssentials;
 using UnityEditor;
-using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
 	[CustomPropertyDrawer(typeof(HelpBoxAttribute))]
 	public class HelpBoxDecoratorDrawer : DecoratorDrawer
 	{
-
-		public override void OnGUI(Rect position)
-		{
-			position.height -= EditorGUIUtility.standardVerticalSpacing;
-			position.xMin += EditorGUI.indentLevel * 15;
-			var attr = (HelpBoxAttribute)attribute;
-			EditorGUI.HelpBox(position, attr.message, attr.MessageType);
-		}
-
-		public override float GetHeight()
+		public override VisualElement CreatePropertyGUI()
 		{
 			var attr = (HelpBoxAttribute)attribute;
-			float width = 200;
-			if(Event.current != null)
+			HelpBoxMessageType msgType;
+			switch (attr.MessageType)
 			{
-				try
-				{
-					width = EditorGUIUtility.currentViewWidth;
-				}
-				catch(System.ArgumentException e)
-				{
-					// currentViewWidth is unavailable outside a GUI context; the 200px fallback stands.
-				}
+				case MessageType.Info:
+					msgType = HelpBoxMessageType.Info;
+					break;
+				case MessageType.Warning:
+					msgType = HelpBoxMessageType.Warning;
+					break;
+				case MessageType.Error:
+					msgType = HelpBoxMessageType.Error;
+					break;
+				default:
+					msgType = HelpBoxMessageType.None;
+					break;
 			}
-			return Mathf.Max(20, EditorStyles.helpBox.CalcHeight(new GUIContent(attr.message), width - 30)) + EditorGUIUtility.standardVerticalSpacing;
+			var helpBox = new HelpBox(attr.message, msgType);
+			helpBox.style.marginTop = EditorGUIUtility.standardVerticalSpacing;
+			helpBox.style.marginBottom = EditorGUIUtility.standardVerticalSpacing;
+			return helpBox;
 		}
 	}
 }
