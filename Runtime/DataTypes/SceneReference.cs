@@ -199,6 +199,24 @@ namespace UnityEssentials
 				sceneName = sceneAsset.name;
 				buildIndex = SceneUtility.GetBuildIndexByScenePath(UnityEditor.AssetDatabase.GetAssetPath(sceneAsset));
 			}
+			else if (!string.IsNullOrEmpty(sceneName))
+			{
+				// Built from a name or build index in code: adopt the matching asset rather
+				// than discarding the name we were given.
+				foreach (var guid in UnityEditor.AssetDatabase.FindAssets($"t:SceneAsset {sceneName}"))
+				{
+					var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
+					if (System.IO.Path.GetFileNameWithoutExtension(path) != sceneName) continue;
+					sceneAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEditor.SceneAsset>(path);
+					buildIndex = SceneUtility.GetBuildIndexByScenePath(path);
+					break;
+				}
+				if (!sceneAsset)
+				{
+					sceneName = "";
+					buildIndex = -1;
+				}
+			}
 			else
 			{
 				sceneName = "";

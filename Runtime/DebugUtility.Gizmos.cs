@@ -14,7 +14,6 @@ namespace UnityEssentials
 			public readonly float duration;
 			public readonly Color color;
 			private readonly float spawnTime;
-			private float lastDrawTime;
 			private readonly int spawnFrame;
 
 			public float Life => SingleFrame ? 1f : 1f - (Time.unscaledTime - spawnTime) / duration;
@@ -39,7 +38,6 @@ namespace UnityEssentials
 
 			public void Draw()
 			{
-				lastDrawTime = Time.unscaledTime;
 				DrawGizmos();
 			}
 

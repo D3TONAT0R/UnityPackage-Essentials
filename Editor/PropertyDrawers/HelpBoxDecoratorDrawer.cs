@@ -26,7 +26,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				{
 					width = EditorGUIUtility.currentViewWidth;
 				}
-				catch(System.ArgumentException e)
+				catch(System.ArgumentException)
 				{
 					// currentViewWidth is unavailable outside a GUI context; the 200px fallback stands.
 				}

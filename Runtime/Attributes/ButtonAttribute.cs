@@ -52,12 +52,12 @@ namespace UnityEssentials
 		{
 #if UNITY_EDITOR
 			order = -1100;
-			buttons = new ButtonInfo[buttonParams.Length];
 			if(buttonParams.Length > 8)
 			{
 				Debug.LogWarning($"ButtonAttribute supports a up to 8 buttons per property ({buttonParams.Length} provided).");
 			}
 			int length = Mathf.Min(buttonParams.Length, 8);
+			buttons = new ButtonInfo[length];
 			for (int i = 0; i < length; i++)
 			{
 				var button = new ButtonInfo();

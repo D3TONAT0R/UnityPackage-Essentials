@@ -66,7 +66,7 @@ namespace UnityEssentials
 			}
 			remove
 			{
-				DisposedCheck();
+				if (IsDisposed) return;
 				onTick.RemoveListener(value);
 			}
 		}

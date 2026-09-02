@@ -102,6 +102,7 @@ namespace UnityEssentials.Reflection
 		};
 
 		private static bool assemblyListsInitialized = false;
+		private static bool assemblyListsInitializing = false;
 
 		private static Assembly unityEngineAssembly;
 		private static Assembly[] playerAssemblies;
@@ -124,31 +125,39 @@ namespace UnityEssentials.Reflection
 		
 		private static void EnsureInitialized()
 		{
-			if (assemblyListsInitialized) return;
-			assemblyListsInitialized = true;
-			var assemblyList = new List<Assembly>();
-			unityEngineAssembly = typeof(GameObject).Assembly;
-			var playerAssemblyNames = AssemblyNames.GetPlayerAssemblyNames();
-			foreach (var name in playerAssemblyNames)
+			if (assemblyListsInitialized || assemblyListsInitializing) return;
+			assemblyListsInitializing = true;
+			try
 			{
-				TryLoadAssembly(name, assemblyList);
-			}
-			playerAssemblies = assemblyList.ToArray();
-			assemblyList.Add(unityEngineAssembly);
-			playerAssembliesWithUnity = assemblyList.ToArray();
+				var assemblyList = new List<Assembly>();
+				unityEngineAssembly = typeof(GameObject).Assembly;
+				var playerAssemblyNames = AssemblyNames.GetPlayerAssemblyNames();
+				foreach (var name in playerAssemblyNames)
+				{
+					TryLoadAssembly(name, assemblyList);
+				}
+				playerAssemblies = assemblyList.ToArray();
+				assemblyList.Add(unityEngineAssembly);
+				playerAssembliesWithUnity = assemblyList.ToArray();
 #if UNITY_EDITOR
-			assemblyList.Clear();
-			unityEditorAssembly = typeof(UnityEditor.Editor).Assembly;
-			var editorAssemblyNames = AssemblyNames.GetEditorAssemblyNames();
-			foreach (var name in editorAssemblyNames)
-			{
-				TryLoadAssembly(name, assemblyList);
-			}
-			editorAssemblies = assemblyList.ToArray();
-			assemblyList.Add(unityEngineAssembly);
-			assemblyList.Add(unityEditorAssembly);
-			editorAssembliesWithUnity = assemblyList.ToArray();
+				assemblyList.Clear();
+				unityEditorAssembly = typeof(UnityEditor.Editor).Assembly;
+				var editorAssemblyNames = AssemblyNames.GetEditorAssemblyNames();
+				foreach (var name in editorAssemblyNames)
+				{
+					TryLoadAssembly(name, assemblyList);
+				}
+				editorAssemblies = assemblyList.ToArray();
+				assemblyList.Add(unityEngineAssembly);
+				assemblyList.Add(unityEditorAssembly);
+				editorAssembliesWithUnity = assemblyList.ToArray();
 #endif
+				assemblyListsInitialized = true;
+			}
+			finally
+			{
+				assemblyListsInitializing = false;
+			}
 		}
 		
 		private static void TryLoadAssembly(string name, List<Assembly> assemblyList)

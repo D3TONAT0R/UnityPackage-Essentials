@@ -51,7 +51,7 @@ namespace UnityEssentialsEditor
 		
 		private static readonly HashSet<string> warnedMultiAttribute = new HashSet<string>();
 		private static readonly FieldInfo drawerAttributeField = UnityInternals.Field(typeof(PropertyDrawer), "m_Attribute");
-	private static readonly FieldInfo drawerFieldInfoField = UnityInternals.Field(typeof(PropertyDrawer), "m_FieldInfo");
+		private static readonly FieldInfo drawerFieldInfoField = UnityInternals.Field(typeof(PropertyDrawer), "m_FieldInfo");
 		
 		[System.Diagnostics.DebuggerHidden]
 		[InitializeOnLoadMethod]

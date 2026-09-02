@@ -10,11 +10,11 @@ namespace UnityEssentialsEditor.PropertyDrawers
 	public class ButtonAttributeDrawer : ModificationPropertyDrawer
 	{
 		private static Rect[] buttonRects = new Rect[8];
-		
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var attr = (ButtonAttribute)attribute;
-			if(!attr.Below)
+			if (!attr.Below)
 			{
 				position.SplitVertical(EditorGUIUtility.singleLineHeight, out var top, out var bottom, EditorGUIUtility.standardVerticalSpacing);
 				DrawButtons(property, attr, top);
@@ -22,7 +22,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
-				position.SplitVerticalBottom(EditorGUIUtility.singleLineHeight, out var top, out var bottom, EditorGUIUtility.standardVerticalSpacing);
+				position.SplitVerticalBottom(EditorGUIUtility.singleLineHeight, out var top, out var bottom,
+					EditorGUIUtility.standardVerticalSpacing);
 				DrawProperty(top, property, label);
 				DrawButtons(property, attr, bottom);
 			}
@@ -36,7 +37,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				return;
 			}
 			bool enabled = true;
-			switch(attribute.EnabledIn)
+			switch (attribute.EnabledIn)
 			{
 				case ButtonAttribute.Usage.Never: enabled = false; break;
 				case ButtonAttribute.Usage.EditMode: enabled = !Application.isPlaying; break;
@@ -44,22 +45,23 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				case ButtonAttribute.Usage.Both: enabled = true; break;
 			}
 
-			using(new EnabledScope(enabled))
+			using (new EnabledScope(enabled))
 			{
 				int count = attribute.buttons.Length;
 				position.DivideHorizontal(count, buttonRects, 4);
-				for(int i = 0; i < count; i++)
+				for (int i = 0; i < count; i++)
 				{
 					var button = attribute.buttons[i];
 					bool valid = button.methodName != null;
-					GUI.enabled = valid;
-					GUI.backgroundColor = valid ? Color.white : Color.red;
-					if(GUI.Button(buttonRects[i], button.label))
+					GUI.enabled = enabled && valid;
+					using (new ColorScope(valid ? Color.white : Color.red))
 					{
-						Invoke(property, button.methodName, button.arguments, button.label.text);
+						if (GUI.Button(buttonRects[i], button.label))
+						{
+							Invoke(property, button.methodName, button.arguments, button.label.text);
+						}
 					}
 				}
-				GUI.backgroundColor = Color.white;
 			}
 		}
 
@@ -67,26 +69,27 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			object target;
 			var parentProp = PropertyDrawerUtility.GetParentProperty(property);
-			if(parentProp != null) target = parentProp.GetValue();
+			if (parentProp != null) target = parentProp.GetValue();
 			else target = property.serializedObject.targetObject;
 
-			var method = target.GetType().GetMethod(methodName, BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-			if(method == null)
+			var method = target.GetType().GetMethod(methodName,
+				BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			if (method == null)
 			{
 				Debug.LogError($"Could not find method to invoke: '{methodName}'");
 				return;
 			}
-			
+
 			Undo.RecordObject(property.serializedObject.targetObject, name);
 			var parameters = ParseParameters(method, args);
-			if(parameters == null) return;
+			if (parameters == null) return;
 			method.Invoke(target, parameters);
-			
-			if(parentProp != null) parentProp.SetValue(target);
+
+			if (parentProp != null) parentProp.SetValue(target);
 
 			var onValidate = target.GetType().GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			onValidate?.Invoke(target, Array.Empty<object>());
-			
+
 			property.serializedObject.ApplyModifiedProperties();
 		}
 
@@ -95,16 +98,16 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		{
 			var targetParameters = target.GetParameters();
 			var parameters = new object[targetParameters.Length];
-			if(args.Length > targetParameters.Length)
+			if (args.Length > targetParameters.Length)
 			{
 				Debug.LogError("Too many parameters for method " + target.Name);
 				return null;
 			}
-			for(int i = 0; i < parameters.Length; i++)
+			for (int i = 0; i < parameters.Length; i++)
 			{
-				if(i >= args.Length)
+				if (i >= args.Length)
 				{
-					if(targetParameters[i].IsOptional)
+					if (targetParameters[i].IsOptional)
 					{
 						parameters[i] = targetParameters[i].DefaultValue;
 						continue;
@@ -117,9 +120,9 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				}
 
 				var type = targetParameters[i].ParameterType;
-				if(type == typeof(int))
+				if (type == typeof(int))
 				{
-					if(int.TryParse(args[i], out int result))
+					if (int.TryParse(args[i], out int result))
 					{
 						parameters[i] = result;
 					}
@@ -129,10 +132,10 @@ namespace UnityEssentialsEditor.PropertyDrawers
 						parameters[i] = 0;
 					}
 				}
-				else if(type == typeof(float))
+				else if (type == typeof(float))
 				{
-					if(args[i].ToLower().EndsWith("f")) args[i] = args[i].Substring(0, args[i].Length - 1);
-					if(float.TryParse(args[i], out float result))
+					if (args[i].ToLower().EndsWith("f")) args[i] = args[i].Substring(0, args[i].Length - 1);
+					if (float.TryParse(args[i], out float result))
 					{
 						parameters[i] = result;
 					}
@@ -142,10 +145,10 @@ namespace UnityEssentialsEditor.PropertyDrawers
 						parameters[i] = 0f;
 					}
 				}
-				else if(type == typeof(double))
+				else if (type == typeof(double))
 				{
-					if(args[i].ToLower().EndsWith("d")) args[i] = args[i].Substring(0, args[i].Length - 1);
-					if(double.TryParse(args[i], out double result))
+					if (args[i].ToLower().EndsWith("d")) args[i] = args[i].Substring(0, args[i].Length - 1);
+					if (double.TryParse(args[i], out double result))
 					{
 						parameters[i] = result;
 					}
@@ -155,13 +158,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 						parameters[i] = 0d;
 					}
 				}
-				else if(type == typeof(string))
+				else if (type == typeof(string))
 				{
 					parameters[i] = args[i];
 				}
-				else if(type == typeof(bool))
+				else if (type == typeof(bool))
 				{
-					if(bool.TryParse(args[i], out bool result))
+					if (bool.TryParse(args[i], out bool result))
 					{
 						parameters[i] = result;
 					}
