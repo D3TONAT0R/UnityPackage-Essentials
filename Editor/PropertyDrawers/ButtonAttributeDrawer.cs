@@ -47,7 +47,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 			using (new EnabledScope(enabled))
 			{
-				int count = attribute.buttons.Length;
+				int count = Mathf.Min(attribute.buttons.Length, 8);
 				position.DivideHorizontal(count, buttonRects, 4);
 				for (int i = 0; i < count; i++)
 				{

@@ -626,6 +626,11 @@ namespace UnityEssentials.Reflection
 				var memberInfo = path[index];
 				var lObj = obj;
 				obj = GetValueOfMember(obj, memberInfo);
+				if (obj == null)
+				{
+					throw new NullReferenceException(
+						$"'{memberInfo.Name}' was null while resolving the member path.");
+				}
 				if (obj.GetType().IsValueType)
 				{
 					Resolve(ref obj, path, index + 1, action, set);

@@ -258,6 +258,9 @@ namespace UnityEssentials
 
 		public override int GetHashCode()
 		{
+#if UNITY_EDITOR
+			EditorResolveIfRequired(false);
+#endif
 			unchecked
 			{
 				int hash = 17;

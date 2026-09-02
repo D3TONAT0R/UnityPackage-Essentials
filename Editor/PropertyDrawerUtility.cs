@@ -496,13 +496,7 @@ namespace UnityEssentialsEditor
 
 		private static Type GetPropertyDrawerType(Type objectOrAttributeType)
 		{
-			foreach (var kv in propertyDrawerTypes)
-			{
-				if (kv.Key == objectOrAttributeType)
-				{
-					return kv.Value;
-				}
-			}
+			if (propertyDrawerTypes.TryGetValue(objectOrAttributeType, out var exact)) return exact;
 			//TODO: check if property drawer is allowed for child classes
 			foreach (var kv in propertyDrawerTypes)
 			{

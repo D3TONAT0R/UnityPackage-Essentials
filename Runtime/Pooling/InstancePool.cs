@@ -270,10 +270,18 @@ namespace UnityEssentials.Pooling
 		{
 			CheckDisposed();
 			int count = activePool.Count;
+			if (iterationCache.Length < count) iterationCache = new T[count];
 			activePool.CopyTo(iterationCache);
-			for (int i = 0; i < count; i++)
+			try
 			{
-				iterator(iterationCache[i]);
+				for (int i = 0; i < count; i++)
+				{
+					iterator(iterationCache[i]);
+				}
+			}
+			finally
+			{
+				Array.Clear(iterationCache, 0, count);
 			}
 		}
 
@@ -284,10 +292,18 @@ namespace UnityEssentials.Pooling
 		{
 			CheckDisposed();
 			int count = inactivePool.Count;
+			if (iterationCache.Length < count) iterationCache = new T[count];
 			inactivePool.CopyTo(iterationCache);
-			for (int i = 0; i < count; i++)
+			try
 			{
-				iterator(iterationCache[i]);
+				for (int i = 0; i < count; i++)
+				{
+					iterator(iterationCache[i]);
+				}
+			}
+			finally
+			{
+				Array.Clear(iterationCache, 0, count);
 			}
 		}
 
