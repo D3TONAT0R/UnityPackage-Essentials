@@ -2,7 +2,9 @@
 using System;
 using System.Reflection;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UnityEssentialsEditor.PropertyDrawers
 {
@@ -13,13 +15,44 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static GUIContent label = new GUIContent();
 
+		public override VisualElement CreatePropertyGUI(SerializedProperty property)
+		{
+			var attr = fieldInfo.GetCustomAttribute<CharRestrictionAttribute>(true);
+			var group = new VisualElement();
+			group.style.flexDirection = FlexDirection.Row;
+			var textField = new TextField(property.displayName);
+			textField.BindProperty(property);
+			textField.RegisterValueChangedCallback(evt =>
+			{
+				property.stringValue = ApplyRestrictions(evt.newValue, attr.allowedChars, attr.forcedCase, attr.replacementChar);
+				property.serializedObject.ApplyModifiedProperties();
+			});
+			group.Add(textField);
+			if (infoIcon == null) infoIcon = EditorGUIUtility.IconContent("d_Font Icon").image;
+			var info = new Image
+			{
+				image = infoIcon,
+				pickingMode = PickingMode.Ignore,
+				style = { flexGrow = 0, flexShrink = 0 },
+			};
+			info.style.maxHeight = EditorGUIUtility.singleLineHeight;
+			info.style.maxWidth = EditorGUIUtility.singleLineHeight;
+			info.tooltip = "The following characters are allowed:\n" + attr.allowedChars;
+			if(attr.forcedCase.HasValue)
+			{
+				info.tooltip += "\n" + (attr.forcedCase.Value ? "Uppercase" : "Lowercase") + " only.";
+			}
+			group.Add(info);
+			return group;
+		}
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent content)
 		{
 
 			var attr = fieldInfo.GetCustomAttribute<CharRestrictionAttribute>(true);
 			DrawRestrictedTextField(position, property, content, true, attr.allowedChars, attr.forcedCase, attr.replacementChar);
 		}
-
+		
 		public static void DrawRestrictedTextField(Rect position, SerializedProperty property, GUIContent content, bool showInfoIcon, string allowedChars, bool? forcedCase, char replacementChar)
 		{
 			try
