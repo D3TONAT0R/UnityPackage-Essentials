@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -9,6 +10,8 @@ namespace UnityEssentials
 	{
 		[ThreadStatic]
 		private static StringBuilder stringBuilder;
+
+		private static FieldInfo _fieldInfo = typeof(Exception).GetField("_message", BindingFlags.Instance | BindingFlags.NonPublic);
 
 		#region Numerics
 
@@ -90,9 +93,9 @@ namespace UnityEssentials
 		public static LayerMask GetCollisionLayerMask(this int layer)
 		{
 			int mask = 0;
-			for(int i = 0; i < 32; i++)
+			for (int i = 0; i < 32; i++)
 			{
-				if(!Physics.GetIgnoreLayerCollision(layer, i)) mask |= 1 << i;
+				if (!Physics.GetIgnoreLayerCollision(layer, i)) mask |= 1 << i;
 			}
 			return mask;
 		}
@@ -102,7 +105,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawOnRepaint(this GUIStyle s, Rect r)
 		{
-			if(Event.current.type == EventType.Repaint) s.Draw(r, false, false, false, false);
+			if (Event.current.type == EventType.Repaint) s.Draw(r, false, false, false, false);
 		}
 
 		/// <summary>
@@ -110,7 +113,7 @@ namespace UnityEssentials
 		/// </summary>
 		public static void DrawOnRepaint(this GUIStyle s, Rect r, bool isHover, bool isActive, bool on, bool hasKeyboardFocus)
 		{
-			if(Event.current.type == EventType.Repaint) s.Draw(r, isHover, isActive, on, hasKeyboardFocus);
+			if (Event.current.type == EventType.Repaint) s.Draw(r, isHover, isActive, on, hasKeyboardFocus);
 		}
 
 		/// <summary>
@@ -125,7 +128,7 @@ namespace UnityEssentials
 			seconds = Mathf.Abs(seconds);
 			string sec = (seconds % 60).ToString("D2");
 			string min = (hours ? seconds / 60 % 60 : seconds / 60).ToString("D2");
-			if(hours)
+			if (hours)
 			{
 				string hrs = (seconds / 3600).ToString("D2");
 				stringBuilder.Append(hrs);
@@ -142,19 +145,32 @@ namespace UnityEssentials
 		/// <summary>
 		/// Adds a custom error message to this exception.
 		/// </summary>
-		public static MessagedException AddMessage(this System.Exception e, string message)
+		public static Exception AddMessage(this Exception e, string message)
 		{
-			return new MessagedException(message, e);
+			AddMessageToException(ref e, message);
+			return e;
 		}
 
 		/// <summary>
-		/// Logs this exception with a custom error message.
+		/// Logs this exception with an optional custom error message.
 		/// </summary>
 		[System.Diagnostics.DebuggerHidden]
-		public static void LogException(this System.Exception e, string message = null, Object context = null)
+		public static void LogException(this Exception e, string message = null, Object context = null)
 		{
-			if(message != null) Debug.LogException(e.AddMessage(message), context);
+			if (message != null) Debug.LogException(e.AddMessage(message), context);
 			else Debug.LogException(e, context);
+		}
+
+		private static void AddMessageToException(ref Exception e, string message)
+		{
+			try
+			{
+				_fieldInfo.SetValue(e, message +": " + e.Message);
+			}
+			catch
+			{
+				e = new MessagedException(message, e);
+			}
 		}
 	}
 }
