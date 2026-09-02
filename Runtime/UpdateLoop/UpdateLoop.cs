@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
@@ -83,11 +84,13 @@ namespace UnityEssentials.PlayerLoop
 			}
 
 			public readonly string name;
-			public List<InvocationTarget> subscribers = new List<InvocationTarget>(256);
+			public readonly List<InvocationTarget> subscribers = new List<InvocationTarget>(256);
+			public readonly ProfilerMarker profilerMarker;
 
 			public InvocationList(string name)
 			{
 				this.name = name;
+				profilerMarker = new ProfilerMarker($"UpdateLoop.{name}");
 			}
 
 			public void Add(Action action, bool allowDuplicates = false)
@@ -312,7 +315,7 @@ namespace UnityEssentials.PlayerLoop
 			if (IsEditorPaused) return;
 			var enumerationCache = new List<InvocationList.InvocationTarget>(eventHandler.subscribers.Count);
 			eventHandler.EnumerateSubscribers(enumerationCache);
-			InvokeEnumeratedSubscribers(enumerationCache);
+			InvokeEnumeratedSubscribers(enumerationCache, eventHandler.profilerMarker);
 		}
 
 		private static void InvokeOnce(InvocationList eventHandler)
@@ -320,18 +323,21 @@ namespace UnityEssentials.PlayerLoop
 			if (IsEditorPaused) return;
 			var enumerationCache = new List<InvocationList.InvocationTarget>(eventHandler.subscribers.Count);
 			eventHandler.EnumerateSubscribers(enumerationCache);
-			InvokeEnumeratedSubscribers(enumerationCache);
+			InvokeEnumeratedSubscribers(enumerationCache, eventHandler.profilerMarker);
 			eventHandler.RemoveAll(true);
 		}
 
-		private static void InvokeEnumeratedSubscribers(List<InvocationList.InvocationTarget> enumerationCache)
+		private static void InvokeEnumeratedSubscribers(List<InvocationList.InvocationTarget> enumerationCache, ProfilerMarker marker)
 		{
 			int count = enumerationCache.Count;
 			for (int i = 0; i < count; i++)
 			{
 				try
 				{
-					enumerationCache[i].action.Invoke();
+					using(marker.Auto())
+					{
+						enumerationCache[i].action.Invoke();
+					}
 				}
 				catch (Exception e)
 				{
