@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UnityEssentials
 {
@@ -113,6 +114,58 @@ namespace UnityEssentials
 				}
 			}
 			Debug.Log(stringBuilder.ToString());
+		}
+
+		/// <summary>
+		/// Logs a verbose message to the console, with a boolean flag to enable or disable the message from being logged.
+		/// </summary>
+		public static void Verbose(string message, bool enabled, Object context = null)
+		{
+			if(!enabled) return;
+			Debug.Log($"<alpha=#80>{message}<alpha=#FF>", context);
+		}
+
+		/// <summary>
+		/// Logs a verbose message to the console.
+		/// </summary>
+		public static void Verbose(string message, Object context = null) => Verbose(message, true, context);
+		
+		/// <summary>
+		/// Logs a critical error message to the console, in red color.
+		/// </summary>
+		public static void Critical(string message, Object context = null, bool displayDialog = true)
+		{
+			Debug.LogError($"<b><color=#FF4040>{message}</color></b>", context);
+			if (displayDialog)
+			{
+#if UNITY_EDITOR
+				if (UnityEditor.EditorApplication.isPlaying)
+				{
+					if (DisplayEditorChoiceDialog("Critical Error Message", message, "Exit Play Mode", "Continue"))
+					{
+						UnityEditor.EditorApplication.isPlaying = false;
+					}
+				}
+				else
+				{
+					DisplayEditorDialog("Critical Error Message", message, "OK");
+				}
+#endif
+			}
+		}
+
+		public static void DisplayEditorDialog(string title, string message, string okButton = "OK")
+		{
+#if UNITY_EDITOR
+			UnityEditor.EditorUtility.DisplayDialog(title, message, okButton);
+#endif
+		}
+
+		public static bool DisplayEditorChoiceDialog(string title, string message, string okButton = "OK", string cancelButton = "Cancel")
+		{
+#if UNITY_EDITOR
+			return UnityEditor.EditorUtility.DisplayDialog(title, message, okButton, cancelButton);
+#endif
 		}
 	}
 }
