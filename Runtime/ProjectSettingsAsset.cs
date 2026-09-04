@@ -1,40 +1,36 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace UnityEssentials
 {
-	public abstract class ProjectSettingsAsset : ScriptableObject
+	public abstract class ProjectSettingsAsset<T> : ScriptableObject where T : ProjectSettingsAsset<T>
 	{
-		public abstract string ProjectAssetName { get; }
+		public static T Instance
+		{
+			get
+			{
+				if(!instance) instance = CreateInstance<T>();
+				return instance;
+			}
+		}
+		private static T instance;
+		
+		/// <summary>
+		/// The name of the asset file in the ProjectSettings folder without the .asset extension. This is used to determine the path to the asset file.
+		/// </summary>
+		public virtual string ProjectAssetName => typeof(T).Name;
 
+		/// <summary>
+		/// The full path to the asset file in the ProjectSettings folder, including the .asset extension.
+		/// </summary>
 		public string ProjectAssetPath => Path.Combine("ProjectSettings", ProjectAssetName + ".asset");
 
-		public static T CreateSettingsAsset<T>() where T : ProjectSettingsAsset
-		{
-			//Destroy existing instances
-			foreach(var obj in Resources.FindObjectsOfTypeAll<T>())
-			{
-				DestroyImmediate(obj);
-			}
-			var asset = CreateInstance<T>();
-			try
-			{
-				asset.Initialize();
-				asset.OnInitialize();
-			}
-			catch(System.Exception e)
-			{
-				e.LogException("Project settings asset initialization failed.");
-			}
-			return asset;
-		}
-
-		protected virtual void OnCreateNewSettings()
-		{
-
-		}
-
-		protected void Initialize()
+		/// <summary>
+		/// Called when the settings asset is initialized.
+		/// </summary>
+		protected void Awake()
 		{
 #if UNITY_EDITOR
 			if(!File.Exists(ProjectAssetPath))
@@ -46,33 +42,53 @@ namespace UnityEssentials
 			{
 				EditorLoad(File.ReadAllText(ProjectAssetPath));
 			}
+			Initialize();
 #endif
 		}
 
-		protected virtual void OnInitialize()
+		/// <summary>
+		/// Called when the settings asset was just created for the first time.
+		/// </summary>
+		protected virtual void OnCreateNewSettings()
 		{
-
 		}
 
-		protected virtual void Validate()
+		/// <summary>
+		/// Called when the settings asset is initialized.
+		/// </summary>
+		protected virtual void Initialize()
 		{
-
 		}
 
 #if UNITY_EDITOR
-
+		/// <summary>
+		/// Loads the settings from the specified JSON string. Called when the settings asset is loaded from disk.
+		/// </summary>
 		public virtual void EditorLoad(string json)
 		{
 			UnityEditor.EditorJsonUtility.FromJsonOverwrite(json, this);
 		}
 
+		/// <summary>
+		/// Called before the settings asset is serialized to JSON.
+		/// </summary>
+		protected virtual void OnBeforeEditorSerialize()
+		{
+		}
+
+		/// <summary>
+		/// Saves the settings asset to disk as a JSON file. Called when the settings asset is modified in the editor.
+		/// </summary>
 		public virtual void EditorSave()
 		{
-			Validate();
+			OnBeforeEditorSerialize();
 			string json = UnityEditor.EditorJsonUtility.ToJson(this, true);
 			File.WriteAllText(ProjectAssetPath, json);
 		}
 
+		/// <summary>
+		/// Draws the editor GUI for the settings asset.
+		/// </summary>
 		public virtual void DrawEditorGUI()
 		{
 			var obj = BeginEditorGUI();
@@ -80,13 +96,20 @@ namespace UnityEssentials
 			EndEditorGUI(obj);
 		}
 
-
+		/// <summary>
+		/// Begins the editor GUI for the settings asset and returns a SerializedObject for the asset.
+		/// </summary>
+		/// <returns></returns>
 		protected UnityEditor.SerializedObject BeginEditorGUI()
 		{
 			UnityEditor.EditorGUIUtility.labelWidth = 250;
 			return new UnityEditor.SerializedObject(this);
 		}
 
+		/// <summary>
+		/// Draws the properties of the settings asset in the editor GUI using the specified SerializedObject.
+		/// </summary>
+		/// <param name="obj"></param>
 		protected void DrawEditorProperties(UnityEditor.SerializedObject obj)
 		{
 			var prop = obj.GetIterator();
@@ -98,6 +121,9 @@ namespace UnityEssentials
 			}
 		}
 
+		/// <summary>
+		/// Ends the editor GUI for the settings asset and applies any modified properties to the asset. If any properties were modified, the asset is saved to disk.
+		/// </summary>
 		protected void EndEditorGUI(UnityEditor.SerializedObject obj)
 		{
 			if(obj.ApplyModifiedProperties())
@@ -105,7 +131,6 @@ namespace UnityEssentials
 				EditorSave();
 			}
 		}
-
 #endif
 	}
 }

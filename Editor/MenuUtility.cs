@@ -175,6 +175,13 @@ namespace UnityEssentialsEditor
 				EditorApplication.delayCall += () => EditorApplication.delayCall += ReorganizeAssetMenu;
 			}
 #endif
+			if (EssentialsProjectSettings.Instance.menuItemsToRemove != null)
+			{
+				foreach (var item in EssentialsProjectSettings.Instance.menuItemsToRemove)
+				{
+					if (!string.IsNullOrWhiteSpace(item)) RemoveMenuItem(item);
+				}
+			}
 		}
 
 #if !UNITY_6000_0_OR_NEWER

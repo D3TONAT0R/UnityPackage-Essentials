@@ -6,7 +6,7 @@ using UnityEssentials;
 
 namespace UnityEssentialsEditor
 {
-	public class EssentialsProjectSettings : ProjectSettingsAsset
+	public class EssentialsProjectSettings : ProjectSettingsAsset<EssentialsProjectSettings>
 	{
 		public enum InspectorMode
 		{
@@ -15,20 +15,7 @@ namespace UnityEssentialsEditor
 			AlwaysVisible
 		}
 
-		public override string ProjectAssetName => "EssentialsProjectSettings";
-
-		public static EssentialsProjectSettings Instance
-		{
-			get
-			{
-				if(instance == null) instance = CreateSettingsAsset<EssentialsProjectSettings>();
-				return instance;
-			}
-		}
-		private static EssentialsProjectSettings instance;
-
 		[Header("Scripts")]
-		
 		[Tooltip("If checked, the default script menu will be removed in favor of custom script templates.")]
 		public bool removeDefaultScriptMenu = true;
 		[Tooltip("If checked, all newly created scripts are placed in the namespace given below.")]
@@ -40,7 +27,6 @@ namespace UnityEssentialsEditor
 		public string[] additionalDefaultUsings = Array.Empty<string>();
 		
 		[Header("Menu Management", order = 0)]
-		
 		[HelpBox("Changing menu items may require a restart of the Unity Editor to take effect.", HelpBoxType.Info, order = 1)]
 		[SerializeField] private Null _; // Dummy holder for the above attributes
 		
@@ -55,14 +41,12 @@ namespace UnityEssentialsEditor
 		public string playmodeShortcutProfileName = "";
 
 		[Header("Transform Inspector")]
-		
 		[Tooltip("Specifies how extra properties are displayed in the Transform inspector.")]
 		public InspectorMode extraProperties = InspectorMode.Foldout;
 		[Tooltip("Specifies how the extra toolbar is displayed in the Transform inspector.")]
 		public InspectorMode toolbar = InspectorMode.Foldout;
 
 		[Header("Prefab Stage Utilities")]
-		
 		[Tooltip("Highlights the currently opened prefab in the project window.")]
 		public bool highlightOpenedPrefabInProjectWindow = true;
 		[Tooltip("Display a toolbar on top of the Scene View when editing a prefab.")]
@@ -100,17 +84,6 @@ namespace UnityEssentialsEditor
 		protected override void OnCreateNewSettings()
 		{
 			Debug.Log("Essentials: Creating new project settings asset.");
-		}
-
-		protected override void OnInitialize()
-		{
-			if(menuItemsToRemove != null)
-			{
-				foreach(var item in menuItemsToRemove)
-				{
-					if(!string.IsNullOrWhiteSpace(item)) MenuUtility.RemoveMenuItem(item);
-				}
-			}
 		}
 	}
 }
