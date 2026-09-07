@@ -62,6 +62,11 @@ namespace UnityEssentials
 			}
 		}
 
+		// Required constructor for Activator.CreateInstance()
+		private SceneReference()
+		{
+		}
+
 		/// <summary>
 		/// Creates a new scene reference from the given scene name.
 		/// </summary>

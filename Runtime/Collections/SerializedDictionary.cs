@@ -30,6 +30,8 @@ namespace UnityEssentials.Collections
 		/// </summary>
 		int Count { get; }
 
+		string DuplicatedKey { get; }
+		
 		Exception SerializationException { get; }
 		
 		bool UseMonospaceKeyLabels { get; }
@@ -86,7 +88,8 @@ namespace UnityEssentials.Collections
 		public virtual int Count => dictionary?.Count ?? -1;
 
 		public Exception SerializationException { get; private set; }
-		public bool Valid => SerializationException == null;
+		public string DuplicatedKey { get; private set; }
+		public bool Valid => SerializationException == null && DuplicatedKey == null;
 
 		public virtual bool UseMonospaceKeyLabels => true;
 
@@ -124,7 +127,7 @@ namespace UnityEssentials.Collections
 
 		public void OnBeforeSerialize()
 		{
-			if(dictionary != null)
+			if(dictionary != null && SerializationException != null)
 			{
 				serializedKeys.Clear();
 				serializedValues.Clear();
@@ -134,12 +137,12 @@ namespace UnityEssentials.Collections
 					serializedValues.Add(kv.Value);
 				}
 			}
-
 		}
 
 		public void OnAfterDeserialize()
 		{
 			SerializationException = null;
+			DuplicatedKey = null;
 			try
 			{
 				if(dictionary == null) dictionary = new Dictionary<K, V>();
@@ -166,10 +169,12 @@ namespace UnityEssentials.Collections
 							if(typeof(UnityEngine.Object).IsAssignableFrom(typeof(K)))
 							{
 								//Avoid using ToString to prevent an exception
+								DuplicatedKey = $"(Object at index {i})";
 								throw new ArgumentException($"Key has already been added to the dictionary (index {i})");
 							}
 							else
 							{
+								DuplicatedKey = serializedKeys[i]?.ToString() ?? "(null)";
 								throw new ArgumentException($"Key '{serializedKeys[i]}' has already been added to the dictionary (index {i})");
 							}
 						}
@@ -194,7 +199,7 @@ namespace UnityEssentials.Collections
 				e.LogException("Exception thrown while deserializing dictionary");
 #endif
 				SerializationException = e;
-				dictionary = new Dictionary<K, V>();
+				dictionary = null;
 			}
 		}
 	}

@@ -24,8 +24,6 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static GUIStyle indexStyle;
 
-		private CachedObject<ISerializedDictionary> target;
-
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			if(property.hasMultipleDifferentValues)
@@ -46,7 +44,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				indexStyle.normal.textColor = indexStyle.normal.textColor.MultiplyAlpha(0.4f);
 			}
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
-			var dictionary = target.Get(property);
+			var dictionary = property.GetValue<ISerializedDictionary>();
 			bool preferMonospaceKeys = dictionary.UseMonospaceKeyLabels;
 			var dictionaryType = dictionary.GetType();
 			var polymorphicAttr = dictionaryType.GetCustomAttribute<PolymorphicAttribute>();
@@ -79,7 +77,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				}
 			}
 			var exception = dictionary.SerializationException;
-			bool valid = exception == null;
+			bool valid = dictionary.Valid;
 			position.height = EditorGUIUtility.singleLineHeight;
 			var lColor = GUI.color;
 			if(!valid) GUI.color = errorColor;
@@ -120,10 +118,18 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			contextBtnPos.height = 16;
 			var headerLabelPos = headerPos;
 			headerLabelPos.xMin += EditorGUIUtility.labelWidth + 2;
+			if(dictionary.DuplicatedKey != null)
+			{
+				//Show error message
+				EditorGUI.HelpBox(headerLabelPos, $"Duplicate key: '{dictionary.DuplicatedKey}'", MessageType.Error);
+				//Tooltip
+				EditorGUI.LabelField(headerLabelPos, new GUIContent("", "Duplicate key: " + dictionary.DuplicatedKey));
+			}
+			else
 			if(exception != null)
 			{
 				//Show error message
-				EditorGUI.HelpBox(headerLabelPos, exception.Message, MessageType.None);
+				EditorGUI.HelpBox(headerLabelPos, exception.Message, MessageType.Error);
 				//Tooltip
 				EditorGUI.LabelField(headerLabelPos, new GUIContent("", exception.GetType().Name + "\n" + exception.Message));
 			}
@@ -276,24 +282,32 @@ namespace UnityEssentialsEditor.PropertyDrawers
 
 		private static void AddItem(SerializedProperty prop, Type valueType)
 		{
-			Undo.RecordObject(prop.serializedObject.targetObject, "Add Dictionary Element");
-			prop.serializedObject.Update();
-			var k = prop.FindPropertyRelative(KEYS_FIELD_NAME);
-			var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
-			k.arraySize++;
-			v.arraySize++;
-			prop.serializedObject.ApplyModifiedProperties();
-			var key = k.GetArrayElementAtIndex(k.arraySize - 1);
-			var keyValue = key.GetValue();
-			var isEnum = PropertyDrawerUtility.GetPropertyType(key).IsEnum;
-			var iList = (IList)k.GetValue();
-			//Skip unique key generation for enums since they are near impossible to generate unique keys for
-			var uniqueKey = (k.arraySize > 1 && !isEnum) ? GetUniqueKey(keyValue, iList) : keyValue;
-			PropertyDrawerUtility.SetPropertyValue(key, uniqueKey);
-			var value = v.GetArrayElementAtIndex(v.arraySize - 1);
-			var valueValue = CreateValueIfNeeded(valueType);
-			PropertyDrawerUtility.SetPropertyValue(value, valueValue);
-			prop.serializedObject.ApplyModifiedProperties();
+			try
+			{
+				Undo.RecordObject(prop.serializedObject.targetObject, "Add Dictionary Element");
+				// prop.serializedObject.Update();
+				var k = prop.FindPropertyRelative(KEYS_FIELD_NAME);
+				var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
+				k.InsertArrayElementAtIndex(k.arraySize);
+				v.InsertArrayElementAtIndex(v.arraySize);
+				// prop.serializedObject.ApplyModifiedProperties();
+				var keyType = PropertyDrawerUtility.GetElementType(k.GetType(), out _);
+				var key = k.GetArrayElementAtIndex(k.arraySize - 1);
+				var keyValue = key.GetValue();
+				var isEnum = keyType.IsEnum;// PropertyDrawerUtility.GetPropertyType(key).IsEnum;
+				var iList = (IList)k.GetValue();
+				//Skip unique key generation for enums since they are near impossible to generate unique keys for
+				var uniqueKey = (k.arraySize > 1 && !isEnum) ? GetUniqueKey(keyValue, iList) : keyValue;
+				PropertyDrawerUtility.SetPropertyValue(key, uniqueKey);
+				var value = v.GetArrayElementAtIndex(v.arraySize - 1);
+				var valueValue = CreateValueIfNeeded(valueType);
+				PropertyDrawerUtility.SetPropertyValue(value, valueValue);
+				prop.serializedObject.ApplyModifiedProperties();
+			}
+			catch(Exception e)
+			{
+				e.LogException("Failed to add dictionary element", prop.serializedObject.targetObject);
+			}
 		}
 
 		private static object CreateValueIfNeeded(Type type)
@@ -308,7 +322,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
-				return Activator.CreateInstance(type);
+				return Activator.CreateInstance(type, true);
 			}
 		}
 
@@ -373,15 +387,21 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				return ObjectNames.GetUniqueName(((List<string>)_keys).ToArray(), s);
 			}
+			else if (key is Enum e)
+			{
+				var enums = (IList<Enum>)_keys;
+				while(enums.Contains(e)) e = (Enum)Enum.ToObject(e.GetType(), Convert.ToInt32(e) + 1);
+				return e;
+			}
 			else if(key is int i)
 			{
-				var ints = (List<int>)_keys;
+				var ints = (IList<int>)_keys;
 				while(ints.Contains(i)) i++;
 				return i;
 			}
 			else if(key is float f)
 			{
-				var floats = (List<float>)_keys;
+				var floats = (IList<float>)_keys;
 				while(floats.Contains(f)) f++;
 				return f;
 			}

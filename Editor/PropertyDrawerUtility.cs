@@ -165,6 +165,7 @@ namespace UnityEssentialsEditor
 					{
 						//It's a List
 						var indexer = GetIndexer(obj.GetType());
+						Debug.Log(index);
 						obj = indexer.GetGetMethod().Invoke(obj, new object[] { index });
 						parentType = parentType.GenericTypeArguments[0];
 					}
