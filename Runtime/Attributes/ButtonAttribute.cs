@@ -70,7 +70,7 @@ namespace UnityEssentials
 				{
 					if (!call.Contains(")"))
 					{
-						Debug.LogError($"Malformed method call detected in ButtonAttribute: {buttonParams[i]}");
+						// Debug.LogError($"Malformed method call detected in ButtonAttribute: {buttonParams[i]}");
 						button.methodName = null;
 						button.arguments = Array.Empty<string>();
 					}
