@@ -77,7 +77,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				}
 			}
 			var exception = dictionary.SerializationException;
-			bool valid = dictionary.Valid;
+			bool valid = dictionary.IsValid;
 			position.height = EditorGUIUtility.singleLineHeight;
 			var lColor = GUI.color;
 			if(!valid) GUI.color = errorColor;
@@ -288,20 +288,20 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				// prop.serializedObject.Update();
 				var k = prop.FindPropertyRelative(KEYS_FIELD_NAME);
 				var v = prop.FindPropertyRelative(VALUES_FIELD_NAME);
-				k.InsertArrayElementAtIndex(k.arraySize);
-				v.InsertArrayElementAtIndex(v.arraySize);
+				k.arraySize++;
+				v.arraySize++;
+				// k.InsertArrayElementAtIndex(k.arraySize);
+				// v.InsertArrayElementAtIndex(v.arraySize);
 				// prop.serializedObject.ApplyModifiedProperties();
-				var keyType = PropertyDrawerUtility.GetElementType(k.GetType(), out _);
+				var keyType = PropertyDrawerUtility.GetElementType(k.GetValueType(), out _);
 				var key = k.GetArrayElementAtIndex(k.arraySize - 1);
 				var keyValue = key.GetValue();
-				var isEnum = keyType.IsEnum;// PropertyDrawerUtility.GetPropertyType(key).IsEnum;
 				var iList = (IList)k.GetValue();
 				//Skip unique key generation for enums since they are near impossible to generate unique keys for
-				var uniqueKey = (k.arraySize > 1 && !isEnum) ? GetUniqueKey(keyValue, iList) : keyValue;
+				var uniqueKey = k.arraySize > 1 ? GetUniqueKey(keyValue, keyType, iList) : keyValue;
 				PropertyDrawerUtility.SetPropertyValue(key, uniqueKey);
 				var value = v.GetArrayElementAtIndex(v.arraySize - 1);
-				var valueValue = CreateValueIfNeeded(valueType);
-				PropertyDrawerUtility.SetPropertyValue(value, valueValue);
+				CreateNewValue(value, valueType);
 				prop.serializedObject.ApplyModifiedProperties();
 			}
 			catch(Exception e)
@@ -310,19 +310,20 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 		}
 
-		private static object CreateValueIfNeeded(Type type)
+		private static void CreateNewValue(SerializedProperty value, Type type)
 		{
-			if(type == typeof(string))
+			if(value.propertyType == SerializedPropertyType.ManagedReference || value.propertyType == SerializedPropertyType.Generic)
 			{
-				return "";
-			}
-			if(typeof(UnityEngine.Object).IsAssignableFrom(type))
-			{
-				return null;
-			}
-			else
-			{
-				return Activator.CreateInstance(type, true);
+				try
+				{
+					var json = JsonUtility.ToJson(value.GetValue());
+					var instance = JsonUtility.FromJson(json, type);
+					value.SetValue(instance);
+				}
+				catch (Exception e)
+				{
+					e.LogException();
+				}
 			}
 		}
 
@@ -380,28 +381,45 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			return typeName;
 		}
 
-		private static object GetUniqueKey(object key, IList _keys)
+		private static object GetUniqueKey(object key, Type type, IList _keys)
 		{
+			if (key == null) return null;
 			if(_keys.Count == 0) return key;
 			if(key is string s)
 			{
 				return ObjectNames.GetUniqueName(((List<string>)_keys).ToArray(), s);
 			}
-			else if (key is Enum e)
+			else if (type.IsEnum)
 			{
-				var enums = (IList<Enum>)_keys;
-				while(enums.Contains(e)) e = (Enum)Enum.ToObject(e.GetType(), Convert.ToInt32(e) + 1);
+				var e = key;
+				int attempts = 0;
+				var enumValues = Enum.GetValues(type);
+				int index = Array.IndexOf(enumValues, Enum.ToObject(type, e));
+				while(ContainsEnumValue(_keys, e) && attempts < enumValues.Length)
+				{
+					index++;
+					index %= enumValues.Length;
+					e = enumValues.GetValue(index);
+					attempts++;
+				}
+				if(attempts > enumValues.Length)
+				{
+					Debug.LogWarning($"Unable to find unique enum key for {e.GetType().Name}, returning original key.");
+					return key;
+				}
 				return e;
 			}
-			else if(key is int i)
+			else if(type == typeof(int))
 			{
 				var ints = (IList<int>)_keys;
+				var i = (int)key;
 				while(ints.Contains(i)) i++;
 				return i;
 			}
-			else if(key is float f)
+			else if(type == typeof(float))
 			{
 				var floats = (IList<float>)_keys;
+				var f = (float)key;
 				while(floats.Contains(f)) f++;
 				return f;
 			}
@@ -410,6 +428,19 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				//Unable to create unique key for this type
 				return key;
 			}
+		}
+
+		private static bool ContainsEnumValue(IList list, object value)
+		{
+			int valueInt = Convert.ToInt32(value);
+			foreach (var item in list)
+			{
+				if (Convert.ToInt32(item) == valueInt)
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

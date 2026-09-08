@@ -199,6 +199,7 @@ namespace UnityEssentials
 
 		private void EditorResolve()
 		{
+			Debug.Log("resolving "+ (sceneAsset ? sceneAsset.name : "null"));
 			if (sceneAsset)
 			{
 				sceneName = sceneAsset.name;

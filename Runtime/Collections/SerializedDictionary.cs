@@ -13,7 +13,7 @@ namespace UnityEssentials.Collections
 		/// <summary>
 		/// Returns true if the contents of the dictionary are valid.
 		/// </summary>
-		bool Valid { get; }
+		bool IsValid { get; }
 
 		/// <summary>
 		/// The type of the keys in the dictionary.
@@ -89,7 +89,7 @@ namespace UnityEssentials.Collections
 
 		public Exception SerializationException { get; private set; }
 		public string DuplicatedKey { get; private set; }
-		public bool Valid => SerializationException == null && DuplicatedKey == null;
+		public bool IsValid => SerializationException == null && DuplicatedKey == null;
 
 		public virtual bool UseMonospaceKeyLabels => true;
 
