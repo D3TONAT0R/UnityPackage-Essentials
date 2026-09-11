@@ -318,6 +318,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				{
 					var json = JsonUtility.ToJson(value.GetValue());
 					var instance = JsonUtility.FromJson(json, type);
+					if(instance == null) instance = Activator.CreateInstance(type, true);
 					value.SetValue(instance);
 				}
 				catch (Exception e)

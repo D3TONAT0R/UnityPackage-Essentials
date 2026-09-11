@@ -83,15 +83,24 @@ namespace UnityEssentials.Collections
 
 		public Type KeyType => typeof(K);
 		public Type ValueType => typeof(V);
-		public virtual Dictionary<K, V>.KeyCollection Keys => dictionary?.Keys;
-		public virtual Dictionary<K, V>.ValueCollection Values => dictionary?.Values;
-		public virtual int Count => dictionary?.Count ?? -1;
+		public virtual Dictionary<K, V>.KeyCollection Keys => Dictionary?.Keys;
+		public virtual Dictionary<K, V>.ValueCollection Values => Dictionary?.Values;
+		public virtual int Count => Dictionary?.Count ?? -1;
 
 		public Exception SerializationException { get; private set; }
 		public string DuplicatedKey { get; private set; }
 		public bool IsValid => SerializationException == null && DuplicatedKey == null;
 
 		public virtual bool UseMonospaceKeyLabels => true;
+
+		private Dictionary<K, V> Dictionary
+		{
+			get
+			{
+				if(dictionary == null) OnAfterDeserialize();
+				return dictionary;
+			}
+		}
 
 		public SerializedDictionary()
 		{
@@ -110,8 +119,8 @@ namespace UnityEssentials.Collections
 
 		public virtual V this[K key]
 		{
-			get => dictionary[key];
-			set => dictionary[key] = value;
+			get => Dictionary[key];
+			set => Dictionary[key] = value;
 		}
 
 		public virtual void Add(K key, V value) => dictionary.Add(key, value);
