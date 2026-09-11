@@ -8,19 +8,12 @@ namespace UnityEssentialsEditor
 	[CustomPropertyDrawer(typeof(SceneReference))]
 	internal class SceneReferenceDrawer : PropertyDrawer
 	{
+		private GUIContent errorIcon;
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var buildIndex = GetBuildIndex(property);
-			if(buildIndex == -1)
-			{
-				var boxRect = position;
-				boxRect.height = 2 * EditorGUIUtility.singleLineHeight;
-				boxRect.xMin += EditorGUIUtility.labelWidth + 1;
-				EditorGUI.HelpBox(boxRect, "Scene is not in build settings.", MessageType.Error);
-				position.y += boxRect.height + EditorGUIUtility.standardVerticalSpacing;
-				position.height = EditorGUIUtility.singleLineHeight;
-			}
-			position.SplitHorizontalRight(60, out position, out var indexRect, 2);
+			position.SplitHorizontalRight(20, out position, out var indexRect, 2);
 			EditorGUI.BeginChangeCheck();
 			try
 			{
@@ -30,9 +23,9 @@ namespace UnityEssentialsEditor
 			{
 				//Ignore exit gui exceptions
 			}
+			var scene = property.FindPropertyRelative("sceneAsset").objectReferenceValue as SceneAsset;
 			if(EditorGUI.EndChangeCheck())
 			{
-				var scene = property.FindPropertyRelative("sceneAsset").objectReferenceValue as SceneAsset;
 				var nameProp = property.FindPropertyRelative("sceneName");
 				var indexProp = property.FindPropertyRelative("buildIndex");
 				if(scene)
@@ -48,16 +41,22 @@ namespace UnityEssentialsEditor
 				}
 				property.serializedObject.ApplyModifiedProperties();
 			}
-			GUI.Box(indexRect, "Index: " + ((buildIndex.HasValue && buildIndex >= 0) ? buildIndex.Value.ToString() : "N/A"), EditorStyles.helpBox);
-		}
-
-		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-		{
-			if(GetBuildIndex(property) == -1)
+			if (scene != null)
 			{
-				return base.GetPropertyHeight(property, label) + 2 * EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+				if (buildIndex >= 0)
+				{
+					GUI.Box(indexRect, (buildIndex.HasValue && buildIndex >= 0) ? "#" + buildIndex.Value : "-", EditorStyles.centeredGreyMiniLabel);
+				}
+				else
+				{
+					if (errorIcon == null)
+					{
+						errorIcon = EditorGUIUtility.IconContent("d_console.erroricon.sml");
+						errorIcon.tooltip = "Scene is not in build settings";
+					}
+					GUI.Label(indexRect, errorIcon);
+				}
 			}
-			return base.GetPropertyHeight(property, label);
 		}
 
 		private int? GetBuildIndex(SerializedProperty property)

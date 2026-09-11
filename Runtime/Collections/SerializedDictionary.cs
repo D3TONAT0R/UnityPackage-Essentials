@@ -136,6 +136,20 @@ namespace UnityEssentials.Collections
 
 		public void OnBeforeSerialize()
 		{
+			foreach (var k in serializedKeys)
+			{
+				if(k is ISerializationCallbackReceiver r)
+				{
+					r.OnBeforeSerialize();
+				}
+			}
+			foreach (var v in serializedValues)
+			{
+				if(v is ISerializationCallbackReceiver r)
+				{
+					r.OnBeforeSerialize();
+				}
+			}
 			if(dictionary != null && SerializationException != null)
 			{
 				serializedKeys.Clear();
@@ -209,6 +223,20 @@ namespace UnityEssentials.Collections
 #endif
 				SerializationException = e;
 				dictionary = null;
+			}
+			foreach (var k in serializedKeys)
+			{
+				if(k is ISerializationCallbackReceiver r)
+				{
+					r.OnAfterDeserialize();
+				}
+			}
+			foreach (var v in serializedValues)
+			{
+				if(v is ISerializationCallbackReceiver r)
+				{
+					r.OnAfterDeserialize();
+				}
 			}
 		}
 	}

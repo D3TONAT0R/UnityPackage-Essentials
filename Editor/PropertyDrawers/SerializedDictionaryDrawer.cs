@@ -199,51 +199,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var lColor = GUI.color;
 			if(duplicates.Contains(k)) GUI.color = errorColor;
 
-			var indexRect = keyRect;
-			indexRect = EditorGUI.IndentedRect(indexRect);
-			indexRect.xMin -= 27;
-			indexRect.width = 25;
-			GUI.Label(indexRect, i.ToString(), indexStyle);
-
-#if UNITY_2022_1_OR_NEWER
-			if(k.propertyType == SerializedPropertyType.ManagedReference || k.propertyType == SerializedPropertyType.Generic)
-#else
-			if(k.propertyType == SerializedPropertyType.ManagedReference)
-#endif
-			{
-				EditorGUI.PropertyField(keyRect, k, GUIContent.none, false);
-			}
-			else
-			{
-				PropertyDrawerUtility.DrawPropertyDirect(keyRect, GUIContent.none, k, preferMonospaceKeys);
-			}
+			DrawKeyProperty(preferMonospaceKeys, i, k, keyRect);
 
 			GUI.color = lColor;
-
 			EditorGUI.indentLevel = 0;
-			//TODO: currently only supports the first visible property
-			v.isExpanded = true;
-			if(v.hasVisibleChildren && v.propertyType == SerializedPropertyType.ManagedReference) v.NextVisible(true);
-			if(v.propertyType == SerializedPropertyType.ManagedReference && v.GetValue() == null)
-			{
-				GUI.Label(valueRect, "(null)");
-			}
-			else
-			{
-				valueRect.xMin -= 4;
-				var lLW = EditorGUIUtility.labelWidth;
-				EditorGUIUtility.labelWidth = 4;
-				var content = new GUIContent(" ");
-				if(v.type == "Vector4")
-				{
-					v.vector4Value = EditorGUI.Vector4Field(valueRect, content, v.vector4Value);
-				}
-				else
-				{
-					EditorGUI.PropertyField(valueRect, v, content, false);
-				}
-				EditorGUIUtility.labelWidth = lLW;
-			}
+			
+			DrawValueProperty(v, valueRect);
+
 			EditorGUI.indentLevel = indentLevel;
 
 			btnRect.height = 16;
@@ -278,6 +240,71 @@ namespace UnityEssentialsEditor.PropertyDrawers
 				});
 				menu.ShowAsContext();
 			}
+		}
+
+		private static void DrawKeyProperty(bool preferMonospaceKeys, int i, SerializedProperty k, Rect pos)
+		{
+			var indexRect = pos;
+			indexRect = EditorGUI.IndentedRect(indexRect);
+			indexRect.xMin -= 27;
+			indexRect.width = 25;
+			GUI.Label(indexRect, i.ToString(), indexStyle);
+
+#if UNITY_2022_1_OR_NEWER
+			if(k.propertyType == SerializedPropertyType.ManagedReference || k.propertyType == SerializedPropertyType.Generic)
+#else
+			if(k.propertyType == SerializedPropertyType.ManagedReference)
+#endif
+			{
+				EditorGUI.PropertyField(pos, k, GUIContent.none, false);
+			}
+			else
+			{
+				PropertyDrawerUtility.DrawPropertyDirect(pos, GUIContent.none, k, preferMonospaceKeys);
+			}
+		}
+
+		private static void DrawValueProperty(SerializedProperty v, Rect pos)
+		{
+#if UNITY_2022_1_OR_NEWER
+			if(v.propertyType == SerializedPropertyType.ManagedReference || v.propertyType == SerializedPropertyType.Generic)
+#else
+			if(v.propertyType == SerializedPropertyType.ManagedReference)
+#endif
+			{
+				EditorGUI.PropertyField(pos, v, GUIContent.none, false);
+			}
+			else
+			{
+				PropertyDrawerUtility.DrawPropertyDirect(pos, GUIContent.none, v);
+			}
+			//TODO: this doesn't work with ISerializationCallbackReceiver
+			//TODO: currently only supports the first visible property
+			/*
+			v.isExpanded = true;
+			var rootValue = v.GetValue();
+			if(v.hasVisibleChildren && v.propertyType == SerializedPropertyType.ManagedReference) v.NextVisible(true);
+			if(v.propertyType == SerializedPropertyType.ManagedReference)
+			{
+				if(rootValue == null) GUI.Label(pos, "(null)");
+			}
+			else
+			{
+				pos.xMin -= 4;
+				var lLW = EditorGUIUtility.labelWidth;
+				EditorGUIUtility.labelWidth = 4;
+				var content = new GUIContent(" ");
+				if(v.type == "Vector4")
+				{
+					v.vector4Value = EditorGUI.Vector4Field(pos, content, v.vector4Value);
+				}
+				else
+				{
+					EditorGUI.PropertyField(pos, v, content, false);
+				}
+				EditorGUIUtility.labelWidth = lLW;
+			}
+			*/
 		}
 
 		private static void AddItem(SerializedProperty prop, Type valueType)
