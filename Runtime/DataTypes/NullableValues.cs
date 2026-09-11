@@ -349,4 +349,25 @@ namespace UnityEssentials
 
 		public NullableColor32(bool hasValue, Color32 startValue) : base(hasValue, startValue) { }
 	}
+	
+	/// <summary>
+	/// A nullable enum value that can be serialized.
+	/// </summary>
+	[Serializable]
+	public class NullableEnum<T> : NullableValue<T> where T : struct, Enum
+	{
+		public NullableEnum() : base(default(T)) { }
+
+		public NullableEnum(T? value) : base(value) { }
+
+		public static implicit operator NullableEnum<T>(T? value)
+		{
+			return new NullableEnum<T>(value);
+		}
+
+		public static implicit operator T(NullableEnum<T> nullableEnum)
+		{
+			return nullableEnum.Value;
+		}
+	}
 }
