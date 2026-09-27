@@ -165,6 +165,8 @@ namespace UnityEssentials
 		{
 #if UNITY_EDITOR
 			return UnityEditor.EditorUtility.DisplayDialog(title, message, okButton, cancelButton);
+#else
+			return false;
 #endif
 		}
 	}
