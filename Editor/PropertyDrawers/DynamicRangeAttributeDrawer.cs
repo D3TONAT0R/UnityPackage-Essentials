@@ -36,8 +36,8 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			}
 			else
 			{
-				var value = (float)property.intValue;
-				value = EditorGUI.Slider(position, label, value, min, max);
+				var value = property.intValue;
+				value = EditorGUI.IntSlider(position, label, value, (int)min, (int)max);
 				if (EditorGUI.EndChangeCheck()) property.intValue = (int)value;
 			}
 			EditorGUI.EndProperty();
@@ -46,8 +46,13 @@ namespace UnityEssentialsEditor.PropertyDrawers
 		private float GetLimitValue(object source, string propertyName, float value)
 		{
 			if (string.IsNullOrEmpty(propertyName)) return value;
-			var member = source.GetType().GetMember(propertyName)[0];
-			var v = ReflectionUtility.GetMemberValue(member, source);
+			var members = source.GetType().GetMember(propertyName, ReflectionUtility.ALL_BINDING_FLAGS);
+			if(members.Length == 0)
+			{
+				Debug.LogError($"DynamicRangeAttribute: Could not find member '{propertyName}' on object of type '{source.GetType().Name}'");
+				return value;
+			}
+			var v = ReflectionUtility.GetMemberValue(members[0], source);
 			return Convert.ToSingle(v);
 		}
 	}
