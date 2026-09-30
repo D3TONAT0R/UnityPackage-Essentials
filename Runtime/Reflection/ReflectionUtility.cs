@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -166,6 +167,10 @@ namespace UnityEssentials.Reflection
 			{
 				var assembly = Assembly.Load(name);
 				assemblyList.Add(assembly);
+			}
+			catch (FileNotFoundException)
+			{
+				// Ignore this exception
 			}
 			catch (Exception e)
 			{
