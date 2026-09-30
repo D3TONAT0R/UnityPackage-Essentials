@@ -5,12 +5,20 @@ using Object = UnityEngine.Object;
 namespace UnityEssentials
 {
 	/// <summary>
+	/// Base, non-generic interface for a reference to a Unity Object.
+	/// </summary>
+	public interface IObjectReference
+	{
+		Object ValueObject { get; }
+	}
+	
+	/// <summary>
 	/// A struct that can hold a reference to a Unity Object of type T, which can be a Component, ScriptableObject,
 	/// or a class or interface inherited by any MonoBehaviours.
 	/// </summary>
 	/// <typeparam name="T">The type constraint to use for the object picker in the inspector.</typeparam>
 	[System.Serializable]
-	public struct ObjectReference<T> where T : class // Constraint must be 'class' instead of 'Object' to allow for interface types
+	public struct ObjectReference<T> : IObjectReference where T : class // Constraint must be 'class' instead of 'Object' to allow for interface types
 	{
 		[SerializeField]
 		private Object objectRef;
@@ -34,6 +42,11 @@ namespace UnityEssentials
 		/// Returns the object reference as type T.
 		/// </summary>
 		public T Value => objectRef as T;
+		
+		/// <summary>
+		/// Returns the object reference as a UnityEngine.Object.
+		/// </summary>
+		public Object ValueObject => objectRef;
 		
 		/// <summary>
 		/// The game object this object is attached to. If the reference is not a Component, returns null.

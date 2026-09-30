@@ -11,6 +11,9 @@ namespace UnityEssentials
 	{
 		public bool errorIfNull = true;
 		public Type[] components;
+		public bool ignoreInPrefabs = false;
+		public bool tolerateWhitespaceStrings = true;
+		public bool tolerateNegativeValues = true;
 
 		public RequiredAttribute(params Type[] requiredComponents)
 		{
