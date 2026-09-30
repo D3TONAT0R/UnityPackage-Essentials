@@ -24,7 +24,15 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			var listProp = property.FindPropertyRelative(nameof(PolymorphicList<object>.list));
 			CheckForDuplicates(listProp);
 			EditorGUI.BeginProperty(position, GUIContent.none, property);
-			var target = property.GetValue();
+			if (listProp == null)
+			{
+				var v = property.GetValueType();
+				var listField = v.GetField(nameof(PolymorphicList<object>.list), BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				var listElementType = listField.FieldType.GenericTypeArguments[0];
+				Debug.LogError($"PolymorphicListDrawer: The base list type ({listElementType.Name}) must be marked with [System.Serializable]", property.serializedObject.targetObject);
+				return;
+			}
+			object target = property.GetValue();
 			var baseType = target.GetType();
 			var polymorphicAttr = baseType.GetCustomAttribute<PolymorphicAttribute>();
 			bool polymorphic = polymorphicAttr != null;
@@ -158,6 +166,7 @@ namespace UnityEssentialsEditor.PropertyDrawers
 			{
 				float h = 2 * (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
 				var listProp = property.FindPropertyRelative(nameof(PolymorphicList<object>.list));
+				if (listProp == null) return h;
 				for(int i = 0; i < listProp.arraySize; i++)
 				{
 					h += EditorGUI.GetPropertyHeight(listProp.GetArrayElementAtIndex(i)) + EditorGUIUtility.standardVerticalSpacing;
